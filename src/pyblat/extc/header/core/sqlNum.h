@@ -80,4 +80,3 @@ double sqlDoubleInList(char **pS);
  * Returns the position of the delimiter or the terminating 0. */
 
 #endif /* SQLNUM_H */
-

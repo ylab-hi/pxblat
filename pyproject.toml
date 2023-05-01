@@ -17,7 +17,7 @@ extend-ignore = ["E501"]
 
 
 [tool.poetry.scripts]
-pyblatu = "pyblat.extc.update:main"
+pyblatu = "pyblat.extc.update:cli"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
@@ -25,6 +25,7 @@ pytest-sugar = "^0.9.7"
 pybind11 = "^2.10.4"
 black = "^23.3.0"
 ruff = "^0.0.263"
+ipython = "^8.13.1"
 
 [build-system]
 requires = ["poetry-core"]
