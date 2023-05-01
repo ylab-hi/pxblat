@@ -1,0 +1,40 @@
+.mypy_cache/
+/.coverage
+/.coverage.*
+/.nox/
+/.python-version
+/.pytype/
+/dist/
+/data/
+/build/
+/docs/_build/
+/src/*.egg-info/
+__pycache__/
+
+# editor
+profile/
+.idea/
+.run/
+
+#cmake
+/cmake-build*/
+# jupyter notebook
+*.ipynb
+# bam
+*.sam
+# debug reprot
+/debuglog/
+.DS*
+
+# profile file
+*.pstat
+
+
+# c++
+*.o
+*.so
+main.cpp
+
+
+kent
+bin
