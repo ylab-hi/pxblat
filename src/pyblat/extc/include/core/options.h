@@ -9,23 +9,25 @@
 #include "common.h"
 
 /* Types for options */
-#define OPTION_BOOLEAN    0x01
-#define OPTION_STRING     0x02
-#define OPTION_INT        0x04
-#define OPTION_FLOAT      0x10
-#define OPTION_LONG_LONG  0x20
-#define OPTION_MULTI      0x40
-#define OPTION_DOUBLE	  0x80
+#define OPTION_BOOLEAN 0x01
+#define OPTION_STRING 0x02
+#define OPTION_INT 0x04
+#define OPTION_FLOAT 0x10
+#define OPTION_LONG_LONG 0x20
+#define OPTION_MULTI 0x40
+#define OPTION_DOUBLE 0x80
 
 /* Mask for option types (excluding OPTION_MULTI) */
-#define OPTION_TYPE_MASK (OPTION_BOOLEAN|OPTION_STRING|OPTION_INT|OPTION_FLOAT|OPTION_LONG_LONG|OPTION_DOUBLE)
+#define OPTION_TYPE_MASK                                                       \
+  (OPTION_BOOLEAN | OPTION_STRING | OPTION_INT | OPTION_FLOAT |                \
+   OPTION_LONG_LONG | OPTION_DOUBLE)
 
 struct optionSpec
 /* Specification of a single option.  An array of these are passed
  * to optionInit() to validate options. */
 {
-    char *name;      /* option name */
-    unsigned flags;  /* Flags for option, specifies types */
+  char *name;     /* option name */
+  unsigned flags; /* Flags for option, specifies types */
 };
 
 char *optionVal(char *name, char *defaultVal);
@@ -43,7 +45,8 @@ float optionFloat(char *name, float defaultVal);
 /* Return floating point value or default value if not set. */
 
 struct slName *optionMultiVal(char *name, struct slName *defaultVal);
-/* Returns a list of the values assocated with a named option if in options hash, otherwise default. */
+/* Returns a list of the values assocated with a named option if in options
+ * hash, otherwise default. */
 
 double optionDouble(char *name, double defaultVal);
 /* Return double value or default value if not set */
@@ -90,8 +93,10 @@ void optionHashSome(int *pArgc, char *argv[], boolean justFirst);
 struct hash *optionParseIntoHash(int *pArgc, char *argv[], boolean justFirst);
 /* Read options in argc/argv into a hash of your own choosing. */
 
-struct hash *optionParseIntoHashExceptNumbers(int *pArgc, char *argv[], boolean justFirst);
-/* Read options in argc/argv into a hash (except negative numbers) of your own choosing. */
+struct hash *optionParseIntoHashExceptNumbers(int *pArgc, char *argv[],
+                                              boolean justFirst);
+/* Read options in argc/argv into a hash (except negative numbers) of your own
+ * choosing. */
 
 void optionFree();
 /* free the option hash */

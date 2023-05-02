@@ -43,3 +43,36 @@ format: ## Run pre-commit hooks
 
 install: ## install the lib
 	poetry install
+
+clangd:
+	bear -- make all_bin
+
+
+clean-bind: ## clean previous binding directory
+	rm -rf bindings && mkdir bindings
+
+
+
+
+SOURCE := utils
+BLOCK := arm sse emm
+NAMESPACE := StripedSmithWaterman
+INCLUDE := src/mssw/src
+
+
+all_include: ## make all include files into all_include.hpp
+	python ${SOURCE}/generate_headers.py ${INCLUDE} ${BLOCK}
+
+
+bind:  clean-bind  all_include ## make bindings for python
+	#https://cppbinder.readthedocs.io/en/latest/config.html
+	docker run -it --rm -v `pwd`:/bind yangliz5/binder:1.0.1 \
+	  binder --root-module _cpp \
+	  --prefix /bind/bindings \
+	  --bind ${NAMESPACE} \
+	  /bind/all_includes.hpp \
+	  -- -std=c++17 -I/bind/${INCLUDE} \
+	  -I/usr/include \
+	  -DMY_PROJECT_DEFINE -DNDEBUG
+
+	 echo "Binding Cpp to python"

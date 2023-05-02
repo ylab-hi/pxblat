@@ -38,3 +38,5 @@ main.cpp
 
 kent
 bin
+compile_commands.json
+.cache
