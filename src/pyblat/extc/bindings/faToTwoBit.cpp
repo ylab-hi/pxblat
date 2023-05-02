@@ -1,4 +1,4 @@
-#include "cfaToTwoBit.hpp"
+#include "faToTwoBit.hpp"
 
 void unknownToN(char *s, int size)
 /* Convert non ACGT characters to N. */
