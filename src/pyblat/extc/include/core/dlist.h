@@ -6,6 +6,10 @@
 #ifndef DLIST_H
 #define DLIST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef COMMON_H
 #include "common.h"
 #endif
@@ -132,5 +136,12 @@ void dlCat(struct dlList *a, struct dlList *b);
 
 struct dlNode *dlValInList(struct dlList *list, void *val);
 /* Return node on list if any that has associated val. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* DLIST_H */

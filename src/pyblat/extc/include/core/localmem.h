@@ -10,6 +10,10 @@
 #ifndef LOCALMEM_H
 #define LOCALMEM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct lm *lmInit(int blockSize);
 /* Create a local memory pool. Parameters are:
  *      blockSize - how much system memory to allocate at a time.  Can
@@ -91,5 +95,13 @@ void lmRefAdd(struct lm *lm, struct slRef **pRefList, void *val);
 
 char *lmJoinStrings(struct lm *lm, char *a, char *b);
 /* Return concatenation of a and b allocated in lm */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif//ndef LOCALMEM_H

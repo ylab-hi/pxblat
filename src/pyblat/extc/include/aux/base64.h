@@ -6,6 +6,14 @@
 
 #define B64CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
 char *base64Encode(char *input, size_t inplen);
 /* Use base64 to encode a string.  Returns one long encoded
  * string which need to be freeMem'd. Note: big-endian algorithm.
@@ -25,5 +33,14 @@ char *base64Decode(char *input, size_t *returnSize);
  * before passing in input if needed.
  * Optionally set retun size for use with binary data.
  */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 
 #endif /* BASE64_H */

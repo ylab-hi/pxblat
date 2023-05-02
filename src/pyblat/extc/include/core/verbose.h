@@ -4,6 +4,12 @@
 #ifndef VERBOSE_H
 #define VERBOSE_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 void verbose(int verbosity, char *format, ...)
 /* Write printf formatted message to log (which by
  * default is stderr) if global verbose variable
@@ -51,5 +57,13 @@ FILE *verboseLogFile();
 
 void verboseCgi(char *level);
 /* Set verbosity level for a CGI: if level is not NULL, set output file to stdout, set verbosity and print a content-type header */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* VERBOSE_H */

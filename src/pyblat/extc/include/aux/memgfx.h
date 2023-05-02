@@ -9,6 +9,14 @@
 #ifndef MEMGFX_H
 #define MEMGFX_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
+
 #ifndef GFXPOLY_H
 #include "gfxPoly.h"
 #endif
@@ -482,4 +490,12 @@ else
 mgPutDot(img,x,y,MAKECOLOR_32_A(rOut,gOut,bOut,aOut));
 */
 }
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 #endif /* MEMGFX_H */

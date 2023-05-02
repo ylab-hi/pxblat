@@ -8,9 +8,15 @@
 #ifndef BANDEXT_H
 #define BANDEXT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef LOCALMEM_H
 #include "localmem.h"
 #endif
+
+
 
 boolean bandExt(boolean global, struct axtScoreScheme *ss, int maxInsert,
 	char *aStart, int aSize, char *bStart, int bSize, int dir,
@@ -38,5 +44,11 @@ struct ffAli *bandExtFf(
 	int maxExt);			/* Maximum length of extension. */
 /* Extend a gapless alignment in one direction.  Returns extending
  * ffAlis, not linked into origFf, or NULL if no extension possible. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* BANDEXT_H */

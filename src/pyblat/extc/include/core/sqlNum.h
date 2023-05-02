@@ -17,6 +17,10 @@
 /* get off_t */
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 unsigned sqlUnsigned(char *s);
 /* Convert series of digits to unsigned integer about
  * twice as fast as atoi (by not having to skip white
@@ -85,5 +89,13 @@ double sqlDoubleInList(char **pS);
  * and aborts on an error.
  * Number may be delimited by a comma.
  * Returns the position of the delimiter or the terminating 0. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* SQLNUM_H */

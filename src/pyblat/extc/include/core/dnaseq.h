@@ -6,6 +6,10 @@
 #ifndef DNASEQ_H
 #define DNASEQ_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNAUTIL_H
 #include "dnautil.h"
 #endif
@@ -75,5 +79,12 @@ struct hash *dnaSeqHash(struct dnaSeq *seqList);
 
 int dnaSeqCmpName(const void *va, const void *vb);
 /* Compare to sort based on sequence name. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* DNASEQ_H */

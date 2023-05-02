@@ -7,6 +7,11 @@
 #ifndef LINEFILE_H
 #define LINEFILE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 #include "dystring.h"
 #include "udc.h"
 
@@ -312,5 +317,12 @@ boolean lineFileSetTabixRegion(struct lineFile *lf, char *seqName, int start, in
 void lineFileCarefulNewlines(struct lineFile *lf);
 /* Tell lf to use a less efficient method of scanning for the next newline that can handle
  * files with a mix of newline conventions. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* LINEFILE_H */

@@ -23,6 +23,11 @@
 #ifndef UDC_H
 #define UDC_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct udcFile;
 /* Handle to a cached file.  Inside of structure mysterious unless you are udc.c. */
 
@@ -196,5 +201,12 @@ void *udcMMapFetch(struct udcFile *file, bits64 offset, bits64 size);
 
 bool udcIsResolvable(char *url);
 /* check if third-party protocol resolving (e.g. for "s3://") is enabled and if a URL can be resolved this way to HTTP */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* UDC_H */

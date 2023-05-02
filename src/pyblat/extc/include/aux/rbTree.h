@@ -7,6 +7,10 @@
 #ifndef RBTREE_H
 #define RBTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 typedef enum {rbTreeRed,rbTreeBlack} rbTreeColor;
 
 
@@ -102,5 +106,12 @@ void rbTreeTraverseRangeWithContext(struct rbTree *tree, void *minItem, void *ma
 	void (*doItem)(void *item, void *context), void *context);
 /* Apply doItem function to all items in tree such that
  * minItem <= item <= maxItem.  THREAD SAFE */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* RBTREE_H */

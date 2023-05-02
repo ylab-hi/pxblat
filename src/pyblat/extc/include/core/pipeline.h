@@ -63,6 +63,11 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct linefile;
 struct pipeline;
 
@@ -158,6 +163,13 @@ void pipelineFree(struct pipeline **plPtr);
 int pipelineClose(struct pipeline **pPl);
 /* Wait for pipeline to finish and free it. Same as pipelineWait then pipelineClose.
  * Returns pipelineWait result (normally 0). */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif
 /*

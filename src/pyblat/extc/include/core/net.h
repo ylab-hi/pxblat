@@ -7,6 +7,11 @@
 #ifndef NET_H
 #define NET_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include "linefile.h"
 #include "dystring.h"
 #include "internet.h"
@@ -275,5 +280,12 @@ boolean netGetFtpInfo(char *url, long long *retSize, time_t *retTime);
 
 boolean hasProtocol(char *urlOrPath);
 /* Return TRUE if it looks like it has http://, ftp:// etc. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* NET_H */

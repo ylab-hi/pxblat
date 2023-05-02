@@ -16,6 +16,10 @@
 #ifndef ERRCATCH_H
 #define ERRCATCH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DYSTRING_H
     #include "dystring.h"
 #endif
@@ -57,4 +61,12 @@ boolean errCatchFinish(struct errCatch **pErrCatch);
 /* Finish up error catching.  Report error if there is a
  * problem and return FALSE.  If no problem return TRUE.
  * This handles errCatchEnd and errCatchFree. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 #endif /* ERRCATCH_H */

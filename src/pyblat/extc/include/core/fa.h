@@ -6,6 +6,10 @@
 #ifndef FA_H
 #define FA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNASEQ_H
 #include "dnaseq.h"
 #endif
@@ -125,5 +129,12 @@ void faWriteNext(FILE *f, char *startLine, DNA *dna, int dnaSize);
 
 void faWriteAll(char *fileName, bioSeq *seqList);
 /* Write out all sequences in list to file. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* FA_H */

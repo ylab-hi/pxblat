@@ -7,6 +7,11 @@
 #ifndef PORTABLE_H
 #define PORTABLE_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -187,4 +192,12 @@ void makeSymLink(char *oldName, char *newName);
 long long freeSpaceOnFileSystem(char *path);
 /* Given a path to a file or directory on a file system,  return free space
  * in bytes. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 #endif /* PORTABLE_H */

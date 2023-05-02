@@ -6,6 +6,11 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include "common.h"
 
 /* Types for options */
@@ -100,5 +105,12 @@ struct hash *optionParseIntoHashExceptNumbers(int *pArgc, char *argv[],
 
 void optionFree();
 /* free the option hash */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* OPTIONS_H */

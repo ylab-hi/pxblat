@@ -7,6 +7,11 @@
 #ifndef NIB_H
 #define NIB_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNAUTIL_H
 #include "dnautil.h"
 #endif
@@ -107,5 +112,13 @@ struct nibInfo *nibInfoFromCache(struct hash *hash, char *nibDir, char *nibName)
 
 int nibGetSize(char* nibFile);
 /* Get the number of nucleotides in a nib */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* NIB_H */

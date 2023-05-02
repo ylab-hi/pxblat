@@ -11,6 +11,11 @@
 #ifndef TRANS3_H
 #define TRANS3_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNASEQ_H
 #include "dnaseq.h"
 #endif
@@ -54,5 +59,12 @@ int trans3GenoPos(char *pt, bioSeq *seq, struct trans3 *t3List, boolean isEnd);
 
 int trans3Frame(char *pt, struct trans3 *t3List);
 /* Figure out which frame pt is in or 0 if no frame. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* TRANS3_H */

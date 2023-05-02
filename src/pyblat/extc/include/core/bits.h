@@ -6,6 +6,10 @@
 #ifndef BITS_H
 #define BITS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include "localmem.h"
 
 typedef unsigned char Bits;
@@ -103,5 +107,12 @@ extern int bitsInByte[256];
 
 void bitsInByteInit();
 /* Initialize bitsInByte array. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* BITS_H */

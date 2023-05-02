@@ -5,6 +5,11 @@
 #ifndef REPMASK_H
 #define REPMASK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 struct repeatMaskOut
 /* Repeat Masker out format */
     {
@@ -54,5 +59,12 @@ void repeatMaskOutOutput(struct repeatMaskOut *el, FILE *f, char sep, char lastS
 
 struct lineFile *rmskLineFileOpen(char *fileName);
 /* open a repeat masker .out file or die trying */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* REPMASK_H */

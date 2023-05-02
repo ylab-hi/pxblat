@@ -1,6 +1,10 @@
 /* gfInternal - some stuff that connects modules but we
  * don't want widely advertised in the blat code. */
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct gfRange
 /* A range of bases found by genoFind.  Recursive
  * data structure.  Lowest level roughly corresponds
@@ -62,3 +66,9 @@ void gfiGetSeqName(char *spec, char *name, char *file);
 /* Extract sequence name and optionally file name from spec,
  * which includes nib and 2bit files.  (The file may be NULL
  * if you don't care.) */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus

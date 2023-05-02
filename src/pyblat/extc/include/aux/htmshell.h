@@ -17,6 +17,13 @@
 #ifndef HTMSHELL_H      /* Wrapper to avoid including this twice. */
 #define HTMSHELL_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
 #include "dystring.h"
 
 char *makeRandomKey(int numBits);
@@ -286,6 +293,12 @@ void htmlPrintf(char *format, ...)
 __attribute__((format(printf, 1, 2)))
 #endif
 ;
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 
 #endif /* HTMSHELL_H */

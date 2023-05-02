@@ -6,6 +6,11 @@
 #ifndef CHAINBLOCK_H
 #define CHAINBLOCK_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef CHAIN_H
 #include "chain.h"
 #endif
@@ -38,5 +43,11 @@ struct chain *chainBlocks(
  * resulting chains in general.  This can get fairly complex.  Also
  * the chains will need some cleanup at the end.  Use the chainConnect
  * module to help with this.  See hg/mouseStuff/axtChain for example usage. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* CHAINBLOCK_H */

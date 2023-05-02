@@ -7,6 +7,10 @@
 #ifndef MEMALLOC_H
 #define MEMALLOC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct memHandler
     {
     struct memHandler *next;
@@ -50,5 +54,12 @@ void memTrackerStart();
 
 void memTrackerEnd();
 /* Free any remaining blocks and pop tracker memory handler. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* MEMALLOC_H */

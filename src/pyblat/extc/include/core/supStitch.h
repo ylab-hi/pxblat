@@ -11,6 +11,10 @@
 #ifndef SUPSTITCH_H
 #define SUPSTITCH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNASEQ_H
 #include "dnaseq.h"
 #endif
@@ -67,5 +71,12 @@ void ssStitch(struct ssBundle *bundle, enum ffStringency stringency,
 struct ssBundle *ssFindBundles(struct patSpace *ps, struct dnaSeq *cSeq,
 	char *cName, enum ffStringency stringency, boolean avoidSelfSelf);
 /* Find patSpace alignments on cSeq and bundle them together. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* SUPSTITCH_H */

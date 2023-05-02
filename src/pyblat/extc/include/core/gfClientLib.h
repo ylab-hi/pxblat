@@ -4,6 +4,12 @@
 #ifndef GFCLIENTLIB_H
 #define GFCLIENTLIB_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 void gfClientFileArray(char *fileName, char ***retFiles, int *retFileCount);
 /* Check if file if .2bit or .nib or .fa.  If so return just that
  * file in a list of one.  Otherwise read all file and treat file
@@ -21,5 +27,12 @@ bioSeq *gfClientSeqList(int fileCount, char *files[],
 
 void gfClientUnmask(struct dnaSeq *seqList);
 /* Unmask all sequences. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* GFCLIENTLIB_H */

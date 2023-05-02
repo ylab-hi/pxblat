@@ -8,6 +8,13 @@
 #ifndef KXTOK_H
 #define KXTOK_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
 enum kxTokType
     {
     kxtEnd,
@@ -61,5 +68,12 @@ struct kxTok *kxTokenizeFancy(char *text, boolean wildAst,
 
 void kxTokIncludeQuotes(boolean val);
 /* Pass in TRUE if kxTok should include quote characters in string tokens. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* KXTOK_K */

@@ -7,6 +7,11 @@
 #ifndef OBSCURE_H
 #define OBSCURE_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 long incCounterFile(char *fileName);
 /* Increment a 32 bit value on disk. */
 
@@ -231,4 +236,12 @@ boolean readAndIgnore(char *fileName);
 
 int get_thread_id();
 /* return an integer specific for the current thread */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 #endif /* OBSCURE_H */

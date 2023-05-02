@@ -9,6 +9,7 @@
 #ifndef COMMON_H	/* Wrapper to avoid including this twice. */
 #define COMMON_H
 
+
 /* Some stuff to support large files in Linux. */
 #ifndef _LARGEFILE_SOURCE
 #define _LARGEFILE_SOURCE 1
@@ -43,6 +44,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <libgen.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
 
 #if defined(MACHTYPE_ppc)
 #include <sys/wait.h>
@@ -1632,5 +1637,13 @@ struct runTimes
 struct runTimes getTimesInSeconds(void);
 /* get the current clock time since epoch, process user CPU, and system CPU times, all in
  * seconds. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* COMMON_H */

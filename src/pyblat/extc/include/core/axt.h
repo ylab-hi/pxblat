@@ -20,6 +20,10 @@
 #ifndef AXT_H
 #define AXT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef LINEFILE_H
 #include "linefile.h"
 #endif
@@ -274,4 +278,13 @@ void axtOutPretty(struct axt *axt, int lineSize, FILE *f);
 struct axtScoreScheme *axtScoreSchemeFromProteinText(char *text, char *fileName);
 /* Parse text into a scoring scheme.  This should be in BLAST protein matrix
  * format as in blosumText above. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 #endif /* AXT_H */

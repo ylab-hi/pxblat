@@ -18,6 +18,11 @@
 #ifndef ERRABORT_H
 #define ERRABORT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 boolean isErrAbortInProgress();
 /* Flag to indicate that an error abort is in progress.
  * Needed so that a warn handler can tell if it's really
@@ -93,5 +98,12 @@ void pushSilentWarnHandler();
 
 void errAbortDebugnPushPopErr();
 /*  generate stack dump if there is a error in the push/pop functions */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* ERRABORT_H */

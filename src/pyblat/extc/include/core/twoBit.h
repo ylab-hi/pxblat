@@ -5,6 +5,12 @@
 #ifndef TWOBIT_H
 #define TWOBIT_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 struct twoBit
 /* Two bit representation of DNA. */
     {
@@ -231,4 +237,9 @@ boolean twoBitIsSequence(struct twoBitFile *tbf, char *chromName);
 
 struct hash *twoBitChromHash(char *fileName);
 /* Build a hash of chrom names with their sizes. */
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 #endif /* TWOBIT_H */

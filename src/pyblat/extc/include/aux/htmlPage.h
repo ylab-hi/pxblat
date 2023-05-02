@@ -13,6 +13,14 @@
 #ifndef HTMLPAGE_H
 #define HTMLPAGE_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
+
 #ifndef DYSTRING_H
 #include "dystring.h"
 #endif
@@ -253,5 +261,11 @@ struct htmlTag *findNextMatchingTag(struct htmlTag *list, char *name);
 boolean isSelfClosingTag(struct htmlTag *tag);
 /* Return strue if last attributes' name is "/"
  * Self-closing tags are used with html5 and SGV */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* HTMLPAGE_H */

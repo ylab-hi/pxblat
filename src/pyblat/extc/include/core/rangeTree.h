@@ -8,6 +8,10 @@
 #ifndef RANGETREE_H
 #define RANGETREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef RBTREE_H
 #include "rbTree.h"
 #endif
@@ -104,5 +108,12 @@ struct rbTree *rangeTreeNewDetailed(struct lm *lm, struct rbTreeNode *stack[128]
 /* Allocate rangeTree on an existing local memory & stack.  This is for cases
  * where you want a lot of trees, and don't want the overhead for each one.
  * Note, to clean these up, just do freez(&rbTree) rather than rbFreeTree(&rbTree). */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* RANGETREE_H */

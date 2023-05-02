@@ -6,6 +6,10 @@
 #ifndef SIG_H
 #define SIG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #define aliSig 0xCDAB8245
 /* Binary alignment file. */
 
@@ -94,5 +98,11 @@
 
 #define udcBitmapSig 0x4187E2F6
 /* Signature for a url data cache bitmap file. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* SIG_H */

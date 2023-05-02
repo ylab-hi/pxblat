@@ -3,6 +3,10 @@
 #ifndef ALITYPE_H
 #define ALITYPE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 enum gfType
 /* Types of sequence genoFind deals with. */
     {
@@ -28,5 +32,12 @@ enum ffStringency
     ffTight = 2,        /* Near exact.  Not so tolerant of long gaps in target. */
     ffLoose = 3,        /* Less exact. */
     };
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* ALITYPE_H */

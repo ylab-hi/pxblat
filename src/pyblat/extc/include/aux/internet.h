@@ -11,6 +11,13 @@
 
 #define IPV4MAPPED_PREFIX "::ffff:"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
 struct cidr
 /* Store CIDR address as IP and length */
     {
@@ -106,5 +113,12 @@ void getAddrAsString6n4(struct sockaddr_storage *sai, char *ipStr, int ipStrSize
 
 void getAddrAndPortAsString6n4(struct sockaddr_storage *sai, char *ipStr, int ipStrSize, char *portStr, int portStrSize);
 /* convert ip and port to strings based on the socket type */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* INTERNET_H */

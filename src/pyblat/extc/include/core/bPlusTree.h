@@ -48,6 +48,10 @@
 #ifndef BPLUSTREE_H
 #define BPLUSTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct bptFile
 /* B+ tree index file handle. */
     {
@@ -123,5 +127,12 @@ void bptFileBulkIndexToOpenFile(void *itemArray, int itemSize, bits64 itemCount,
 
 #define bptFileHeaderSize 32
 #define bptBlockHeaderSize 4
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* BPLUSTREE_H */

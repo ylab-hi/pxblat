@@ -7,6 +7,10 @@
 #ifndef CHEAPCGI_H
 #define CHEAPCGI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include "dystring.h"
 
 #ifndef HASH_H
@@ -668,4 +672,11 @@ char *cgiScriptDirUrl();
 
 void cgiChangeVar(char *varName, char *value);
 /* An entry point to change the value of a something passed to us on the URL. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 #endif /* CHEAPCGI_H */

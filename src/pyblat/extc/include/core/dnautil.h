@@ -16,6 +16,10 @@
 #ifndef DNAUTIL_H
 #define DNAUTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
 void dnaUtilOpen(); /* Good idea to call this before using any arrays
 		     * here.  */
 
@@ -281,5 +285,12 @@ void trimRefAlt(char *ref, char *alt, uint *pStart, uint *pEnd, int *pRefLen, in
 void trimRefAltLeft(char *ref, char *alt, uint *pStart, uint *pEnd, int *pRefLen, int *pAltLen);
 /* If ref and alt have identical bases at beginning and/or end, trim those starting on the right
  * so we get the leftmost representation & update all params. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* DNAUTIL_H */

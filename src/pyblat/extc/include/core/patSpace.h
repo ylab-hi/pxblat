@@ -8,6 +8,10 @@
 #ifndef PATSPACE_H
 #define PATSPACE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNASEQ_H
 #include "dnaseq.h"
 #endif
@@ -41,6 +45,12 @@ struct patClump
 struct patClump *patSpaceFindOne(struct patSpace *ps, DNA *dna, int dnaSize);
 /* Find occurrences of DNA in patSpace. The resulting list can be
  * freed with slFreeList. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 
 #endif /* PATSPACE_H */

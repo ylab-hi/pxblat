@@ -30,6 +30,10 @@
 #ifndef FUZZYFIND_H
 #define FUZZYFIND_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef MEMGFX_H
 #include "memgfx.h"
 #endif
@@ -253,5 +257,13 @@ void ffShowAli(struct ffAli *aliList,
     char *haystackName, DNA *haystack, int hayNumOffset,
     boolean rcNeedle);
 /* Display alignment on html page to stdout. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* FUZZYFIND_H */

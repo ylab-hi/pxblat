@@ -6,6 +6,11 @@
 #ifndef DYSTRING_H	/* Wrapper to avoid including this twice. */
 #define DYSTRING_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include "common.h"
 
 struct dyString
@@ -107,5 +112,13 @@ INLINE void dyStringAppendSep(struct dyString *dy, char *sep)
 if (dyStringIsNotEmpty(dy))
     dyStringAppend(dy, sep);
 }
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* DYSTRING_H */

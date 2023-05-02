@@ -5,6 +5,10 @@
 #ifndef GENOFIND_H
 #define GENOFIND_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef DNASEQ_H
 #include "dnaseq.h"
 #endif
@@ -455,5 +459,13 @@ struct gfClump *gfPcrClumps(struct genoFind *gf,
 #define MAXSINGLEPIECESIZE 5000 /* maximum size of a single piece */
 
 #define gfVersion "37x1"	/* Current BLAT version number */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* GENOFIND_H */

@@ -2,6 +2,11 @@
 #ifndef MAF_H
 #define MAF_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 #ifndef COMMON_H
 #include "common.h"
 #endif
@@ -262,5 +267,13 @@ struct mafComp *mafCompClone(struct mafComp *srcComp);
 
 struct mafAli *mafAliClone(struct mafAli *srcAli);
 /* clone a mafAli */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* MAF_H */

@@ -1,6 +1,11 @@
 #ifndef HEX_H
 #define HEX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
+
 #ifndef LINEFILE_H
 #include "linefile.h"
 #endif
@@ -28,5 +33,13 @@ unsigned char hexToByte(char *hex);
 
 int unpackHexString(char *hexString, struct lineFile *lf, int maxLen);
 /* Convert hexideximal string up to maxLen digits long to binary value */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* HEX_H */

@@ -1,6 +1,11 @@
 #ifndef BINRANGE_H
 #define BINRANGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
+
 /* binRange Stuff to handle binning - which helps us restrict
  * our attention to the parts of database that contain info
  * about a particular window on a chromosome. This scheme
@@ -115,5 +120,13 @@ struct binKeeperCookie binKeeperFirst(struct binKeeper *bk);
 
 struct binElement* binKeeperNext(struct binKeeperCookie *cookie);
 /* Return the next entry in the binKeeper table.  */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* BINRANGE_H */

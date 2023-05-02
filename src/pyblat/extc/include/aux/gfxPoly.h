@@ -3,6 +3,11 @@
 #ifndef GFXPOLY_H
 #define GFXPOLY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
+
 struct gfxPoint
 /* A two-dimensional point, typically in pixel coordinates. */
     {
@@ -27,5 +32,12 @@ void gfxPolyFree(struct gfxPoly **pPoly);
 
 void gfxPolyAddPoint(struct gfxPoly *poly, int x, int y);
 /* Add point to polygon. */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* GFXPOLY_H */

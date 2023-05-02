@@ -53,6 +53,10 @@
 #ifndef HASH_H
 #define HASH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct hashEl
 /* An element in a hash list. */
     {
@@ -306,5 +310,10 @@ struct hash *hashFromNameArray(char **nameArray, int nameCount);
 
 struct hash *hashFromNameValArray(char *nameVal[][2], int nameValCount);
 /* Make up a hash from nameVal array */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HASH_H */

@@ -9,6 +9,10 @@
 #ifndef PSL_H
 #define PSL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #ifndef LOCALMEM_H
 #include "localmem.h"
 #endif
@@ -369,4 +373,13 @@ void pslSortListByVar(struct psl **pslList, char *sort);
 
 void pslRemoveFrameShifts(struct psl *psl);
 /* Remove any frameshits if present. Changes in place, doesn't update statistics in first nine fields. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
+
 #endif /* PSL_H */

@@ -5,6 +5,11 @@
 #ifndef CHAIN_H
 #define CHAIN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
+
 #ifndef LINEFILE_H
 #include "linefile.h"
 #endif
@@ -159,5 +164,13 @@ void chainSubsetOnQ(struct chain *chain, int subStart, int subEnd,
 void chainRangeQPlusStrand(struct chain *chain, int *retQs, int *retQe);
 /* Return range of bases covered by chain on q side on the plus
  * strand. */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* CHAIN_H */

@@ -2,6 +2,11 @@
 #ifndef FILEPATH_H
 #define FILEPATH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+        //
+
 #include "common.h"
 
 void splitPath(char *path, char dir[PATH_LEN], char name[FILENAME_LEN],
@@ -46,5 +51,13 @@ char *makeRelativePath(char *from, char *to);
 
 boolean isSafeRelativePath(char *path);
 /* check that path is relative and contains no ".." elements */
+
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+
 
 #endif /* FILEPATH_H */

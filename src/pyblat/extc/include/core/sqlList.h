@@ -5,6 +5,11 @@
 
 #ifndef SQLLIST_H
 #define SQLLIST_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 struct hash;
 
 int sqlDoubleArray(char *s, double *array, int maxArraySize);
@@ -140,5 +145,11 @@ unsigned sqlSetComma(char **pS, char **values, struct hash **valHashPtr);
 
 void sqlSetPrint(FILE *f, unsigned value, char **values);
 /* print a set column value */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* SQLLIST_H */

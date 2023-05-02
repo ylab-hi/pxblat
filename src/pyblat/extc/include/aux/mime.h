@@ -4,6 +4,13 @@
  *****************************************************************************/
 /* mime.h - parses MIME messages, especially from a cgi from a multipart web form */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
+
 #ifndef HASH_H
 #include "hash.h"
 #endif
@@ -60,3 +67,8 @@ struct mimePart *parseMultiParts(struct mimeBuf *b, char *altHeader);
    altHeader is a string of headers that can be fed in if the headers have
    already been read off the stream by an earlier process, i.e. apache.
  */
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
