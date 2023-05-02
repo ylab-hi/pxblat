@@ -1,9 +1,12 @@
 /* log.c - logging for servers, can log to a file and/or syslog.  Compile with
  * -DNO_SYSLOG for systems without syslog. */
 
+/* Copyright (C) 2013 The Regents of the University of California
+ * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
+
 #include "common.h"
 #include "log.h"
-#include "errabort.h"
+#include "errAbort.h"
 #include "dystring.h"
 #include "options.h"
 #include "portable.h"
@@ -194,6 +197,7 @@ void logOpenFile(char* program, char *logFile)
 {
 setProgram(program);
 gLogFh = mustOpen(logFile, "a");
+setlinebuf(gLogFh);
 pushWarnHandler(logWarnHandler);
 pushAbortHandler(logAbortHandler);
 }
@@ -329,9 +333,17 @@ if (!optionExists("debug"))
     if (mustFork() != 0)
         exit(0);  /* parent goes away */
 
+    /* Put self in our own process group. */
+    setsid();
+
     /* Close all open files first (before logging) */
     for (i = 0; i < maxFiles; i++)
         close(i);
+
+    /* Reopen standard files to /dev/null just in case somebody uses them. */
+    int nullFd = open("/dev/null", O_RDWR);  // Opens stdin
+    dup(nullFd);			     // Stdout goes also to /dev/null
+    dup(nullFd);			     // Stderr goes also to /dev/null
     }
 
 /* Set up log handler. */

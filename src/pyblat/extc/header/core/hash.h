@@ -74,11 +74,12 @@ struct hash
     boolean autoExpand;         /* Automatically expand hash */
     float expansionFactor;      /* Expand when elCount > size*expansionFactor */
     int numResizes;             /* number of times resize was called */
+    boolean ownLm;              /* TRUE if lm was allocated by newHashExt OR read in from trackDbCache  */
     };
 
 #define defaultExpansionFactor 1.0
 
-#define hashMaxSize 28
+#define hashMaxSize 30
 
 struct hashCookie
 /* used by hashFirst/hashNext in tracking location in traversing hash */
@@ -164,8 +165,8 @@ void *hashFindValUpperCase(struct hash *hash, char *name);
 struct hashEl *hashAddInt(struct hash *hash, char *name, int val);
 /* Store integer value in hash */
 
-void hashIncInt(struct hash *hash, char *name);
-/* Increment integer value in hash */
+int hashIncInt(struct hash *hash, char *name);
+/* Increment integer value in hash. Return value after increment. */
 
 int hashIntVal(struct hash *hash, char *name);
 /* Return integer value associated with name in a simple
@@ -177,6 +178,9 @@ int hashIntValDefault(struct hash *hash, char *name, int defaultInt);
 
 long long hashIntSum(struct hash *hash);
 /* Return sum of all the ints in a hash of ints. */
+
+void hashIntReset(struct hash *hash);
+/* Reset all values in hash of ints to 0.  Reset element count to 0. */
 
 void hashTraverseEls(struct hash *hash, void (*func)(struct hashEl *hel));
 /* Apply func to every element of hash with hashEl as parameter. */
@@ -193,6 +197,10 @@ int hashElCmp(const void *va, const void *vb);
 int hashElCmpWithEmbeddedNumbers(const void *va, const void *vb);
 /* Compare two hashEl by name sorting including numbers within name,
  * suitable for chromosomes, genes, etc. */
+
+int hashElCmpIntValDesc(const void *va, const void *vb);
+/* Compare two hashEl from a hashInt type hash, with highest integer values
+ * comingFirst. */
 
 void *hashElFindVal(struct hashEl *list, char *name);
 /* Look up name in hashEl list and return val or NULL if not found. */
@@ -229,12 +237,26 @@ struct hash *newHashExt(int powerOfTwoSize, boolean useLocalMem);
 /* Returns new hash table using local memory. */
 #define hashNew(a) newHash(a)	/* Synonym */
 
+struct hash *newHashLm(int powerOfTwoSize, struct lm *lm);
+/* Returns new hash table using the given lm.  Recommended lm block size is 256B to 64kB,
+ * depending on powerOfTwoSize. */
+#define hashNewLm(size, lm) newHashLm(size, lm)
+
+void hashReverseAllBucketLists(struct hash *hash);
+/* Reverse all hash bucket list.  You might do this to
+ * get them back in the same order things were added to the hash */
+
 void hashResize(struct hash *hash, int powerOfTwoSize);
 /* Resize the hash to a new size */
 
 struct hash *hashFromSlNameList(void *list);
-/* Create a hash out of a list of slNames or any kind of list where the */
-/* first field is the next pointer and the second is the name. */
+/* Create a hash out of a list of slNames. */
+
+struct slName *hashSlNameFromHash(struct hash *hash);
+/* Create a slName list from the names in a hash. */
+
+struct hash *hashSetFromSlNameList(void *list);
+/* Create a hashSet (hash without values) out of a list of slNames. */
 
 void freeHash(struct hash **pHash);
 /* Free up hash table. */
@@ -274,5 +296,15 @@ char *hashToRaString(struct hash *hash);
 
 int hashNumEntries(struct hash *hash);
 /* count the number of entries in a hash */
+
+struct hash *hashFromString(char *string);
+/* parse a whitespace-separated string with tuples in the format name=val or
+ * name="val" to a hash name->val */
+
+struct hash *hashFromNameArray(char **nameArray, int nameCount);
+/* Create a NULL valued hash on all names in array */
+
+struct hash *hashFromNameValArray(char *nameVal[][2], int nameValCount);
+/* Make up a hash from nameVal array */
 
 #endif /* HASH_H */

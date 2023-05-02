@@ -3,6 +3,9 @@
  * varient of an algorithm suggested by Webb Miller and further
  * developed by Jim Kent. */
 
+/* Copyright (C) 2011 The Regents of the University of California
+ * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
+
 #include "common.h"
 #include "localmem.h"
 #include "linefile.h"

@@ -25,6 +25,15 @@ void printLongWithCommas(FILE *f, long long l);
 void sprintWithGreekByte(char *s, int slength, long long size);
 /* Numbers formatted with PB, TB, GB, MB, KB, B */
 
+void printWithGreekByte(FILE *f, long long l);
+/* Print with formatting in gigabyte, terabyte, etc. */
+
+void sprintWithMetricBaseUnit(char *s, int slength, long long size);
+/* Numbers formatted with Pb, Tb, Gb, Mb, kb, bp */
+
+void printWithMetricBaseUnit(FILE *f, long long l);
+/* Print with formatting in megabase, kilobase, etc. */
+
 void writeGulp(char *file, char *buf, int size);
 /* Write out a bunch of memory. */
 
@@ -49,6 +58,14 @@ void copyOpenFile(FILE *inFh, FILE *outFh);
 
 void cpFile(int s, int d);
 /* Copy from source file to dest until reach end of file. */
+
+void *charToPt(char c);
+/* Convert char to pointer. Use when really want to store
+ * a char in a pointer field. */
+
+char ptToChar(void *pt);
+/* Convert pointer to char.  Use when really want to store a
+ * pointer in a char. */
 
 void *intToPt(int i);
 /* Convert integer to pointer. Use when really want to store an
@@ -86,6 +103,10 @@ char *nextQuotedWord(char **pLine);
  * string or if no quotes next word.  Updates *pLine
  * to point past word that is returned. Does not return
  * quotes. */
+
+struct slName *slNameListOfUniqueWords(char *text,boolean respectQuotes);
+/* Return list of unique words found by parsing string delimited by whitespace.
+ * If respectQuotes then ["Lucy and Ricky" 'Fred and Ethyl'] will yield 2 slNames no quotes */
 
 char *makeQuotedString(char *in, char quoteChar);
 /* Create a string surrounded by quoteChar, with internal
@@ -135,15 +156,35 @@ struct hash *hashNameIntFile(char *fileName);
 struct hash *hashTwoColumnFile(char *fileName);
 /* Given a two column file (key, value) return a hash. */
 
-void shuffleArrayOfPointers(void *pointerArray, int arraySize,
-	int shuffleCount);
+struct hash *hashTsvBy(char *in, int keyColIx, int *retColCount);
+/* Return a hash of rows keyed by the given column */
+
+void writeTsvRow(FILE *f, int rowSize, char **row);
+/* Write out row of strings to a line in tab-sep file */
+
+struct slPair *slPairTwoColumnFile(char *fileName);
+/* Read in a two column file into an slPair list */
+
+void shuffleArrayOfChars(char *array, int arraySize);
+/* Shuffle array of characters of given size given number of times. */
+
+void shuffleArrayOfInts(int *array, int arraySize);
+/* Shuffle array of ints of given size given number of times. */
+
+void shuffleArrayOfPointers(void *pointerArray, int arraySize);
 /* Shuffle array of pointers of given size given number of times. */
 
-void shuffleList(void *pList, int shuffleCount);
+void shuffleList(void *pList);
 /* Randomize order of slList.  Usage:
  *     shuffleList(&list)
  * where list is a pointer to a structure that
  * begins with a next field. */
+
+void *slListRandomReduce(void *list, double reduceRatio);
+/* Reduce list to approximately reduceRatio times original size. Destroys original list. */
+
+void *slListRandomSample(void *list, int maxCount);
+/* Return a sublist of list with at most maxCount. Destroy list in process */
 
 char *stripCommas(char *position);
 /* make a new string with commas stripped out */
@@ -153,6 +194,9 @@ void dotForUserInit(int dotMod);
 
 void dotForUser();
 /* Write out a dot every _dotForUserMod times this is called. */
+
+void dotForUserEnd();
+/* Write out new line at end of dots for user */
 
 void spaceToUnderbar(char *s);
 /* Convert white space to underbar. */
@@ -166,9 +210,25 @@ void rangeFromMinMaxMeanStd(double minVal, double maxVal, double mean, double st
 /* Given some basic statistical properties, set a range that will be good on a wide
  * range of biological data. */
 
+long long currentVmPeak();
+/* return value of peak Vm memory usage (if /proc/ business exists) */
+
 void printVmPeak();
 /* print to stderr peak Vm memory usage (if /proc/ business exists) */
 
 boolean nameInCommaList(char *name, char *commaList);
 /* Return TRUE if name is in comma separated list. */
+
+boolean endsWithWordComma(char *string, char *word);
+/* Return TRUE if string ends with word possibly followed by a comma, and the beginning
+ * of word within string is the beginning of string or follows a comma. */
+
+void ensureNamesCaseUnique(struct slName *fieldList);
+/* Ensure that there would be no name conflicts in fieldList if all fields were lower-cased. */
+
+boolean readAndIgnore(char *fileName);
+/* Read a byte from fileName, so its access time is updated. */
+
+int get_thread_id();
+/* return an integer specific for the current thread */
 #endif /* OBSCURE_H */

@@ -5,11 +5,13 @@
 
 #include "common.h"
 #include <unistd.h>
+#include <sys/syscall.h>
 #include "portable.h"
 #include "localmem.h"
 #include "hash.h"
 #include "obscure.h"
 #include "linefile.h"
+#include "sqlNum.h"
 
 static int _dotForUserMod = 100; /* How often does dotForUser() output a dot. */
 
@@ -77,6 +79,8 @@ carefulClose(&f);
 void readInGulp(char *fileName, char **retBuf, size_t *retSize)
 /* Read whole file in one big gulp. */
 {
+if (fileExists(fileName) && !isRegularFile(fileName))
+    errAbort("can only read regular files with readInGulp: %s", fileName);
 size_t size = (size_t)fileSize(fileName);
 char *buf;
 FILE *f = mustOpen(fileName, "rb");
@@ -153,16 +157,78 @@ struct hash *hashTwoColumnFile(char *fileName)
 /* Given a two column file (key, value) return a hash. */
 {
 struct lineFile *lf = lineFileOpen(fileName, TRUE);
-char *row[2];
 struct hash *hash = hashNew(16);
-while (lineFileRow(lf, row))
+char *row[3];
+int fields = 0;
+// Try tab-separated first; if no tabs, then try whitespace-separated.
+while ((fields = lineFileChopTab(lf, row)) != 0)
     {
+    if (fields == 1)
+        {
+        char *line = row[0];
+        fields = chopLine(line, row);
+        }
+    lineFileExpectWords(lf, 2, fields);
     char *name = row[0];
     char *value = lmCloneString(hash->lm, row[1]);
     hashAdd(hash, name, value);
     }
 lineFileClose(&lf);
 return hash;
+}
+
+struct hash *hashTsvBy(char *in, int keyColIx, int *retColCount)
+/* Return a hash of rows keyed by the given column */
+{
+struct lineFile *lf = lineFileOpen(in, TRUE);
+struct hash *hash = hashNew(0);
+char *line = NULL, **row = NULL;
+int colCount = 0, colAlloc=0;	/* Columns as counted and as allocated */
+while (lineFileNextReal(lf, &line))
+    {
+    if (colCount == 0)
+        {
+	*retColCount = colCount = chopByChar(line, '\t', NULL, 0);
+	verbose(2, "Got %d columns in first real line\n", colCount);
+	colAlloc = colCount + 1;  // +1 so we can detect unexpected input and complain
+	lmAllocArray(hash->lm, row, colAlloc);
+	}
+    int count = chopByChar(line, '\t', row, colAlloc);
+    if (count != colCount)
+        {
+	errAbort("Expecting %d words, got more than that line %d of %s",
+	    colCount, lf->lineIx, lf->fileName);
+	}
+    hashAdd(hash, row[keyColIx], lmCloneRow(hash->lm, row, colCount) );
+    }
+lineFileClose(&lf);
+return hash;
+}
+
+void writeTsvRow(FILE *f, int rowSize, char **row)
+/* Write out row of strings to a line in tab-sep file */
+{
+if (rowSize > 0)
+    {
+    fprintf(f, "%s", row[0]);
+    int i;
+    for (i=1; i<rowSize; ++i)
+        fprintf(f, "\t%s", row[i]);
+    }
+fprintf(f, "\n");
+}
+
+struct slPair *slPairTwoColumnFile(char *fileName)
+/* Read in a two column file into an slPair list */
+{
+char *row[2];
+struct slPair *list = NULL;
+struct lineFile *lf = lineFileOpen(fileName, TRUE);
+while (lineFileRow(lf, row))
+    slPairAdd(&list, row[0], cloneString(row[1]));
+lineFileClose(&lf);
+slReverse(&list);
+return list;
 }
 
 struct slName *readAllLines(char *fileName)
@@ -177,6 +243,7 @@ while (lineFileNext(lf, &line, NULL))
      el = newSlName(line);
      slAddHead(&list, el);
      }
+lineFileClose(&lf);
 slReverse(&list);
 return list;
 }
@@ -237,6 +304,23 @@ for (;;)
     }
 freeMem(buf);
 }
+
+void *charToPt(char c)
+/* Convert char to pointer. Use when really want to store
+ * a char in a pointer field. */
+{
+char *pt = NULL;
+return pt+c;
+}
+
+char ptToChar(void *pt)
+/* Convert pointer to char.  Use when really want to store a
+ * pointer in a char. */
+{
+char *a = NULL, *b = pt;
+return b - a;
+}
+
 
 void *intToPt(int i)
 /* Convert integer to pointer. Use when really want to store an
@@ -369,6 +453,27 @@ else
     }
 }
 
+struct slName *slNameListOfUniqueWords(char *text,boolean respectQuotes)
+/* Return list of unique words found by parsing string delimited by whitespace.
+ * If respectQuotes then ["Lucy and Ricky" 'Fred and Ethyl'] will yield 2 slNames no quotes */
+{
+struct slName *list = NULL;
+char *word = NULL;
+while (text != NULL)
+    {
+    if (respectQuotes)
+        word = nextQuotedWord(&text);
+    else
+        word = nextWord(&text);
+    if (word)
+        slNameStore(&list, word);
+    else
+        break;
+    }
+slReverse(&list);
+return list;
+}
+
 void escCopy(char *in, char *out, char toEscape, char escape)
 /* Copy in to out, escaping as needed.  Out better be big enough.
  * (Worst case is strlen(in)*2 + 1.) */
@@ -459,13 +564,13 @@ return hashThisEqThatLine(line, lineIx, TRUE);
 }
 
 struct slName *stringToSlNames(char *string)
-/* Convert string to a list of slNames separated by
+/* split string and convert to a list of slNames separated by
  * white space, but allowing multiple words in quotes.
  * Quotes if any are stripped.  */
 {
 struct slName *list = NULL, *name;
 char *dupe = cloneString(string);
-char c, *s = dupe, *e;
+char c, *s = dupe, *e = NULL;
 
 for (;;)
     {
@@ -493,7 +598,7 @@ return list;
 }
 
 struct slName *charSepToSlNames(char *string, char c)
-/* Convert character-separated list of items to slName list.
+/* Split string and convert character-separated list of items to slName list.
  * Note that the last occurence of c is optional.  (That
  * is for a comma-separated list a,b,c and a,b,c, are
  * equivalent. */
@@ -523,7 +628,7 @@ return list;
 }
 
 struct slName *commaSepToSlNames(char *commaSep)
-/* Convert comma-separated list of items to slName list.  */
+/* Split string and convert comma-separated list of items to slName list.  */
 {
 return charSepToSlNames(commaSep, ',');
 }
@@ -532,8 +637,20 @@ return charSepToSlNames(commaSep, ',');
 void sprintLongWithCommas(char *s, long long l)
 /* Print out a long number with commas a thousands, millions, etc. */
 {
-long long billions, millions, thousands;
-if (l >= 1000000000)
+long long trillions, billions, millions, thousands;
+if (l >= 1000000000000LL)
+    {
+    trillions = l/1000000000000LL;
+    l -= trillions * 1000000000000LL;
+    billions = l/1000000000;
+    l -= billions * 1000000000;
+    millions = l/1000000;
+    l -= millions * 1000000;
+    thousands = l/1000;
+    l -= thousands * 1000;
+    sprintf(s, "%lld,%03lld,%03lld,%03lld,%03lld", trillions, billions, millions, thousands, l);
+    }
+else if (l >= 1000000000)
     {
     billions = l/1000000000;
     l -= billions * 1000000000;
@@ -573,22 +690,83 @@ void sprintWithGreekByte(char *s, int slength, long long size)
 /* Numbers formatted with PB, TB, GB, MB, KB, B */
 {
 char *greek[] = {"B", "KB", "MB", "GB", "TB", "PB"};
+int maxGreek = (sizeof(greek)/sizeof(char*))-1;
 int i = 0;
 long long d = 1;
-while ((size/d) >= 1024)
+while (((size/d) >= 1024) && (i != maxGreek))
     {
     ++i;
     d *= 1024;
     }
 double result = ((double)size)/d;
-if (result < 10)
-    safef(s,slength,"%3.1f %s",((double)size)/d, greek[i]);
-else
-    safef(s,slength,"%3.0f %s",((double)size)/d, greek[i]);
+safef(s, slength, "%3.*f %s", result < 10 ? 1 : 0, ((double)size)/d, greek[i]);
 }
 
+void printWithGreekByte(FILE *f, long long l)
+/* Print with formatting in gigabyte, terabyte, etc. */
+{
+char buf[32];
+sprintWithGreekByte(buf, sizeof(buf), l);
+fprintf(f, "%s", buf);
+}
 
-void shuffleArrayOfPointers(void *pointerArray, int arraySize, int shuffleCount)
+void sprintWithMetricBaseUnit(char *s, int slength, long long size)
+/* Numbers formatted with Pb, Tb, Gb, Mb, kb, bp */
+{
+char *unit[] = {"bp", "kB", "Mb", "Gb", "Tb", "Pb"};
+int maxUnit = (sizeof(unit)/sizeof(char*))-1;
+int i = 0;
+long long d = 1;
+while (((size/d) >= 1000) && (i != maxUnit))
+    {
+    ++i;
+    d *= 1000;
+    }
+double result = ((double)size)/d;
+safef(s, slength, "%3.*f %s", result < 10 ? 1 : 0, ((double)size)/d, unit[i]);
+}
+
+void printWithMetricBaseUnit(FILE *f, long long l)
+/* Print with formatting in megabase, kilobase, etc. */
+{
+char buf[32];
+sprintWithMetricBaseUnit(buf, sizeof(buf), l);
+fprintf(f, "%s", buf);
+}
+
+void shuffleArrayOfChars(char *array, int arraySize)
+/* Shuffle array of characters of given size given number of times. */
+{
+char c;
+int i, randIx;
+
+/* Randomly permute an array using the method from Cormen, et al */
+for (i=0; i<arraySize; ++i)
+    {
+    randIx = i + (rand() % (arraySize - i));
+    c = array[i];
+    array[i] = array[randIx];
+    array[randIx] = c;
+    }
+}
+
+void shuffleArrayOfInts(int *array, int arraySize)
+/* Shuffle array of ints of given size given number of times. */
+{
+int c;
+int i, randIx;
+
+/* Randomly permute an array using the method from Cormen, et al */
+for (i=0; i<arraySize; ++i)
+    {
+    randIx = i + (rand() % (arraySize - i));
+    c = array[i];
+    array[i] = array[randIx];
+    array[randIx] = c;
+    }
+}
+
+void shuffleArrayOfPointers(void *pointerArray, int arraySize)
 /* Shuffle array of pointers of given size given number of times. */
 {
 void **array = pointerArray, *pt;
@@ -604,7 +782,7 @@ for (i=0; i<arraySize; ++i)
     }
 }
 
-void shuffleList(void *pList, int shuffleCount)
+void shuffleList(void *pList)
 /* Randomize order of slList.  Usage:
  *     randomizeList(&list)
  * where list is a pointer to a structure that
@@ -623,7 +801,7 @@ if (count > 1)
     for (el = list, i=0; el != NULL; el = el->next, i++)
         array[i] = el;
     for (i=0; i<4; ++i)
-        shuffleArrayOfPointers(array, count, shuffleCount);
+        shuffleArrayOfPointers(array, count);
     list = NULL;
     for (i=0; i<count; ++i)
         {
@@ -635,6 +813,48 @@ if (count > 1)
     *pL = list;
     }
 }
+
+void *slListRandomReduce(void *list, double reduceRatio)
+/* Reduce list to approximately reduceRatio times original size. Destroys original list. */
+{
+if (reduceRatio >= 1.0)
+    return list;
+int threshold = RAND_MAX * reduceRatio;
+struct slList *newList = NULL, *next, *el;
+for (el = list; el != NULL; el = next)
+    {
+    next = el->next;
+    if (rand() <= threshold)
+        {
+	slAddHead(&newList, el);
+	}
+    }
+return newList;
+}
+
+void *slListRandomSample(void *list, int maxCount)
+/* Return a sublist of list with at most maxCount. Destroy list in process */
+{
+if (list == NULL)
+    return list;
+int initialCount = slCount(list);
+if (initialCount <= maxCount)
+    return list;
+double reduceRatio = (double)maxCount/initialCount;
+if (reduceRatio < 0.9)
+    {
+    double conservativeReduceRatio = reduceRatio * 1.05;
+    list = slListRandomReduce(list, conservativeReduceRatio);
+    }
+int midCount = slCount(list);
+if (midCount <= maxCount)
+    return list;
+shuffleList(list);
+struct slList *lastEl = slElementFromIx(list, maxCount-1);
+lastEl->next = NULL;
+return list;
+}
+
 
 char *stripCommas(char *position)
 /* make a new string with commas stripped out */
@@ -674,6 +894,12 @@ if (--dot <= 0)
     }
 }
 
+void dotForUserEnd()
+/* Write out new line at end of dots for user */
+{
+putc('\n', stderr);
+}
+
 void spaceToUnderbar(char *s)
 /* Convert white space to underbar. */
 {
@@ -684,6 +910,35 @@ while ((c = *s) != 0)
         *s = '_';
     ++s;
     }
+}
+
+long long currentVmPeak()
+/* return value of peak Vm memory usage (if /proc/ business exists) */
+{
+long long vmPeak = 0;
+
+pid_t pid = getpid();
+char temp[256];
+safef(temp, sizeof(temp), "/proc/%d/status", (int) pid);
+struct lineFile *lf = lineFileMayOpen(temp, TRUE);
+if (lf)
+    {
+    char *line;
+    while (lineFileNextReal(lf, &line))
+	{	// typical line: 'VmPeak:     62646196 kB'
+		// seems to always be kB
+	if (stringIn("VmPeak", line))
+	    {
+	    char *words[3];
+	    chopByWhite(line, words, 3);
+	    vmPeak = sqlLongLong(words[1]);	// assume always 2nd word
+	    break;
+	    }
+	}
+    lineFileClose(&lf);
+    }
+
+return vmPeak;
 }
 
 void printVmPeak()
@@ -733,4 +988,77 @@ for (;;)
         return FALSE;
     commaList += 1;
     }
+}
+
+boolean endsWithWordComma(char *string, char *word)
+/* Return TRUE if string ends with word possibly followed by a comma, and the beginning
+ * of word within string is the beginning of string or follows a comma. */
+{
+int stringLen = strlen(string);
+int wordLen = strlen(word);
+int commaSize = (stringLen > wordLen && string[stringLen-1] == ',') ? 1 : 0;
+if (stringLen < wordLen + commaSize)
+    return FALSE;
+int wordOffset = stringLen - commaSize - wordLen;
+if (sameStringN(string + wordOffset, word, wordLen) &&
+    (wordOffset == 0 || string[wordOffset-1] == ','))
+    return TRUE;
+return FALSE;
+}
+
+void ensureNamesCaseUnique(struct slName *fieldList)
+/* Ensure that there would be no name conflicts in fieldList if all fields were lower-cased. */
+{
+struct slName *field;
+struct hash *hash = hashNew(0);
+for (field = fieldList; field != NULL; field = field->next)
+    {
+    char *s = field->name;
+    int len = strlen(s);
+    assert(len<512);  // avoid stack overflow
+    char lower[len+1];
+    strcpy(lower, s);
+    strLower(lower);
+    char *conflict = hashFindVal(hash, lower);
+    if (conflict)
+	 {
+	 if (sameString(conflict,s))
+	     errAbort("Duplicate symbol %s", s);
+	 else
+	     errAbort("Conflict between symbols with different cases: %s vs %s",
+		conflict, s);
+	 }
+    hashAdd(hash, lower, s);
+    }
+hashFree(&hash);
+}
+
+boolean readAndIgnore(char *fileName)
+/* Read a byte from fileName, so its access time is updated. */
+{
+boolean ret = FALSE;
+char buf[256];
+FILE *f = fopen(fileName, "r");
+if ( f && (fread(buf, 1, 1, f) == 1 ) )
+    ret = TRUE;
+if (f)
+    fclose(f);
+return ret;
+}
+
+int get_thread_id() {
+/* return some int specific to a thread, copied from https://stackoverflow.com/questions/21091000/how-to-get-thread-id-of-a-pthread-in-linux-c-program */
+#if defined(__linux__)
+    return syscall(SYS_gettid);
+#elif defined(__FreeBSD__)
+    long tid;
+    thr_self(&tid);
+    return (int)tid;
+#elif defined(__NetBSD__)
+    return _lwp_self();
+#elif defined(__OpenBSD__)
+    return getthrid();
+#else
+    return getpid();
+#endif
 }

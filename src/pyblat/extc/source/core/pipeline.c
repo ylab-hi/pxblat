@@ -1,10 +1,14 @@
 /* pipeline.c - create a process pipeline that can be used for reading or
  * writing  */
+
+/* Copyright (C) 2013 The Regents of the University of California
+ * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
+
 #include "pipeline.h"
 #include "common.h"
 #include "sqlNum.h"
 #include "dystring.h"
-#include "errabort.h"
+#include "errAbort.h"
 #include "portable.h"
 #include "linefile.h"
 #include <sys/types.h>
@@ -42,9 +46,10 @@ struct pipeline
     struct plProc *procs;      /* list of processes */
     int numRunning;            /* number of processes running */
     pid_t groupLeader;         /* process group id, or -1 if not set. This is pid of group leader */
+    unsigned int timeout;      /* timeout, in seconds, or zero */
     char *procName;            /* name to use in error messages. */
-    int pipeFd;                /* fd of pipe to/from process, -1 if none */
     unsigned options;          /* options */
+    int pipeFd;                /* fd of pipe to/from process, -1 if none */
     FILE* pipeFh;              /* optional stdio around pipe */
     char* stdioBuf;            /* optional stdio buffer */
     struct lineFile *pipeLf;   /* optional lineFile around pipe */
@@ -81,6 +86,9 @@ static void closeNonStdDescriptors(void)
 long maxFd = sysconf(_SC_OPEN_MAX);
 if (maxFd < 0)
     maxFd = 4096;  // shouldn't really happen
+if (maxFd > 4096)	// this does happen on Mac OSX arm64/M1 machine
+    maxFd = 4096;	// under some condition in the browser while making
+			// custom tracks.  It returns: 2^63 - 1
 int fd;
 for (fd = STDERR_FILENO+1; fd < maxFd; fd++)
     close(fd);
@@ -167,12 +175,12 @@ proc->state = newState;
 static void plProcSetup(struct plProc* proc, int stdinFd, int stdoutFd, int stderrFd)
 /* setup signal, error handling, and file descriptors after fork */
 {
-/* treat a closed pipe as an EOF rather than getting SIGPIPE */
-struct sigaction sigAct;
-ZeroVar(&sigAct);
-sigAct.sa_handler = SIG_IGN;
-if (sigaction(SIGPIPE, &sigAct, NULL) != 0)
-    errnoAbort("failed to set SIGPIPE to SIG_IGN");
+/* Optionally treat a closed pipe as an EOF rather than getting SIGPIPE */
+if (signal(SIGPIPE, ((proc->pl->options & pipelineSigpipe) ? SIG_DFL : SIG_IGN)) == SIG_ERR)
+    errnoAbort("error ignoring SIGPIPE");
+
+if (setpgid(getpid(), proc->pl->groupLeader) != 0)
+    errnoAbort("error from setpgid(%d, %d)", getpid(), proc->pl->groupLeader);
 
 /* child, first setup stdio files */
 if (stdinFd != STDIN_FILENO)
@@ -221,15 +229,21 @@ else
     }
 }
 
-static void plProcHandleTerminate(struct plProc* proc, int status)
-/* handle one of the processes terminating, save exit status */
+static void plProcHandleSignaled(struct plProc* proc, int status)
+/* handle one of the processes terminating on a signal */
 {
-proc->status = status;
-if (WIFSIGNALED(proc->status))
+assert(WIFSIGNALED(proc->status));
+if (!((WTERMSIG(proc->status) == SIGPIPE) && (proc->pl->options & pipelineSigpipe)))
+    {
     errAbort("process terminated on signal %d: \"%s\" in pipeline \"%s\"",
              WTERMSIG(proc->status), joinCmd(proc->cmd), proc->pl->procName);
-assert(WIFEXITED(proc->status));
+    }
+}
 
+static void plProcHandleExited(struct plProc* proc, int status)
+/* handle one of the processes terminating on an exit */
+{
+assert(WIFEXITED(proc->status));
 if (WEXITSTATUS(proc->status) != 0)
     {
     // only print an error message if aborting
@@ -238,11 +252,22 @@ if (WEXITSTATUS(proc->status) != 0)
                 WEXITSTATUS(proc->status), joinCmd(proc->cmd), proc->pl->procName);
     exit(WEXITSTATUS(proc->status));  // pass back exit code
     }
-proc->pid = -1;
-plProcStateTrans(proc, procStateDone);
 }
 
-static struct pipeline* pipelineNew(char ***cmds, unsigned options)
+static void plProcHandleTerminate(struct plProc* proc, int status)
+/* handle one of the processes terminating, save exit status */
+{
+proc->pid = -1;
+proc->status = status;
+plProcStateTrans(proc, procStateDone);
+
+if (WIFSIGNALED(proc->status))
+    plProcHandleSignaled(proc, status);
+else
+    plProcHandleExited(proc, status);
+}
+
+static struct pipeline* pipelineNew(char ***cmds, unsigned options, unsigned int timeout)
 /* create a new pipeline object. Doesn't start processes */
 {
 static char *memPseudoCmd[] = {"[mem]", NULL};
@@ -253,6 +278,7 @@ AllocVar(pl);
 pl->groupLeader = -1;
 pl->pipeFd = -1;
 pl->options = options;
+pl->timeout = timeout;
 pl->procName = joinCmds(cmds);
 
 if (cmds[0] == NULL)
@@ -305,11 +331,6 @@ static void execProcChild(struct pipeline* pl, struct plProc *proc,
                           void *otherEndBuf, size_t otherEndBufSize)
 /* handle child process setup after fork.  This does not return */
 {
-if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
-    errnoAbort("error ignoring SIGPIPE");
-if (setpgid(getpid(), pl->groupLeader) != 0)
-    errnoAbort("error from setpgid(%d, %d)", getpid(), pl->groupLeader);
-
 if (otherEndBuf != NULL)
     plProcMemWrite(proc, procStdoutFd, stderrFd, otherEndBuf, otherEndBufSize);
 else
@@ -388,6 +409,30 @@ while (pl->numRunning > 0)
     waitOnOne(pl);
 }
 
+/* uses to stash pipeline object for group leader process only, which is
+ * single-threaded */
+static struct pipeline* groupApoptosisPipeline = NULL;
+
+static void groupApoptosis(int signum)
+/* signal handler for SIGALRM expiration */
+{
+// hopefully this gets logged or seen by user
+fprintf(stderr, "pipeline timeout kill after %d seconds: %s\n", groupApoptosisPipeline->timeout,
+        pipelineDesc(groupApoptosisPipeline));
+fflush(stderr);
+// the (void) tells the compiler we know we are ignoring the return value
+(void)kill(0, SIGKILL); // kill off process group
+}
+
+static void setupTimeout(struct pipeline* pl)
+/* setup timeout handling */
+{
+groupApoptosisPipeline = pl;
+if (signal(SIGALRM, groupApoptosis) == SIG_ERR)
+    errnoAbort("signal failed");
+(void)alarm(pl->timeout);
+}
+
 static void groupLeaderRun(struct pipeline* pl, int stdinFd, int stdoutFd, int stderrFd,
                            void *otherEndBuf, size_t otherEndBufSize)
 /* group leader process */
@@ -395,6 +440,9 @@ static void groupLeaderRun(struct pipeline* pl, int stdinFd, int stdoutFd, int s
 pl->groupLeader = getpid();
 if (setpgid(pl->groupLeader, pl->groupLeader) != 0)
     errnoAbort("error from child setpgid(%d, %d)", pl->groupLeader, pl->groupLeader);
+if (pl->timeout > 0)
+    setupTimeout(pl);
+
 pipelineGroupExec(pl, stdinFd, stdoutFd, stderrFd, otherEndBuf, otherEndBufSize);
 
 // only keep stderr open
@@ -402,7 +450,7 @@ close(STDIN_FILENO);
 close(STDOUT_FILENO);
 closeNonStdDescriptors();
 groupWait(pl);
-exit(0);
+_exit(0);
 }
 
 static int groupLeaderWait(struct pipeline *pl)
@@ -425,7 +473,7 @@ return WEXITSTATUS(status);
 
 static void pipelineExec(struct pipeline* pl, int stdinFd, int stdoutFd, int stderrFd,
                          void *otherEndBuf, size_t otherEndBufSize)
-/* Fork the group leader, which then launches all all processes in a pipeline,
+/* Fork the group leader, which then launches all processes in a pipeline,
  * stdinFd and stdoutFd are the ends of the pipeline, stderrFd is applied to
  * all processes, including group leader */
 {
@@ -497,14 +545,15 @@ if ((opts & pipelineAppend) && ((opts & pipelineWrite) == 0))
 }
 
 struct pipeline *pipelineOpenFd(char ***cmds, unsigned opts,
-                                int otherEndFd, int stderrFd)
+                                int otherEndFd, int stderrFd,
+                                unsigned int timeout)
 /* Create a pipeline from an array of commands.  See pipeline.h for
  * full documentation. */
 {
 struct pipeline *pl;
 
 checkOpts(opts);
-pl = pipelineNew(cmds, opts);
+pl = pipelineNew(cmds, opts, timeout);
 if (opts & pipelineRead)
     pipelineStartRead(pl, otherEndFd, stderrFd, NULL, 0);
 else
@@ -513,7 +562,8 @@ return pl;
 }
 
 struct pipeline *pipelineOpen(char ***cmds, unsigned opts,
-                              char *otherEndFile, char *stderrFile)
+                              char *otherEndFile, char *stderrFile,
+                              unsigned int timeout)
 /* Create a pipeline from an array of commands.  See pipeline.h for
  * full documentation */
 {
@@ -526,8 +576,9 @@ if (opts & pipelineRead)
     otherEndFd = (otherEndFile == NULL) ? STDIN_FILENO : openRead(otherEndFile);
 else
     otherEndFd = (otherEndFile == NULL) ? STDOUT_FILENO : openWrite(otherEndFile, append);
-struct pipeline *pl = pipelineOpenFd(cmds, opts, otherEndFd, stderrFd);
-safeClose(&otherEndFd);
+struct pipeline *pl = pipelineOpenFd(cmds, opts, otherEndFd, stderrFd, timeout);
+if (otherEndFile != NULL)
+    safeClose(&otherEndFd);
 if (stderrFile != NULL)
     safeClose(&stderrFd);
 return pl;
@@ -535,7 +586,7 @@ return pl;
 
 struct pipeline *pipelineOpenMem(char ***cmds, unsigned opts,
                                  void *otherEndBuf, size_t otherEndBufSize,
-                                 int stderrFd)
+                                 int stderrFd, unsigned int timeout)
 /* Create a pipeline from an array of commands, with the pipeline input/output
  * in a memory buffer.  See pipeline.h for full documentation.  Currently only
  * input to a read pipeline is supported  */
@@ -546,40 +597,42 @@ if (opts & pipelineWrite)
     errAbort("pipelineOpenMem only supports read pipelines at this time");
 opts |= pipelineMemInput;
 
-pl = pipelineNew(cmds, opts);
+pl = pipelineNew(cmds, opts, timeout);
 pipelineStartRead(pl, STDIN_FILENO, stderrFd, otherEndBuf, otherEndBufSize);
 return pl;
 }
 
 struct pipeline *pipelineOpenFd1(char **cmd, unsigned opts,
-                                 int otherEndFd, int stderrFd)
+                                 int otherEndFd, int stderrFd,
+                                 unsigned int timeout)
 /* like pipelineOpenFd(), only takes a single command */
 {
 char **cmds[2];
 cmds[0] = cmd;
 cmds[1] = NULL;
-return pipelineOpenFd(cmds, opts, otherEndFd, stderrFd);
+return pipelineOpenFd(cmds, opts, otherEndFd, stderrFd, timeout);
 }
 
 struct pipeline *pipelineOpen1(char **cmd, unsigned opts,
-                               char *otherEndFile, char *stderrFile)
+                               char *otherEndFile, char *stderrFile,
+                               unsigned int timeout)
 /* like pipelineOpen(), only takes a single command */
 {
 char **cmds[2];
 cmds[0] = cmd;
 cmds[1] = NULL;
-return pipelineOpen(cmds, opts, otherEndFile, stderrFile);
+return pipelineOpen(cmds, opts, otherEndFile, stderrFile, timeout);
 }
 
 struct pipeline *pipelineOpenMem1(char **cmd, unsigned opts,
                                   void *otherEndBuf, size_t otherEndBufSize,
-                                  int stderrFd)
+                                  int stderrFd, unsigned int timeout)
 /* like pipelineOpenMem(), only takes a single command */
 {
 char **cmds[2];
 cmds[0] = cmd;
 cmds[1] = NULL;
-return pipelineOpenMem(cmds, opts, otherEndBuf, otherEndBufSize, stderrFd);
+return pipelineOpenMem(cmds, opts, otherEndBuf, otherEndBufSize, stderrFd, timeout);
 }
 
 char *pipelineDesc(struct pipeline *pl)
@@ -671,6 +724,27 @@ int pipelineWait(struct pipeline *pl)
 /* must close before waiting to so processes get pipe EOF */
 closePipeline(pl);
 return groupLeaderWait(pl);
+}
+
+int pipelineClose(struct pipeline **pPl)
+/* Wait for pipeline to finish and free it. Same as pipelineWait then pipelineClose.
+ * Returns pipelineWait result (normally 0). */
+{
+struct pipeline *pl = *pPl;
+int ret = 0;
+if (pl != NULL)
+    {
+    ret = pipelineWait(pl);
+    pipelineFree(pPl);
+    }
+return ret;
+}
+
+void pipelineSetNoAbort(struct pipeline *pl)
+/* Make it so pipeline won't abort on error - can be done after the fact.
+ * (This is needed to close a pipelined lineFile early.) */
+{
+pl->options |= pipelineNoAbort;
 }
 
 void pipelineDumpCmds(char ***cmds)

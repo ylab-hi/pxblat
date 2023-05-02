@@ -26,6 +26,7 @@ LIB_DEST_PATH = Path("src/pyblat/extc/source")
 
 LIB_BASE_PATH1 = Path("kent/src/lib")
 LIB_BASE_PATH2 = Path("kent/src/jkOwnLib")
+
 HEADER_BASE_PATH = Path("kent/src/inc")
 
 
@@ -67,9 +68,11 @@ def find_lib_header(lib_name):
             )
             header_path = LIB_BASE_PATH2 / f"{lib_name}.h"
 
-    assert header_path.exists(), "header file not found"
-
-    return header_path
+    if not header_path.exists():
+        logger.warning(f"header {lib_name} not found")
+        return None
+    else:
+        return header_path
 
 
 def copy_lib_header(lib_name):
@@ -99,14 +102,14 @@ def copy_header_source(lib_name: str):
 
 
 def collect_header():
-    headers = HEADER_BASE_PATH.rglob("*.h")
+    headers = HEADER_DEST_PATH.rglob("*.h")
     return headers
 
 
 def update():
     headers = collect_header()
-
     for header in headers:
+        logger.info(f"processing {header}")
         lib_name = header.stem
         lib_header_path = find_lib_header(lib_name)
         lib_source_path = find_lib_source(lib_name)

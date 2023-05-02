@@ -9,10 +9,13 @@
 #include <fcntl.h>
 #include <signal.h>
 #include "dystring.h"
-#include "errabort.h"
+#include "errAbort.h"
 #include "linefile.h"
 #include "pipeline.h"
 #include "localmem.h"
+#include "cheapcgi.h"
+#include "udc.h"
+#include "htslib/tbx.h"
 
 char *getFileNameFromHdrSig(char *m)
 /* Check if header has signature of supported compression stream,
@@ -26,7 +29,7 @@ else if (startsWith("BZ",m)) ext = "bz2";
 else if (startsWith("PK\x03\x04",m)) ext = "zip";
 if (ext==NULL)
     return NULL;
-safef(buf, sizeof(buf), "somefile.%s", ext);
+safef(buf, sizeof(buf), LF_BOGUS_FILE_PREFIX "%s", ext);
 return cloneString(buf);
 }
 
@@ -39,16 +42,25 @@ static char *Z_READ[] = {"gzip", "-dc", NULL};
 static char *BZ2_READ[] = {"bzip2", "-dc", NULL};
 static char *ZIP_READ[] = {"gzip", "-dc", NULL};
 
-if (endsWith(fileName, ".gz"))
-    return GZ_READ;
-else if (endsWith(fileName, ".Z"))
-    return Z_READ;
-else if (endsWith(fileName, ".bz2"))
-    return BZ2_READ;
-else if (endsWith(fileName, ".zip"))
-    return ZIP_READ;
-else
-    return NULL;
+char **result = NULL;
+char *fileNameDecoded = cloneString(fileName);
+if (startsWith("http://" , fileName)
+ || startsWith("https://", fileName)
+ || startsWith("ftp://",   fileName))
+    cgiDecode(fileName, fileNameDecoded, strlen(fileName));
+
+if      (endsWith(fileNameDecoded, ".gz"))
+    result = GZ_READ;
+else if (endsWith(fileNameDecoded, ".Z"))
+    result = Z_READ;
+else if (endsWith(fileNameDecoded, ".bz2"))
+    result = BZ2_READ;
+else if (endsWith(fileNameDecoded, ".zip"))
+    result = ZIP_READ;
+
+freeMem(fileNameDecoded);
+return result;
+
 }
 
 static void metaDataAdd(struct lineFile *lf, char *line)
@@ -134,7 +146,7 @@ testName=getFileNameFromHdrSig(testbytes);
 freez(&testbytes);
 if (!testName)
     return NULL;  /* avoid error from pipeline */
-pl = pipelineOpen1(getDecompressor(fileName), pipelineRead, fileName, NULL);
+pl = pipelineOpen1(getDecompressor(fileName), pipelineRead|pipelineSigpipe, fileName, NULL, 0);
 lf = lineFileAttach(fileName, zTerm, pipelineFd(pl));
 lf->pl = pl;
 return lf;
@@ -145,7 +157,7 @@ struct lineFile *lineFileDecompressFd(char *name, bool zTerm, int fd)
 {
 struct pipeline *pl;
 struct lineFile *lf;
-pl = pipelineOpenFd1(getDecompressor(name), pipelineRead, fd, STDERR_FILENO);
+pl = pipelineOpenFd1(getDecompressor(name), pipelineRead|pipelineSigpipe, fd, STDERR_FILENO, 0);
 lf = lineFileAttach(name, zTerm, pipelineFd(pl));
 lf->pl = pl;
 return lf;
@@ -161,7 +173,7 @@ struct lineFile *lf;
 char *fileName = getFileNameFromHdrSig(mem);
 if (fileName==NULL)
   return NULL;
-pl = pipelineOpenMem1(getDecompressor(fileName), pipelineRead, mem, size, STDERR_FILENO);
+pl = pipelineOpenMem1(getDecompressor(fileName), pipelineRead|pipelineSigpipe, mem, size, STDERR_FILENO, 0);
 lf = lineFileAttach(fileName, zTerm, pipelineFd(pl));
 lf->pl = pl;
 return lf;
@@ -197,30 +209,47 @@ lf->buf = s;
 return lf;
 }
 
+
 struct lineFile *lineFileTabixMayOpen(char *fileOrUrl, bool zTerm)
 /* Wrap a line file around a data file that has been compressed and indexed
- * by the tabix command line program.  The index file <fileOrUrl>.tbi must be
- * readable in addition to fileOrUrl. If there's a problem, warn & return NULL.
+ * by the tabix command line program. <fileOrUrl>.tbi must be readable in
+ * addition to fileOrUrl. If there's a problem, warn & return NULL.  This works
+ * only if kent/src has been compiled with USE_TABIX=1 and linked
+ * with the tabix C library. */
+{
+return lineFileTabixAndIndexMayOpen(fileOrUrl, NULL, zTerm);
+}
+
+
+struct lineFile *lineFileTabixAndIndexMayOpen(char *fileOrUrl, char *tbiFileOrUrl, bool zTerm)
+/* Wrap a line file around a data file that has been compressed and indexed
+ * by the tabix command line program. tbiFileOrUrl can be NULL, it defaults to <fileOrUrl>.tbi.
+ * It must be readable in addition to fileOrUrl. If there's a problem, warn & return NULL.
  * This works only if kent/src has been compiled with USE_TABIX=1 and linked
  * with the tabix C library. */
 {
-#ifdef USE_TABIX
-int tbiNameSize = strlen(fileOrUrl) + strlen(".tbi") + 1;
-char *tbiName = needMem(tbiNameSize);
-safef(tbiName, tbiNameSize, "%s.tbi", fileOrUrl);
-tabix_t *tabix = ti_open(fileOrUrl, tbiName);
-if (tabix == NULL)
+if (fileOrUrl == NULL)
+    errAbort("lineFileTabixMayOpen: fileOrUrl is NULL");
+
+char tbiName[4096];
+if (tbiFileOrUrl==NULL)
+    safef(tbiName, sizeof(tbiName), "%s.tbi", fileOrUrl);
+else
+    safef(tbiName, sizeof(tbiName), "%s", tbiFileOrUrl);
+
+htsFile *htsFile = hts_open(fileOrUrl, "r");
+if (htsFile == NULL)
     {
     warn("Unable to open \"%s\"", fileOrUrl);
-    freez(&tbiName);
     return NULL;
     }
-if ((tabix->idx = ti_index_load(tbiName)) == NULL)
+tbx_t *tabix;
+if ((tabix = tbx_index_load2(fileOrUrl, tbiName)) == NULL)
     {
     warn("Unable to load tabix index from \"%s\"", tbiName);
-    ti_close(tabix);
+    if (tabix)
+        ti_close(tabix);
     tabix = NULL;
-    freez(&tbiName);
     return NULL;
     }
 struct lineFile *lf = needMem(sizeof(struct lineFile));
@@ -230,46 +259,79 @@ lf->bufSize = 64 * 1024;
 lf->buf = needMem(lf->bufSize);
 lf->zTerm = zTerm;
 lf->tabix = tabix;
-lf->tabixIter = ti_iter_first();
-freez(&tbiName);
+lf->htsFile = htsFile;
+kstring_t *kline;
+AllocVar(kline);
+kline->s = malloc(8192);
+lf->kline = kline;
+lf->tabixIter = tbx_itr_queryi(tabix, HTS_IDX_REST, 0, 0);
 return lf;
-#else // no USE_TABIX
-warn(COMPILE_WITH_TABIX, "lineFileTabixMayOpen");
-return NULL;
-#endif // no USE_TABIX
 }
 
 boolean lineFileSetTabixRegion(struct lineFile *lf, char *seqName, int start, int end)
 /* Assuming lf was created by lineFileTabixMayOpen, tell tabix to seek to the specified region
  * and return TRUE (or if there are no items in region, return FALSE). */
 {
-#ifdef USE_TABIX
 if (lf->tabix == NULL)
     errAbort("lineFileSetTabixRegion: lf->tabix is NULL.  Did you open lf with lineFileTabixMayOpen?");
 if (seqName == NULL)
     return FALSE;
-int tabixSeqId = ti_get_tid(lf->tabix->idx, seqName);
+int tabixSeqId = ti_get_tid(lf->tabix, seqName);
 if (tabixSeqId < 0 && startsWith("chr", seqName))
     // We will get some files that have chr-less Ensembl chromosome names:
-    tabixSeqId = ti_get_tid(lf->tabix->idx, seqName+strlen("chr"));
+    tabixSeqId = ti_get_tid(lf->tabix, seqName+strlen("chr"));
+// Allow SARS-CoV-2 VCF to use GenBank or RefSeq ID instead of our chromified RefSeq ID:
+if (tabixSeqId < 0 && sameString(seqName, "NC_045512v2"))
+    {
+    tabixSeqId = ti_get_tid(lf->tabix, "MN908947.3");
+    if (tabixSeqId < 0)
+        tabixSeqId = ti_get_tid(lf->tabix, "NC_045512.2");
+    }
 if (tabixSeqId < 0)
     return FALSE;
-ti_iter_t iter = ti_queryi(lf->tabix, tabixSeqId, start, end);
+ti_iter_t *iter = ti_queryi((tbx_t *)lf->tabix, tabixSeqId, start, end);
 if (iter == NULL)
     return FALSE;
 if (lf->tabixIter != NULL)
     ti_iter_destroy(lf->tabixIter);
 lf->tabixIter = iter;
-lf->bufOffsetInFile = ti_bgzf_tell(lf->tabix->fp);
 lf->bytesInBuf = 0;
 lf->lineIx = -1;
 lf->lineStart = 0;
 lf->lineEnd = 0;
 return TRUE;
-#else // no USE_TABIX
-warn(COMPILE_WITH_TABIX, "lineFileSetTabixRegion");
-return FALSE;
-#endif // no USE_TABIX
+}
+
+struct lineFile *lineFileUdcMayOpen(char *fileOrUrl, bool zTerm)
+/* Create a line file object with an underlying UDC cache. NULL if not found. */
+{
+if (fileOrUrl == NULL)
+    errAbort("lineFileUdcMayOpen: fileOrUrl is NULL");
+
+if (udcIsLocal(fileOrUrl))
+     return lineFileOpen(fileOrUrl, zTerm);
+else
+    {
+    if (getDecompressor(fileOrUrl) != NULL)
+        {
+        warn("lineFileUdcMayOpen: can't open %s, support for compressed files not implemented. "
+             "[developer: use netLineFileMayOpen for compressed remote files.]",
+             fileOrUrl);
+        return NULL;
+        }
+    struct udcFile *udcFile = udcFileMayOpen(fileOrUrl, NULL);
+    if (udcFile == NULL)
+	return NULL;
+    struct lineFile *lf;
+    AllocVar(lf);
+    lf->fileName = cloneString(fileOrUrl);
+    lf->fd = -1;
+    lf->bufSize = 0;
+    lf->buf = NULL;
+    lf->zTerm = zTerm;
+    lf->udcFile = udcFile;
+    return lf;
+    }
 }
 
 
@@ -322,10 +384,8 @@ lf->reuse = TRUE;
 
 INLINE void noTabixSupport(struct lineFile *lf, char *where)
 {
-#ifdef USE_TABIX
 if (lf->tabix != NULL)
     lineFileAbort(lf, "%s: not implemented for lineFile opened with lineFileTabixMayOpen.", where);
-#endif // USE_TABIX
 }
 
 void lineFileSeek(struct lineFile *lf, off_t offset, int whence)
@@ -337,17 +397,14 @@ if (lf->checkSupport)
 if (lf->pl != NULL)
     errnoAbort("Can't lineFileSeek on a compressed file: %s", lf->fileName);
 lf->reuse = FALSE;
-if (whence == SEEK_SET && offset >= lf->bufOffsetInFile
-	&& offset < lf->bufOffsetInFile + lf->bytesInBuf)
+if (lf->udcFile)
     {
-    lf->lineStart = lf->lineEnd = offset - lf->bufOffsetInFile;
+    udcSeek(lf->udcFile, offset);
+    return;
     }
-else
-    {
-    lf->lineStart = lf->lineEnd = lf->bytesInBuf = 0;
-    if ((lf->bufOffsetInFile = lseek(lf->fd, offset, whence)) == -1)
-	errnoAbort("Couldn't lineFileSeek %s", lf->fileName);
-    }
+lf->lineStart = lf->lineEnd = lf->bytesInBuf = 0;
+if ((lf->bufOffsetInFile = lseek(lf->fd, offset, whence)) == -1)
+    errnoAbort("Couldn't lineFileSeek %s", lf->fileName);
 }
 
 void lineFileRewind(struct lineFile *lf)
@@ -375,13 +432,19 @@ while (size > 0)
 return totalRead;
 }
 
+void lineFileCarefulNewlines(struct lineFile *lf)
+/* Tell lf to use a less efficient method of scanning for the next newline that can handle
+ * files with a mix of newline conventions. */
+{
+lf->nlType = nlt_mixed;
+}
+
 static void determineNlType(struct lineFile *lf, char *buf, int bufSize)
 /* determine type of newline used for the file, assumes buffer not empty */
 {
 char *c = buf;
 if (bufSize==0) return;
 if (lf->nlType != nlt_undet) return;  /* if already determined just exit */
-lf->nlType = nlt_unix;  /* start with default of unix lf type */
 while (c < buf+bufSize)
     {
     if (*c=='\r')
@@ -394,18 +457,72 @@ while (c < buf+bufSize)
 	}
     if (*(c++) == '\n')
 	{
+        lf->nlType = nlt_unix;
 	return;
 	}
     }
 }
 
+static boolean findNextNewline(struct lineFile *lf, char *buf, int bytesInBuf, int *pEndIx)
+/* Return TRUE if able to find next end of line in buf, starting at buf[*pEndIx], up to bytesInBuf.
+ * When done set *pEndIx to the start of the next line if applicable, otherwise bytesInBuf. */
+{
+boolean gotLf = FALSE;
+int endIx = *pEndIx;
+switch (lf->nlType)
+    {
+    case nlt_unix:
+    case nlt_dos:
+        for (endIx = *pEndIx; endIx < bytesInBuf; ++endIx)
+            {
+            if (buf[endIx] == '\n')
+                {
+                gotLf = TRUE;
+                endIx += 1;
+                break;
+                }
+            }
+        break;
+    case nlt_mac:
+        for (endIx = *pEndIx; endIx < bytesInBuf; ++endIx)
+            {
+            if (buf[endIx] == '\r')
+                {
+                gotLf = TRUE;
+                endIx += 1;
+                break;
+                }
+            }
+        break;
+    case nlt_mixed:
+    case nlt_undet:
+        for (endIx = *pEndIx; endIx < bytesInBuf; ++endIx)
+            {
+            char c = buf[endIx];
+            if (c == '\r' || c == '\n')
+                {
+                gotLf = TRUE;
+                if (lf->zTerm)
+                    buf[endIx] = '\0';
+                endIx += 1;
+                if (c == '\r' && buf[endIx] == '\n')
+                    {
+                    if (lf->zTerm)
+                        buf[endIx] = '\0';
+                    endIx += 1;
+                    }
+                break;
+                }
+            }
+        break;
+    }
+*pEndIx = endIx;
+return gotLf;
+}
+
 boolean lineFileNext(struct lineFile *lf, char **retStart, int *retSize)
 /* Fetch next line from file. */
 {
-char *buf = lf->buf;
-int bytesInBuf = lf->bytesInBuf;
-int endIx = lf->lineEnd;
-boolean gotLf = FALSE;
 int newStart;
 
 if (lf->reuse)
@@ -413,7 +530,7 @@ if (lf->reuse)
     lf->reuse = FALSE;
     if (retSize != NULL)
 	*retSize = lf->lineEnd - lf->lineStart;
-    *retStart = buf + lf->lineStart;
+    *retStart = lf->buf + lf->lineStart;
     if (lf->metaOutput && *retStart[0] == '#')
         metaDataAdd(lf, *retStart);
     return TRUE;
@@ -422,14 +539,32 @@ if (lf->reuse)
 if (lf->nextCallBack)
     return lf->nextCallBack(lf, retStart, retSize);
 
+if (lf->udcFile)
+    {
+    lf->bufOffsetInFile = udcTell(lf->udcFile);
+    char *line = udcReadLine(lf->udcFile);
+    if (line==NULL)
+        return FALSE;
+    int lineSize = strlen(line);
+    lf->bytesInBuf = lineSize;
+    ++lf->lineIx;
+    lf->lineStart = 0;
+    lf->lineEnd = lineSize;
+    *retStart = line;
+    freeMem(lf->buf);
+    lf->buf = line;
+    lf->bufSize = lineSize;
+    if (retSize != NULL)
+	*retSize = lineSize;
+    return TRUE;
+    }
 
-#ifdef USE_TABIX
 if (lf->tabix != NULL && lf->tabixIter != NULL)
     {
     // Just use line-oriented ti_read:
     int lineSize = 0;
-    const char *line = ti_read(lf->tabix, lf->tabixIter, &lineSize);
-    if (line == NULL)
+    lineSize = tbx_itr_next(lf->htsFile, lf->tabix, lf->tabixIter, lf->kline);
+    if (lineSize == -1)
 	return FALSE;
     lf->bufOffsetInFile = -1;
     lf->bytesInBuf = lineSize;
@@ -439,45 +574,19 @@ if (lf->tabix != NULL && lf->tabixIter != NULL)
     if (lineSize > lf->bufSize)
 	// shouldn't be!  but just in case:
 	lineFileExpandBuf(lf, lineSize * 2);
-    safecpy(lf->buf, lf->bufSize, line);
+    kstring_t *kline = lf->kline;
+    safecpy(lf->buf, lf->bufSize, kline->s);
     *retStart = lf->buf;
     if (retSize != NULL)
 	*retSize = lineSize;
     return TRUE;
     }
-#endif // USE_TABIX
 
-determineNlType(lf, buf+endIx, bytesInBuf);
-
-/* Find next end of line in buffer. */
-switch(lf->nlType)
-    {
-    case nlt_unix:
-    case nlt_dos:
-	for (endIx = lf->lineEnd; endIx < bytesInBuf; ++endIx)
-	    {
-	    if (buf[endIx] == '\n')
-		{
-		gotLf = TRUE;
-		endIx += 1;
-		break;
-		}
-	    }
-	break;
-    case nlt_mac:
-	for (endIx = lf->lineEnd; endIx < bytesInBuf; ++endIx)
-	    {
-	    if (buf[endIx] == '\r')
-		{
-		gotLf = TRUE;
-		endIx += 1;
-		break;
-		}
-	    }
-	break;
-    case nlt_undet:
-	break;
-    }
+char *buf = lf->buf;
+int endIx = lf->lineEnd;
+int bytesInBuf = lf->bytesInBuf;
+determineNlType(lf, buf+endIx, bytesInBuf-endIx);
+boolean gotLf = findNextNewline(lf, buf, bytesInBuf, &endIx);
 
 /* If not in buffer read in a new buffer's worth. */
 while (!gotLf)
@@ -494,14 +603,12 @@ while (!gotLf)
     lf->bufOffsetInFile += oldEnd;
     if (lf->fd >= 0)
 	readSize = lineFileLongNetRead(lf->fd, buf+sizeLeft, readSize);
-#ifdef USE_TABIX
     else if (lf->tabix != NULL && readSize > 0)
 	{
-	readSize = ti_bgzf_read(lf->tabix->fp, buf+sizeLeft, readSize);
+        errAbort("bgzf read not supported with htslib (yet)");
 	if (readSize < 1)
 	    return FALSE;
 	}
-#endif // USE_TABIX
     else
         readSize = 0;
 
@@ -524,52 +631,19 @@ while (!gotLf)
 	lf->bytesInBuf = lf->lineStart = lf->lineEnd = 0;
 	return FALSE;
 	}
+    else
+        endIx = sizeLeft;
+
     bytesInBuf = lf->bytesInBuf = readSize + sizeLeft;
     lf->lineEnd = 0;
 
-    determineNlType(lf, buf+endIx, bytesInBuf);
+    determineNlType(lf, buf+endIx, bytesInBuf-endIx);
+    gotLf = findNextNewline(lf, buf, bytesInBuf, &endIx);
 
-    /* Look for next end of line.  */
-    switch(lf->nlType)
-	{
-    	case nlt_unix:
-	case nlt_dos:
-	    for (endIx = sizeLeft; endIx <bytesInBuf; ++endIx)
-		{
-		if (buf[endIx] == '\n')
-		    {
-		    endIx += 1;
-		    gotLf = TRUE;
-		    break;
-		    }
-		}
-	    break;
-	case nlt_mac:
-	    for (endIx = sizeLeft; endIx <bytesInBuf; ++endIx)
-		{
-		if (buf[endIx] == '\r')
-		    {
-		    endIx += 1;
-		    gotLf = TRUE;
-		    break;
-		    }
-		}
-	    break;
-	case nlt_undet:
-	    break;
-	}
     if (!gotLf && bytesInBuf == lf->bufSize)
         {
-	if (bufSize >= 512*1024*1024)
-	    {
-	    errAbort("Line too long (more than %d chars) line %d of %s",
-		lf->bufSize, lf->lineIx+1, lf->fileName);
-	    }
-	else
-	    {
-	    lineFileExpandBuf(lf, bufSize*2);
-	    buf = lf->buf;
-	    }
+        lineFileExpandBuf(lf, bufSize*2);
+        buf = lf->buf;
 	}
     }
 
@@ -631,24 +705,28 @@ void lineFileClose(struct lineFile **pLf)
 struct lineFile *lf;
 if ((lf = *pLf) != NULL)
     {
-    if (lf->pl != NULL)
+    struct pipeline *pl = lf->pl;
+    if (pl != NULL)
         {
-        pipelineWait(lf->pl);
-        pipelineFree(&lf->pl);
+        pipelineClose(&lf->pl);
         }
     else if (lf->fd > 0 && lf->fd != fileno(stdin))
 	{
 	close(lf->fd);
 	freeMem(lf->buf);
 	}
-#ifdef USE_TABIX
     else if (lf->tabix != NULL)
 	{
 	if (lf->tabixIter != NULL)
 	    ti_iter_destroy(lf->tabixIter);
 	ti_close(lf->tabix);
+        hts_close(lf->htsFile);
+        kstring_t *kline = lf->kline;
+        free(kline->s);
 	}
-#endif // USE_TABIX
+    else if (lf->udcFile != NULL)
+        udcFileClose(&lf->udcFile);
+
     if (lf->closeCallBack)
         lf->closeCallBack(lf);
     freeMem(lf->fileName);
@@ -670,12 +748,18 @@ for (el = *pList; el != NULL; el = next)
 *pList = NULL;
 }
 
+void lineFileExpectWordsMesg(struct lineFile *lf, int expecting, int got, char* extraMessage)
+/* Check line has right number of words. Add extraMessage to end of error message. */
+{
+if (expecting != got)
+    errAbort("Expecting %d words line %d of %s got %d. %s",
+	    expecting, lf->lineIx, lf->fileName, got, extraMessage);
+}
+
 void lineFileExpectWords(struct lineFile *lf, int expecting, int got)
 /* Check line has right number of words. */
 {
-if (expecting != got)
-    errAbort("Expecting %d words line %d of %s got %d",
-	    expecting, lf->lineIx, lf->fileName, got);
+    lineFileExpectWordsMesg(lf, expecting, got, "");
 }
 
 void lineFileExpectAtLeast(struct lineFile *lf, int expecting, int got)
@@ -807,7 +891,7 @@ return FALSE;
 
 boolean lineFileNextReal(struct lineFile *lf, char **retStart)
 /* Fetch next line from file that is not blank and
- * does not start with a '#'. */
+ *  * does not start with a '#'. */
 {
 char *s, c;
 while (lineFileNext(lf, retStart, NULL))
@@ -1199,7 +1283,7 @@ boolean lineFileParseHttpHeader(struct lineFile *lf, char **hdr,
 /* Extract HTTP response header from lf into hdr, tell if it's
  * "Transfer-Encoding: chunked" or if it has a contentLength. */
 {
-  struct dyString *header = newDyString(1024);
+  struct dyString *header = dyStringNew(1024);
   char *line;
   int lineSize;
 
@@ -1276,7 +1360,7 @@ struct dyString *lineFileSlurpHttpBody(struct lineFile *lf,
 /* Return a dyString that contains the http response body in lf.  Handle
  * chunk-encoding and content-length. */
 {
-  struct dyString *body = newDyString(64*1024);
+  struct dyString *body = dyStringNew(64*1024);
   char *line;
   int lineSize;
 

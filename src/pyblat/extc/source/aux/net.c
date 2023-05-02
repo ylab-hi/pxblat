@@ -8,90 +8,147 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/time.h>
-#include <utime.h>
 #include <pthread.h>
-#include "internet.h"
-#include "errabort.h"
+#include "errAbort.h"
 #include "hash.h"
 #include "net.h"
 #include "linefile.h"
 #include "base64.h"
 #include "cheapcgi.h"
+#include "htmlPage.h"
 #include "https.h"
 #include "sqlNum.h"
 #include "obscure.h"
-
+#include "errCatch.h"
 
 /* Brought errno in to get more useful error messages */
-
 extern int errno;
 
-static int netStreamSocket()
-/* Create a TCP/IP streaming socket.  Complain and return something
- * negative if can't */
+static int netStreamSocketFromAddrInfo(struct addrinfo *address)
+/* Create a socket from addrinfo structure.
+ * Complain and return something negative if can't. */
 {
-int sd = socket(AF_INET, SOCK_STREAM, 0);
+int sd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
 if (sd < 0)
-    warn("Couldn't make AF_INET socket.");
+    warn("Couldn't make %s socket.", familyToString(address->ai_family));
+
 return sd;
 }
 
-static int netConnectWithTimeout(char *hostName, int port, long msTimeout)
-/* In order to avoid a very long default timeout (several minutes) for hosts that will
- * not answer the port, we are forced to connect non-blocking.
- * After the connection has been established, we return to blocking mode. */
+static int setSocketNonBlocking(int sd, boolean set)
+/* Use socket control flags to set O_NONBLOCK if set==TRUE,
+ * or clear it if set==FALSE.
+ * Return -1 if there are any errors, 0 if successful. */
 {
-int sd;
-struct sockaddr_in sai;		/* Some system socket info. */
-int res;
-fd_set mySet;
-struct timeval lTime;
 long fcntlFlags;
-
-if (hostName == NULL)
-    {
-    warn("NULL hostName in netConnect");
-    return -1;
-    }
-if (!internetFillInAddress(hostName, port, &sai))
-    return -1;
-if ((sd = netStreamSocket()) < 0)
-    return sd;
-
-// Set non-blocking
+// Set or clear non-blocking
 if ((fcntlFlags = fcntl(sd, F_GETFL, NULL)) < 0)
     {
     warn("Error fcntl(..., F_GETFL) (%s)", strerror(errno));
-    close(sd);
     return -1;
     }
-fcntlFlags |= O_NONBLOCK;
+if (set)
+    fcntlFlags |= O_NONBLOCK;
+else
+    fcntlFlags &= (~O_NONBLOCK);
 if (fcntl(sd, F_SETFL, fcntlFlags) < 0)
     {
     warn("Error fcntl(..., F_SETFL) (%s)", strerror(errno));
-    close(sd);
+    return -1;
+    }
+return 0;
+}
+
+int setReadWriteTimeouts(int sd, int seconds)
+/* Set read and write timeouts on socket sd
+ * Return -1 if there are any errors, 0 if successful. */
+{
+struct timeval timeout;
+timeout.tv_sec = seconds;
+timeout.tv_usec = 0;
+
+if (setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+    {
+    warn("setsockopt failed setting socket receive timeout\n");
+    return -1;
+    }
+
+if (setsockopt(sd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+    {
+    warn("setsockopt failed setting socket send timeout\n");
+    return -1;
+    }
+return 0;
+}
+
+
+static struct timeval tvMinus(struct timeval a, struct timeval b)
+/* Return the result of a - b; this handles wrapping of milliseconds.
+ * result.tv_usec will always be positive.
+ * result.tv_sec will be negative if b > a. */
+{
+// subtract b from a.
+if (a.tv_usec < b.tv_usec)
+    {
+    a.tv_usec += 1000000;
+    a.tv_sec--;
+    }
+a.tv_usec -= b.tv_usec;
+a.tv_sec -= b.tv_sec;
+return a;
+}
+
+int netConnectWithTimeoutOneAddr(int sd, struct addrinfo *address, long msTimeout, char *hostName, int port, struct dyString *dy)
+/* Try to connect one address with timeout or return success == 0, failure == -1 */
+{
+// Set socket to nonblocking so we can manage our own timeout time.
+if (setSocketNonBlocking(sd, TRUE) < 0)
+    {
     return -1;
     }
 
 // Trying to connect with timeout
-res = connect(sd, (struct sockaddr*) &sai, sizeof(sai));
+int res;
+res = connect(sd, address->ai_addr, address->ai_addrlen);
+char ipStr[NI_MAXHOST];
+getAddrAsString6n4((struct sockaddr_storage *)address->ai_addr, ipStr, sizeof ipStr);
 if (res < 0)
     {
     if (errno == EINPROGRESS)
 	{
+	struct timeval startTime;
+	gettimeofday(&startTime, NULL);
+	struct timeval remainingTime;
+	remainingTime.tv_sec = (long) (msTimeout/1000);
+	remainingTime.tv_usec = (long) (((msTimeout/1000)-remainingTime.tv_sec)*1000000);
 	while (1)
 	    {
-	    lTime.tv_sec = (long) (msTimeout/1000);
-	    lTime.tv_usec = (long) (((msTimeout/1000)-lTime.tv_sec)*1000000);
+	    fd_set mySet, exceptSet;
 	    FD_ZERO(&mySet);
 	    FD_SET(sd, &mySet);
-	    res = select(sd+1, NULL, &mySet, &mySet, &lTime);
+            exceptSet = mySet;
+	    // use tempTime (instead of using remainingTime directly) because on some platforms select() may modify the time val.
+	    struct timeval tempTime = remainingTime;
+	    res = select(sd+1, NULL, &mySet, &exceptSet, &tempTime);
 	    if (res < 0)
 		{
-		if (errno != EINTR)
+		if (errno == EINTR)  // Ignore the interrupt
 		    {
-		    warn("Error in select() during TCP non-blocking connect %d - %s", errno, strerror(errno));
-		    close(sd);
+		    // Subtract the elapsed time from remaining time since some platforms need this.
+		    struct timeval newTime;
+		    gettimeofday(&newTime, NULL);
+		    struct timeval elapsedTime = tvMinus(newTime, startTime);
+		    remainingTime = tvMinus(remainingTime, elapsedTime);
+		    if (remainingTime.tv_sec < 0)  // means our timeout has more than expired
+			{
+			remainingTime.tv_sec = 0;
+			remainingTime.tv_usec = 0;
+			}
+		    startTime = newTime;
+		    }
+		else
+		    {
+		    dyStringPrintf(dy, "Error in select() during TCP non-blocking connect %d - %s\n", errno, strerror(errno));
 		    return -1;
 		    }
 		}
@@ -100,50 +157,91 @@ if (res < 0)
 		// Socket selected for write when it is ready
 		int valOpt;
 		socklen_t lon;
-                // But check the socket for any errors
-                lon = sizeof(valOpt);
-                if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (void*) (&valOpt), &lon) < 0)
-                    {
-                    warn("Error in getsockopt() %d - %s", errno, strerror(errno));
-                    close(sd);
-                    return -1;
-                    }
-                // Check the value returned...
-                if (valOpt)
-                    {
-                    warn("Error in TCP non-blocking connect() %d - %s", valOpt, strerror(valOpt));
-                    close(sd);
-                    return -1;
-                    }
-		break;
+		// But check the socket for any errors
+		lon = sizeof(valOpt);
+		if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (void*) (&valOpt), &lon) < 0)
+		    {
+		    warn("Error in getsockopt() %d - %s", errno, strerror(errno));
+		    return -1;
+		    }
+		// Check the value returned...
+		if (valOpt)
+		    {
+		    dyStringPrintf(dy, "Error in TCP non-blocking connect() %d - %s. Host %s IP %s port %d.\n", valOpt, strerror(valOpt), hostName, ipStr, port);
+		    return -1;
+		    }
+		break;  // OK
 		}
 	    else
 		{
-		warn("TCP non-blocking connect() to %s timed-out in select() after %ld milliseconds - Cancelling!", hostName, msTimeout);
-		close(sd);
+		dyStringPrintf(dy, "TCP non-blocking connect() to %s IP %s timed-out in select() after %ld milliseconds - Cancelling!", hostName, ipStr, msTimeout);
 		return -1;
 		}
 	    }
 	}
     else
 	{
-	warn("TCP non-blocking connect() error %d - %s", errno, strerror(errno));
-	close(sd);
+	dyStringPrintf(dy, "TCP non-blocking connect() error %d - %s", errno, strerror(errno));
 	return -1;
 	}
     }
+return 0; // OK
+}
+
+
+int netConnectWithTimeout(char *hostName, int port, long msTimeout)
+/* In order to avoid a very long default timeout (several minutes) for hosts that will
+* not answer the port, we are forced to connect non-blocking.
+* After the connection has been established, we return to blocking mode.
+* Also closes sd if error. */
+{
+int sd;
+struct addrinfo *addressList=NULL, *address;
+char portStr[8];
+safef(portStr, sizeof portStr, "%d", port);
+
+if (hostName == NULL)
+    {
+    warn("NULL hostName in netConnect");
+    return -1;
+    }
+if (!internetGetAddrInfo6n4(hostName, portStr, &addressList))
+    return -1;
+
+struct dyString *errMsg = dyStringNew(256);
+for (address = addressList; address; address = address->ai_next)
+    {
+    if ((sd = netStreamSocketFromAddrInfo(address)) < 0)
+	continue;
+
+    if (netConnectWithTimeoutOneAddr(sd, address, msTimeout, hostName, port, errMsg) == 0)
+	break;
+
+    close(sd);
+    }
+boolean connected = (address != NULL); // one of the addresses connected successfully
+freeaddrinfo(addressList);
+
+if (!connected)
+    {
+    if (!sameString(errMsg->string, ""))
+	{
+	warn("%s", errMsg->string);
+	}
+    }
+dyStringFree(&errMsg);
+if (!connected)
+    return -1;
 
 // Set to blocking mode again
-if ((fcntlFlags = fcntl(sd, F_GETFL, NULL)) < 0)
+if (setSocketNonBlocking(sd, FALSE) < 0)
     {
-    warn("Error fcntl(..., F_GETFL) (%s)", strerror(errno));
     close(sd);
     return -1;
     }
-fcntlFlags &= (~O_NONBLOCK);
-if (fcntl(sd, F_SETFL, fcntlFlags) < 0)
+
+if (setReadWriteTimeouts(sd, DEFAULTREADWRITETTIMEOUTSEC) < 0)
     {
-    warn("Error fcntl(..., F_SETFL) (%s)", strerror(errno));
     close(sd);
     return -1;
     }
@@ -156,7 +254,7 @@ return sd;
 int netConnect(char *hostName, int port)
 /* Start connection with a server. */
 {
-return netConnectWithTimeout(hostName, port, 10000); // 10 seconds connect timeout
+return netConnectWithTimeout(hostName, port, DEFAULTCONNECTTIMEOUTMSEC); // 10 seconds connect timeout
 }
 
 int netMustConnect(char *hostName, int port)
@@ -176,38 +274,118 @@ if (!isdigit(portName[0]))
 return netMustConnect(hostName, atoi(portName));
 }
 
-
-int netAcceptingSocketFrom(int port, int queueSize, char *host)
-/* Create a socket that can accept connections from a
- * IP address on the current machine if the current machine
- * has multiple IP addresses. */
+int netAcceptingSocket4Only(int port, int queueSize)
+/* Create an IPV4 socket that can accept connections from
+ * only IPV4 clients on the current machine. Useful for systems with ipv6 disabled. */
 {
-struct sockaddr_in sai;
+struct sockaddr_in serverAddr;
 int sd;
-int flag = 1;
 
 netBlockBrokenPipes();
-if ((sd = netStreamSocket()) < 0)
-    return sd;
-if (!internetFillInAddress(host, port, &sai))
-    return -1;
-if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int)))
-    return -1;
-if (bind(sd, (struct sockaddr*)&sai, sizeof(sai)) == -1)
+
+// ipv4 listening socket accepts ipv4 connections.
+if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-    warn("Couldn't bind socket to %d: %s", port, strerror(errno));
-    close(sd);
-    return -1;
+    errAbort("socket() failed");
     }
-listen(sd, queueSize);
+
+// Allow local address reuse when server is restarted without waiting.
+int on = -1;
+if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,sizeof(on)) < 0)
+    {
+    errAbort("setsockopt(SO_REUSEADDR) failed");
+    }
+
+ZeroVar(&serverAddr);
+serverAddr.sin_family = AF_INET;
+serverAddr.sin_port = htons(port);
+serverAddr.sin_addr.s_addr = INADDR_ANY;
+
+if (bind(sd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    {
+    errAbort("Couldn't bind socket to %d: %s", port, strerror(errno));
+    }
+
+if (listen(sd, queueSize) < 0)
+    {
+    errAbort("listen() failed");
+    }
+
 return sd;
 }
 
-int netAcceptingSocket(int port, int queueSize)
-/* Create a socket that can accept connections from
- * anywhere. */
+
+int netAcceptingSocket6n4(int port, int queueSize)
+/* Create an IPV6 socket that can accept connections from
+ * both IPV4 and IPV6 clients on the current machine. */
 {
-return netAcceptingSocketFrom(port, queueSize, NULL);
+struct sockaddr_in6 serverAddr;
+int sd;
+
+netBlockBrokenPipes();
+
+// Hybrid dual stack ipv6 listening socket accepts ipv6 and ipv4 mapped connections.
+if ((sd = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
+    {
+    errAbort("socket() failed");
+    }
+
+// Allow local address reuse when server is restarted without waiting.
+int on = -1;
+if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&on,sizeof(on)) < 0)
+    {
+    errAbort("setsockopt(SO_REUSEADDR) failed");
+    }
+
+// Explicitly turn off IPV6_V6ONLY which is needed on non-Linux platforms like NetBSD and Darwin.
+// This means we allow ipv4 socket connections that can have ipv4-mapped ipv6 IPs.
+int off = 0;
+if (setsockopt(sd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off)) < 0)
+    {
+    errAbort("setsockopt IPV6_V6ONLY off failed.");
+    }
+
+ZeroVar(&serverAddr);
+serverAddr.sin6_family = AF_INET6;
+serverAddr.sin6_port   = htons(port);
+serverAddr.sin6_addr   = in6addr_any;
+if (bind(sd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    {
+    errAbort("Couldn't bind socket to %d: %s", port, strerror(errno));
+    }
+
+if (listen(sd, queueSize) < 0)
+    {
+    errAbort("listen() failed");
+    }
+
+return sd;
+}
+
+
+int netAcceptingSocket(int port, int queueSize)
+/* Create an IPV6 socket that can accept connections from
+ * both IPV4 and IPV6 clients on the current machine.
+ * OR Failover to making IPv4 Only socket if IPv6 is disabled. */
+{
+int sd = -1;
+struct errCatch *errCatch = errCatchNew();
+if (errCatchStart(errCatch))
+    {
+    sd = netAcceptingSocket6n4(port, queueSize);
+    }
+errCatchEnd(errCatch);
+if (errCatch->gotError)
+    {
+    // if ipv6 is disabled, fall back to trying ipv4 only listen socket
+    warn("%s", errCatch->message->string);
+    warn("Retrying listen socket using ipv4 only.");
+    sd = netAcceptingSocket4Only(port, queueSize);
+    }
+errCatchFree(&errCatch);
+if (sd == -1)
+  errAbort("unable to open listening socket");
+return sd;
 }
 
 int netAccept(int sd)
@@ -217,28 +395,43 @@ socklen_t fromLen;
 return accept(sd, NULL, &fromLen);
 }
 
-int netAcceptFrom(int acceptor, unsigned char subnet[4])
+int netAcceptFrom(int acceptor, struct cidr *subnet)
 /* Wait for incoming connection from socket descriptor
  * from IP address in subnet.  Subnet is something
- * returned from netParseSubnet or internetParseDottedQuad.
+ * returned from internetParseSubnetCidr.
  * Subnet may be NULL. */
 {
-struct sockaddr_in sai;		/* Some system socket info. */
-ZeroVar(&sai);
-sai.sin_family = AF_INET;
 for (;;)
     {
-    socklen_t addrSize = sizeof(sai);
-    int sd = accept(acceptor, (struct sockaddr *)&sai, &addrSize);
+    int sd = accept(acceptor, NULL, NULL);
     if (sd >= 0)
 	{
 	if (subnet == NULL)
 	    return sd;
 	else
 	    {
-	    unsigned char unpacked[4];
-	    internetUnpackIp(ntohl(sai.sin_addr.s_addr), unpacked);
-	    if (internetIpInSubnet(unpacked, subnet))
+	    socklen_t len;
+	    struct sockaddr_storage addr;
+	    char ipStr[INET6_ADDRSTRLEN];
+
+	    len = sizeof addr;
+	    getpeername(sd, (struct sockaddr*)&addr, &len);
+
+            getAddrAsString6n4(&addr, ipStr, sizeof ipStr);
+
+	    if (!strchr(ipStr, ':'))   // convert ipv4 to ipv6-mapped
+		{
+		// prepend "::ffff:" to ipStr
+	        char temp[INET6_ADDRSTRLEN];
+		safef(temp, sizeof temp, "::ffff:%s", ipStr);
+		safecpy(ipStr, sizeof ipStr, temp);
+		}
+	    // convert back to ipv6 address.
+	    struct sockaddr_in6 clientAddr;
+	    internetIpStringToIp6(ipStr, &clientAddr.sin6_addr);
+
+            // see if it is in the allowed subnet
+	    if (internetIpInSubnetCidr(&clientAddr.sin6_addr, subnet))
 		{
 		return sd;
 		}
@@ -276,12 +469,12 @@ if (!plumberInstalled)
     }
 }
 
-size_t netReadAll(int sd, void *vBuf, size_t size)
+ssize_t netReadAll(int sd, void *vBuf, ssize_t size)
 /* Read given number of bytes into buffer.
  * Don't give up on first read! */
 {
 char *buf = vBuf;
-size_t totalRead = 0;
+ssize_t totalRead = 0;
 int oneRead;
 
 if (!plumberInstalled)
@@ -298,50 +491,16 @@ while (totalRead < size)
 return totalRead;
 }
 
-int netMustReadAll(int sd, void *vBuf, size_t size)
+ssize_t netMustReadAll(int sd, void *vBuf, ssize_t size)
 /* Read given number of bytes into buffer or die.
  * Don't give up if first read is short! */
 {
-int ret = netReadAll(sd, vBuf, size);
+ssize_t ret = netReadAll(sd, vBuf, size);
 if (ret < 0)
     errnoAbort("Couldn't finish netReadAll");
 return ret;
 }
 
-static void notGoodSubnet(char *sns)
-/* Complain about subnet format. */
-{
-errAbort("'%s' is not a properly formatted subnet.  Subnets must consist of\n"
-         "one to three dot-separated numbers between 0 and 255", sns);
-}
-
-void netParseSubnet(char *in, unsigned char out[4])
-/* Parse subnet, which is a prefix of a normal dotted quad form.
- * Out will contain 255's for the don't care bits. */
-{
-out[0] = out[1] = out[2] = out[3] = 255;
-if (in != NULL)
-    {
-    char *snsCopy = strdup(in);
-    char *words[5];
-    int wordCount, i;
-    wordCount = chopString(snsCopy, ".", words, ArraySize(words));
-    if (wordCount > 3 || wordCount < 1)
-        notGoodSubnet(in);
-    for (i=0; i<wordCount; ++i)
-	{
-	char *s = words[i];
-	int x;
-	if (!isdigit(s[0]))
-	    notGoodSubnet(in);
-	x = atoi(s);
-	if (x > 255)
-	    notGoodSubnet(in);
-	out[i] = x;
-	}
-    freez(&snsCopy);
-    }
-}
 
 static void parseByteRange(char *url, ssize_t *rangeStart, ssize_t *rangeEnd, boolean terminateAtByteRange)
 /* parse the byte range information from url */
@@ -363,7 +522,6 @@ if (x)
 	    ++z;
 	    if (terminateAtByteRange)
 		*x = 0;
-	    // TODO: use something better than atoll() ?
 	    *rangeStart = atoll(y);
 	    if (z[0] != '\0')
 		*rangeEnd = atoll(z);
@@ -373,6 +531,20 @@ if (x)
 
 }
 
+void netHandleHostForIpv6(struct netParsedUrl *npu, struct dyString *dy)
+/* if needed, add brackets around the host name,
+ * for raw ipv6 address so it is not confused with colon port that may follow. */
+{
+boolean hostIsIpv6 = FALSE;
+if (strchr(npu->host, ':')) // Is the host really an IPV6 address?
+    hostIsIpv6 = TRUE;
+if (hostIsIpv6) // surround ipv6 host with brakets []
+    dyStringAppendC(dy, '[');
+dyStringAppend(dy, npu->host);
+if (hostIsIpv6) // surround ipv6 host with brakets []
+    dyStringAppendC(dy, ']');
+}
+
 void netParseUrl(char *url, struct netParsedUrl *parsed)
 /* Parse a URL into components.   A full URL is made up as so:
  *   http://user:password@hostName:port/file;byterange=0-499
@@ -380,8 +552,8 @@ void netParseUrl(char *url, struct netParsedUrl *parsed)
  * This is set up so that the http:// and the port are optional.
  */
 {
-char *s, *t, *u, *v, *w;
-char buf[1024];
+char *s, *t, *u, *v, *w, *br, *bl;
+char buf[MAXURLSIZE];
 
 /* Make local copy of URL. */
 if (strlen(url) >= sizeof(buf))
@@ -413,13 +585,28 @@ if (u == NULL)
     strcpy(parsed->file, "/");
 else
     {
+
     parseByteRange(u, &parsed->byteRangeStart, &parsed->byteRangeEnd, TRUE);
 
-    /* need to encode spaces, but not ! other characters */
-    char *t=replaceChars(u," ","%20");
-    safecpy(parsed->file, sizeof(parsed->file), t);
-    freeMem(t);
-    *u = 0;
+    if (sameWord(parsed->protocol,"http") ||
+        sameWord(parsed->protocol,"https"))
+	{
+	// http servers expect the URL request to be URL-encoded already.
+	/* need to encode spaces, but not ! other characters */
+	char *t=replaceChars(u," ","%20");
+	safecpy(parsed->file, sizeof(parsed->file), t);
+	freeMem(t);
+	}
+
+    *u = 0; // terminate the host:port string
+
+    if (sameWord(parsed->protocol,"ftp"))
+	{
+	++u; // that first slash is not considered part of the ftp path
+	// decode now because the FTP server does NOT expect URL-encoding.
+	cgiDecodeFull(u,parsed->file,strlen(u));  // decodes %FF but not +
+	}
+
     }
 
 /* Split off user part */
@@ -461,9 +648,59 @@ else
     }
 
 
+// Whenever IPv6 address : port are provided,
+// the address MUST be surrounded by square brackets like [IPv6-address]:port
+// because without the square brackets, we cannot tell if the trailing bit
+// is end end of an IPv6 address, or port number.
+
+int blCount = countChars(s, '[');
+int brCount = countChars(s, ']');
+
+// double-check any stray brackets
+if ((brCount != blCount) || (brCount > 1))
+    errAbort("badly formed url, stray square brackets in IPv6 address");
+
 /* Save port if it's there.  If not default to 80. */
-t = strchr(s, ':');
-if (t == NULL)
+bl = strchr(s, '['); // IPV6 address in url surrounded by brackets []
+br = strrchr(s, ']'); // IPV6 address in url surrounded by brackets []
+
+if (!br != !bl)  // logical XOR
+    errAbort("badly formed url, unbalanced square brackets around IPv6 address.");
+
+if (!br && isIpv6Address(s))  // host looks like IPv6 address but no brackets.
+    errAbort("badly formed url, should be protocol://[IPv6-address]:port/. Put square brackets around literal IPv6 address.");
+
+// trim off the brackets around the ipv6 host name
+if (br)
+    {
+    // expecting *s == [
+    if (*s != '[')
+	errAbort("badly formed url %s, expected [ at start of ipv6 address", s);
+    ++s;    // skip [
+    *br = 0; // erase ]
+    t = br+1;
+    char c = *t;
+    if (c == 0)
+	t = NULL;
+    else if (c != ':')
+	errAbort("badly formed url %s, stray characters after ] at end of ipv6 address", s);
+    }
+else
+    {
+    t = strrchr(s, ':');
+    }
+
+if (br && !isIpv6Address(s))  // host has brackets but does not look like IPv6 address.
+    errAbort("badly formed url, brackets found, but not valid literal IPv6 address.");
+
+if (t) // the port was explicitly provided
+    {
+    *t++ = 0;
+    if (!isdigit(t[0]))
+	errAbort("Non-numeric port name %s", t);
+    safecpy(parsed->port, sizeof(parsed->port), t);
+    }
+else // get default port for each protocol
     {
     if (sameWord(parsed->protocol,"http"))
 	strcpy(parsed->port, "80");
@@ -471,13 +708,6 @@ if (t == NULL)
 	strcpy(parsed->port, "443");
     if (sameWord(parsed->protocol,"ftp"))
 	strcpy(parsed->port, "21");
-    }
-else
-    {
-    *t++ = 0;
-    if (!isdigit(t[0]))
-	errAbort("Non-numeric port name %s", t);
-    safecpy(parsed->port, sizeof(parsed->port), t);
     }
 
 /* What's left is the host. */
@@ -487,7 +717,7 @@ safecpy(parsed->host, sizeof(parsed->host), s);
 char *urlFromNetParsedUrl(struct netParsedUrl *npu)
 /* Build URL from netParsedUrl structure */
 {
-struct dyString *dy = newDyString(512);
+struct dyString *dy = dyStringNew(512);
 
 dyStringAppend(dy, npu->protocol);
 dyStringAppend(dy, "://");
@@ -505,7 +735,9 @@ if (npu->user[0] != 0)
 	}
     dyStringAppend(dy, "@");
     }
-dyStringAppend(dy, npu->host);
+
+netHandleHostForIpv6(npu, dy);
+
 /* do not include port if it is the default */
 if (!(
  (sameString(npu->protocol, "ftp"  ) && sameString("21", npu->port)) ||
@@ -528,10 +760,9 @@ if (npu->byteRangeStart != -1)
 return dyStringCannibalize(&dy);
 }
 
-/* this was cloned from rudp.c - move it later for sharing */
-static boolean readReadyWait(int sd, int microseconds)
-/* Wait for descriptor to have some data to read, up to
- * given number of microseconds. */
+int netWaitForData(int sd, int microseconds)
+/* Wait for descriptor to have some data to read, up to given number of
+ * microseconds.  Returns amount of data there or zero if timed out. */
 {
 struct timeval tv;
 fd_set set;
@@ -557,13 +788,21 @@ for (;;)
 	if (errno == EINTR)	/* Select interrupted, not timed out. */
 	    continue;
     	else
-    	    warn("select failure in rudp: %s", strerror(errno));
+    	    warn("select failure %s", strerror(errno));
     	}
     else
 	{
-    	return readyCount > 0;	/* Zero readyCount indicates time out */
+    	return readyCount;	/* Zero readyCount indicates time out */
 	}
     }
+}
+
+static boolean readReadyWait(int sd, int microseconds)
+/* Wait for descriptor to have some data to read, up to given number of
+ * number of microseconds.  Returns true if there is data, false if timed out. */
+{
+int readyCount = netWaitForData(sd, microseconds);
+return readyCount > 0;	/* Zero readyCount indicates time out */
 }
 
 static void sendFtpCommandOnly(int sd, char *cmd)
@@ -579,7 +818,7 @@ static boolean receiveFtpReply(int sd, char *cmd, struct dyString **retReply, in
  * warn and return FALSE if not desired reply.  If retReply is non-NULL, store reply text there. */
 {
 char *startLastLine = NULL;
-struct dyString *rs = newDyString(4*1024);
+struct dyString *rs = dyStringNew(4*1024);
 while (1)
     {
     int readSize = 0;
@@ -622,9 +861,12 @@ while (1)
     }
 
 int reply = atoi(startLastLine);
+if (retCode)
+    *retCode = reply;
 if ((reply < 200) || (reply > 399))
     {
-    warn("ftp server error on cmd=[%s] response=[%s]",cmd,rs->string);
+    if (!(sameString(cmd,"PASV\r\n") && reply==501))
+	warn("ftp server error on cmd=[%s] response=[%s]",cmd,rs->string);
     return FALSE;
     }
 
@@ -632,8 +874,6 @@ if (retReply)
     *retReply = rs;
 else
     dyStringFree(&rs);
-if (retCode)
-    *retCode = reply;
 return TRUE;
 }
 
@@ -659,6 +899,23 @@ wordCount = chopString(rsStart, ",", words, ArraySize(words));
 if (wordCount != 6)
     errAbort("PASV reply does not parse correctly");
 result = atoi(words[4])*256+atoi(words[5]);
+return result;
+}
+
+static int parseEpsvPort(char *rs)
+/* parse EPSV reply to get the port and return it */
+{
+char *words[6];
+int wordCount;
+char *rsStart = strchr(rs,'(');
+char *rsEnd = strchr(rs,')');
+int result = 0;
+rsStart++;
+*rsEnd=0;
+wordCount = chopString(rsStart, "|", words, ArraySize(words));
+if (wordCount != 1)
+    errAbort("EPSV reply does not parse correctly");
+result = atoi(words[0]); // multiple separators treated as one.
 return result;
 }
 
@@ -777,7 +1034,6 @@ netParseUrl(url, &npu);
 if (!sameString(npu.protocol, "ftp"))
     errAbort("netGetFtpInfo: url (%s) is not for ftp.", url);
 
-// TODO maybe remove this workaround where udc cache wants info on URL "/" ?
 if (sameString(npu.file,"/"))
     {
     *retSize = 0;
@@ -866,7 +1122,7 @@ return NULL;
 }
 
 static int netGetOpenFtpSockets(char *url, int *retCtrlSd)
-/* Return a socket descriptor for url data (url can end in ";byterange:start-end",
+/* Return a socket descriptor for url data (url can end in ";byterange:start-end)",
  * or -1 if error.
  * If retCtrlSd is non-null, keep the control socket alive and set *retCtrlSd.
  * Otherwise, create a pipe and fork to keep control socket alive in the child
@@ -876,26 +1132,66 @@ char cmd[256];
 
 /* Parse the URL and connect. */
 struct netParsedUrl npu;
+struct netParsedUrl pxy;
 netParseUrl(url, &npu);
 if (!sameString(npu.protocol, "ftp"))
     errAbort("netGetOpenFtpSockets: url (%s) is not for ftp.", url);
-int sd = openFtpControlSocket(npu.host, atoi(npu.port), npu.user, npu.password);
+
+boolean noProxy = checkNoProxy(npu.host);
+char *proxyUrl = getenv("ftp_proxy");
+if (noProxy)
+    proxyUrl = NULL;
+
+int sd = -1;
+if (proxyUrl)
+    {
+    netParseUrl(proxyUrl, &pxy);
+    if (!sameString(pxy.protocol, "ftp"))
+        errAbort("Unknown proxy protocol %s in %s. Should be ftp.", pxy.protocol, proxyUrl);
+    char proxyUser[4096];
+    safef(proxyUser, sizeof proxyUser, "%s@%s:%s", npu.user, npu.host, npu.port);
+    sd = openFtpControlSocket(pxy.host, atoi(pxy.port), proxyUser, npu.password);
+    char *logProxy = getenv("log_proxy");
+    if (sameOk(logProxy,"on"))
+	verbose(1, "%s as %s via proxy %s\n", url, proxyUser, proxyUrl);
+    }
+else
+    {
+    sd = openFtpControlSocket(npu.host, atoi(npu.port), npu.user, npu.password);
+    }
+
 if (sd == -1)
     return -1;
 
+int retCode = 0;
 struct dyString *rs = NULL;
-if (!sendFtpCommand(sd, "PASV\r\n", &rs, NULL))
+sendFtpCommand(sd, "PASV\r\n", &rs, &retCode);
+/* 227 Entering Passive Mode (128,231,210,81,222,250) */
+boolean isIpv6 = FALSE;
+if (retCode == 501)
+    {
+
+    if (!sendFtpCommand(sd, "EPSV\r\n", &rs, NULL))
+    /* 229 Entering Extended Passive Mode (|||44022|) */
+	{
+	close(sd);
+	return -1;
+	}
+    isIpv6 = TRUE;
+
+    }
+else if (retCode != 227)
     {
     close(sd);
     return -1;
     }
-/* 227 Entering Passive Mode (128,231,210,81,222,250) */
 
 if (npu.byteRangeStart != -1)
     {
     safef(cmd,sizeof(cmd),"REST %lld\r\n", (long long) npu.byteRangeStart);
     if (!sendFtpCommand(sd, cmd, NULL, NULL))
 	{
+	dyStringFree(&rs);
 	close(sd);
 	return -1;
 	}
@@ -905,7 +1201,8 @@ if (npu.byteRangeStart != -1)
 safef(cmd,sizeof(cmd),"%s %s\r\n",((npu.file[strlen(npu.file)-1]) == '/') ? "LIST" : "RETR", npu.file);
 sendFtpCommandOnly(sd, cmd);
 
-int sdata = netConnect(npu.host, parsePasvPort(rs->string));
+int sdata = -1;
+sdata = netConnect(proxyUrl ? pxy.host : npu.host, isIpv6 ? parseEpsvPort(rs->string) : parsePasvPort(rs->string));
 dyStringFree(&rs);
 if (sdata < 0)
     {
@@ -947,7 +1244,7 @@ else
     {
     /* Because some FTP servers will kill the data connection
      * as soon as the control connection closes,
-     * we have to develop a workaround using a partner process. */
+     * we have to develop a workaround using a partner thread. */
     fflush(stdin);
     fflush(stdout);
     fflush(stderr);
@@ -972,7 +1269,7 @@ else
 }
 
 
-int connectNpu(struct netParsedUrl npu, char *url)
+int connectNpu(struct netParsedUrl npu, char *url, boolean noProxy)
 /* Connect using NetParsedUrl. */
 {
 int sd = -1;
@@ -982,7 +1279,7 @@ if (sameString(npu.protocol, "http"))
     }
 else if (sameString(npu.protocol, "https"))
     {
-    sd = netConnectHttps(npu.host, atoi(npu.port));
+    sd = netConnectHttps(npu.host, atoi(npu.port), noProxy);
     }
 else
     {
@@ -1006,6 +1303,22 @@ if (!sameString(npu.user,""))
     }
 }
 
+boolean checkNoProxy(char *host)
+/* See if host endsWith element on no_proxy list. Elements are comma-separated. */
+{
+char *list = cloneString(getenv("no_proxy"));
+if (!list)
+    return FALSE;
+replaceChar(list, ',', ' ');
+char *word;
+while((word=nextWord(&list)))
+    {
+    if (endsWith(host, word))
+	return TRUE;
+    }
+return FALSE;
+}
+
 int netHttpConnect(char *url, char *method, char *protocol, char *agent, char *optionalHeader)
 /* Parse URL, connect to associated server on port, and send most of
  * the request to the server.  If specified in the url send user name
@@ -1014,25 +1327,36 @@ int netHttpConnect(char *url, char *method, char *protocol, char *agent, char *o
  * library. optionalHeader may be NULL or contain additional header
  * lines such as cookie info.
  * Proxy support via hg.conf httpProxy or env var http_proxy
+ * Cert verification control via hg.conf httpsCertCheck or env var https_cert_check
+ * Cert verify domains exception white-list via hg.conf httpsCertCheckDomainExceptions or env var https_cert_check_domain_exceptions
  * Return data socket, or -1 if error.*/
 {
 struct netParsedUrl npu;
 struct netParsedUrl pxy;
-struct dyString *dy = newDyString(512);
+struct dyString *dy = dyStringNew(512);
 int sd = -1;
 /* Parse the URL and connect. */
 netParseUrl(url, &npu);
 
+boolean noProxy = checkNoProxy(npu.host);
 char *proxyUrl = getenv("http_proxy");
-
+if (sameString(npu.protocol, "https"))
+    proxyUrl = NULL;
+if (noProxy)
+    proxyUrl = NULL;
 if (proxyUrl)
     {
     netParseUrl(proxyUrl, &pxy);
-    sd = connectNpu(pxy, url);
+    if (!sameString(pxy.protocol, "http"))
+	errAbort("Unknown proxy protocol %s in %s.", pxy.protocol, proxyUrl);
+    sd = connectNpu(pxy, url, noProxy);
+    char *logProxy = getenv("log_proxy");
+    if (sameOk(logProxy,"on"))
+	verbose(1, "%s via proxy %s\n", url, proxyUrl);
     }
 else
     {
-    sd = connectNpu(npu, url);
+    sd = connectNpu(npu, url, noProxy);
     }
 if (sd < 0)
     return -1;
@@ -1050,12 +1374,23 @@ if (proxyUrl)
 dyStringPrintf(dy, "%s %s %s\r\n", method, proxyUrl ? urlForProxy : npu.file, protocol);
 freeMem(urlForProxy);
 dyStringPrintf(dy, "User-Agent: %s\r\n", agent);
+
+dyStringPrintf(dy, "Host: ");
+netHandleHostForIpv6(&npu, dy);
+
+boolean portIsDefault = FALSE;
 /* do not need the 80 since it is the default */
-if ((sameString(npu.protocol, "http" ) && sameString("80", npu.port)) ||
-    (sameString(npu.protocol, "https") && sameString("443",npu.port)))
-    dyStringPrintf(dy, "Host: %s\r\n", npu.host);
-else
-    dyStringPrintf(dy, "Host: %s:%s\r\n", npu.host, npu.port);
+if (sameString(npu.protocol, "http" ) && sameString("80", npu.port))
+    portIsDefault = TRUE;
+if (sameString(npu.protocol, "https" ) && sameString("443", npu.port))
+    portIsDefault = TRUE;
+if (!portIsDefault)
+    {
+    dyStringAppendC(dy, ':');
+    dyStringAppend(dy, npu.port);
+    }
+dyStringPrintf(dy, "\r\n");
+
 setAuthorization(npu, "Authorization", dy);
 if (proxyUrl)
     setAuthorization(pxy, "Proxy-Authorization", dy);
@@ -1151,30 +1486,14 @@ return netUrlHeadExt(url, "HEAD", hash);
 }
 
 
-long long netUrlSizeByRangeResponse(char *url)
-/* Use byteRange as a work-around alternate method to get file size (content-length).
- * Return negative number if can't get. */
+int netUrlFakeHeadByGet(char *url, struct hash *hash)
+/* Use GET with byteRange as an alternate method to HEAD.
+ * Return status. */
 {
-long long retVal = -1;
-char rangeUrl[2048];
+char rangeUrl[MAXURLSIZE];
 safef(rangeUrl, sizeof(rangeUrl), "%s;byterange=0-0", url);
-struct hash *hash = newHash(0);
 int status = netUrlHeadExt(rangeUrl, "GET", hash);
-if (status == 206)
-    {
-    char *rangeString = hashFindValUpperCase(hash, "Content-Range:");
-    if (rangeString)
-	{
- 	/* input pattern: Content-Range: bytes 0-99/2738262 */
-	char *slash = strchr(rangeString,'/');
-	if (slash)
-	    {
-	    retVal = atoll(slash+1);
-	    }
-	}
-    }
-hashFree(&hash);
-return retVal;
+return status;
 }
 
 
@@ -1212,7 +1531,7 @@ struct dyString *netSlurpFile(int sd)
 {
 char buf[4*1024];
 int readSize;
-struct dyString *dy = newDyString(4*1024);
+struct dyString *dy = dyStringNew(4*1024);
 
 /* Slurp file into dy and return. */
 while ((readSize = read(sd, buf, sizeof(buf))) > 0)
@@ -1247,7 +1566,6 @@ if (startsWith("bytes ", x))
     if (z)
 	{
 	++z;
-	// TODO: use something better than atoll() ?
 	*rangeStart = atoll(y);
 	if (z[0] != '\0')
 	    *rangeEnd = atoll(z);
@@ -1263,10 +1581,10 @@ boolean netSkipHttpHeaderLinesWithRedirect(int sd, char *url, char **redirectedU
  * This is meant to be able work even with a re-passable stream handle,
  * e.g. can pass it to the pipes routines, which means we can't
  * attach a linefile since filling its buffer reads in more than just the http header.
- * Handles 300, 301, 302, 303, 307 http redirects by setting *redirectedUrl to
+ * Handles 301, 302, 307, 308 http redirects by setting *redirectedUrl to
  * the new location. */
 {
-char buf[2000];
+char buf[8192];
 char *line = buf;
 int maxbuf = sizeof(buf);
 int i=0;
@@ -1301,7 +1619,11 @@ while(TRUE)
 	if (nread != 1)
 	    {
 	    if (nread == -1)
+		{
+		if (errno == EINTR)
+		    continue;
     		warn("Error (%s) reading http header on %s", strerror(errno), url);
+		}
 	    else if (nread == 0)
     		warn("Error unexpected end of input reading http header on %s", url);
 	    else
@@ -1326,16 +1648,19 @@ while(TRUE)
 	}
     if (startsWith("HTTP/", line))
         {
-	char *version, *code;
-	version = nextWord(&line);
+	char *code;
+	nextWord(&line);  // version
 	code = nextWord(&line);
 	if (code == NULL)
 	    {
 	    warn("Strange http header on %s", url);
 	    return FALSE;
 	    }
-	if (startsWith("30", code) && isdigit(code[2])
-	    && ((code[2] >= '0' && code[2] <= '3') || code[2] == '7') && code[3] == 0)
+	if (sameString(code, "301")
+	 || sameString(code, "302")
+	 || sameString(code, "307")
+	 || sameString(code, "308")
+	   )
 	    {
 	    redirect = TRUE;
 	    }
@@ -1355,9 +1680,15 @@ while(TRUE)
 		{
 		if (sameString(code, "200"))
 		    warn("Byte-range request was ignored by server. ");
-		warn("Expected Partial Content 206. %s: %s %s", url, code, line);
+		warn("Expected Partial Content 206. %s: %s %s. rangeStart=%lld rangeEnd=%lld",
+		    url, code, line, (long long)byteRangeStart, (long long)byteRangeEnd);
 		return FALSE;
 		}
+	    }
+	else if (sameString(code, "404"))
+	    {
+	    warn("404 file not found on %s", url);
+	    return FALSE;
 	    }
 	else if (!sameString(code, "200"))
 	    {
@@ -1412,7 +1743,7 @@ if (mustUseProxy ||  mustUseProxyAuth)
 	proxyLocation ? proxyLocation : "not given");
     return FALSE;
     }
-if (byteRangeUsed && !foundContentRange
+if (byteRangeUsed && !foundContentRange && !redirect
 	    /* hack for Apache bug 2.2.20 and 2.2.21 2011-10-21 should be OK to remove after one year. */
 		&& !(byteRangeStart == 0 && byteRangeEnd == -1))
     {
@@ -1427,6 +1758,27 @@ if (byteRangeUsed && !foundContentRange
 return TRUE;
 }
 
+char *transferParamsToRedirectedUrl(char *url, char *newUrl)
+/* Transfer password, byteRange, and any other parameters from url to newUrl and return result.
+ * freeMem result. */
+{
+struct netParsedUrl npu, newNpu;
+/* Parse the old URL to make parts available for graft onto the redirected url. */
+/* This makes redirection work with byterange urls and user:password@ */
+netParseUrl(url, &npu);
+netParseUrl(newUrl, &newNpu);
+if (npu.byteRangeStart != -1)
+    {
+    newNpu.byteRangeStart = npu.byteRangeStart;
+    newNpu.byteRangeEnd = npu.byteRangeEnd;
+    }
+if ((npu.user[0] != 0) && (newNpu.user[0] == 0))
+    {
+    safecpy(newNpu.user,     sizeof newNpu.user,     npu.user);
+    safecpy(newNpu.password, sizeof newNpu.password, npu.password);
+    }
+return urlFromNetParsedUrl(&newNpu);
+}
 
 boolean netSkipHttpHeaderLinesHandlingRedirect(int sd, char *url, int *redirectedSd, char **redirectedUrl)
 /* Skip http headers lines, returning FALSE if there is a problem.  Generally called as
@@ -1467,8 +1819,6 @@ while (TRUE)
 	return TRUE;
 	}
     close(sd);
-    if (redirectCount > 0)
-	freeMem(url);
     if (success)
 	{
 	/* we have a new url to try */
@@ -1478,45 +1828,36 @@ while (TRUE)
 	    warn("code 30x redirects: exceeded limit of 5 redirects, %s", newUrl);
 	    success = FALSE;
 	    }
-	else if (!startsWith("http://",newUrl)
-              && !startsWith("https://",newUrl))
-	    {
-	    warn("redirected to non-http(s): %s", newUrl);
-	    success = FALSE;
-	    }
 	else
 	    {
-	    struct netParsedUrl npu, newNpu;
-	    /* Parse the old URL to make parts available for graft onto the redirected url. */
-	    /* This makes redirection work with byterange urls and user:password@ */
-	    netParseUrl(url, &npu);
-	    netParseUrl(newUrl, &newNpu);
-	    boolean updated = FALSE;
-	    if (npu.byteRangeStart != -1)
+	    // path may be relative
+	    if (!hasProtocol(newUrl))
 		{
-		newNpu.byteRangeStart = npu.byteRangeStart;
-		newNpu.byteRangeEnd = npu.byteRangeEnd;
-		updated = TRUE;
-		}
-	    if ((npu.user[0] != 0) && (newNpu.user[0] == 0))
-		{
-		safecpy(newNpu.user,     sizeof newNpu.user,     npu.user);
-		safecpy(newNpu.password, sizeof newNpu.password, npu.password);
-		updated = TRUE;
-		}
-	    if (updated)
-		{
+		char *newUrl2 = expandUrlOnBase(url, newUrl);
 		freeMem(newUrl);
-		newUrl = urlFromNetParsedUrl(&newNpu);
+		newUrl = newUrl2;
 		}
-	    sd = netUrlOpen(newUrl);
-	    if (sd < 0)
+	    if (!startsWith("http://",newUrl)
+              && !startsWith("https://",newUrl))
 		{
-		warn("Couldn't open %s", newUrl);
+		warn("redirected to non-http(s): %s", newUrl);
 		success = FALSE;
+		}
+	    else
+		{
+		// transfer password and byteranges if any
+		newUrl = transferParamsToRedirectedUrl(url, newUrl);
+		sd = netUrlOpen(newUrl);
+		if (sd < 0)
+		    {
+		    warn("Couldn't open %s", newUrl);
+		    success = FALSE;
+		    }
 		}
 	    }
 	}
+    if (redirectCount > 1)
+	freeMem(url);
     if (!success)
 	{  /* failure after 0 to 5 redirects */
 	if (redirectCount > 0)
@@ -1557,9 +1898,14 @@ else
 	    url = newUrl;
 	    }
 	}
-    if (endsWith(url, ".gz") ||
-	endsWith(url, ".Z")  ||
-    	endsWith(url, ".bz2"))
+    char *urlDecoded = cloneString(url);
+    cgiDecode(url, urlDecoded, strlen(url));
+    boolean isCompressed =
+	(endsWith(urlDecoded,".gz") ||
+   	 endsWith(urlDecoded,".Z")  ||
+	 endsWith(urlDecoded,".bz2"));
+    freeMem(urlDecoded);
+    if (isCompressed)
 	{
 	lf = lineFileDecompressFd(url, TRUE, sd);
            /* url needed only for compress type determination */
@@ -1572,6 +1918,29 @@ else
 	freeMem(newUrl);
     return lf;
     }
+}
+
+int netUrlMustOpenPastHeader(char *url)
+/* Get socket descriptor for URL.  Process header, handling any forwarding and
+ * the like.  Do errAbort if there's a problem, which includes anything but a 200
+ * return from http after forwarding. */
+{
+int sd = netUrlOpen(url);
+if (sd < 0)
+    noWarnAbort();
+int newSd = 0;
+if (startsWith("http://",url) || startsWith("https://",url))
+    {
+    char *newUrl = NULL;
+    if (!netSkipHttpHeaderLinesHandlingRedirect(sd, url, &newSd, &newUrl))
+	noWarnAbort();
+    if (newUrl != NULL)
+	{
+	sd = newSd;
+	freeMem(newUrl);
+	}
+    }
+return sd;
 }
 
 struct lineFile *netLineFileSilentOpen(char *url)
@@ -1596,652 +1965,6 @@ char *text = lineFileReadAll(lf);
 lineFileClose(&lf);
 return text;
 }
-
-
-struct parallelConn
-/* struct to information on a parallel connection */
-    {
-    struct parallelConn *next;  /* next connection */
-    int sd;                     /* socket descriptor */
-    off_t rangeStart;           /* where does the range start */
-    off_t partSize;             /* range size */
-    off_t received;             /* bytes received */
-    };
-
-void writeParaFetchStatus(char *origPath, struct parallelConn *pcList, char *url, off_t fileSize, char *dateString, boolean isFinal)
-/* Write a status file.
- * This has two purposes.
- * First, we can use it to resume a failed transfer.
- * Second, we can use it to follow progress */
-{
-char outTempX[1024];
-char outTemp[1024];
-safef(outTempX, sizeof(outTempX), "%s.paraFetchStatusX", origPath);
-safef(outTemp, sizeof(outTemp), "%s.paraFetchStatus", origPath);
-struct parallelConn *pc = NULL;
-
-FILE *f = mustOpen(outTempX, "w");
-int part = 0;
-fprintf(f, "%s\n", url);
-fprintf(f, "%lld\n", (long long)fileSize);
-fprintf(f, "%s\n", dateString);
-for(pc = pcList; pc; pc = pc->next)
-    {
-    fprintf(f, "part%d %lld %lld %lld\n", part
-	, (long long)pc->rangeStart
-	, (long long)pc->partSize
-	, (long long)pc->received);
-    ++part;
-    }
-
-carefulClose(&f);
-
-/* rename the successful status to the original name */
-rename(outTempX, outTemp);
-
-if (isFinal)  /* We are done and just looking to get rid of the file. */
-    unlink(outTemp);
-}
-
-
-boolean readParaFetchStatus(char *origPath,
-    struct parallelConn **pPcList, char **pUrl, off_t *pFileSize, char **pDateString, off_t *pTotalDownloaded)
-/* Write a status file.
- * This has two purposes.
- * First, we can use it to resume a failed transfer.
- * Second, we can use it to follow progress */
-{
-char outTemp[1024];
-char outStat[1024];
-safef(outStat, sizeof(outStat), "%s.paraFetchStatus", origPath);
-safef(outTemp, sizeof(outTemp), "%s.paraFetch", origPath);
-struct parallelConn *pcList = NULL, *pc = NULL;
-off_t totalDownloaded = 0;
-
-if (!fileExists(outStat))
-    {
-    unlink(outTemp);
-    return FALSE;
-    }
-
-if (!fileExists(outTemp))
-    {
-    unlink(outStat);
-    return FALSE;
-    }
-
-char *line, *word;
-struct lineFile *lf = lineFileOpen(outStat, TRUE);
-if (!lineFileNext(lf, &line, NULL))
-    {
-    unlink(outTemp);
-    unlink(outStat);
-    return FALSE;
-    }
-char *url = cloneString(line);
-if (!lineFileNext(lf, &line, NULL))
-    {
-    unlink(outTemp);
-    unlink(outStat);
-    return FALSE;
-    }
-off_t fileSize = sqlLongLong(line);
-if (!lineFileNext(lf, &line, NULL))
-    {
-    unlink(outTemp);
-    unlink(outStat);
-    return FALSE;
-    }
-char *dateString = cloneString(line);
-while (lineFileNext(lf, &line, NULL))
-    {
-    word = nextWord(&line);
-    AllocVar(pc);
-    pc->next = NULL;
-    pc->sd = -4;  /* no connection tried yet */
-    word = nextWord(&line);
-    pc->rangeStart = sqlLongLong(word);
-    word = nextWord(&line);
-    pc->partSize = sqlLongLong(word);
-    word = nextWord(&line);
-    pc->received = sqlLongLong(word);
-    if (pc->received == pc->partSize)
-	pc->sd = -1;  /* part all done already */
-    totalDownloaded += pc->received;
-    slAddHead(&pcList, pc);
-    }
-slReverse(&pcList);
-
-lineFileClose(&lf);
-
-if (slCount(pcList) < 1)
-    {
-    unlink(outTemp);
-    unlink(outStat);
-    return FALSE;
-    }
-
-*pPcList = pcList;
-*pUrl = url;
-*pFileSize = fileSize;
-*pDateString = dateString;
-*pTotalDownloaded = totalDownloaded;
-
-return TRUE;
-
-}
-
-
-boolean parallelFetch(char *url, char *outPath, int numConnections, int numRetries, boolean newer, boolean progress)
-/* Open multiple parallel connections to URL to speed downloading */
-{
-char *origPath = outPath;
-char outTemp[1024];
-safef(outTemp, sizeof(outTemp), "%s.paraFetch", outPath);
-outPath = outTemp;
-/* get the size of the file to be downloaded */
-off_t fileSize = 0;
-off_t totalDownloaded = 0;
-ssize_t sinceLastStatus = 0;
-char *dateString = "";
-int star = 1;
-int starMax = 20;
-int starStep = 1;
-// TODO handle case-sensitivity of protocols input
-if (startsWith("http://",url) || startsWith("https://",url))
-    {
-    struct hash *hash = newHash(0);
-    int status = netUrlHead(url, hash);
-    if (status != 200) // && status != 302 && status != 301)
-	{
-	warn("Error code: %d, expected 200 for %s, can't proceed, sorry", status, url);
-	return FALSE;
-	}
-    char *sizeString = hashFindValUpperCase(hash, "Content-Length:");
-    if (sizeString)
-	{
-	fileSize = atoll(sizeString);
-	}
-    else
-	{
-	warn("No Content-Length: returned in header for %s, must limit to a single connection, will not know if data is complete", url);
-	numConnections = 1;
-	fileSize = -1;
-	}
-    char *ds = hashFindValUpperCase(hash, "Last-Modified:");
-    if (ds)
-	dateString = cloneString(ds);
-    hashFree(&hash);
-    }
-else if (startsWith("ftp://",url))
-    {
-    long long size = 0;
-    time_t t;
-    boolean ok = netGetFtpInfo(url, &size, &t);
-    if (!ok)
-	{
-	warn("Unable to get size info from FTP for %s, can't proceed, sorry", url);
-	return FALSE;
-	}
-    fileSize = size;
-
-    struct tm  *ts;
-    char ftpTime[80];
-
-    /* Format the time "Tue, 15 Jun 2010 06:45:08 GMT" */
-    ts = localtime(&t);
-    strftime(ftpTime, sizeof(ftpTime), "%a, %d %b %Y %H:%M:%S %Z", ts);
-    dateString = cloneString(ftpTime);
-
-    }
-else
-    {
-    warn("unrecognized protocol: %s", url);
-    return FALSE;
-    }
-
-
-verbose(2,"fileSize=%lld\n", (long long) fileSize);
-
-if (fileSize < 65536)    /* special case small file */
-    numConnections = 1;
-
-if (numConnections > 50)    /* ignore high values for numConnections */
-    {
-    warn("Currently maximum number of connections is 50. You requested %d. Will proceed with 50 on %s", numConnections, url);
-    numConnections = 50;
-    }
-
-verbose(2,"numConnections=%d\n", numConnections); //debug
-
-if (numConnections < 1)
-    {
-    warn("number of connections must be greater than 0 for %s, can't proceed, sorry", url);
-    return FALSE;
-    }
-
-if (numRetries < 0)
-    numRetries = 0;
-
-/* what is the size of each part */
-off_t partSize = (fileSize + numConnections -1) / numConnections;
-if (fileSize == -1)
-    partSize = -1;
-off_t base = 0;
-int c;
-
-verbose(2,"partSize=%lld\n", (long long) partSize); //debug
-
-
-/* n is the highest-numbered descriptor */
-int n = 0;
-int connOpen = 0;
-int reOpen = 0;
-
-
-struct parallelConn *restartPcList = NULL;
-char *restartUrl = NULL;
-off_t restartFileSize = 0;
-char *restartDateString = "";
-off_t restartTotalDownloaded = 0;
-boolean restartable = readParaFetchStatus(origPath, &restartPcList, &restartUrl, &restartFileSize, &restartDateString, &restartTotalDownloaded);
-if (fileSize == -1)
-    restartable = FALSE;
-
-struct parallelConn *pcList = NULL, *pc;
-
-if (restartable
- && sameString(url, restartUrl)
- && fileSize == restartFileSize
- && sameString(dateString, restartDateString))
-    {
-    pcList = restartPcList;
-    totalDownloaded = restartTotalDownloaded;
-    }
-else
-    {
-
-    if (newer) // only download it if it is newer than what we already have
-	{
-	/* datestamp mtime from last-modified header */
-	struct tm tm;
-	// Last-Modified: Wed, 15 Nov 1995 04:58:08 GMT
-	// These strings are always GMT
-	if (strptime(dateString, "%a, %d %b %Y %H:%M:%S %Z", &tm) == NULL)
-	    {
-	    warn("unable to parse last-modified string [%s]", dateString);
-	    }
-	else
-	    {
-	    time_t t;
-	    // convert to UTC (GMT) time
-	    t = mktimeFromUtc(&tm);
-	    if (t == -1)
-		{
-		warn("mktimeFromUtc failed while converting last-modified string to UTC [%s]", dateString);
-		}
-	    else
-		{
-		// get the file mtime
-		struct stat mystat;
-		ZeroVar(&mystat);
-		if (stat(origPath,&mystat)==0)
-		    {
-		    if (t <= mystat.st_mtime)
-			{
-			verbose(2,"Since nothing newer was found, skipping %s\n", origPath);
-			verbose(3,"t from last-modified = %ld; st_mtime = %ld\n", (long) t, (long)mystat.st_mtime);
-			return TRUE;
-			}
-		    }
-		}
-	    }
-	}
-
-    /* make a list of connections */
-    for (c = 0; c < numConnections; ++c)
-	{
-	AllocVar(pc);
-	pc->next = NULL;
-	pc->rangeStart = base;
-	base += partSize;
-	pc->partSize = partSize;
-	if (fileSize != -1 && pc->rangeStart+pc->partSize >= fileSize)
-	    pc->partSize = fileSize - pc->rangeStart;
-	pc->received = 0;
-	pc->sd = -4;  /* no connection tried yet */
-	slAddHead(&pcList, pc);
-	}
-    slReverse(&pcList);
-    }
-
-if (progress)
-    {
-    char nicenumber[1024]="";
-    sprintWithGreekByte(nicenumber, sizeof(nicenumber), fileSize);
-    printf("downloading %s ", nicenumber); fflush(stdout);
-    starStep = fileSize/starMax;
-    if (starStep < 1)
-	starStep = 1;
-    }
-
-int out = open(outPath, O_CREAT|O_WRONLY, 0664);
-if (out < 0)
-    {
-    warn("Unable to open %s for write while downloading %s, can't proceed, sorry", url, outPath);
-    return FALSE;
-    }
-
-
-/* descriptors for select() */
-fd_set rfds;
-struct timeval tv;
-int retval;
-
-ssize_t readCount = 0;
-#define BUFSIZE 65536 * 4
-char buf[BUFSIZE];
-
-/* create paraFetchStatus right away for monitoring programs */
-writeParaFetchStatus(origPath, pcList, url, fileSize, dateString, FALSE);
-sinceLastStatus = 0;
-
-int retryCount = 0;
-
-time_t startTime = time(NULL);
-
-#define SELTIMEOUT 5
-#define RETRYSLEEPTIME 30
-while (TRUE)
-    {
-
-    verbose(2,"Top of big loop\n");
-
-    if (progress)
-	{
-	while (totalDownloaded >= star * starStep)
-	    {
-	    printf("*");fflush(stdout);
-	    ++star;
-	    }
-	}
-
-    /* are we done? */
-    if (connOpen == 0)
-	{
-	boolean done = TRUE;
-	for(pc = pcList; pc; pc = pc->next)
-	    if (pc->sd != -1)
-		done = FALSE;
-	if (done) break;
-	}
-
-    /* See if we need to open any connections, either new or retries */
-    for(pc = pcList; pc; pc = pc->next)
-	{
-	if ((pc->sd == -4)  /* never even tried to open yet */
-	 || ((reOpen>0)      /* some connections have been released */
-	    && (pc->sd == -2  /* started but not finished */
-	    ||  pc->sd == -3)))  /* not even started */
-	    {
-	    char urlExt[1024];
-	    safef(urlExt, sizeof(urlExt), "%s;byterange=%llu-%llu"
-	    , url
-	    , (unsigned long long) (pc->rangeStart + pc->received)
-	    , (unsigned long long) (pc->rangeStart + pc->partSize - 1) );
-
-
-	    int oldSd = pc->sd;  /* in case we need to remember where we were */
-	    if (oldSd != -4)      /* decrement whether we succeed or not */
-		--reOpen;
-	    if (oldSd == -4)
-		oldSd = -3;       /* ok this one just changes */
-	    if (fileSize == -1)
-		{
-		verbose(2,"opening url %s\n", url);
-		pc->sd = netUrlOpen(url);
-		}
-	    else
-		{
-		verbose(2,"opening url %s\n", urlExt);
-		pc->sd = netUrlOpen(urlExt);
-		}
-	    if (pc->sd < 0)
-		{
-		pc->sd = oldSd;  /* failed to open, can retry later */
-		}
-	    else
-		{
-		char *newUrl = NULL;
-		int newSd = 0;
-		if (startsWith("http://",url) || startsWith("https://",url))
-		    {
-		    if (!netSkipHttpHeaderLinesHandlingRedirect(pc->sd, urlExt, &newSd, &newUrl))
-			{
-			warn("Error processing http response for %s", url);
-			return FALSE;
-			}
-		    if (newUrl)
-			{
-			/*  Update sd with newSd, replace it with newUrl, etc. */
-			pc->sd = newSd;
-			}
-		    }
-		++connOpen;
-		}
-	    }
-	}
-
-
-    if (connOpen == 0)
-	{
-	warn("Unable to open any connections to download %s, can't proceed, sorry", url);
-	return FALSE;
-	}
-
-
-    FD_ZERO(&rfds);
-    n = 0;
-    for(pc = pcList; pc; pc = pc->next)
-	{
-	if (pc->sd >= 0)
-	    {
-	    FD_SET(pc->sd, &rfds);    /* reset descriptor in readfds for select() */
-	    if (pc->sd > n)
-		n = pc->sd;
-	    }
-	}
-
-
-    /* Wait up to SELTIMEOUT seconds. */
-    tv.tv_sec = SELTIMEOUT;
-    tv.tv_usec = 0;
-    retval = select(n+1, &rfds, NULL, NULL, &tv);
-    /* Don't rely on the value of tv now! */
-
-    if (retval < 0)
-	{
-	perror("select retval < 0");
-	return FALSE;
-	}
-    else if (retval)
-	{
-
-	verbose(2,"returned from select, retval=%d\n", retval);
-
-	for(pc = pcList; pc; pc = pc->next)
-	    {
-	    if ((pc->sd >= 0) && FD_ISSET(pc->sd, &rfds))
-		{
-
-		verbose(2,"found a descriptor with data: %d\n", pc->sd);
-
-		readCount = read(pc->sd, buf, BUFSIZE);
-
-		verbose(2,"readCount = %lld\n", (long long) readCount);
-
-		if (readCount == 0)
-		    {
-		    close(pc->sd);
-
-		    verbose(2,"closing descriptor: %d\n", pc->sd);
-		    pc->sd = -1;
-
-		    if (fileSize != -1 && pc->received != pc->partSize)
-			{
-			pc->sd = -2;  /* conn was closed before all data was sent, can retry later */
-			return FALSE;
-			}
-		    --connOpen;
-		    ++reOpen;
-		    writeParaFetchStatus(origPath, pcList, url, fileSize, dateString, FALSE);
-		    sinceLastStatus = 0;
-		    continue;
-		    }
-		if (readCount < 0)
-		    {
-		    warn("error reading from socket for url %s", url);
-		    return FALSE;
-		    }
-
-		verbose(2,"rangeStart %llu  received %llu\n"
-			, (unsigned long long) pc->rangeStart
-			, (unsigned long long) pc->received );
-
-		verbose(2,"seeking to %llu\n", (unsigned long long) (pc->rangeStart + pc->received));
-
-		if (lseek(out, pc->rangeStart + pc->received, SEEK_SET) == -1)
-		    {
-		    perror("error seeking output file");
-		    warn("error seeking output file %s: rangeStart %llu  received %llu for url %s"
-			, outPath
-			, (unsigned long long) pc->rangeStart
-			, (unsigned long long) pc->received
-			, url);
-		    return FALSE;
-		    }
-		int writeCount = write(out, buf, readCount);
-		if (writeCount < 0)
-		    {
-		    warn("error writing output file %s", outPath);
-		    return FALSE;
-		    }
-		pc->received += readCount;
-		totalDownloaded += readCount;
-		sinceLastStatus += readCount;
-		if (sinceLastStatus >= 100*1024*1024)
-		    {
-		    writeParaFetchStatus(origPath, pcList, url, fileSize, dateString, FALSE);
-		    sinceLastStatus = 0;
-		    }
-		}
-	    }
-	}
-    else
-	{
-	warn("No data within %d seconds for %s", SELTIMEOUT, url);
-	/* Retry ? */
-	if (retryCount >= numRetries)
-	    {
-    	    return FALSE;
-	    }
-	else
-	    {
-	    ++retryCount;
-	    /* close any open connections */
-	    for(pc = pcList; pc; pc = pc->next)
-		{
-		if (pc->sd >= 0)
-		    {
-		    close(pc->sd);
-		    verbose(2,"closing descriptor: %d\n", pc->sd);
-		    }
-		if (pc->sd != -1)
-		    pc->sd = -4;
-		}
-	    connOpen = 0;
-	    reOpen = 0;
-	    /* sleep for a while, maybe the server will recover */
-	    sleep(RETRYSLEEPTIME);
-	    }
-	}
-
-    }
-
-close(out);
-
-/* delete the status file - by passing TRUE */
-writeParaFetchStatus(origPath, pcList, url, fileSize, dateString, TRUE);
-
-/* restore original file datestamp mtime from last-modified header */
-struct tm tm;
-// Last-Modified: Wed, 15 Nov 1995 04:58:08 GMT
-// These strings are always GMT
-if (strptime(dateString, "%a, %d %b %Y %H:%M:%S %Z", &tm) == NULL)
-    {
-    warn("unable to parse last-modified string [%s]", dateString);
-    }
-else
-    {
-    time_t t;
-    // convert to UTC (GMT) time
-    t = mktimeFromUtc(&tm);
-    if (t == -1)
-	{
-	warn("mktimeFromUtc failed while converting last-modified string to UTC [%s]", dateString);
-	}
-    else
-	{
-	// update the file mtime
-	struct utimbuf ut;
-	struct stat mystat;
-	ZeroVar(&mystat);
-	if (stat(outTemp,&mystat)==0)
-	    {
-	    ut.actime = mystat.st_atime;
-	    ut.modtime = t;
-	    if (utime(outTemp, &ut)==-1)
-		{
-		char errMsg[256];
-                safef(errMsg, sizeof(errMsg), "paraFetch: error setting modification time of %s to %s\n", outTemp, dateString);
-		perror(errMsg);
-		}
-	    }
-	}
-    }
-
-/* rename the successful download to the original name */
-rename(outTemp, origPath);
-
-
-
-if (progress)
-    {
-    while (star <= starMax)
-	{
-	printf("*");fflush(stdout);
-	++star;
-	}
-    long timeDiff = (long)(time(NULL) - startTime);
-    if (timeDiff > 0)
-	{
-	printf(" %ld seconds", timeDiff);
-	float mbpersec =  ((totalDownloaded - restartTotalDownloaded)/1000000) / timeDiff;
-	printf(" %0.1f MB/sec", mbpersec);
-	}
-    printf("\n");fflush(stdout);
-    }
-
-if (fileSize != -1 && totalDownloaded != fileSize)
-    {
-    warn("Unexpected result: Total downloaded bytes %lld is not equal to fileSize %lld"
-	, (long long) totalDownloaded
-	, (long long) fileSize);
-    return FALSE;
-    }
-return TRUE;
-}
-
 
 struct lineFile *netLineFileOpen(char *url)
 /* Return a lineFile attached to url.  This one
@@ -2477,12 +2200,18 @@ void netHttpGet(struct lineFile *lf, struct netParsedUrl *npu,
 		boolean keepAlive)
 /* Send a GET request, possibly with Keep-Alive. */
 {
-struct dyString *dy = newDyString(512);
+struct dyString *dy = dyStringNew(512);
 
 /* Ask remote server for the file/query. */
 dyStringPrintf(dy, "GET %s HTTP/1.1\r\n", npu->file);
 dyStringPrintf(dy, "User-Agent: genome.ucsc.edu/net.c\r\n");
-dyStringPrintf(dy, "Host: %s:%s\r\n", npu->host, npu->port);
+
+dyStringPrintf(dy, "Host: ");
+netHandleHostForIpv6(npu, dy);
+dyStringAppendC(dy, ':');
+dyStringAppend(dy, npu->port);
+dyStringPrintf(dy, "\r\n");
+
 if (!sameString(npu->user,""))
     {
     char up[256];
@@ -2521,7 +2250,7 @@ int netHttpGetMultiple(char *url, struct slName *queries, void *userData,
   struct slName *qPtr;
   struct lineFile *lf;
   struct netParsedUrl *npu;
-  struct dyString *dyQ    = newDyString(512);
+  struct dyString *dyQ    = dyStringNew(512);
   struct dyString *body;
   char *base;
   char *hdr;
@@ -2590,3 +2319,9 @@ int netHttpGetMultiple(char *url, struct slName *queries, void *userData,
 
   return qCount;
 } /* netHttpMultipleQueries */
+
+boolean hasProtocol(char *urlOrPath)
+/* Return TRUE if it looks like it has http://, ftp:// etc. */
+{
+return stringIn("://", urlOrPath) != NULL;
+}

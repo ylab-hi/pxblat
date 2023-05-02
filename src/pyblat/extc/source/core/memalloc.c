@@ -8,11 +8,24 @@
  * This file is copyright 2002 Jim Kent, but license is hereby
  * granted for all use - public, private or commercial. */
 
+#include <pthread.h>
 #include "common.h"
 #include "obscure.h"
 #include "memalloc.h"
 #include "dlist.h"
 
+
+static unsigned long memAlloced;
+
+unsigned long memCheckPoint()
+/* Return the amount of memory allocated since last called. */
+{
+unsigned long ret = memAlloced;
+
+memAlloced = 0;
+
+return ret;
+}
 
 static void *defaultAlloc(size_t size)
 /* Default allocator. */
@@ -91,6 +104,7 @@ if (size == 0 || size >= maxAlloc)
 if ((pt = mhStack->alloc(size)) == NULL)
     errAbort("needLargeMem: Out of memory - request size %llu bytes, errno: %d\n",
              (unsigned long long)size, errno);
+memAlloced += size;
 return pt;
 }
 
@@ -136,6 +150,7 @@ if (size == 0)
 if ((pt = mhStack->alloc(size)) == NULL)
     errAbort("needHugeMem: Out of huge memory - request size %llu bytes, errno: %d\n",
              (unsigned long long)size, errno);
+memAlloced += size;
 return pt;
 }
 
@@ -181,6 +196,10 @@ void *needMem(size_t size)
  * is initialized to zero. */
 {
 void *pt;
+
+if (size >= 0x8000000000000000)  // caused by overflowed signed int getting sign-extended
+    size += 4294967296;
+
 if (size == 0 || size > NEEDMEM_LIMIT)
     errAbort("needMem: trying to allocate %llu bytes (limit: %llu)",
          (unsigned long long)size, (unsigned long long)NEEDMEM_LIMIT);
@@ -188,6 +207,7 @@ if ((pt = mhStack->alloc(size)) == NULL)
     errAbort("needMem: Out of memory - request size %llu bytes, errno: %d\n",
              (unsigned long long)size, errno);
 memset(pt, 0, size);
+memAlloced += size;
 return pt;
 }
 
@@ -203,6 +223,7 @@ void *wantMem(size_t size)
 /* Want mem just calls malloc - no zeroing of memory, no
  * aborting if request fails. */
 {
+memAlloced += size;
 return mhStack->alloc(size);
 }
 
@@ -222,6 +243,8 @@ void *pt = *ppt;
 *ppt = NULL;
 freeMem(pt);
 }
+
+static pthread_mutex_t carefulMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int carefulAlignSize;    /* Alignment size for machine - 8 bytes for DEC alpha, 4 for Sparc. */
 static int carefulAlignAdd;     /* Do aliSize = *(unaliSize+carefulAlignAdd)&carefulAlignMask); */
@@ -277,6 +300,7 @@ static void *carefulAlloc(size_t size)
 /* Allocate extra memory for cookies and list node, and then
  * return memory block. */
 {
+pthread_mutex_lock( &carefulMutex );
 struct carefulMemBlock *cmb;
 char *pEndCookie;
 size_t newAlloced = size + carefulAlloced;
@@ -288,24 +312,34 @@ if (newAlloced > carefulMaxToAlloc)
     char allocRequest[32];
     sprintLongWithCommas(maxAlloc, (long long)carefulMaxToAlloc);
     sprintLongWithCommas(allocRequest, (long long)newAlloced);
-    errAbort("carefulAlloc: Allocated too much memory - more than %s bytes (%s)",
+    pthread_mutex_unlock( &carefulMutex );
+
+    // Avoid out-of-memory issues by exiting immediately.
+    char errMsg[1024];
+    safef(errMsg, sizeof errMsg, "carefulAlloc: Allocated too much memory - more than %s bytes (%s). Exiting.\n",
 	maxAlloc, allocRequest);
+    write(STDERR_FILENO, errMsg, strlen(errMsg));
+    exit(1);   // out of memory is a serious problem, exit immediately, but allow atexit cleanup.
+    // avoid errAbort which allocates memory causing problems.
     }
 carefulAlloced = newAlloced;
 aliSize = ((size + sizeof(*cmb) + 4 + carefulAlignAdd)&carefulAlignMask);
 cmb = carefulParent->alloc(aliSize);
+memAlloced += size;
 cmb->size = size;
 cmb->startCookie = cmbStartCookie;
 pEndCookie = (char *)(cmb+1);
 pEndCookie += size;
 memcpy(pEndCookie, cmbEndCookie, sizeof(cmbEndCookie));
 dlAddHead(cmbAllocedList, (struct dlNode *)cmb);
+pthread_mutex_unlock( &carefulMutex );
 return (void *)(cmb+1);
 }
 
 static void carefulFree(void *vpt)
 /* Check cookies and free. */
 {
+pthread_mutex_lock( &carefulMutex );
 struct carefulMemBlock *cmb = ((struct carefulMemBlock *)vpt)-1;
 size_t size = cmb->size;
 char *pEndCookie;
@@ -313,14 +347,21 @@ char *pEndCookie;
 carefulAlloced -= size;
 pEndCookie = (((char *)(cmb+1)) + size);
 if (cmb->startCookie != cmbStartCookie)
+    {
+    pthread_mutex_unlock( &carefulMutex );
     errAbort("Bad start cookie %x freeing %llx\n", cmb->startCookie,
              ptrToLL(vpt));
+    }
 if (memcmp(pEndCookie, cmbEndCookie, sizeof(cmbEndCookie)) != 0)
+    {
+    pthread_mutex_unlock( &carefulMutex );
     errAbort("Bad end cookie %x%x%x%x freeing %llx\n",
         pEndCookie[0], pEndCookie[1], pEndCookie[2], pEndCookie[3],
              ptrToLL(vpt));
+    }
 dlRemove((struct dlNode *)cmb);
 carefulParent->free(cmb);
+pthread_mutex_unlock( &carefulMutex );
 }
 
 
@@ -346,36 +387,60 @@ int maxPieces = 10000000;    /* Assume no more than this many pieces allocated. 
 struct carefulMemBlock *cmb;
 char *pEndCookie;
 size_t size;
+char errMsg[1024];
+boolean errFound = FALSE;
 
 if (carefulParent == NULL)
     return;
 
+pthread_mutex_lock( &carefulMutex );
 for (cmb = (struct carefulMemBlock *)(cmbAllocedList->head); cmb->next != NULL; cmb = cmb->next)
     {
     size = cmb->size;
     pEndCookie = (((char *)(cmb+1)) + size);
     if (cmb->startCookie != cmbStartCookie)
-        errAbort("Bad start cookie %x checking %llx\n", cmb->startCookie,
+	{
+        safef(errMsg, sizeof errMsg, "Bad start cookie %x checking %llx\n", cmb->startCookie,
                  ptrToLL(cmb+1));
+	errFound = TRUE;
+	break;
+	}
     if (memcmp(pEndCookie, cmbEndCookie, sizeof(cmbEndCookie)) != 0)
-        errAbort("Bad end cookie %x%x%x%x checking %llx\n",
+	{
+        safef(errMsg, sizeof errMsg, "Bad end cookie %x%x%x%x checking %llx\n",
                  pEndCookie[0], pEndCookie[1], pEndCookie[2], pEndCookie[3],
                  ptrToLL(cmb+1));
+	errFound = TRUE;
+	break;
+	}
     if (--maxPieces == 0)
-        errAbort("Loop or more than 10000000 pieces in memory list");
+	{
+        safef(errMsg, sizeof errMsg, "Loop or more than 10000000 pieces in memory list");
+	errFound = TRUE;
+	break;
+	}
     }
+pthread_mutex_unlock( &carefulMutex );
+if (errFound)
+    errAbort("%s", errMsg);
 }
 
 int carefulCountBlocksAllocated()
 /* How many memory items are allocated? */
 {
-return dlCount(cmbAllocedList);
+pthread_mutex_lock( &carefulMutex );
+int result = dlCount(cmbAllocedList);
+pthread_mutex_unlock( &carefulMutex );
+return result;
 }
 
-long carefulTotalAllocated()
+size_t carefulTotalAllocated()
 /* Return total bases allocated */
 {
-return carefulAlloced;
+pthread_mutex_lock( &carefulMutex );
+size_t result = carefulAlloced;
+pthread_mutex_unlock( &carefulMutex );
+return result;
 }
 
 static struct memHandler carefulMemHandler =
@@ -414,6 +479,7 @@ struct dlNode *node;
 
 size += sizeof (*node);
 node = memTracker->parent->alloc(size);
+memAlloced += size;
 if (node == NULL)
     return node;
 dlAddTail(memTracker->list, node);

@@ -192,7 +192,7 @@ ret = hel->val;
 if (slRemoveEl(pBucket, hel))
     {
     hash->elCount -= 1;
-    if (!hash->lm)
+    if (!hash->lm && !hash->ownLm)   // if we didn't come from local mem or trackDb cache
 	freeHashEl(hel);
     }
 return ret;
@@ -241,7 +241,8 @@ return hashAdd(hash, name, NULL)->name;
 }
 
 int hashIntVal(struct hash *hash, char *name)
-/* Find size of name in hash or die trying. */
+/* Return integer value associated with name in a simple
+ * hash of ints. */
 {
 void *val = hashMustFindVal(hash, name);
 return ptToInt(val);
@@ -313,19 +314,21 @@ return hashAdd(hash, name, pt + val);
 }
 
 
-void hashIncInt(struct hash *hash, char *name)
-/* Increment integer value in hash */
+int hashIncInt(struct hash *hash, char *name)
+/* Increment integer value in hash. Return value after increment. */
 {
 struct hashEl *hel = hashLookup(hash, name);
 if (hel == NULL)
   {
   hashAddInt(hash, name, 1);
+  return 1;
   }
 else
   {
-  hel->val = ((char *)hel->val)+1;
-  /* The much simpler ++hel->val works for gnu C, but really adding one to a void pointer
-   * I think is not well defined. */
+  char *ptVal = hel->val;
+  ptVal += 1;
+  hel->val = ptVal;
+  return ptToInt(ptVal);
   }
 }
 
@@ -346,29 +349,78 @@ for (i=0; i<hash->size; ++i)
 return sum;
 }
 
-struct hash *newHashExt(int powerOfTwoSize, boolean useLocalMem)
-/* Returns new hash table. Uses local memory optionally. */
+void hashIntReset(struct hash *hash)
+/* Reset all values in hash of ints to 0.  Reset element count to 0. */
 {
-struct hash *hash = needMem(sizeof(*hash));
-int memBlockPower = 16;
+memset(hash->table, 0, hash->size * sizeof hash->table[0]);
+hash->elCount = 0;
+}
+
+static int adjustPowerOfTwoSize(int powerOfTwoSize)
+/* If powerOfTwoSize is 0, return a reasonable default to use instead.  If powerOfTwoSize
+ * is out of range, errAbort.  Otherwise return powerOfTwoSize. */
+{
 if (powerOfTwoSize == 0)
     powerOfTwoSize = 12;
-assert(powerOfTwoSize <= hashMaxSize && powerOfTwoSize > 0);
+if (powerOfTwoSize > hashMaxSize || powerOfTwoSize < 0)
+    errAbort("hash powerOfTwoSize must be >= 0 and <= %d, but %d was passed in.",
+             hashMaxSize, powerOfTwoSize);
+return powerOfTwoSize;
+}
+
+struct hash *newHashLm(int powerOfTwoSize, struct lm *lm)
+/* Returns new hash table using the given lm.  Recommended lm block size is 256B to 64kB,
+ * depending on powerOfTwoSize. */
+{
+struct hash *hash = lm ? lmAlloc(lm, sizeof(*hash)) : needMem(sizeof(*hash));
+powerOfTwoSize = adjustPowerOfTwoSize(powerOfTwoSize);
 hash->powerOfTwoSize = powerOfTwoSize;
 hash->size = (1<<powerOfTwoSize);
-/* Make size of memory block for allocator vary between
- * 256 bytes and 64k depending on size of table. */
-if (powerOfTwoSize < 8)
-    memBlockPower = 8;
-else if (powerOfTwoSize < 16)
-    memBlockPower = powerOfTwoSize;
-if (useLocalMem)
-    hash->lm = lmInit(1<<memBlockPower);
+hash->lm = lm;
 hash->mask = hash->size-1;
-AllocArray(hash->table, hash->size);
+if (lm)
+    lmAllocArray(hash->lm, hash->table, hash->size);
+else
+    AllocArray(hash->table, hash->size);
 hash->autoExpand = TRUE;
 hash->expansionFactor = defaultExpansionFactor;   /* Expand when elCount > size*expansionFactor */
 return hash;
+}
+
+struct hash *newHashExt(int powerOfTwoSize, boolean useLocalMem)
+/* Returns new hash table. Uses local memory optionally. */
+{
+struct hash *hash = NULL;
+if (useLocalMem)
+    {
+    int memBlockPower = 16;
+    powerOfTwoSize = adjustPowerOfTwoSize(powerOfTwoSize);
+    /* Make size of memory block for allocator vary between
+     * 256 bytes and 64k depending on size of table. */
+    if (powerOfTwoSize < 8)
+        memBlockPower = 8;
+    else if (powerOfTwoSize < 16)
+        memBlockPower = powerOfTwoSize;
+    struct lm *ownLm = lmInit(1<<memBlockPower);
+    hash = newHashLm(powerOfTwoSize, ownLm);
+    hash->ownLm = TRUE;
+    }
+else
+    hash = newHashLm(powerOfTwoSize, NULL);
+return hash;
+}
+
+void hashReverseAllBucketLists(struct hash *hash)
+/* Reverse all hash bucket list.  You might do this to
+ * get them back in the same order things were added to the hash */
+{
+int i;
+for (i=0; i<hash->size; ++i)
+    {
+    struct hashEl *hel = hash->table[i];
+    if (hel != NULL && hel->next != NULL)
+	slReverse(&hash->table[i]);
+    }
 }
 
 void hashResize(struct hash *hash, int powerOfTwoSize)
@@ -377,14 +429,21 @@ void hashResize(struct hash *hash, int powerOfTwoSize)
 int oldHashSize = hash->size;
 struct hashEl **oldTable = hash->table;
 
-if (powerOfTwoSize == 0)
-    powerOfTwoSize = 12;
+if (powerOfTwoSize > hashMaxSize)
+    powerOfTwoSize =  hashMaxSize;
+powerOfTwoSize = adjustPowerOfTwoSize(powerOfTwoSize);
+if (hash->powerOfTwoSize == powerOfTwoSize)
+    return;
+
 assert(powerOfTwoSize <= hashMaxSize && powerOfTwoSize > 0);
 hash->powerOfTwoSize = powerOfTwoSize;
 hash->size = (1<<powerOfTwoSize);
 hash->mask = hash->size-1;
 
-AllocArray(hash->table, hash->size);
+if (hash->lm)
+    lmAllocArray(hash->lm, hash->table, hash->size);
+else
+    AllocArray(hash->table, hash->size);
 
 int i;
 struct hashEl *hel, *next;
@@ -399,20 +458,29 @@ for (i=0; i<oldHashSize; ++i)
 	}
     }
 /* restore original list order */
-for (i=0; i<hash->size; ++i)
-    {
-    struct hashEl *hel = hash->table[i];
-    if (hel != NULL && hel->next != NULL)
-	slReverse(&hash->table[i]);
-    }
-freeMem(oldTable);
+hashReverseAllBucketLists(hash);
+
+if (!hash->lm)
+    freeMem(oldTable);
 hash->numResizes++;
 }
 
+struct slName *hashSlNameFromHash(struct hash *hash)
+/* Create a slName list from the names in a hash. */
+{
+struct slName *list = NULL;
+struct hashCookie cookie = hashFirst(hash);
+struct hashEl *hel;
+while ((hel = hashNext(&cookie)) != NULL)
+    {
+    struct slName *one = newSlName(hel->name);
+    slAddHead(&list, one);
+    }
+return list;
+}
 
 struct hash *hashFromSlNameList(void *list)
-/* Create a hash out of a list of slNames or any kind of list where the */
-/* first field is the next pointer and the second is the name. */
+/* Create a hash out of a list of slNames. */
 {
 struct hash *hash = NULL;
 struct slName *namedList = list, *item;
@@ -421,6 +489,19 @@ if (!list)
 hash = newHash(0);
 for (item = namedList; item != NULL; item = item->next)
     hashAdd(hash, item->name, item);
+return hash;
+}
+
+struct hash *hashSetFromSlNameList(void *list)
+/* Create a hashSet (hash with only keys) out of a list of slNames. */
+{
+struct hash *hash = NULL;
+struct slName *namedList = list, *item;
+if (!list)
+    return NULL;
+hash = newHash(0);
+for (item = namedList; item != NULL; item = item->next)
+    hashAdd(hash, item->name, NULL);
 return hash;
 }
 
@@ -463,6 +544,15 @@ int hashElCmpWithEmbeddedNumbers(const void *va, const void *vb)
 const struct hashEl *a = *((struct hashEl **)va);
 const struct hashEl *b = *((struct hashEl **)vb);
 return cmpStringsWithEmbeddedNumbers(a->name, b->name);
+}
+
+int hashElCmpIntValDesc(const void *va, const void *vb)
+/* Compare two hashEl from a hashInt type hash, with highest integer values
+ * comingFirst. */
+{
+struct hashEl *a = *((struct hashEl **)va);
+struct hashEl *b = *((struct hashEl **)vb);
+return b->val - a->val;
 }
 
 void *hashElFindVal(struct hashEl *list, char *name)
@@ -580,7 +670,11 @@ struct hash *hash = *pHash;
 if (hash == NULL)
     return;
 if (hash->lm)
-    lmCleanup(&hash->lm);
+    {
+    if (hash->ownLm)
+        lmCleanup(&hash->lm);
+    *pHash = NULL;
+    }
 else
     {
     int i;
@@ -593,9 +687,9 @@ else
 	    freeHashEl(hel);
 	    }
 	}
+    freeMem(hash->table);
+    freez(pHash);
     }
-freeMem(hash->table);
-freez(pHash);
 }
 
 
@@ -714,4 +808,42 @@ int n = 0, i;
 for (i=0; i<hash->size; ++i)
     n += bucketLen(hash->table[i]);
 return n;
+}
+
+struct hash *hashFromString(char *string)
+/* parse a whitespace-separated string with tuples in the format name=val or
+ * name="val" to a hash name->val */
+{
+if (string==NULL)
+    return NULL;
+
+struct slPair *keyVals = slPairListFromString(string, TRUE);
+if (keyVals==NULL)
+    return NULL;
+
+struct hash *nameToVal = newHash(0);
+struct slPair *kv;
+for (kv = keyVals; kv != NULL; kv = kv->next)
+    hashAdd(nameToVal, kv->name, kv->val);
+return nameToVal;
+}
+
+struct hash *hashFromNameArray(char **nameArray, int nameCount)
+/* Create a NULL valued hash on all names in array */
+{
+struct hash *hash = hashNew(0);
+int i;
+for (i=0; i<nameCount; ++i)
+    hashAdd(hash, nameArray[i], NULL);
+return hash;
+}
+
+struct hash *hashFromNameValArray(char *nameVal[][2], int nameValCount)
+/* Make up a hash from nameVal array */
+{
+struct hash *hash = newHash(0);
+int i;
+for (i=0; i<nameValCount; ++i)
+    hashAdd(hash, nameVal[i][0], nameVal[i][1]);
+return hash;
 }

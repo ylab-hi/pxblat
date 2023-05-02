@@ -33,6 +33,29 @@
 #include "axt.h"
 #endif
 
+/* for use in deciding what type of error message to output, typical
+ *  network connection timeout is 120 seconds, if elapsed time to this
+ *  error exit is > NET_TIMEOUT_MS, something is taking too long.
+ *  On the other hand, if the QUICKEXIT time of < 500 ms is noted, then
+ *  something else is wrong about the connection.
+ *  (these are used in gfClient and hgBlat for dynamic blat server messages)
+ */
+#define NET_TIMEOUT_MS	110000
+#define NET_QUICKEXIT_MS	500
+
+struct gfConnection
+/* connection to a gfServer.  This supports reuse of the connection for dynamic
+ * servers and reopening a connection for static server. */
+{
+
+    int fd;  // socket descriptor, -1 if closed
+    char *hostName;   // need when reconnecting
+    int port;
+    boolean isDynamic;  // is this a dynamic server?
+    char *genome;   // genome name for dynamic server
+    char *genomeDataDir; // genome data directory for dynamic server
+};
+
 enum gfConstants {
     gfMinMatch = 2,
     gfMaxGap = 2,
@@ -86,8 +109,12 @@ void gfClumpFreeList(struct gfClump **pList);
 /* Free a list of dynamically allocated gfClump's */
 
 struct genoFind
-/* An index of all K-mers in the genome. */
-    {
+/* An index of all K-mers in the genome.
+ * WARNING: MUST MODIFY CODE TO STORE/LOAD INDEX TO FILES IF THIS STRUCTURE IS
+ * MODIFIED!!!
+ */
+{
+    boolean isMapped;                    /* is this a mapped file? */
     int maxPat;                          /* Max # of times pattern can occur
                                           * before it is ignored. */
     int minMatch;                        /* Minimum number of tile hits needed
@@ -98,11 +125,12 @@ struct genoFind
     int tileSpaceSize;                   /* Number of N-mer values. */
     int tileMask;			 /* 1-s for each N-mer. */
     int sourceCount;			 /* Count of source files. */
-    struct gfSeqSource *sources;         /* List of sequence sources. */
     bool isPep;			 	 /* Is a peptide. */
     bool allowOneMismatch;		 /* Allow a single mismatch? */
+    bool noSimpRepMask;			  /* Dis-Allow simple repeat masking. */
     int segSize;			 /* Index is segmented if non-zero. */
     bits32 totalSeqSize;		 /* Total size of all sequences. */
+    struct gfSeqSource *sources;         /* List of sequence sources. */
     bits32 *listSizes;                   /* Size of list for each N-mer */
     void *allocated;                     /* Storage space for all lists. */
     bits32 **lists;                      /* A list for each N-mer. Used if
@@ -118,11 +146,41 @@ struct genoFind
 					  * extra gigabyte of RAM. */
     };
 
+
 void genoFindFree(struct genoFind **pGenoFind);
 /* Free up a genoFind index. */
 
 struct gfSeqSource *gfFindNamedSource(struct genoFind *gf, char *name);
 /* Find target of given name.  Return NULL if none. */
+
+struct genoFindIndex
+/* container for genoFind indexes, sorting either an untranslated index on six translated indexes.
+ * these can be created in memory or saved to a file to quickly mmap */
+{
+    void *memMapped;     /* memory mapped if non-NULL, with amount allocated */
+    size_t memLength;
+    bool isTrans;        /* is this translated? */
+    bool noSimpRepMask;  /* Suppresses simple repeat masking for very small genomes */
+    struct genoFind *untransGf;
+    struct genoFind *transGf[2][3];
+};
+
+struct genoFindIndex* genoFindIndexBuild(int fileCount, char *seqFiles[],
+                                         int minMatch, int maxGap, int tileSize,
+                                         int repMatch, boolean doTrans, char *oocFile,
+                                         boolean allowOneMismatch, boolean doMask,
+                                         int stepSize, boolean noSimpRepMask);
+/* build a untranslated or translated index */
+
+void genoFindIndexFree(struct genoFindIndex **pGfIdx);
+/* free a genoFindIndex */
+
+void genoFindIndexWrite(struct genoFindIndex *gfIdx, char *fileName);
+/* write index to file that can be mapped */
+
+struct genoFindIndex* genoFindIndexLoad(char *fileName, boolean isTrans);
+/* load indexes from file. */
+
 
 /* ---  Stuff for saving results ---- */
 
@@ -230,7 +288,7 @@ void gfCheckTileSize(int tileSize, boolean isPep);
 struct genoFind *gfIndexSeq(bioSeq *seqList,
 	int minMatch, int maxGap, int tileSize, int maxPat, char *oocFile,
 	boolean isPep, boolean allowOneMismatch, boolean maskUpper,
-	int stepSize);
+	int stepSize, boolean noSimpRepMask);
 /* Make index for all seqs in list.
  *      minMatch - minimum number of matching tiles to trigger alignments
  *      maxGap   - maximum deviation from diagonal of tiles
@@ -240,11 +298,12 @@ struct genoFind *gfIndexSeq(bioSeq *seqList,
  *      isPep    - TRUE if indexing proteins, FALSE for DNA.
  *      maskUpper - Mask out upper case sequence (currently only for nucleotides).
  *      stepSize - space between tiles.  Zero means default (which is tileSize).
+ *      noSimpRepMask - skip simple repeat masking.
  * For DNA sequences upper case bits will be unindexed. */
 
 struct genoFind *gfIndexNibsAndTwoBits(int fileCount, char *fileNames[],
 	int minMatch, int maxGap, int tileSize, int maxPat, char *oocFile,
-	boolean allowOneMismatch, int stepSize);
+	boolean allowOneMismatch, int stepSize, boolean noSimpRepMask);
 /* Make index for all .nib and .2bits in list.
  *      minMatch - minimum number of matching tiles to trigger alignments
  *      maxGap   - maximum deviation from diagonal of tiles
@@ -252,12 +311,13 @@ struct genoFind *gfIndexNibsAndTwoBits(int fileCount, char *fileNames[],
  *      maxPat   - maximum use of tile to not be considered a repeat
  *      oocFile  - .ooc format file that lists repeat tiles.  May be NULL.
  *      allowOneMismatch - allow one mismatch in a tile.
- *      stepSize - space between tiles.  Zero means default (which is tileSize). */
+ *      stepSize - space between tiles.  Zero means default (which is tileSize).
+ *      noSimpRepMask - skip simple repeat masking. */
 
 void gfIndexTransNibsAndTwoBits(struct genoFind *transGf[2][3],
     int fileCount, char *fileNames[],
     int minMatch, int maxGap, int tileSize, int maxPat, char *oocFile,
-    boolean allowOneMismatch, boolean mask, int stepSize);
+    boolean allowOneMismatch, boolean mask, int stepSize, boolean noSimpRepMask);
 /* Make translated (6 frame) index for all .nib and .2bit files. */
 
 /* -------- Routines to scan index for homolgous areas ------------ */
@@ -324,36 +384,51 @@ struct hash *gfFileCacheNew();
 void gfFileCacheFree(struct hash **pCache);
 /* Free up resources in cache. */
 
-void gfAlignStrand(int *pConn, char *nibDir, struct dnaSeq *seq,
-    boolean isRc,  int minMatch,
-    struct hash *tFileCache, struct gfOutput *out);
+void gfAlignStrand(struct gfConnection *conn, char *nibDir, struct dnaSeq *seq,
+                   boolean isRc,  int minMatch,
+                   struct hash *tFileCache, struct gfOutput *out);
 /* Search genome on server with one strand of other sequence to find homology.
  * Then load homologous bits of genome locally and do detailed alignment.
  * Call 'outFunction' with each alignment that is found.  gfSavePsl is a handy
  * outFunction to use. */
 
-void gfAlignTrans(int *pConn, char *nibDir, aaSeq *seq,
-    int minMatch, struct hash *tFileHash, struct gfOutput *out);
+void gfAlignTrans(struct gfConnection *conn, char *nibDir, aaSeq *seq,
+                  int minMatch, struct hash *tFileHash, struct gfOutput *out);
 /* Search indexed translated genome on server with an amino acid sequence.
  * Then load homologous bits of genome locally and do detailed alignment.
  * Call 'outFunction' with each alignment that is found. */
 
-void gfAlignTransTrans(int *pConn, char *nibDir, struct dnaSeq *seq,
-	boolean qIsRc, int minMatch, struct hash *tFileCache,
-	struct gfOutput *out, boolean isRna);
+void gfAlignTransTrans(struct gfConnection *conn, char *nibDir, struct dnaSeq *seq,
+                       boolean qIsRc, int minMatch, struct hash *tFileCache,
+                       struct gfOutput *out, boolean isRna);
 /* Search indexed translated genome on server with an dna sequence.  Translate
  * this sequence in three frames. Load homologous bits of genome locally
  * and do detailed alignment.  Call 'outFunction' with each alignment
  * that is found. */
 
-int gfConnect(char *hostName, char *portName);
-/* Set up our network connection to server. */
+struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome, char *genomeDataDir);
+/* Set up our network connection to server, or return NULL. genome and genomeDataDir are for dynamic server. */
+
+struct gfConnection *gfConnect(char *hostName, char *portName, char *genome, char *genomeDataDir);
+/* Set up our network connection to server. Aborts on error. genome and genomeDataDir are for dynamic server. */
+
+void gfBeginRequest(struct gfConnection *conn);
+/* called before a request is started.  If the connect is not open, reopen
+ * it. */
+
+void gfEndRequest(struct gfConnection *conn);
+/* End a request that might be followed by another requests. For
+ * a static server, this closed the connection.  A dynamic server
+ * it is left open. *///
+
+void gfDisconnect(struct gfConnection **pConn);
+/* Disconnect from server */
 
 int gfDefaultRepMatch(int tileSize, int stepSize, boolean protTiles);
 /* Figure out appropriate step repMatch value. */
 
 void gfMakeOoc(char *outName, char *files[], int fileCount,
-	int tileSize, bits32 maxPat, enum gfType tType);
+	int tileSize, bits32 maxPat, enum gfType tType, boolean noSimpRepMask);
 /* Count occurences of tiles in seqList and make a .ooc file. */
 
 void gfLongDnaInMem(struct dnaSeq *query, struct genoFind *gf,
@@ -379,6 +454,6 @@ struct gfClump *gfPcrClumps(struct genoFind *gf,
 
 #define MAXSINGLEPIECESIZE 5000 /* maximum size of a single piece */
 
-#define gfVersion "35"	/* Current BLAT version number */
+#define gfVersion "37x1"	/* Current BLAT version number */
 
 #endif /* GENOFIND_H */

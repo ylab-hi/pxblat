@@ -38,8 +38,7 @@
  *        {
  *        ...
  *        }
- *    pipelineWait(pl);
- *    pipelineFree(&pl);
+ *    pipelineClose(&pl);
  *
  * A similar example that generates data and writes a compressed file, sorting
  * it numerically by the first column:
@@ -55,8 +54,7 @@
  *    while ((line = makeNextRow()) != NULL)
  *        fprintf(fh, "%s\n", line);
  *
- *    pipelineWait(pl);
- *    pipelineFree(&pl);
+ *    pipelineClose(&pl);
  *
  * To append to an output file, use pipelineWrite|pipelineAppend:
  *
@@ -76,27 +74,34 @@ enum pipelineOpts
     pipelineNoAbort    = 0x04, /* don't abort if a process exits non-zero,
                                 * wait will return exit code instead.
                                 * Still aborts if process signals. */
+    pipelineMemInput   = 0x08, /* pipeline takes input from memory (internal) */
     pipelineAppend     = 0x10, /* Append to output file (used only with pipelineWrite) */
-    /* these are internal options */
-    pipelineMemInput   = 0x08  /* pipeline takes input from memory */
+    pipelineSigpipe    = 0x20  /* enable sigpipe in the children and don't treat
+                                  as an error in the parent */
     };
 
 struct pipeline *pipelineOpenFd(char ***cmds, unsigned opts,
-                                int otherEndFd, int stderrFd);
+                                int otherEndFd, int stderrFd,
+                                unsigned int timeout);
 /* Create a pipeline from an array of commands.  Each command is an array of
  * arguments.  Shell expansion is not done on the arguments.  If pipelineRead
  * is specified, the output of the pipeline is readable from the pipeline
  * object.  If pipelineWrite is specified, the input of the pipeline is
- * writable from the pipeline object. */
+ * writable from the pipeline object.  If timeout is > 0, pipeline is killed
+ * after timeout seconds. */
 
 struct pipeline *pipelineOpen(char ***cmds, unsigned opts,
-                              char *otherEndFile, char *stderrFile);
+                              char *otherEndFile, char *stderrFile,
+                              unsigned int timeout);
 /* Create a pipeline from an array of commands.  Each command is an array of
  * arguments.  Shell expansion is not done on the arguments.  If pipelineRead
  * is specified, the output of the pipeline is readable from the pipeline
  * object.  If pipelineWrite is specified, the input of the pipeline is
- * writable from the pipeline object.  If stderrFile is NULL, stderr is inherited,
- * otherwise it is redirected to this file.
+ * writable from the pipeline object.  Specify otherEndFile as "/dev/null" for
+ * no input or no output (or to discard output).  If otherEndFile is NULL,
+ * then either stdin or stdout are inherited from the current process.  If
+ * stderrFile is NULL, stderr is inherited, otherwise it is redirected to this
+ * file.  If timeout is > 0, pipeline is killed after timeout seconds.
  */
 
 void pipelineDumpCmds(char ***cmds);
@@ -104,22 +109,26 @@ void pipelineDumpCmds(char ***cmds);
 
 struct pipeline *pipelineOpenMem(char ***cmds, unsigned opts,
                                  void *otherEndBuf, size_t otherEndBufSize,
-                                 int stderrFd);
+                                 int stderrFd, unsigned int timeout);
 /* Create a pipeline from an array of commands, with the pipeline input/output
  * in a memory buffer.  See pipeline.h for full documentation.  Currently only
- * input to a read pipeline is supported  */
+ * input to a read pipeline is supported   If timeout is > 0, pipeline is killed
+ * after timeout seconds. */
 
 struct pipeline *pipelineOpenFd1(char **cmd, unsigned opts,
-                                 int otherEndFd, int stderrFd);
+                                 int otherEndFd, int stderrFd,
+                                 unsigned int timeout);
 /* like pipelineOpenFd(), only takes a single command */
 
 struct pipeline *pipelineOpen1(char **cmd, unsigned opts,
-                               char *otherEndFile, char *stderrFile);
+                               char *otherEndFile, char *stderrFile,
+                               unsigned int timeout);
 /* like pipelineOpen(), only takes a single command */
 
 struct pipeline *pipelineOpenMem1(char **cmd, unsigned opts,
                                   void *otherEndBuf, size_t otherEndBufSize,
-                                  int stderrFd);
+                                  int stderrFd,
+                                  unsigned int timeout);
 /* like pipelineOpenMem(), only takes a single command */
 
 char *pipelineDesc(struct pipeline *pl);
@@ -145,6 +154,10 @@ int pipelineWait(struct pipeline *pl);
 
 void pipelineFree(struct pipeline **plPtr);
 /* free a pipeline object */
+
+int pipelineClose(struct pipeline **pPl);
+/* Wait for pipeline to finish and free it. Same as pipelineWait then pipelineClose.
+ * Returns pipelineWait result (normally 0). */
 
 #endif
 /*
