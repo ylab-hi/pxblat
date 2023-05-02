@@ -12,7 +12,7 @@ bin:
 	mkdir bin
 
 blat: bin
-	$(CC) $(COPTS) $(CFLAGS) src/pyblat/extc/blat.c src/pyblat/extc/source/core/*.c src/pyblat/extc/source/aux/*.c -o bin/blat -lm -pthread -lhts -lssl -lcrypto
+	$(CC) $(COPTS) $(CFLAGS) -DBLAT src/pyblat/extc/blat.c src/pyblat/extc/source/core/*.c src/pyblat/extc/source/aux/*.c -o bin/blat -lm -pthread -lhts -lssl -lcrypto
 
 faToTwoBit:
 	$(CC) $(COPTS) $(CFLAGS) src/pyblat/extc/faToTwoBit.c src/pyblat/extc/source/core/*.c src/pyblat/extc/source/aux/*.c src/pyblat/extc/source/net/*.c  -o bin/faToTwoBit -lm -pthread -lhts -lssl -lcrypto

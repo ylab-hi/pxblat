@@ -1,4 +1,4 @@
-/* htmlPage - stuff to read, parse, and submit  htmlPages and forms. 
+/* htmlPage - stuff to read, parse, and submit  htmlPages and forms.
  *
  * typical usage is:
  *   struct htmlPage *page = htmlPageGet(url);
@@ -101,7 +101,7 @@ void htmlStatusFreeList(struct htmlStatus **pList);
 /* Free a list of dynamically allocated htmlStatus's */
 
 struct htmlStatus *htmlStatusParse(char **pText);
-/* Read in status from first line.  Update pText to point to next line. 
+/* Read in status from first line.  Update pText to point to next line.
  * Note unlike many routines here, this does not insert zeros into text. */
 
 void htmlCookieFree(struct htmlCookie **pCookie);
@@ -120,7 +120,7 @@ void htmlAttributeFree(struct htmlAttribute **pAttribute);
 void htmlAttributeFreeList(struct htmlAttribute **pList);
 /* Free a list of dynamically allocated htmlAttribute's */
 
-char *htmlTagAttributeVal(struct htmlPage *page, struct htmlTag *tag, 
+char *htmlTagAttributeVal(struct htmlPage *page, struct htmlTag *tag,
 	char *name, char *defaultVal);
 /* Return value of named attribute, or defaultVal if attribute doesn't exist. */
 
@@ -152,7 +152,7 @@ void htmlFormFreeList(struct htmlForm **pList);
 void htmlFormPrint(struct htmlForm *form, FILE *f);
 /* Print out form structure. */
 
-char *htmlFormCgiVars(struct htmlPage *page, struct htmlForm *form, 
+char *htmlFormCgiVars(struct htmlPage *page, struct htmlForm *form,
 	char *buttonName, char *buttonVal, struct dyString *dyHeader);
 /* Return cgi vars in name=val format from use having pressed
  * submit button of given name and value. */
@@ -180,11 +180,11 @@ void htmlPageFreeList(struct htmlPage **pList);
 
 char *expandUrlOnBase(char *base, char *url);
 /* Figure out first character past host name. Load up
- * return string with protocol (if any) and host name. 
+ * return string with protocol (if any) and host name.
  * It is assumed that url is relative to base and does not contain a protocol.*/
 
 char *htmlExpandUrl(char *base, char *url);
-/* Expand URL that is relative to base to stand on it's own. 
+/* Expand URL that is relative to base to stand on it's own.
  * Return NULL if it's not http or https. */
 
 char *htmlNextCrLfLine(char **pS);
@@ -192,7 +192,7 @@ char *htmlNextCrLfLine(char **pS);
  * next line.  Return NULL at end of file.  Warn if there is
  * no <CR>. */
 
-struct slName *htmlPageScanAttribute(struct htmlPage *page, 
+struct slName *htmlPageScanAttribute(struct htmlPage *page,
 	char *tagName, char *attribute);
 /* Scan page for values of particular attribute in particular tag.
  * if tag is NULL then scans in all tags. */
@@ -227,7 +227,7 @@ struct htmlPage *htmlPageParseOk(char *url, char *fullText);
 struct htmlPage *htmlPageParseNoHead(char *url, char *htmlText);
 /* Parse out page in memory (past http header if any) and return. */
 
-struct htmlPage *htmlPageFromForm(struct htmlPage *origPage, struct htmlForm *form, 
+struct htmlPage *htmlPageFromForm(struct htmlPage *origPage, struct htmlForm *form,
 	char *buttonName, char *buttonVal);
 /* Return a new htmlPage based on response to pressing indicated button
  * on indicated form in origPage. */
@@ -251,8 +251,7 @@ struct htmlTag *findNextMatchingTag(struct htmlTag *list, char *name);
 /* Return first tag in list that is of type name or NULL if not found. */
 
 boolean isSelfClosingTag(struct htmlTag *tag);
-/* Return strue if last attributes' name is "/" 
+/* Return strue if last attributes' name is "/"
  * Self-closing tags are used with html5 and SGV */
 
 #endif /* HTMLPAGE_H */
-

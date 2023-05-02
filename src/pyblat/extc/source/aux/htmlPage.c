@@ -1,7 +1,7 @@
-/* Copyright (C) 2014 The Regents of the University of California 
+/* Copyright (C) 2014 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
-/* htmlPage - stuff to read, parse, and submit  htmlPages and forms. 
+/* htmlPage - stuff to read, parse, and submit  htmlPages and forms.
  *
  * typical usage is:
  *   struct htmlPage *page = htmlPageGet(url);
@@ -280,14 +280,14 @@ for (tag = list; tag != NULL; tag = tag->next)
 return NULL;
 }
 
-static void tagVaWarn(struct htmlPage *page, struct htmlTag *tag, char *format, 
+static void tagVaWarn(struct htmlPage *page, struct htmlTag *tag, char *format,
 	va_list args)
 /* Print warning message and some context of tag. */
 {
 char context[80];
 strncpy(context, tag->start, sizeof(context));
 context[sizeof(context)-1] = 0;
-warn("Error near line %d of %s:\n %s", findLineNumber(page->htmlText, tag->start), 
+warn("Error near line %d of %s:\n %s", findLineNumber(page->htmlText, tag->start),
 	page->url, context);
 vaWarn(format, args);
 }
@@ -312,7 +312,7 @@ noWarnAbort();
 }
 
 struct htmlStatus *htmlStatusParse(char **pText)
-/* Read in status from first line.  Update pText to point to next line. 
+/* Read in status from first line.  Update pText to point to next line.
  * Note unlike many routines here, this does not insert zeros into text. */
 {
 char *text = *pText;
@@ -351,7 +351,7 @@ if (s == NULL || s[0] == 0)
 e = strchr(s, '\n');
 if (e == NULL)
     verbose(1, "End of file in header\n");
-else 
+else
     {
     *e = 0;
     if (e == s || e[-1] != '\r')
@@ -467,7 +467,7 @@ return NULL;
 }
 
 
-char *htmlTagAttributeVal(struct htmlPage *page, struct htmlTag *tag, 
+char *htmlTagAttributeVal(struct htmlPage *page, struct htmlTag *tag,
 	char *name, char *defaultVal)
 /* Return value of named attribute, or defaultVal if attribute doesn't exist. */
 {
@@ -491,7 +491,7 @@ return val;
 }
 
 boolean isSelfClosingTag(struct htmlTag *tag)
-/* Return strue if last attributes' name is "/" 
+/* Return strue if last attributes' name is "/"
  * Self-closing tags are used with html5 and SGV */
 {
 struct htmlAttribute *att = tag->attributes;
@@ -504,7 +504,7 @@ return FALSE;
 }
 
 static struct htmlTag *htmlTagScan(char *html, char *dupe)
-/* Scan HTML for tags and return a list of them. 
+/* Scan HTML for tags and return a list of them.
  * Html is the text to scan, and dupe is a copy of it
  * which this routine will insert 0's in in the course of
  * parsing.*/
@@ -549,7 +549,7 @@ for (;;)
 	       *e++ = 0;
 	    tagName = s;
 	    s = e;
-	    
+
 	    /* Allocate tag, fill in name, and stick it on list. */
 	    AllocVar(tag);
 	    tag->name = cloneString(tagName);
@@ -642,13 +642,13 @@ for (;;)
 			    }
 			}
 		    }
-		
+
 		AllocVar(att);
 		att->name = cloneString(name);
 		att->val = cloneString(val);
 		// The html standard allows us to break quoted attributes into multiple lines using newlines,
-		// but they are not part of the tag value itself, so 
-		// Strip \n and \r chars from value (att->val);  
+		// but they are not part of the tag value itself, so
+		// Strip \n and \r chars from value (att->val);
 		stripChar(att->val, '\n');
 		stripChar(att->val, '\r');
 		attributeDecode(att->val);
@@ -673,7 +673,7 @@ slReverse(&tagList);
 return tagList;
 }
 
-static struct htmlFormVar *findOrMakeVar(struct htmlPage *page, char *name, 
+static struct htmlFormVar *findOrMakeVar(struct htmlPage *page, char *name,
 	struct hash *hash, struct htmlTag *tag, struct htmlFormVar **pVarList)
 /* Find variable of existing name if it exists,  otherwise
  * make a new one and add to hash and list.  Add reference
@@ -692,7 +692,7 @@ else
     {
     if (!sameWord(var->tagName, tag->name))
         {
-	tagWarn(page, tag, "Mixing FORM variable tag types %s and %s", 
+	tagWarn(page, tag, "Mixing FORM variable tag types %s and %s",
 		var->tagName, tag->name);
 	var->tagName = tag->name;
 	}
@@ -705,7 +705,7 @@ static boolean isMixableInputType(char *type)
 /* Return TRUE if it's a type you can mix with others ok, like
  * button, submit, and image. */
 {
-return sameWord(type, "BUTTON") || sameWord(type, "SUBMIT") 
+return sameWord(type, "BUTTON") || sameWord(type, "SUBMIT")
 	|| sameWord(type, "IMAGE");
 }
 
@@ -727,10 +727,10 @@ slAddTail(&var->values, name);
 
 
 static struct htmlFormVar *formParseVars(struct htmlPage *page, struct htmlForm *form)
-/* Return a list of variables parsed out of form.  
+/* Return a list of variables parsed out of form.
  * A form variable is something that may appear in the name
  * side of the name=value pairs that serves as input to a CGI
- * script.  The variables may be constructed from buttons, 
+ * script.  The variables may be constructed from buttons,
  * INPUT tags, OPTION lists, or TEXTAREAs. */
 {
 struct htmlTag *tag;
@@ -756,14 +756,14 @@ for (tag = form->startTag->next; tag != form->endTag; tag = tag->next)
 		tagWarn(page, tag, "Missing NAME attribute");
 	    varName = "n/a";
 	    }
-	var = findOrMakeVar(page, varName, hash, tag, &varList); 
+	var = findOrMakeVar(page, varName, hash, tag, &varList);
 	if (var->type != NULL && !sameWord(var->type, type))
 	    {
 	    if (!areMixableInputTypes(var->type, type))
 		tagWarn(page, tag, "Mixing input types %s and %s", var->type, type);
 	    }
 	var->type = type;
-	if (sameWord(type, "TEXT") || sameWord(type, "PASSWORD") 
+	if (sameWord(type, "TEXT") || sameWord(type, "PASSWORD")
 		|| sameWord(type, "FILE") || sameWord(type, "HIDDEN")
 		|| sameWord(type, "IMAGE") || sameWord(type, "SEARCH")
                 || sameWord(type, "COLOR"))
@@ -796,7 +796,7 @@ for (tag = form->startTag->next; tag != form->endTag; tag = tag->next)
         {
 	char *varName = htmlTagAttributeNeeded(page, tag, "NAME");
 	struct htmlTag *subTag;
-	var = findOrMakeVar(page, varName, hash, tag, &varList); 
+	var = findOrMakeVar(page, varName, hash, tag, &varList);
 	for (subTag = tag->next; subTag != form->endTag; subTag = subTag->next)
 	    {
 	    if (sameWord(subTag->name, "/SELECT"))
@@ -831,12 +831,12 @@ for (tag = form->startTag->next; tag != form->endTag; tag = tag->next)
         {
 	char *varName = htmlTagAttributeNeeded(page, tag, "NAME");
 	char *e = strchr(tag->end, '<');
-	var = findOrMakeVar(page, varName, hash, tag, &varList); 
+	var = findOrMakeVar(page, varName, hash, tag, &varList);
 	if (e != NULL)
 	    var->curVal = cloneStringZ(tag->end, e - tag->end);
 	}
     }
-freeHash(&hash);    
+freeHash(&hash);
 slReverse(&varList);
 for (var = varList; var != NULL; var = var->next)
     {
@@ -901,7 +901,7 @@ page->fullText = fullText;
 page->status = status;
 page->header = htmlHeaderRead(&s, &page->cookies);
 contentType = hashFindVal(page->header, "Content-Type:");
-if (contentType == NULL)	
+if (contentType == NULL)
     {
     warn("No contentType, assuming text/html");
     contentType = cloneString("text/html");
@@ -1020,8 +1020,8 @@ void htmlFormVarPrint(struct htmlFormVar *var, FILE *f, char *prefix)
 /* Print out variable to file, prepending prefix. */
 {
 struct slName *val;
-fprintf(f, "%s%s\t%s\t%s\t%s\n", prefix, var->name, var->tagName, 
-	naForNull(var->type), 
+fprintf(f, "%s%s\t%s\t%s\t%s\n", prefix, var->name, var->tagName,
+	naForNull(var->type),
 	naForNull(var->curVal));
 for (val = var->values; val != NULL; val = val->next)
      fprintf(f, "%s\t%s\n", prefix, val->name);
@@ -1099,7 +1099,7 @@ htmlFormVarSet(form, name, val);
 }
 
 static void asciiEntityDecode(char *in, char *out, int inLength)
-/* Decode from SGML Character Entity &# format to normal. 
+/* Decode from SGML Character Entity &# format to normal.
  * Out will be a little shorter than in typically, and
  * can be the same buffer. Only supports ASCII charset. */
 {
@@ -1124,7 +1124,7 @@ for (i=0; i<inLength;++i)
 		{
 		code = '?';
 		}
-	    if (code > 255) 
+	    if (code > 255)
 		{
 		code = '?';
 		}
@@ -1142,7 +1142,7 @@ for (i=0; i<inLength;++i)
 
 char *expandUrlOnBase(char *base, char *url)
 /* Figure out first character past host name. Load up
- * return string with protocol (if any) and host name. 
+ * return string with protocol (if any) and host name.
  * It is assumed that url is relative to base and does not contain a protocol.*/
 {
 struct dyString *dy = NULL;
@@ -1195,7 +1195,7 @@ return dyStringCannibalize(&dy);
 }
 
 char *htmlExpandUrl(char *base, char *url)
-/* Expand URL that is relative to base to stand on its own. 
+/* Expand URL that is relative to base to stand on its own.
  * Return NULL if it's not http or https. */
 {
 
@@ -1253,7 +1253,7 @@ dyStringAppend(dy, "\"");
 
 if (varType && sameWord(varType, "FILE"))
     {
-    fileName = strrchr(value,'/'); 
+    fileName = strrchr(value,'/');
     if (fileName)
 	++fileName;
     else
@@ -1279,7 +1279,7 @@ if (varType && sameWord(varType, "FILE") && !sameWord(value,""))
     while(bytesRead > 0);
     carefulClose(&f);
     }
-else    
+else
     dyStringAppend(dy, value);
 }
 
@@ -1318,7 +1318,7 @@ for(a = form->startTag->attributes;a;a = a->next)
 return FALSE;
 }
 
-char *htmlFormCgiVars(struct htmlPage *page, struct htmlForm *form, 
+char *htmlFormCgiVars(struct htmlPage *page, struct htmlForm *form,
 	char *buttonName, char *buttonVal, struct dyString *dyHeader)
 /* Return cgi vars in name=val format from use having pressed
  * submit button of given name and value. */
@@ -1352,8 +1352,8 @@ while(TRUE)
 	appendCgiVar(dy, buttonName, buttonVal);
     for (var = form->vars; var != NULL; var = var->next)
 	{
-	if (sameWord(var->tagName, "SELECT") || 
-	    sameWord(var->tagName, "TEXTAREA") || 
+	if (sameWord(var->tagName, "SELECT") ||
+	    sameWord(var->tagName, "TEXTAREA") ||
 	    (var->type != NULL &&
 	    ((sameWord(var->type, "RADIO") || sameWord(var->type, "TEXTBOX")
 	    || sameWord(var->type, "PASSWORD") || sameWord(var->type, "HIDDEN")
@@ -1367,19 +1367,19 @@ while(TRUE)
 		++mimeParts;
 		appendMimeVar(dy, var->name, val, var->type, boundary);
 		}
-	    else	    
+	    else
 		appendCgiVar(dy, var->name, val);
 	    }
 	else if (var->type != NULL && sameWord(var->type, "CHECKBOX"))
 	    {
 	    if (var->curVal != NULL)
 		{
-		if (isMime)	    
+		if (isMime)
 		    {
 		    ++mimeParts;
 		    appendMimeVar(dy, var->name, var->curVal, var->type, boundary);
 		    }
-		else	    
+		else
 		    appendCgiVar(dy, var->name, var->curVal);
 		}
 	    }
@@ -1389,7 +1389,7 @@ while(TRUE)
 	    appendMimeVar(dy, buttonName, buttonVal, NULL, boundary);
 	    }
 	}
-    if (isMime) 
+    if (isMime)
 	{
 	++mimeParts;
 	appendMimeTerminus(dy,boundary);
@@ -1406,13 +1406,13 @@ while(TRUE)
 	    }
 	}
     break;
-    }   
-    
+    }
+
 return dyStringCannibalize(&dy);
 
 }
 
-struct htmlPage *htmlPageFromForm(struct htmlPage *origPage, struct htmlForm *form, 
+struct htmlPage *htmlPageFromForm(struct htmlPage *origPage, struct htmlForm *form,
 	char *buttonName, char *buttonVal)
 /* Return a new htmlPage based on response to pressing indicated button
  * on indicated form in origPage. */
@@ -1455,7 +1455,7 @@ freez(&cgiVars);
 return newPage;
 }
 
-struct slName *htmlPageScanAttribute(struct htmlPage *page, 
+struct slName *htmlPageScanAttribute(struct htmlPage *page,
 	char *tagName, char *attribute)
 /* Scan page for values of particular attribute in particular tag.
  * if tag is NULL then scans in all tags. */
@@ -1502,7 +1502,7 @@ struct htmlTableRow
     int inTd;
     };
 
-struct htmlTable 
+struct htmlTable
 /* Data on a table. */
     {
     struct htmlTable *next;
@@ -1510,7 +1510,7 @@ struct htmlTable
     int rowCount;
     };
 
-static void validateTables(struct htmlPage *page, 
+static void validateTables(struct htmlPage *page,
 	struct htmlTag *startTag, struct htmlTag *endTag)
 /* Validate <TABLE><TR><TD> are all properly nested, and that there
  * are no empty rows. */
@@ -1576,7 +1576,7 @@ for (tag = startTag; tag != endTag; tag = tag->next)
 #ifdef LEGAL_ACTUALLY
 	if (row->inTd)
 	    {
-	    tagAbort(page, tag, "<%s>...<%s> with no </%s> in between", 
+	    tagAbort(page, tag, "<%s>...<%s> with no </%s> in between",
 	    	tag->name, tag->name, tag->name);
 	    }
 #endif /* LEGAL_ACTUALLY */
@@ -1598,7 +1598,7 @@ if (tableStack != NULL)
     tagAbort(page, tag, "Missing </TABLE>");
 }
 
-static void checkTagIsInside(struct htmlPage *page, char *outsiders, char *insiders,  
+static void checkTagIsInside(struct htmlPage *page, char *outsiders, char *insiders,
 	struct htmlTag *startTag, struct htmlTag *endTag)
 /* Check that insiders are all bracketed by outsiders. */
 {
@@ -1688,12 +1688,12 @@ for (i=0; i<nesterCount; ++i)
     checkNest(page, nesters[i], startTag, endTag);
 }
 
-static char *bodyNesters[] = 
+static char *bodyNesters[] =
 /* Nesting tags that appear in body. */
 {
     "ADDRESS", "DIV", "H1", "H2", "H3", "H4", "H5", "H6",
     "ACRONYM", "BLOCKQUOTE", "CITE", "CODE", "DEL", "DFN"
-    "DIR", "DL", "MENU", "OL", "UL", "CAPTION", "TABLE", 
+    "DIR", "DL", "MENU", "OL", "UL", "CAPTION", "TABLE",
     "A", "MAP", "OBJECT", "FORM", "DIV", "SCRIPT", "SVG"
 };
 
@@ -1760,10 +1760,10 @@ checkTagIsInside(page, "DL", "DD DT", startTag, endTag);
 checkTagIsInside(page, "COLGROUP TABLE", "COL", startTag, endTag);
 checkTagIsInside(page, "MAP", "AREA", startTag, endTag);
 #ifdef OLD   /* These days input type controls allowed outside forms because of javascript */
-checkTagIsInside(page, "FORM SCRIPT", 
+checkTagIsInside(page, "FORM SCRIPT",
 	"INPUT BUTTON /BUTTON OPTION SELECT /SELECT TEXTAREA /TEXTAREA"
 	"FIELDSET /FIELDSET"
-	, 
+	,
 	startTag, endTag);
 #endif /* OLD */
 validateNestingTags(page, startTag, endTag, bodyNesters, ArraySize(bodyNesters));
@@ -1976,7 +1976,7 @@ for (tag = page->tags; tag != NULL; tag = tag->next)
 	tagAbort(page, tag, "Space not allowed between opening bracket < and tag name");
     if (sameString(tag->name,"A")) // A open tag
 	{
-	if (inA) 
+	if (inA)
 	    tagAbort(page, tag, "A tags may not be nested inside one another.");
 	else
 	    inA = TRUE;
@@ -1990,7 +1990,7 @@ for (tag = page->tags; tag != NULL; tag = tag->next)
 	    tagAbort(page, tag, "Attributes are not allowed in closing tag: [%s]", tag->name);
 	if (sameString(tag->name,"/A")) // A close tag
 	    {
-	    if (inA) 
+	    if (inA)
 		inA = FALSE;
 	    else
 		tagAbort(page, tag, "/A close tag with no open tag.");
@@ -2003,7 +2003,7 @@ for (tag = page->tags; tag != NULL; tag = tag->next)
 		tagAbort(page, tag, "No tags still left on stack. Closing tag %s has no corresponding open tag.", tag->name);
 	    struct slName *top = slPopHead(&tagStack);
 	    // flush LI tags still on stack when /UL or /OL encountered
-	    // since the missing /LI tags are usually tolerated. 
+	    // since the missing /LI tags are usually tolerated.
 	    while ((sameString(tag->name, "/UL") || sameString(tag->name, "/OL")) && sameString(top->name,"LI"))
 		{
 		tagWarn(page, tag, "Closing tag %s found. LI tag on stack. Missing /LI tag. Please fix. Continuing.", tag->name);
@@ -2018,13 +2018,13 @@ for (tag = page->tags; tag != NULL; tag = tag->next)
     else
 	{
 	if (
-	    ! hashLookup(singleTonHash, tag->name) 
+	    ! hashLookup(singleTonHash, tag->name)
 	 && !(hashLookup(selfCloserHash, tag->name) && isSelfClosingTag(tag))
          && ! sameString("P", tag->name))
 	    {
 	    slAddHead(&tagStack, slNameNew(tag->name));
-	    }	    
-	}	    
+	    }
+	}
     }
 if (tagStack)
     errAbort("Some tags still left on stack. Open tag %s missing its closing tag.", tagStack->name);

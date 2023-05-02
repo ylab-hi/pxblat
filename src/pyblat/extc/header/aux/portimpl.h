@@ -1,5 +1,5 @@
-/* Implement portable stuff.... 
- * 
+/* Implement portable stuff....
+ *
  * This file is copyright 2000 Jim Kent, but license is hereby
  * granted for all use - public, private or commercial. */
 
@@ -20,7 +20,7 @@ struct webServerSpecific
     /* Return cgi suffix. */
     char * (*cgiSuffix)();
 #endif /* NEVER */
-    
+
     /* Return relative speed of CPU. (UCSC CSE 1999 FTP machine is 1.0) */
     double (*speed)();
 

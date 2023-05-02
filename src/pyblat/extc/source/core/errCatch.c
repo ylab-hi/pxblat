@@ -1,10 +1,10 @@
-/* Copyright (C) 2011 The Regents of the University of California 
+/* Copyright (C) 2011 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
 /* errCatch - help catch errors so that errAborts aren't
- * fatal, and warn's don't necessarily get printed immediately. 
+ * fatal, and warn's don't necessarily get printed immediately.
  * Note that error conditions caught this way will tend to
- * leak resources unless there are additional wrappers. 
+ * leak resources unless there are additional wrappers.
  *
  * Typical usage is
  * errCatch = errCatchNew();
@@ -13,7 +13,7 @@
  * errCatchEnd(errCatch);
  * if (errCatch->gotError)
  *     warn("%s", errCatch->message->string);
- * errCatchFree(&errCatch); 
+ * errCatchFree(&errCatch);
  * cleanupFlakyStuff();
  */
 
@@ -53,7 +53,7 @@ static pthread_mutex_t getStackMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_lock( &getStackMutex );
 static struct hash *perThreadStacks = NULL;
 pthread_t pid = pthread_self(); //  can be a pointer or a number
-// A true integer has function would be nicer, but this will do.  
+// A true integer has function would be nicer, but this will do.
 // Don't safef, theoretically that could abort.
 char key[64];
 snprintf(key, sizeof(key), "%lld",  ptrToLL(pid));
@@ -106,7 +106,7 @@ if (errCatch != errCatchStack)
 }
 
 void errCatchReWarn(struct errCatch *errCatch)
-/* Re-warn any warnings that happened even though no abort happened 
+/* Re-warn any warnings that happened even though no abort happened
  * to make them visible. */
 {
 if (errCatch->gotWarning && !errCatch->gotError)
@@ -136,4 +136,3 @@ if (errCatch != NULL)
     }
 return ok;
 }
-

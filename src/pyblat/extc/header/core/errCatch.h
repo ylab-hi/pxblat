@@ -1,7 +1,7 @@
 /* errCatch - help catch errors so that errAborts aren't
- * fatal, and warn's don't necessarily get printed immediately. 
+ * fatal, and warn's don't necessarily get printed immediately.
  * Note that error conditions caught this way will tend to
- * leak resources unless there are additional wrappers. 
+ * leak resources unless there are additional wrappers.
  *
  * Typical usage is
  * errCatch = errCatchNew();
@@ -10,7 +10,7 @@
  * errCatchEnd(errCatch);
  * if (errCatch->gotError)
  *     warn("Flaky stuff failed: %s", errCatch->message->string);
- * errCatchFree(&errCatch); 
+ * errCatchFree(&errCatch);
  * cleanupFlakyStuff();
  */
 #ifndef ERRCATCH_H
@@ -42,7 +42,7 @@ void errCatchFree(struct errCatch **pErrCatch);
 
 
 boolean errCatchPushHandlers(struct errCatch *errCatch);
-/* Push error handlers.  Not usually called directly. 
+/* Push error handlers.  Not usually called directly.
  * but rather through errCatchStart() macro.  Always
  * returns TRUE. */
 
@@ -50,7 +50,7 @@ void errCatchEnd(struct errCatch *errCatch);
 /* Restore error handlers and pop self off of catching stack. */
 
 void errCatchReWarn(struct errCatch *errCatch);
-/* Re-warn any warnings that happened even though no abort happened 
+/* Re-warn any warnings that happened even though no abort happened
  * to make them visible. */
 
 boolean errCatchFinish(struct errCatch **pErrCatch);
@@ -58,4 +58,3 @@ boolean errCatchFinish(struct errCatch **pErrCatch);
  * problem and return FALSE.  If no problem return TRUE.
  * This handles errCatchEnd and errCatchFree. */
 #endif /* ERRCATCH_H */
-

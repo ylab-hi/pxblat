@@ -2,13 +2,13 @@
  *   If you don't want to use printf
  */
 
-/* Copyright (C) 2013 The Regents of the University of California 
+/* Copyright (C) 2013 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
 #include "common.h"
 #include "linefile.h"
 
-char hexTab[16] = {'0', '1', '2', '3', '4', '5', '6', '7', 
+char hexTab[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
 /* Convert 0-15 to a hex char */
 
@@ -73,7 +73,7 @@ int unpackHexString(char *hexString, struct lineFile *lf, int maxLen)
 {
 int len = strlen(hexString);
 if (len < 0 || len > maxLen)
-    errAbort("Expecting a one to %d digit hex number, but got %s line %d of %s", 
+    errAbort("Expecting a one to %d digit hex number, but got %s line %d of %s",
 	maxLen, hexString, lf->lineIx, lf->fileName);
 int acc = 0;
 char c;
@@ -100,4 +100,3 @@ while ((c = *hexString++) != 0)
     }
 return acc;
 }
-

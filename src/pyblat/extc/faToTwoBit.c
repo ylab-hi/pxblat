@@ -1,6 +1,6 @@
 /* faToTwoBit - Convert DNA from fasta to 2bit format. */
 
-/* Copyright (C) 2013 The Regents of the University of California 
+/* Copyright (C) 2013 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 #include "common.h"
 #include "linefile.h"
@@ -60,9 +60,9 @@ for (i=0; i<size; ++i)
     }
 }
 
-	    
+
 void faToTwoBit(char *inFiles[], int inFileCount, char *outFile)
-/* Convert inFiles in fasta format to outfile in 2 bit 
+/* Convert inFiles in fasta format to outfile in 2 bit
  * format. */
 {
 struct twoBit *twoBitList = NULL, *twoBit;
@@ -83,7 +83,7 @@ for (i=0; i<inFileCount; ++i)
 	    warn("Skipping item %s which has no sequence.\n",seq.name);
 	    continue;
 	    }
-	    
+
         /* strip off version number */
         if (stripVersion)
             {

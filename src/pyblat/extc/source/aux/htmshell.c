@@ -280,11 +280,11 @@ return cleanQuote;
 
 
 int htmlEncodeTextExtended(char *s, char *out, int outSize)
-/* Replaces required punctuation characters with html entities to fight XSS. 
+/* Replaces required punctuation characters with html entities to fight XSS.
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 int total = 0;
@@ -293,7 +293,7 @@ do
     {
     c=*s++;
     int size = 1;
-    char *newString = NULL; 
+    char *newString = NULL;
     if (c == '&') { size = 5; newString = "&amp;"; } // '&' start a control char
     if (c == '>') { size = 4; newString = "&gt;" ; } // '>' close of tag
     if (c == '<') { size = 4; newString = "&lt;" ; } // '<' open  of tag
@@ -339,14 +339,14 @@ htmlEncodeTextExtended(s, out, size+1);
 return out;
 }
 
-int nonAlphaNumericHexEncodeText(char *s, char *out, int outSize, 
+int nonAlphaNumericHexEncodeText(char *s, char *out, int outSize,
    char *prefix, char *postfix)
 /* For html tag attributes, it replaces non-alphanumeric characters
  * with <prefix>HH<postfix> hex codes to fight XSS.
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 int encodedSize = strlen(prefix) + 2 + strlen(postfix);
@@ -378,7 +378,7 @@ do
 	    while ((x = *pf++) != 0)
 		*out++ = x;
 	    // use (unsigned char) to shift without sign-extension. We want zeros to be added on left side.
-	    char h1 = ((unsigned char) c >> 4 ) + 0x30; if (h1 > 0x39) h1 += 7; 
+	    char h1 = ((unsigned char) c >> 4 ) + 0x30; if (h1 > 0x39) h1 += 7;
 	    *out++ = h1;
 	    char h2 = (c & 0xF) + 0x30; if (h2 > 0x39) h2 += 7;
 	    *out++ = h2;
@@ -397,9 +397,9 @@ static boolean decodeOneHexChar(char c, char *h)
 {
 *h = *h << 4;
 if (c >= '0' && c <= '9')
-    *h += (c - '0');	    
+    *h += (c - '0');
 else if (c >= 'A' && c <= 'F')
-    *h += (c - 'A' + 10);	    
+    *h += (c - 'A' + 10);
 else if (c >= 'a' && c <= 'f')
     *h += (c - 'a' + 10);
 else
@@ -450,9 +450,9 @@ int attrEncodeTextExtended(char *s, char *out, int outSize)
 /* For html tag attribute values, it replaces non-alphanumeric characters
  * with html entities &#xHH; to fight XSS.
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 return nonAlphaNumericHexEncodeText(s, out, outSize, "&#x", ";");
@@ -485,9 +485,9 @@ int cssEncodeTextExtended(char *s, char *out, int outSize)
 /* For CSS values, it replaces non-alphanumeric characters with "\HH " to fight XSS.
  * (Yes, the trailing space is critical.)
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 return nonAlphaNumericHexEncodeText(s, out, outSize, "\\", " ");
@@ -509,7 +509,7 @@ return out;
 }
 
 void cssDecode(char *s)
-/* For CSS values decode "\HH " 
+/* For CSS values decode "\HH "
  * (Yes, the trailing space is critical.) */
 {
 return nonAlphaNumericHexDecodeText(s, "\\", " ");
@@ -520,9 +520,9 @@ return nonAlphaNumericHexDecodeText(s, "\\", " ");
 int javascriptEncodeTextExtended(char *s, char *out, int outSize)
 /* For javascript string values, it replaces non-alphanumeric characters with "\xHH" to fight XSS.
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 return nonAlphaNumericHexEncodeText(s, out, outSize, "\\x", "");
@@ -553,9 +553,9 @@ return nonAlphaNumericHexDecodeText(s, "\\x", "");
 int urlEncodeTextExtended(char *s, char *out, int outSize)
 /* For URL parameter values, it replaces non-alphanumeric characters with "%HH" to fight XSS.
  * out result must be large enough to receive the encoded string.
- * Returns size of encoded string or -1 if output larger than outSize. 
- * To just get the final encoded size, pass in NULL for out and 0 for outSize. 
- * To output without checking sizes, pass in non-NULL for out and 0 for outSize. 
+ * Returns size of encoded string or -1 if output larger than outSize.
+ * To just get the final encoded size, pass in NULL for out and 0 for outSize.
+ * To output without checking sizes, pass in non-NULL for out and 0 for outSize.
  */
 {
 return nonAlphaNumericHexEncodeText(s, out, outSize, "%", "");
@@ -615,7 +615,7 @@ htmlWarnBoxSetUpAlready=TRUE;
 // FF3.0 (but not FF2.0) was resizable with the following, but it took some experimentation.
 // Remember what worked nicely on FF3.0:
 //      "var app=navigator.appName.substr(0,9); "
-//      "if(app == 'Microsoft') {warnBox.style.display='';} 
+//      "if(app == 'Microsoft') {warnBox.style.display='';}
 //       else {warnBox.style.display=''; warnBox.style.width='auto';}"
 struct dyString *dy = dyStringNew(2048);
 
@@ -638,7 +638,7 @@ dyStringPrintf(dy,"function hideWarnBox() {"
             "warnBox.style.display='none';"
             "var warnList=document.getElementById('warnList');"
 	    "warnList.innerHTML='';"
-            "var endOfPage = document.body.innerHTML.substr(document.body.innerHTML.length-20);"  
+            "var endOfPage = document.body.innerHTML.substr(document.body.innerHTML.length-20);"
 // TODO maybe just looking at the last 20 characters of the html page is no longer enough
 // because the final js inline trash temp gets emitted. Looks like it is 93 characters long but could be longer.
 // This might be old cruft needed for a browser issue that no longer exists?
@@ -673,21 +673,21 @@ if (ds->stringSize > nLimit)
 dyStringFree(&ds);
 
 // Replace newlines with BR tag
-char *warningBR = htmlWarnEncode(warning); 
+char *warningBR = htmlWarnEncode(warning);
 
 // Javascript-encode the entire message because it is
 // going to appear as a javascript string literal
 // as it gets appended to the warnList html.
 // JS-encoding here both allows us to use any character in the message
 // and keeps js-encodings in events like onmouseover="stuff %s|js| stuff" secure.
-char *jsEncodedMessage = javascriptEncode (warningBR); 
+char *jsEncodedMessage = javascriptEncode (warningBR);
 freeMem(warningBR);
 struct dyString *dy = dyStringNew(2048);
 dyStringPrintf(dy,
     "showWarnBox();"
     "var warnList=document.getElementById('warnList');"
     "warnList.innerHTML += '<li>%s</li>';\n", jsEncodedMessage);
-jsInline(dy->string);  
+jsInline(dy->string);
 // TODO GALT does --ERROR -- tag still work?
 printf("<!-- ERROR -->\n");
 // NOTE that "--ERROR --" is needed at the end of this print!!
@@ -869,7 +869,7 @@ printf("\n");
 
 void printBodyTag(FILE *f)
 {
-// print starting BODY tag, including any appropriate attributes (class, background and bgcolor). 
+// print starting BODY tag, including any appropriate attributes (class, background and bgcolor).
 fprintf(f, "<BODY");
 struct slName *classes = NULL;
 
@@ -937,7 +937,7 @@ It is critical to use script.setAttribute('nonce', pageNonce);
 instead of script.nonce = pageNonce; because nonce is an html attribute,
 not a javascript attribute.  In places where this is used (like alleles.js)
 we should mark this with CSP2 comment because someday CSP3 will automatically
-be able to pass the nonce to script children and the command will no longer be 
+be able to pass the nonce to script children and the command will no longer be
 needed.
 */
 
@@ -955,7 +955,7 @@ char *getCspPolicyString()
 struct dyString *policy = dyStringNew(1024);
 dyStringAppend(policy, "default-src *;");
 
-/* more secure method not used yet 
+/* more secure method not used yet
 dyStringAppend(policy, "default-src 'self';");
 
 dyStringAppend(policy, "  child-src 'self';");
@@ -993,7 +993,7 @@ dyStringAppend(policy, ";");
 
 dyStringAppend(policy, " style-src * 'unsafe-inline';");
 
-/* more secure method not used yet 
+/* more secure method not used yet
 dyStringAppend(policy, " style-src 'self' 'unsafe-inline'");
 dyStringAppend(policy, " code.jquery.com");          // used by hgIntegrator
 dyStringAppend(policy, " netdna.bootstrapcdn.com");  // used by hgIntegrator
@@ -1006,7 +1006,7 @@ dyStringAppend(policy, ";");
 // It seems to be safe and it is too bad that it must be explicitly included.
 dyStringAppend(policy, " font-src * data:;");
 
-/* more secure method not used yet 
+/* more secure method not used yet
 dyStringAppend(policy, " font-src 'self'");
 dyStringAppend(policy, " netdna.bootstrapcdn.com");  // used by hgIntegrator
 dyStringAppend(policy, " maxcdn.bootstrapcdn.com"); // used by hgGateway
@@ -1017,12 +1017,12 @@ dyStringAppend(policy, " object-src 'none';");
 
 */
 
-dyStringAppend(policy, " img-src * data:;");  
+dyStringAppend(policy, " img-src * data:;");
 
-/* more secure method not used yet 
+/* more secure method not used yet
 dyStringAppend(policy, " img-src 'self'");
 // used by hgGene for modbaseimages in hg/hgc/lowelab.c hg/protein/lib/domains.c hg/hgGene/domains.c
-dyStringAppend(policy, " modbase.compbio.ucsf.edu");  
+dyStringAppend(policy, " modbase.compbio.ucsf.edu");
 dyStringAppend(policy, " hgwdev.gi.ucsc.edu"); // used by visiGene
 dyStringAppend(policy, " genome.ucsc.edu"); // used by visiGene
 dyStringAppend(policy, " code.jquery.com");          // used by hgIntegrator
@@ -1037,7 +1037,7 @@ char *getCspMetaString(char *policy)
 /* get the policy string as an html header meta tag */
 {
 char meta[1024];
-safef(meta, sizeof meta, "<meta http-equiv='Content-Security-Policy' content=\"%s\">\n", policy); 
+safef(meta, sizeof meta, "<meta http-equiv='Content-Security-Policy' content=\"%s\">\n", policy);
 // use double quotes around policy because it contains single-quoted values.
 return cloneString(meta);
 }
@@ -1046,7 +1046,7 @@ char *getCspMetaResponseHeader(char *policy)
 /* get the policy string as an http response header */
 {
 char response[4096];
-safef(response, sizeof response, "Content-Security-Policy: %s\n", policy); 
+safef(response, sizeof response, "Content-Security-Policy: %s\n", policy);
 return cloneString(response);
 }
 
@@ -1093,8 +1093,8 @@ fputs("<HEAD>\n", f);
 generateCspMetaHeader(f);
 
 fputs(head, f);
-htmlFprintf(f,"<TITLE>%s</TITLE>\n", title); 
-if (endsWith(title,"Login - UCSC Genome Browser")) 
+htmlFprintf(f,"<TITLE>%s</TITLE>\n", title);
+if (endsWith(title,"Login - UCSC Genome Browser"))
     fprintf(f,"\t<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;CHARSET=iso-8859-1\">\n");
 fprintf(f, "\t<META http-equiv=\"Content-Script-Type\" content=\"text/javascript\">\n");
 if (htmlStyle != NULL)
@@ -1309,7 +1309,7 @@ enum htmlSafefEncoding {dummyzero, none, html, js, css, attr, url};
 
 int htmlEscapeAllStrings(char *buffer, char *s, int bufSize, boolean noAbort, boolean noWarnOverflow)
 /* Escape all strings. *
- * Returns final size not including terminating 0. 
+ * Returns final size not including terminating 0.
  * User needs to pre-allocate enough space that escape functions will never run out of space.
  * This function should be efficient on statements with many strings to be escaped. */
 {
@@ -1333,7 +1333,7 @@ while (1)
 	{
 	// just copy remainder of the input string to output
     	start = strchr(s, 0); // find end of string
-	done = TRUE;	
+	done = TRUE;
 	}
     // move any non-escaped part
     int moveSize = start - s;
@@ -1378,12 +1378,12 @@ while (1)
 	{
 	escSize = urlEncodeTextExtended(s,buffer,remainder);
 	}
-    else 
+    else
 	{
 	return htmlSafefAbort(noAbort, -2, "Unexpected error in htmlEscapeAllStrings. (enum htmlSafefEncoding)=%c", *(end+1));
 	}
     *end = htmlSafefPunc;  // restore mark, helps error message
-	
+
     if (escSize < 0)
 	{
 	if (noWarnOverflow) return -1; // speed
@@ -1484,7 +1484,7 @@ while (i < formatLen)
 	}
     else if (c == '%' && inPct)
 	inPct = FALSE;
-    else if (inPct) 
+    else if (inPct)
         {
 	if (c == 'l')
 	    { // used to handle 'l' long
@@ -1521,10 +1521,10 @@ while (i < formatLen)
 	    return htmlSafefAbort(noAbort, -2, "String format not understood in vaHtmlSafef: %s", format);
 	    }
 	}
-    ++i;	    
+    ++i;
     }
 
-int sz = 0; 
+int sz = 0;
 boolean overflow = FALSE;
 if (escStringsCount > 0)
     {
@@ -1564,7 +1564,7 @@ return sz;
 
 int htmlSafef(char* buffer, int bufSize, char *format, ...)
 /* Format string to buffer, vsprintf style, only with buffer overflow
- * checking.  The resulting string is always terminated with zero byte. 
+ * checking.  The resulting string is always terminated with zero byte.
  * Escapes string parameters. */
 {
 int sz;
@@ -1648,5 +1648,3 @@ va_start(args, format);
 vaHtmlFprintf(stdout, format, args);
 va_end(args);
 }
-
-
