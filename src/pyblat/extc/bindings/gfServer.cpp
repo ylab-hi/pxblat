@@ -1,5 +1,10 @@
 #include "gfServer.hpp"
 
+#include "common.h"
+
+bool boolean2bool(boolean b) { return b == TRUE; }
+boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
+
 struct optionSpec optionSpecs[] = {{"canStop", OPTION_BOOLEAN},
                                    {"log", OPTION_STRING},
                                    {"logFacility", OPTION_STRING},
@@ -228,78 +233,78 @@ void logGenoFindIndex(struct genoFindIndex *gfIdx)
     logGenoFind(gfIdx->transGf[0][0]);
 }
 
-void genoFindDirect(char *probeName, int fileCount, char *seqFiles[])
-/* Don't set up server - just directly look for matches. */
-{
-  struct genoFind *gf = NULL;
-  struct lineFile *lf = lineFileOpen(probeName, TRUE);
-  struct dnaSeq seq;
-  int hitCount = 0, clumpCount = 0, oneHit;
-  ZeroVar(&seq);
+// void genoFindDirect(char *probeName, int fileCount, char *seqFiles[])
+// /* Don't set up server - just directly look for matches. */
+// {
+//   struct genoFind *gf = NULL;
+//   struct lineFile *lf = lineFileOpen(probeName, TRUE);
+//   struct dnaSeq seq;
+//   int hitCount = 0, clumpCount = 0, oneHit;
+//   ZeroVar(&seq);
 
-  if (doTrans) errAbort("Don't support translated direct stuff currently, sorry");
+//   if (doTrans) errAbort("Don't support translated direct stuff currently, sorry");
 
-  gf = gfIndexNibsAndTwoBits(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, FALSE,
-                             allowOneMismatch, stepSize, noSimpRepMask);
+//   gf = gfIndexNibsAndTwoBits(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, FALSE, allowOneMismatch,
+//                              stepSize, noSimpRepMask);
 
-  while (faSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name)) {
-    struct lm *lm = lmInit(0);
-    struct gfClump *clumpList = gfFindClumps(gf, &seq, lm, &oneHit), *clump;
-    hitCount += oneHit;
-    for (clump = clumpList; clump != NULL; clump = clump->next) {
-      ++clumpCount;
-      printf("%s ", seq.name);
-      gfClumpDump(gf, clump, stdout);
-    }
-    gfClumpFreeList(&clumpList);
-    lmCleanup(&lm);
-  }
-  lineFileClose(&lf);
-  genoFindFree(&gf);
-}
+//   while (faSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name)) {
+//     struct lm *lm = lmInit(0);
+//     struct gfClump *clumpList = gfFindClumps(gf, &seq, lm, &oneHit), *clump;
+//     hitCount += oneHit;
+//     for (clump = clumpList; clump != NULL; clump = clump->next) {
+//       ++clumpCount;
+//       printf("%s ", seq.name);
+//       gfClumpDump(gf, clump, stdout);
+//     }
+//     gfClumpFreeList(&clumpList);
+//     lmCleanup(&lm);
+//   }
+//   lineFileClose(&lf);
+//   genoFindFree(&gf);
+// }
 
-void genoPcrDirect(char *fPrimer, char *rPrimer, int fileCount, char *seqFiles[])
-/* Do direct PCR for testing purposes. */
-{
-  struct genoFind *gf = NULL;
-  int fPrimerSize = strlen(fPrimer);
-  int rPrimerSize = strlen(rPrimer);
-  struct gfClump *clumpList, *clump;
-  time_t startTime, endTime;
+// void genoPcrDirect(char *fPrimer, char *rPrimer, int fileCount, char *seqFiles[])
+// /* Do direct PCR for testing purposes. */
+// {
+//   struct genoFind *gf = NULL;
+//   int fPrimerSize = strlen(fPrimer);
+//   int rPrimerSize = strlen(rPrimer);
+//   struct gfClump *clumpList, *clump;
+//   time_t startTime, endTime;
 
-  startTime = clock1000();
-  gf = gfIndexNibsAndTwoBits(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, FALSE,
-                             allowOneMismatch, stepSize, noSimpRepMask);
-  endTime = clock1000();
-  printf("Index built in %4.3f seconds\n", 0.001 * (endTime - startTime));
+//   startTime = clock1000();
+//   gf = gfIndexNibsAndTwoBits(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, FALSE, allowOneMismatch,
+//                              stepSize, noSimpRepMask);
+//   endTime = clock1000();
+//   printf("Index built in %4.3f seconds\n", 0.001 * (endTime - startTime));
 
-  printf("plus strand:\n");
-  startTime = clock1000();
-  clumpList = gfPcrClumps(gf, fPrimer, fPrimerSize, rPrimer, rPrimerSize, 0, 4 * 1024);
-  endTime = clock1000();
-  printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
-  for (clump = clumpList; clump != NULL; clump = clump->next) {
-    /* Clumps from gfPcrClumps have already had target->start subtracted out
-     * of their coords, but gfClumpDump assumes they have not and does the
-     * subtraction; rather than write a new gfClumpDump, tweak here: */
-    clump->tStart += clump->target->start;
-    clump->tEnd += clump->target->start;
-    gfClumpDump(gf, clump, stdout);
-  }
-  printf("minus strand:\n");
-  startTime = clock1000();
-  clumpList = gfPcrClumps(gf, rPrimer, rPrimerSize, fPrimer, fPrimerSize, 0, 4 * 1024);
-  endTime = clock1000();
-  printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
-  for (clump = clumpList; clump != NULL; clump = clump->next) {
-    /* Same as above, tweak before gfClumpDump: */
-    clump->tStart += clump->target->start;
-    clump->tEnd += clump->target->start;
-    gfClumpDump(gf, clump, stdout);
-  }
+//   printf("plus strand:\n");
+//   startTime = clock1000();
+//   clumpList = gfPcrClumps(gf, fPrimer, fPrimerSize, rPrimer, rPrimerSize, 0, 4 * 1024);
+//   endTime = clock1000();
+//   printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
+//   for (clump = clumpList; clump != NULL; clump = clump->next) {
+//     /* Clumps from gfPcrClumps have already had target->start subtracted out
+//      * of their coords, but gfClumpDump assumes they have not and does the
+//      * subtraction; rather than write a new gfClumpDump, tweak here: */
+//     clump->tStart += clump->target->start;
+//     clump->tEnd += clump->target->start;
+//     gfClumpDump(gf, clump, stdout);
+//   }
+//   printf("minus strand:\n");
+//   startTime = clock1000();
+//   clumpList = gfPcrClumps(gf, rPrimer, rPrimerSize, fPrimer, fPrimerSize, 0, 4 * 1024);
+//   endTime = clock1000();
+//   printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
+//   for (clump = clumpList; clump != NULL; clump = clump->next) {
+//     /* Same as above, tweak before gfClumpDump: */
+//     clump->tStart += clump->target->start;
+//     clump->tEnd += clump->target->start;
+//     gfClumpDump(gf, clump, stdout);
+//   }
 
-  genoFindFree(&gf);
-}
+//   genoFindFree(&gf);
+// }
 
 int getPortIx(char *portName)
 /* Convert from ascii to integer. */
@@ -329,8 +334,8 @@ void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, str
   if (clumpList == NULL) ++missCount;
   for (clump = clumpList; clump != NULL; clump = clump->next) {
     struct gfSeqSource *ss = clump->target;
-    sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName,
-            clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount);
+    sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName, clump->tStart - ss->start,
+            clump->tEnd - ss->start, clump->hitCount);
     errSendString(connectionHandle, buf);
     ++clumpCount;
     int perSeqCount = -1;
@@ -414,8 +419,7 @@ void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int con
         for (clump = clumps[qFrame][tFrame]; clump != NULL; clump = clump->next) {
           struct gfSeqSource *ss = clump->target;
           sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d\t%c\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName,
-                  clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, qFrame,
-                  tFrame);
+                  clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, qFrame, tFrame);
           errSendString(connectionHandle, buf);
           dyStringClear(dy);
           for (hit = clump->hitList; hit != NULL; hit = hit->next) {
@@ -500,9 +504,8 @@ static void errorSafeCleanupMess(int connectionHandle, char *message)
   errSendString(connectionHandle, message);
 }
 
-static void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq,
-                           struct genoFindIndex *gfIdx, int connectionHandle, char *buf,
-                           struct hash *perSeqMaxHash)
+static void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
+                           int connectionHandle, char *buf, struct hash *perSeqMaxHash)
 /* Wrap error handling code around index query. */
 {
   int status;
@@ -524,8 +527,7 @@ static void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *
   }
 }
 
-static void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDistance,
-                         int connectionHandle)
+static void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDistance, int connectionHandle)
 /* Wrap error handling around pcr index query. */
 {
   int status;
@@ -605,238 +607,237 @@ static void hashZeroVals(struct hash *hash)
   while ((hel = hashNext(&cookie)) != NULL) hel->val = 0;
 }
 
-void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[])
-/* Load up index and hang out in RAM. */
-{
-  struct genoFindIndex *gfIdx = NULL;
-  char buf[256];
-  char *line, *command;
-  struct sockaddr_in6 fromAddr;
-  socklen_t fromLen;
-  int readSize;
-  int socketHandle = 0, connectionHandle = 0;
-  int port = atoi(portName);
-  time_t curtime;
-  struct tm *loctime;
-  char timestr[256];
+// void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[])
+// /* Load up index and hang out in RAM. */
+// {
+//   struct genoFindIndex *gfIdx = NULL;
+//   char buf[256];
+//   char *line, *command;
+//   struct sockaddr_in6 fromAddr;
+//   socklen_t fromLen;
+//   int readSize;
+//   int socketHandle = 0, connectionHandle = 0;
+//   int port = atoi(portName);
+//   time_t curtime;
+//   struct tm *loctime;
+//   char timestr[256];
 
-  netBlockBrokenPipes();
+//   netBlockBrokenPipes();
 
-  curtime = time(NULL);          /* Get the current time. */
-  loctime = localtime(&curtime); /* Convert it to local time representation. */
-  strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
+//   curtime = time(NULL);                                          /* Get the current time. */
+//   loctime = localtime(&curtime);                                 /* Convert it to local time representation. */
+//   strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
 
-  logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName, portName, timestr);
-  struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, seqFiles);
+//   logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName, portName, timestr);
+//   struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, seqFiles);
 
-  time_t startIndexTime = clock1000();
-  if (indexFile == NULL) {
-    char *desc = doTrans ? "translated" : "untranslated";
-    uglyf("starting %s server...\n", desc);
-    logInfo("setting up %s index", desc);
-    gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
-                               allowOneMismatch, doMask, stepSize, noSimpRepMask);
-    logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
-  } else {
-    gfIdx = genoFindIndexLoad(indexFile, doTrans);
-    logInfo("index loading completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
-  }
-  logGenoFindIndex(gfIdx);
+//   time_t startIndexTime = clock1000();
+//   if (indexFile == NULL) {
+//     char *desc = doTrans ? "translated" : "untranslated";
+//     uglyf("starting %s server...\n", desc);
+//     logInfo("setting up %s index", desc);
+//     gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
+//                                allowOneMismatch, doMask, stepSize, noSimpRepMask);
+//     logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+//   } else {
+//     gfIdx = genoFindIndexLoad(indexFile, doTrans);
+//     logInfo("index loading completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+//   }
+//   logGenoFindIndex(gfIdx);
 
-  /* Set up socket.  Get ready to listen to it. */
-  socketHandle = netAcceptingSocket(port, 100);
-  if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
+//   /* Set up socket.  Get ready to listen to it. */
+//   socketHandle = netAcceptingSocket(port, 100);
+//   if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
-  logInfo("Server ready for queries!");
-  printf("Server ready for queries!\n");
-  int connectFailCount = 0;
-  for (;;) {
-    ZeroVar(&fromAddr);
-    fromLen = sizeof(fromAddr);
-    connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
-    setSendOk();
-    if (connectionHandle < 0) {
-      warn("Error accepting the connection");
-      ++warnCount;
-      ++connectFailCount;
-      if (connectFailCount >= 100)
-        errAbort(
-            "100 continuous connection failures, no point in filling up "
-            "the log in an infinite loop.");
-      continue;
-    } else {
-      connectFailCount = 0;
-    }
-    setSocketTimeout(connectionHandle, timeout);
-    if (ipLog) {
-      struct sockaddr_in6 clientAddr;
-      unsigned int addrlen = sizeof(clientAddr);
-      getpeername(connectionHandle, (struct sockaddr *)&clientAddr, &addrlen);
-      char ipStr[NI_MAXHOST];
-      getAddrAsString6n4((struct sockaddr_storage *)&clientAddr, ipStr, sizeof ipStr);
-      logInfo("gfServer version %s on host %s, port %s connection from %s", gfVersion, hostName, portName,
-              ipStr);
-    }
-    readSize = read(connectionHandle, buf, sizeof(buf) - 1);
-    if (readSize < 0) {
-      warn("Error reading from socket: %s", strerror(errno));
-      ++warnCount;
-      close(connectionHandle);
-      continue;
-    }
-    if (readSize == 0) {
-      warn("Zero sized query");
-      ++warnCount;
-      close(connectionHandle);
-      continue;
-    }
-    buf[readSize] = 0;
-    logDebug("%s", buf);
-    if (!startsWith(gfSignature(), buf)) {
-      ++noSigCount;
-      close(connectionHandle);
-      continue;
-    }
-    line = buf + strlen(gfSignature());
-    command = nextWord(&line);
-    if (sameString("quit", command)) {
-      if (canStop)
-        break;
-      else
-        logError("Ignoring quit message");
-    } else if (sameString("status", command) || sameString("transInfo", command) ||
-               sameString("untransInfo", command)) {
-      sprintf(buf, "version %s", gfVersion);
-      errSendString(connectionHandle, buf);
-      errSendString(connectionHandle, "serverType static");
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "host %s", hostName);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "port %s", portName);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "tileSize %d", tileSize);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "stepSize %d", stepSize);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "minMatch %d", minMatch);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "pcr requests %ld", pcrCount);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "blat requests %ld", blatCount);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "bases %ld", baseCount);
-      errSendString(connectionHandle, buf);
-      if (doTrans) {
-        sprintf(buf, "aa %ld", aaCount);
-        errSendString(connectionHandle, buf);
-      }
-      sprintf(buf, "misses %d", missCount);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "noSig %d", noSigCount);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "trimmed %d", trimCount);
-      errSendString(connectionHandle, buf);
-      sprintf(buf, "warnings %d", warnCount);
-      errSendString(connectionHandle, buf);
-      errSendString(connectionHandle, "end");
-    } else if (sameString("query", command) || sameString("protQuery", command) ||
-               sameString("transQuery", command)) {
-      boolean queryIsProt = sameString(command, "protQuery");
-      char *s = nextWord(&line);
-      if (s == NULL || !isdigit(s[0])) {
-        warn("Expecting query size after query command");
-        ++warnCount;
-      } else {
-        struct dnaSeq seq;
-        ZeroVar(&seq);
+//   logInfo("Server ready for queries!");
+//   printf("Server ready for queries!\n");
+//   int connectFailCount = 0;
+//   for (;;) {
+//     ZeroVar(&fromAddr);
+//     fromLen = sizeof(fromAddr);
+//     connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
+//     setSendOk();
+//     if (connectionHandle < 0) {
+//       warn("Error accepting the connection");
+//       ++warnCount;
+//       ++connectFailCount;
+//       if (connectFailCount >= 100)
+//         errAbort(
+//             "100 continuous connection failures, no point in filling up "
+//             "the log in an infinite loop.");
+//       continue;
+//     } else {
+//       connectFailCount = 0;
+//     }
+//     setSocketTimeout(connectionHandle, timeout);
+//     if (ipLog) {
+//       struct sockaddr_in6 clientAddr;
+//       unsigned int addrlen = sizeof(clientAddr);
+//       getpeername(connectionHandle, (struct sockaddr *)&clientAddr, &addrlen);
+//       char ipStr[NI_MAXHOST];
+//       getAddrAsString6n4((struct sockaddr_storage *)&clientAddr, ipStr, sizeof ipStr);
+//       logInfo("gfServer version %s on host %s, port %s connection from %s", gfVersion, hostName, portName, ipStr);
+//     }
+//     readSize = read(connectionHandle, buf, sizeof(buf) - 1);
+//     if (readSize < 0) {
+//       warn("Error reading from socket: %s", strerror(errno));
+//       ++warnCount;
+//       close(connectionHandle);
+//       continue;
+//     }
+//     if (readSize == 0) {
+//       warn("Zero sized query");
+//       ++warnCount;
+//       close(connectionHandle);
+//       continue;
+//     }
+//     buf[readSize] = 0;
+//     logDebug("%s", buf);
+//     if (!startsWith(gfSignature(), buf)) {
+//       ++noSigCount;
+//       close(connectionHandle);
+//       continue;
+//     }
+//     line = buf + strlen(gfSignature());
+//     command = nextWord(&line);
+//     if (sameString("quit", command)) {
+//       if (canStop)
+//         break;
+//       else
+//         logError("Ignoring quit message");
+//     } else if (sameString("status", command) || sameString("transInfo", command) ||
+//                sameString("untransInfo", command)) {
+//       sprintf(buf, "version %s", gfVersion);
+//       errSendString(connectionHandle, buf);
+//       errSendString(connectionHandle, "serverType static");
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "host %s", hostName);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "port %s", portName);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "tileSize %d", tileSize);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "stepSize %d", stepSize);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "minMatch %d", minMatch);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "pcr requests %ld", pcrCount);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "blat requests %ld", blatCount);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "bases %ld", baseCount);
+//       errSendString(connectionHandle, buf);
+//       if (doTrans) {
+//         sprintf(buf, "aa %ld", aaCount);
+//         errSendString(connectionHandle, buf);
+//       }
+//       sprintf(buf, "misses %d", missCount);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "noSig %d", noSigCount);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "trimmed %d", trimCount);
+//       errSendString(connectionHandle, buf);
+//       sprintf(buf, "warnings %d", warnCount);
+//       errSendString(connectionHandle, buf);
+//       errSendString(connectionHandle, "end");
+//     } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command))
+//     {
+//       boolean queryIsProt = sameString(command, "protQuery");
+//       char *s = nextWord(&line);
+//       if (s == NULL || !isdigit(s[0])) {
+//         warn("Expecting query size after query command");
+//         ++warnCount;
+//       } else {
+//         struct dnaSeq seq;
+//         ZeroVar(&seq);
 
-        if (queryIsProt && !doTrans) {
-          warn("protein query sent to nucleotide server");
-          ++warnCount;
-          queryIsProt = FALSE;
-        } else {
-          buf[0] = 'Y';
-          if (write(connectionHandle, buf, 1) == 1) {
-            seq.size = atoi(s);
-            seq.name = NULL;
-            if (seq.size > 0) {
-              ++blatCount;
-              seq.dna = needLargeMem(seq.size + 1);
-              if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
-                warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
-                ++warnCount;
-              } else {
-                int maxSize = (doTrans ? maxAaSize : maxNtSize);
+//         if (queryIsProt && !doTrans) {
+//           warn("protein query sent to nucleotide server");
+//           ++warnCount;
+//           queryIsProt = FALSE;
+//         } else {
+//           buf[0] = 'Y';
+//           if (write(connectionHandle, buf, 1) == 1) {
+//             seq.size = atoi(s);
+//             seq.name = NULL;
+//             if (seq.size > 0) {
+//               ++blatCount;
+//               seq.dna = needLargeMem(seq.size + 1);
+//               if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
+//                 warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
+//                 ++warnCount;
+//               } else {
+//                 int maxSize = (doTrans ? maxAaSize : maxNtSize);
 
-                seq.dna[seq.size] = 0;
-                if (queryIsProt) {
-                  seq.size = aaFilteredSize(seq.dna);
-                  aaFilter(seq.dna, seq.dna);
-                } else {
-                  seq.size = dnaFilteredSize(seq.dna);
-                  dnaFilter(seq.dna, seq.dna);
-                }
-                if (seq.size > maxSize) {
-                  ++trimCount;
-                  seq.size = maxSize;
-                  seq.dna[maxSize] = 0;
-                }
-                if (queryIsProt)
-                  aaCount += seq.size;
-                else
-                  baseCount += seq.size;
-                if (seqLog && (logGetFile() != NULL)) {
-                  FILE *lf = logGetFile();
-                  faWriteNext(lf, "query", seq.dna, seq.size);
-                  fflush(lf);
-                }
-                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash);
-                if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
-              }
-              freez(&seq.dna);
-            }
-            errSendString(connectionHandle, "end");
-          }
-        }
-      }
-    } else if (sameString("pcr", command)) {
-      char *f = nextWord(&line);
-      char *r = nextWord(&line);
-      char *s = nextWord(&line);
-      int maxDistance;
-      ++pcrCount;
-      if (s == NULL || !isdigit(s[0])) {
-        warn("Badly formatted pcr command");
-        ++warnCount;
-      } else if (doTrans) {
-        warn("Can't pcr on translated server");
-        ++warnCount;
-      } else if (badPcrPrimerSeq(f) || badPcrPrimerSeq(r)) {
-        warn("Can only handle ACGT in primer sequences.");
-        ++warnCount;
-      } else {
-        maxDistance = atoi(s);
-        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle);
-      }
-    } else if (sameString("files", command)) {
-      int i;
-      sprintf(buf, "%d", fileCount);
-      errSendString(connectionHandle, buf);
-      for (i = 0; i < fileCount; ++i) {
-        sprintf(buf, "%s", seqFiles[i]);
-        errSendString(connectionHandle, buf);
-      }
-    } else {
-      warn("Unknown command %s", command);
-      ++warnCount;
-    }
-    close(connectionHandle);
-    connectionHandle = 0;
-  }
-  close(socketHandle);
-}
+//                 seq.dna[seq.size] = 0;
+//                 if (queryIsProt) {
+//                   seq.size = aaFilteredSize(seq.dna);
+//                   aaFilter(seq.dna, seq.dna);
+//                 } else {
+//                   seq.size = dnaFilteredSize(seq.dna);
+//                   dnaFilter(seq.dna, seq.dna);
+//                 }
+//                 if (seq.size > maxSize) {
+//                   ++trimCount;
+//                   seq.size = maxSize;
+//                   seq.dna[maxSize] = 0;
+//                 }
+//                 if (queryIsProt)
+//                   aaCount += seq.size;
+//                 else
+//                   baseCount += seq.size;
+//                 if (seqLog && (logGetFile() != NULL)) {
+//                   FILE *lf = logGetFile();
+//                   faWriteNext(lf, "query", seq.dna, seq.size);
+//                   fflush(lf);
+//                 }
+//                 errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash);
+//                 if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
+//               }
+//               freez(&seq.dna);
+//             }
+//             errSendString(connectionHandle, "end");
+//           }
+//         }
+//       }
+//     } else if (sameString("pcr", command)) {
+//       char *f = nextWord(&line);
+//       char *r = nextWord(&line);
+//       char *s = nextWord(&line);
+//       int maxDistance;
+//       ++pcrCount;
+//       if (s == NULL || !isdigit(s[0])) {
+//         warn("Badly formatted pcr command");
+//         ++warnCount;
+//       } else if (doTrans) {
+//         warn("Can't pcr on translated server");
+//         ++warnCount;
+//       } else if (badPcrPrimerSeq(f) || badPcrPrimerSeq(r)) {
+//         warn("Can only handle ACGT in primer sequences.");
+//         ++warnCount;
+//       } else {
+//         maxDistance = atoi(s);
+//         errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle);
+//       }
+//     } else if (sameString("files", command)) {
+//       int i;
+//       sprintf(buf, "%d", fileCount);
+//       errSendString(connectionHandle, buf);
+//       for (i = 0; i < fileCount; ++i) {
+//         sprintf(buf, "%s", seqFiles[i]);
+//         errSendString(connectionHandle, buf);
+//       }
+//     } else {
+//       warn("Unknown command %s", command);
+//       ++warnCount;
+//     }
+//     close(connectionHandle);
+//     connectionHandle = 0;
+//   }
+//   close(socketHandle);
+// }
 
 void stopServer(char *hostName, char *portName)
 /* Send stop message to server. */
@@ -988,13 +989,12 @@ static void checkIndexFileName(char *gfxFile, char *seqFile)
 
   char gfxBaseName[FILENAME_LEN], gfxExt[FILEEXT_LEN];
   splitPath(gfxFile, NULL, gfxBaseName, gfxExt);
-  if (!sameString(gfxExt, ".gfidx"))
-    errAbort("gfServer index must have an file extension of '.gfidx', got %s", gfxExt);
+  if (!sameString(gfxExt, ".gfidx")) errAbort("gfServer index must have an file extension of '.gfidx', got %s", gfxExt);
   char expectBaseName[FILENAME_LEN];
   safef(expectBaseName, sizeof(expectBaseName), "%s.%s", seqBaseName, (doTrans ? "trans" : "untrans"));
   if (!sameString(gfxBaseName, expectBaseName))
-    errAbort("%s index file base name must be '%s.gfidx', got %s%s",
-             (doTrans ? "translated" : "untranslated"), expectBaseName, gfxBaseName, gfxExt);
+    errAbort("%s index file base name must be '%s.gfidx', got %s%s", (doTrans ? "translated" : "untranslated"),
+             expectBaseName, gfxBaseName, gfxExt);
 }
 
 static void buildIndex(char *gfxFile, int fileCount, char *seqFiles[])
@@ -1003,9 +1003,8 @@ static void buildIndex(char *gfxFile, int fileCount, char *seqFiles[])
   if (fileCount > 1) errAbort("gfServer index only works with a single genome file");
   checkIndexFileName(gfxFile, seqFiles[0]);
 
-  struct genoFindIndex *gfIdx =
-      genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
-                         allowOneMismatch, doMask, stepSize, noSimpRepMask);
+  struct genoFindIndex *gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans,
+                                                   NULL, allowOneMismatch, doMask, stepSize, noSimpRepMask);
   genoFindIndexWrite(gfIdx, gfxFile);
 }
 
@@ -1131,8 +1130,8 @@ static int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **a
   if (sameWord(args[0], "status")) return numArgs;  // special case; does not use an index.
 
   if (numArgs < 3) errAbort("expected at least 3 arguments for a dynamic server command");
-  boolean isTrans = sameString("protQuery", args[0]) || sameString("transQuery", args[0]) ||
-                    sameString("transInfo", args[0]);
+  boolean isTrans =
+      sameString("protQuery", args[0]) || sameString("transQuery", args[0]) || sameString("transInfo", args[0]);
 
   // initialize session if new or changed
   if ((dynSession->isTrans != isTrans) || (!sameString(dynSession->genome, args[1])))
@@ -1147,8 +1146,7 @@ static struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryI
   AllocVar(seq);
   seq->size = qSize;
   seq->dna = needLargeMem(qSize + 1);
-  if (gfReadMulti(STDIN_FILENO, seq->dna, qSize) != qSize)
-    errAbort("read of %d bytes of query sequence failed", qSize);
+  if (gfReadMulti(STDIN_FILENO, seq->dna, qSize) != qSize) errAbort("read of %d bytes of query sequence failed", qSize);
   seq->dna[qSize] = '\0';
 
   if (queryIsProt) {
@@ -1243,8 +1241,7 @@ static void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **
   char *fPrimer = args[3];
   char *rPrimer = args[4];
   int maxDistance = atoi(args[5]);
-  if (badPcrPrimerSeq(fPrimer) || badPcrPrimerSeq(rPrimer))
-    errAbort("Can only handle ACGT in primer sequences.");
+  if (badPcrPrimerSeq(fPrimer) || badPcrPrimerSeq(rPrimer)) errAbort("Can only handle ACGT in primer sequences.");
   pcrQuery(gfIdx->untransGf, fPrimer, rPrimer, maxDistance, STDOUT_FILENO);
 }
 
@@ -1381,6 +1378,16 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+gfServerOption &gfServerOption::build() {
+  if (trans) {
+    tileSize = 4;
+    stepSize = tileSize;
+    minMatch = 3;
+    maxGap = 0;
+    repMatch = gfPepMaxTileUse;
+  }
+}
+
 void gfServer()
 /* Process command line. */
 {
@@ -1402,25 +1409,34 @@ void gfServer()
 
   tileSize = optionInt("tileSize", tileSize);
   stepSize = optionInt("stepSize", tileSize);
+
   if (optionExists("repMatch"))
     repMatch = optionInt("repMatch", 0);
   else
     repMatch = gfDefaultRepMatch(tileSize, stepSize, doTrans);
+
   minMatch = optionInt("minMatch", minMatch);
   maxDnaHits = optionInt("maxDnaHits", maxDnaHits);
   maxTransHits = optionInt("maxTransHits", maxTransHits);
   maxNtSize = optionInt("maxNtSize", maxNtSize);
   maxAaSize = optionInt("maxAaSize", maxAaSize);
+
   seqLog = optionExists("seqLog");
   ipLog = optionExists("ipLog");
   doMask = optionExists("mask");
   canStop = optionExists("canStop");
   noSimpRepMask = optionExists("noSimpRepMask");
+
   indexFile = optionVal("indexFile", NULL);
+
+  // no need to get from command line
   genome = optionVal("genome", NULL);
   genomeDataDir = optionVal("genomeDataDir", NULL);
+
   if ((genomeDataDir != NULL) && (genome == NULL)) errAbort("-genomeDataDir requires the -genome option");
+
   if ((genome != NULL) && (genomeDataDir == NULL)) genomeDataDir = ".";
+
   timeout = optionInt("timeout", timeout);
   if (argc < 2) usage();
   if (optionExists("log")) logOpenFile(argv[0], optionVal("log", NULL));
@@ -1469,4 +1485,360 @@ void gfServer()
     usage();
   }
   return 0;
+}
+
+// cpp implementation
+void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::string> &seqFiles,
+                    gfServerOption const &options)
+/* Don't set up server - just directly look for matches. */
+{
+  auto minMatch = options.minMatch;
+  auto maxGap = options.maxGap;
+  auto tileSize = options.tileSize;
+  auto repMatch = options.repMatch;
+  auto stepSize = options.setpSize;
+
+  boolean doTrans = bool2boolean(options.trans);
+  boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
+  boolean noSimpRepMask = bool2boolean(options.noSimpRepMask);
+
+  std::vector<char *> cseqFiles{};
+  cseqFiles.reserve(seqFiles.size());
+  for (auto &string : seqFiles) {
+    cseqFiles.push_back(string.data());
+  }
+
+  struct genoFind *gf = NULL;
+  struct lineFile *lf = lineFileOpen(probeName.data(), TRUE);
+  struct dnaSeq seq;
+  int hitCount = 0, clumpCount = 0, oneHit;
+  ZeroVar(&seq);
+
+  if (doTrans) errAbort("Don't support translated direct stuff currently, sorry");
+
+  gf = gfIndexNibsAndTwoBits(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, FALSE, allowOneMismatch,
+                             stepSize, noSimpRepMask);
+
+  while (faSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name)) {
+    struct lm *lm = lmInit(0);
+    struct gfClump *clumpList = gfFindClumps(gf, &seq, lm, &oneHit), *clump;
+    hitCount += oneHit;
+    for (clump = clumpList; clump != NULL; clump = clump->next) {
+      ++clumpCount;
+      printf("%s ", seq.name);
+      gfClumpDump(gf, clump, stdout);
+    }
+    gfClumpFreeList(&clumpList);
+    lmCleanup(&lm);
+  }
+  lineFileClose(&lf);
+  genoFindFree(&gf);
+}
+
+void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, std::vector<std::string> &seqFiles,
+                   gfServerOption const &options) {
+  auto minMatch = options.minMatch;
+  auto maxGap = options.maxGap;
+  auto tileSize = options.tileSize;
+  auto repMatch = options.repMatch;
+  auto stepSize = options.setpSize;
+
+  boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
+  boolen noSimpRepMask = bool2boolean(options.noSimpRepMask);
+
+  std::vector<char *> cseqFiles{};
+  cseqFiles.reserve(seqFiles.size());
+  for (auto &string : seqFiles) {
+    cseqFiles.push_back(string.data());
+  }
+
+  struct genoFind *gf = NULL;
+  int fPrimerSize = strlen(fPrimer.data());
+  int rPrimerSize = strlen(rPrimer.data());
+  struct gfClump *clumpList, *clump;
+  time_t startTime, endTime;
+
+  startTime = clock1000();
+  gf = gfIndexNibsAndTwoBits(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, FALSE, allowOneMismatch,
+                             stepSize, noSimpRepMask);
+  endTime = clock1000();
+  printf("Index built in %4.3f seconds\n", 0.001 * (endTime - startTime));
+
+  printf("plus strand:\n");
+  startTime = clock1000();
+  clumpList = gfPcrClumps(gf, fPrimer, fPrimerSize, rPrimer, rPrimerSize, 0, 4 * 1024);
+  endTime = clock1000();
+  printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
+  for (clump = clumpList; clump != NULL; clump = clump->next) {
+    /* Clumps from gfPcrClumps have already had target->start subtracted out
+     * of their coords, but gfClumpDump assumes they have not and does the
+     * subtraction; rather than write a new gfClumpDump, tweak here: */
+    clump->tStart += clump->target->start;
+    clump->tEnd += clump->target->start;
+    gfClumpDump(gf, clump, stdout);
+  }
+  printf("minus strand:\n");
+  startTime = clock1000();
+  clumpList = gfPcrClumps(gf, rPrimer, rPrimerSize, fPrimer, fPrimerSize, 0, 4 * 1024);
+  endTime = clock1000();
+  printf("Index searched in %4.3f seconds\n", 0.001 * (endTime - startTime));
+  for (clump = clumpList; clump != NULL; clump = clump->next) {
+    /* Same as above, tweak before gfClumpDump: */
+    clump->tStart += clump->target->start;
+    clump->tEnd += clump->target->start;
+    gfClumpDump(gf, clump, stdout);
+  }
+
+  genoFindFree(&gf);
+}
+
+// void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[])
+void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
+                 gfServerOption &options)
+/* Load up index and hang out in RAM. */
+{
+  auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
+  auto minMatch = options.minMatch;
+  auto maxGap = options.maxGap;
+  auto tileSize = options.tileSize;
+  auto repMatch = options.repMatch;
+  auto stepSize = options.setpSize;
+
+  boolean dotrans = bool2boolean(options.Trans);
+  boolean doMask = bool2boolean(options.mask);
+  boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
+  boolean noSimpRepMask = bool2boolean(options.noSimpRepMask);
+
+  std::vector<char *> cseqFiles{};
+  cseqFiles.reserve(seqFiles.size());
+  for (auto &string : seqFiles) {
+    cseqFiles.push_back(string.data());
+  }
+
+  struct genoFindIndex *gfIdx = NULL;
+  char buf[256];
+  char *line, *command;
+  struct sockaddr_in6 fromAddr;
+  socklen_t fromLen;
+  int readSize;
+  int socketHandle = 0, connectionHandle = 0;
+  int port = atoi(portName.data());
+  time_t curtime;
+  struct tm *loctime;
+  char timestr[256];
+
+  netBlockBrokenPipes();
+
+  curtime = time(NULL);                                          /* Get the current time. */
+  loctime = localtime(&curtime);                                 /* Convert it to local time representation. */
+  strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
+
+  logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName.data(), portName.data(), timestr);
+  struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, cseqFiles.data());
+
+  time_t startIndexTime = clock1000();
+  if (indexFile == NULL) {
+    char *desc = doTrans ? "translated" : "untranslated";
+    uglyf("starting %s server...\n", desc);
+    logInfo("setting up %s index", desc);
+    gfIdx = genoFindIndexBuild(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
+                               allowOneMismatch, doMask, stepSize, noSimpRepMask);
+    logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+  } else {
+    gfIdx = genoFindIndexLoad(indexFile, doTrans);
+    logInfo("index loading completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+  }
+  logGenoFindIndex(gfIdx);
+
+  /* Set up socket.  Get ready to listen to it. */
+  socketHandle = netAcceptingSocket(port, 100);
+  if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
+
+  logInfo("Server ready for queries!");
+  printf("Server ready for queries!\n");
+  int connectFailCount = 0;
+  for (;;) {
+    ZeroVar(&fromAddr);
+    fromLen = sizeof(fromAddr);
+    connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
+    setSendOk();
+    if (connectionHandle < 0) {
+      warn("Error accepting the connection");
+      ++warnCount;
+      ++connectFailCount;
+      if (connectFailCount >= 100)
+        errAbort(
+            "100 continuous connection failures, no point in filling up "
+            "the log in an infinite loop.");
+      continue;
+    } else {
+      connectFailCount = 0;
+    }
+    setSocketTimeout(connectionHandle, timeout);
+    if (ipLog) {
+      struct sockaddr_in6 clientAddr;
+      unsigned int addrlen = sizeof(clientAddr);
+      getpeername(connectionHandle, (struct sockaddr *)&clientAddr, &addrlen);
+      char ipStr[NI_MAXHOST];
+      getAddrAsString6n4((struct sockaddr_storage *)&clientAddr, ipStr, sizeof ipStr);
+      logInfo("gfServer version %s on host %s, port %s connection from %s", gfVersion, hostName, portName, ipStr);
+    }
+    readSize = read(connectionHandle, buf, sizeof(buf) - 1);
+    if (readSize < 0) {
+      warn("Error reading from socket: %s", strerror(errno));
+      ++warnCount;
+      close(connectionHandle);
+      continue;
+    }
+    if (readSize == 0) {
+      warn("Zero sized query");
+      ++warnCount;
+      close(connectionHandle);
+      continue;
+    }
+    buf[readSize] = 0;
+    logDebug("%s", buf);
+    if (!startsWith(gfSignature(), buf)) {
+      ++noSigCount;
+      close(connectionHandle);
+      continue;
+    }
+    line = buf + strlen(gfSignature());
+    command = nextWord(&line);
+    if (sameString("quit", command)) {
+      if (canStop)
+        break;
+      else
+        logError("Ignoring quit message");
+    } else if (sameString("status", command) || sameString("transInfo", command) ||
+               sameString("untransInfo", command)) {
+      sprintf(buf, "version %s", gfVersion);
+      errSendString(connectionHandle, buf);
+      errSendString(connectionHandle, "serverType static");
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "host %s", hostName);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "port %s", portName);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "tileSize %d", tileSize);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "stepSize %d", stepSize);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "minMatch %d", minMatch);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "pcr requests %ld", pcrCount);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "blat requests %ld", blatCount);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "bases %ld", baseCount);
+      errSendString(connectionHandle, buf);
+      if (doTrans) {
+        sprintf(buf, "aa %ld", aaCount);
+        errSendString(connectionHandle, buf);
+      }
+      sprintf(buf, "misses %d", missCount);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "noSig %d", noSigCount);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "trimmed %d", trimCount);
+      errSendString(connectionHandle, buf);
+      sprintf(buf, "warnings %d", warnCount);
+      errSendString(connectionHandle, buf);
+      errSendString(connectionHandle, "end");
+    } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command)) {
+      boolean queryIsProt = sameString(command, "protQuery");
+      char *s = nextWord(&line);
+      if (s == NULL || !isdigit(s[0])) {
+        warn("Expecting query size after query command");
+        ++warnCount;
+      } else {
+        struct dnaSeq seq;
+        ZeroVar(&seq);
+
+        if (queryIsProt && !doTrans) {
+          warn("protein query sent to nucleotide server");
+          ++warnCount;
+          queryIsProt = FALSE;
+        } else {
+          buf[0] = 'Y';
+          if (write(connectionHandle, buf, 1) == 1) {
+            seq.size = atoi(s);
+            seq.name = NULL;
+            if (seq.size > 0) {
+              ++blatCount;
+              seq.dna = needLargeMem(seq.size + 1);
+              if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
+                warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
+                ++warnCount;
+              } else {
+                int maxSize = (doTrans ? maxAaSize : maxNtSize);
+
+                seq.dna[seq.size] = 0;
+                if (queryIsProt) {
+                  seq.size = aaFilteredSize(seq.dna);
+                  aaFilter(seq.dna, seq.dna);
+                } else {
+                  seq.size = dnaFilteredSize(seq.dna);
+                  dnaFilter(seq.dna, seq.dna);
+                }
+                if (seq.size > maxSize) {
+                  ++trimCount;
+                  seq.size = maxSize;
+                  seq.dna[maxSize] = 0;
+                }
+                if (queryIsProt)
+                  aaCount += seq.size;
+                else
+                  baseCount += seq.size;
+                if (seqLog && (logGetFile() != NULL)) {
+                  FILE *lf = logGetFile();
+                  faWriteNext(lf, "query", seq.dna, seq.size);
+                  fflush(lf);
+                }
+                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash);
+                if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
+              }
+              freez(&seq.dna);
+            }
+            errSendString(connectionHandle, "end");
+          }
+        }
+      }
+    } else if (sameString("pcr", command)) {
+      char *f = nextWord(&line);
+      char *r = nextWord(&line);
+      char *s = nextWord(&line);
+      int maxDistance;
+      ++pcrCount;
+      if (s == NULL || !isdigit(s[0])) {
+        warn("Badly formatted pcr command");
+        ++warnCount;
+      } else if (doTrans) {
+        warn("Can't pcr on translated server");
+        ++warnCount;
+      } else if (badPcrPrimerSeq(f) || badPcrPrimerSeq(r)) {
+        warn("Can only handle ACGT in primer sequences.");
+        ++warnCount;
+      } else {
+        maxDistance = atoi(s);
+        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle);
+      }
+    } else if (sameString("files", command)) {
+      int i;
+      sprintf(buf, "%d", fileCount);
+      errSendString(connectionHandle, buf);
+      for (i = 0; i < fileCount; ++i) {
+        sprintf(buf, "%s", seqFiles[i]);
+        errSendString(connectionHandle, buf);
+      }
+    } else {
+      warn("Unknown command %s", command);
+      ++warnCount;
+    }
+    close(connectionHandle);
+    connectionHandle = 0;
+  }
+  close(socketHandle);
 }
