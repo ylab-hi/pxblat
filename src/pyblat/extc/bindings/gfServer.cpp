@@ -1,8 +1,5 @@
 #include "gfServer.hpp"
 
-#include "common.h"
-#include "genoFind.h"
-
 bool boolean2bool(boolean b) { return b == TRUE; }
 boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
 

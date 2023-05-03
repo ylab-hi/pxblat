@@ -4,9 +4,26 @@ help:  ## Show help
 # MACHTYPE only needs to be specified for `pcc` and `alpha`
 # MACHTYPE=pcc
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MACHTYPE)
-COPTS=-O2 -Isrc/pyblat/extc/include/core -Isrc/pyblat/extc/include/aux -Isrc/pyblat/extc/include/net $(HG_DEFS)
+COPTS=-O2 -Isrc/pyblat/extc/include/core -Isrc/pyblat/extc/include/aux -Isrc/pyblat/extc/include/net -Isrc/pyblat/extc/bindings $(HG_DEFS)
+
+LIBNAME = libblat.a
+SRCDIRS = src/pyblat/extc/src/core src/pyblat/extc/src/aux src/pyblat/extc/src/net
+SRCS = $(foreach dir,$(SRCDIRS),$(wildcard $(dir)/*.c))
+OBJS = $(SRCS:.c=.o)
 
 all_bin: blat faToTwoBit gfClient gfServer
+
+$(OBJS): $(SRCS)
+	$(CC) $(COPTS) $(CFLAGS) -c $< -o $@
+
+$(LIBNAME): $(OBJS)
+	ar rcs $(LIBNAME) $(OBJS)
+
+cgfServer: $(LIBNAME) ## Build gfServer
+	$(CXX) $(COPTS) $(CFLAGS) src/pyblat/extc/bindings/gfServer.cpp  &(OBJS)  -o bin/gfServer -lm -pthread -lhts -lssl -lcrypto  -lblat
+
+gfServer2: bin ## Build gfServer
+	$(CC) $(COPTS) $(CFLAGS) src/pyblat/extc/gfServer.c -L.  -o bin/gfServer2 -lm -pthread -lhts -lssl -lcrypto -lblat
 
 bin: ## Create bin folder
 	mkdir bin
@@ -50,8 +67,6 @@ clangd:
 
 clean-bind: ## clean previous binding directory
 	rm -rf bindings && mkdir bindings
-
-
 
 
 SOURCE := utils
