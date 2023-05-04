@@ -1,4 +1,3 @@
-#include "common.h"
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
 #include "gfServer.hpp"
@@ -6,133 +5,6 @@
 bool boolean2bool(boolean b) { return b == TRUE; }
 boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
 
-void usage(gfServerOption const &options)
-/* Explain usage and exit. */
-{
-  errAbort(
-      "gfServer v %s - Make a server to quickly find where DNA occurs in "
-      "genome\n"
-      "   To set up a server:\n"
-      "      gfServer start host port file(s)\n"
-      "      where the files are .2bit or .nib format files specified relative "
-      "to the current directory\n"
-      "   To remove a server:\n"
-      "      gfServer stop host port\n"
-      "   To query a server with DNA sequence:\n"
-      "      gfServer query host port probe.fa\n"
-      "   To query a server with protein sequence:\n"
-      "      gfServer protQuery host port probe.fa\n"
-      "   To query a server with translated DNA sequence:\n"
-      "      gfServer transQuery host port probe.fa\n"
-      "   To query server with PCR primers:\n"
-      "      gfServer pcr host port fPrimer rPrimer maxDistance\n"
-      "   To process one probe fa file against a .2bit format genome (not "
-      "starting server):\n"
-      "      gfServer direct probe.fa file(s).2bit\n"
-      "   To test PCR without starting server:\n"
-      "      gfServer pcrDirect fPrimer rPrimer file(s).2bit\n"
-      "   To figure out if server is alive, on static instances get usage "
-      "statics as well:\n"
-      "      gfServer status host port\n"
-      "     For dynamic gfServer instances, specify -genome and optionally the "
-      "-genomeDataDir\n"
-      "     to get information on an untranslated genome index. Include -trans "
-      "to get about information\n"
-      "     about a translated genome index\n"
-      "   To get input file list:\n"
-      "      gfServer files host port\n"
-      "   To generate a precomputed index:\n"
-      "      gfServer index gfidx file(s)\n"
-      "     where the files are .2bit or .nib format files.  Separate indexes "
-      "are\n"
-      "     be created for untranslated and translated queries.  These can be "
-      "used\n"
-      "     with a persistent server as with 'start -indexFile or a dynamic "
-      "server.\n"
-      "     They must follow the naming convention for for dynamic servers.\n"
-      "   To run a dynamic server (usually called by xinetd):\n"
-      "      gfServer dynserver rootdir\n"
-      "     Data files for genomes are found relative to the root directory.\n"
-      "     Queries are made using the prefix of the file path relative to the "
-      "root\n"
-      "     directory.  The files $genome.2bit, $genome.untrans.gfidx, and\n"
-      "     $genome.trans.gfidx are required. Typically the structure will be "
-      "in\n"
-      "     the form:\n"
-      "         $rootdir/$genomeDataDir/$genome.2bit\n"
-      "         $rootdir/$genomeDataDir/$genome.untrans.gfidx\n"
-      "         $rootdir/$genomeDataDir/$genome.trans.gfidx\n"
-      "     in this case, one would call gfClient with \n"
-      "         -genome=$genome -genomeDataDir=$genomeDataDir\n"
-      "     Often $genomeDataDir will be the same name as $genome, however it\n"
-      "     can be a multi-level path. For instance:\n"
-      "          GCA/902/686/455/GCA_902686455.1_mSciVul1.1/\n"
-      "     The translated or untranslated index maybe omitted if there is no\n"
-      "     need to handle that type of request.\n"
-      "     The -perSeqMax functionality can be implemented by creating a "
-      "file\n"
-      "         $rootdir/$genomeDataDir/$genome.perseqmax\n"
-      "\n"
-      "options:\n"
-      "   -tileSize=N     Size of n-mers to index.  Default is 11 for "
-      "nucleotides, 4 for\n"
-      "                   proteins (or translated nucleotides).\n"
-      "   -stepSize=N     Spacing between tiles. Default is tileSize.\n"
-      "   -minMatch=N     Number of n-mer matches that trigger detailed "
-      "alignment.\n"
-      "                   Default is 2 for nucleotides, 3 for proteins.\n"
-      "   -maxGap=N       Number of insertions or deletions allowed between "
-      "n-mers.\n"
-      "                   Default is 2 for nucleotides, 0 for proteins.\n"
-      "   -trans          Translate database to protein in 6 frames.  Note: it "
-      "is best\n"
-      "                   to run this on RepeatMasked data in this case.\n"
-      "   -log=logFile    Keep a log file that records server requests.\n"
-      "   -seqLog         Include sequences in log file (not logged with "
-      "-syslog).\n"
-      "   -ipLog          Include user's IP in log file (not logged with "
-      "-syslog).\n"
-      "   -debugLog       Include debugging info in log file.\n"
-      "   -syslog         Log to syslog.\n"
-      "   -logFacility=facility  Log to the specified syslog facility - "
-      "default local0.\n"
-      "   -mask           Use masking from .2bit file.\n"
-      "   -repMatch=N     Number of occurrences of a tile (n-mer) that "
-      "triggers repeat masking the\n"
-      "                   tile. Default is %d.\n"
-      "   -noSimpRepMask  Suppresses simple repeat masking.\n"
-      "   -maxDnaHits=N   Maximum number of hits for a DNA query that are sent "
-      "from the server.\n"
-      "                   Default is %d.\n"
-      "   -maxTransHits=N Maximum number of hits for a translated query that "
-      "are sent from the server.\n"
-      "                   Default is %d.\n"
-      "   -maxNtSize=N    Maximum size of untranslated DNA query sequence.\n"
-      "                   Default is %d.\n"
-      "   -maxAaSize=N    Maximum size of protein or translated DNA queries.\n"
-      "                   Default is %d.\n"
-      "   -perSeqMax=file File contains one seq filename (possibly with ':seq' "
-      "suffix) per line.\n"
-      "                   -maxDnaHits will be applied to each filename[:seq] "
-      "separately: each may\n"
-      "                   have at most maxDnaHits/2 hits.  The filename MUST "
-      "not include the directory.\n"
-      "                   Useful for assemblies with many alternate/patch "
-      "sequences.\n"
-      "   -canStop        If set, a quit message will actually take down the "
-      "server.\n"
-      "   -indexFile      Index file create by `gfServer index'. Saving index "
-      "can speed up\n"
-      "                   gfServer startup by two orders of magnitude.  The "
-      "parameters must\n"
-      "                   exactly match the parameters when the file is "
-      "written or bad things\n"
-      "                   will happen.\n"
-      "   -timeout=N      Timeout in seconds.\n"
-      "                   Default is %d.\n",
-      gfVersion, options.repMatch, options.maxDnaHits, options.maxTransHits, options.maxNtSize, options.maxAaSize,
-      options.timeout);
-}
 /*
   Note about file(s) specified in the start command:
       The path(s) specified here are sent back exactly as-is
@@ -500,12 +372,14 @@ struct hash *buildPerSeqMax(int fileCount, char *seqFiles[], char *perSeqMaxFile
   return perSeqMaxHash;
 }
 
-struct hash *maybePerSeqMax(int fileCount, char *seqFiles[])
+struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], gfServerOption &options)
 /* If options include -perSeqMax=file, then read the sequences named in the file
  * into a hash for testing membership in the set of sequences to exclude from
  * -maxDnaHits accounting. */
 {
-  char *fileName = optionVal("perSeqMax", NULL);
+  // char *fileName = optionVal("perSeqMax", NULL);
+  char *fileName = options.perSeqMax.empty() ? NULL : options.perSeqMax.data();
+
   if (isNotEmpty(fileName))
     return buildPerSeqMax(fileCount, seqFiles, fileName);
   else
@@ -816,20 +690,6 @@ bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServer
   return TRUE;
 }
 
-gfServerOption &gfServerOption::build() {
-  if (trans) {
-    tileSize = 4;
-    stepSize = tileSize;
-    minMatch = 3;
-    maxGap = 0;
-    repMatch = gfPepMaxTileUse;
-  }
-
-  if (repMatch > 0) repMatch = gfDefaultRepMatch(tileSize, stepSize, bool2boolean(trans));
-
-  return *this;
-}
-
 void gfServer(gfServerOption &options)
 /* Process command line. */
 {
@@ -1083,7 +943,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
   strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
 
   logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName.data(), portName.data(), timestr);
-  struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, cseqFiles.data());
+  struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, cseqFiles.data(), options);
 
   time_t startIndexTime = clock1000();
   if (indexFile == NULL) {
@@ -1493,4 +1353,160 @@ int main(int argc, char *argv[])
   gfServerOption options{};
   gfServer(options);
   return 0;
+}
+
+gfServerOption &gfServerOption::build() {
+  if (trans) {
+    tileSize = 4;
+    stepSize = tileSize;
+    minMatch = 3;
+    maxGap = 0;
+    repMatch = gfPepMaxTileUse;
+  }
+
+  if (repMatch > 0) repMatch = gfDefaultRepMatch(tileSize, stepSize, bool2boolean(trans));
+
+  return *this;
+}
+
+gfServerOption &gfServerOption::withCanStop(bool canStop_) {
+  canStop = canStop_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withLog(std::string log_) {
+  log = std::move(log_);
+  return *this;
+}
+
+gfServerOption &gfServerOption::withLogFacility(std::string logFacility_) {
+  logFacility = std::move(logFacility_);
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMask(bool mask_) {
+  mask = mask_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMaxAaSize(int maxAaSize_) {
+  maxAaSize = maxAaSize_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMaxDnaHits(int maxDnaHits_) {
+  maxDnaHits = maxDnaHits_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMaxGap(int maxGap_) {
+  maxGap = maxGap_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMaxNtSize(int maxNtSize_) {
+  maxNtSize = maxNtSize_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMaxTransHits(int maxTransHits_) {
+  maxTransHits = maxTransHits_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withMinMatch(int minMatch_) {
+  minMatch = minMatch_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withRepMatch(int repMatch_) {
+  repMatch = repMatch_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withSeqLog(bool seqLog_) {
+  seqLog = seqLog_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withIpLog(bool ipLog_) {
+  ipLog = ipLog_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withDebugLog(bool debugLog_) {
+  debugLog = debugLog_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withTileSize(int tileSize_) {
+  tileSize = tileSize_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withStepSize(int stepSize_) {
+  stepSize = stepSize_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withTrans(bool trans_) {
+  trans = trans_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withSyslog(bool syslog_) {
+  syslog = syslog_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withPerSeqMax(std::string perSeqMax_) {
+  perSeqMax = std::move(perSeqMax_);
+  return *this;
+}
+
+gfServerOption &gfServerOption::withNoSimpRepMask(bool noSimpRepMask_) {
+  noSimpRepMask = noSimpRepMask_;
+  return *this;
+}
+
+gfServerOption &gfServerOption::withIndexFile(std::string indexFile_) {
+  indexFile = std::move(indexFile_);
+  return *this;
+}
+
+gfServerOption &gfServerOption::withTimeout(int timeout_) {
+  timeout = timeout_;
+  return *this;
+}
+
+std::string gfServerOption::to_string() const {
+  std::stringstream s{};
+  s << "gfServerOption(";
+  s << "  canStop: " << std::boolalpha << canStop;
+  s << ", log: " << log;
+  s << ", logFacility: " << logFacility;
+  s << ", mask: " << mask;
+  s << ", maxAaSize: " << maxAaSize;
+  s << ", maxDnaHits: " << maxDnaHits;
+  s << ", maxGap: " << maxGap;
+  s << ", maxNtSize: " << maxNtSize;
+  s << ", maxTransHits: " << maxTransHits;
+  s << ", minMatch: " << minMatch;
+  s << ", repMatch: " << repMatch;
+  s << ", seqLog: " << std::boolalpha << seqLog;
+  s << ", ipLog: " << std::boolalpha << ipLog;
+  s << ", debugLog: " << std::boolalpha << debugLog;
+  s << ", tileSize: " << tileSize;
+  s << ", stepSize: " << stepSize;
+  s << ", trans: " << std::boolalpha << trans;
+  s << ", syslog: " << std::boolalpha << syslog;
+  s << ", perSeqMax: " << perSeqMax;
+  s << ", noSimpRepMask: " << std::boolalpha << noSimpRepMask;
+  s << ", indexFile: " << indexFile;
+  s << ", timeout: " << timeout;
+  s << ", genome: " << genome;
+  s << ", genomeDataDir: " << genomeDataDir;
+  s << ", allowOneMismatch: " << std::boolalpha << allowOneMismatch << ")";
+
+  return s.str();
 }

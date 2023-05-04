@@ -68,8 +68,3 @@ void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool no
   }
   carefulClose(&f);
 }
-
-int main(int argc, char *argv[]){
-
-  return 0;
-}

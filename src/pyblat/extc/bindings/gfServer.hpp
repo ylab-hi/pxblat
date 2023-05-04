@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <ctime>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -23,7 +24,6 @@
 #include "memalloc.h"
 #include "net.h"
 #include "nib.h"
-#include "options.h"
 #include "portable.h"
 #include "trans3.h"
 #include "twoBit.h"
@@ -88,8 +88,32 @@ struct gfServerOption {
   bool allowOneMismatch{false};
 
   gfServerOption() = default;
-
   self &build();
+
+  std::string to_string() const;
+
+  gfServerOption &withCanStop(bool canStop_);
+  gfServerOption &withLog(std::string log_);
+  gfServerOption &withLogFacility(std::string logFacility_);
+  gfServerOption &withMask(bool mask_);
+  gfServerOption &withMaxAaSize(int maxAaSize_);
+  gfServerOption &withMaxDnaHits(int maxDnaHits_);
+  gfServerOption &withMaxGap(int maxGap_);
+  gfServerOption &withMaxNtSize(int maxNtSize_);
+  gfServerOption &withMaxTransHits(int maxTransHits_);
+  gfServerOption &withMinMatch(int minMatch_);
+  gfServerOption &withRepMatch(int repMatch_);
+  gfServerOption &withSeqLog(bool seqLog_);
+  gfServerOption &withIpLog(bool ipLog_);
+  gfServerOption &withDebugLog(bool debugLog_);
+  gfServerOption &withTileSize(int tileSize_);
+  gfServerOption &withStepSize(int stepSize_);
+  gfServerOption &withTrans(bool trans_);
+  gfServerOption &withSyslog(bool syslog_);
+  gfServerOption &withPerSeqMax(std::string perSeqMax_);
+  gfServerOption &withNoSimpRepMask(bool noSimpRepMask_);
+  gfServerOption &withIndexFile(std::string indexFile_);
+  gfServerOption &withTimeout(int timeout_);
 };
 
 void gfServer();
