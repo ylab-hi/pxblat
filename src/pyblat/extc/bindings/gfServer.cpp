@@ -1347,14 +1347,6 @@ void dynamicServer(std::string &rootDir, gfServerOption &options)
   logDebug("dynamicServer disconnect");
 }
 
-int main(int argc, char *argv[])
-/* Process command line. */
-{
-  gfServerOption options{};
-  gfServer(options);
-  return 0;
-}
-
 gfServerOption &gfServerOption::build() {
   if (trans) {
     tileSize = 4;

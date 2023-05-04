@@ -76,7 +76,12 @@ PYBIND11_MODULE(_extc, m) {
       .def("__str__", &gfServerOption::to_string);
 
   // gfserver -canStop -log={self.log_file_path} -stepSize=5 start localhost self.port self.ref_2bit
-
   m.def("startServer", &startServer, py::arg("hostName"), py::arg("portName"), py::arg("fileCount"),
-        py::arg("seqFiles"), py::arg("options"));
+        py::arg("seqFiles"), py::arg("options"), "startServer");
+
+  m.def("genoFindDirect", &genoFindDirect, py::arg("fPrimer"), py::arg("rPrimer"), py::arg("fileCount"),
+        py::arg("seqFiles"), py::arg("options") "genoFindDirect");
+
+  m.def("genoPcrDirect", &genoPcrDirect, py::arg("fPrimer"), py::arg("rPrimer"), py::arg("fileCount"),
+        py::arg("seqFiles"), py::arg("options"), "A function that performs PCR on genomic sequences");
 }
