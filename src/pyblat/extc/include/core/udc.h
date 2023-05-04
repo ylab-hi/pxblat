@@ -26,7 +26,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif
 
 struct udcFile;
 /* Handle to a cached file.  Inside of structure mysterious unless you are udc.c. */

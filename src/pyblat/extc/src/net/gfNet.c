@@ -21,7 +21,8 @@ struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome,
   if (sd < 0)
     return NULL;
   struct gfConnection *conn;
-  AllocVar(conn);
+  // AllocVar(conn);
+  conn = (struct gfConnection *)needMem(sizeof(*conn));
   conn->fd = sd;
   conn->hostName = cloneString(hostName);
   conn->port = port;

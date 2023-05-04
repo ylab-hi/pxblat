@@ -237,7 +237,7 @@ static void udcReadAndIgnore(struct ioStats *ioStats, int sd, bits64 size)
 {
 static char *buf = NULL;
 if (buf == NULL)
-    buf = needMem(udcBlockSize);
+    buf = (char *)needMem(udcBlockSize);
 bits64 remaining = size, total = 0;
 while (remaining > 0)
     {
@@ -877,7 +877,7 @@ static char *fileNameInCacheDir(struct udcFile *file, char *fileName)
 {
 int dirLen = strlen(file->cacheDir);
 int nameLen = strlen(fileName);
-char *path = needMem(dirLen + nameLen + 2);
+char *path = (char *)needMem(dirLen + nameLen + 2);
 memcpy(path, file->cacheDir, dirLen);
 path[dirLen] = '/';
 memcpy(path+dirLen+1, fileName, nameLen);
@@ -964,7 +964,8 @@ if (magic != udcBitmapSig)
 
 /* Allocate bitmap object, fill it in, and return it. */
 struct udcBitmap *bits;
-AllocVar(bits);
+// AllocVar(bits);
+bits = (struct udcBitmap *)needMem(sizeof(*bits));
 bits->blockSize = fdReadBits32(fd, isSwapped);
 bits->remoteUpdate = fdReadBits64(fd, isSwapped);
 bits->fileSize = fdReadBits64(fd, isSwapped);
@@ -1133,7 +1134,7 @@ while ((c = *s++) != 0)
     }
 
 /* Allocate and fill in output. */
-char *output = needMem(size+1);
+char *output = (char *)needMem(size+1);
 s = input;
 d = output;
 while ((c = *s++) != 0)
@@ -1250,7 +1251,7 @@ if (cacheDir==NULL)
     return;
 char *hashedAfterProtocol = longDirHash(cacheDir, afterProtocol);
 int len = strlen(cacheDir) + 1 + strlen(protocol) + 1 + strlen(hashedAfterProtocol) + 1;
-file->cacheDir = needMem(len);
+file->cacheDir = (char *)needMem(len);
 safef(file->cacheDir, len, "%s/%s/%s", cacheDir, protocol, hashedAfterProtocol);
 verbose(4, "UDC dir: %s\n", file->cacheDir);
 
@@ -1645,7 +1646,7 @@ static void readBitsIntoBuf(struct udcFile *file, int fd, int headerSize, int bi
 int byteStart = bitStart/8;
 int byteEnd = bitToByteSize(bitEnd);
 int byteSize = byteEnd - byteStart;
-Bits *bits = needLargeMem(byteSize);
+Bits *bits = (Bits *)needLargeMem(byteSize);
 ourMustLseek(&file->ios.bit,fd, headerSize + byteStart, SEEK_SET);
 ourMustRead(&file->ios.bit, fd, bits, byteSize);
 *retBits = bits;
@@ -1892,7 +1893,7 @@ while(TRUE)
 	{
 	file->sparseReadAhead = TRUE;
 	if (!file->sparseReadAheadBuf)
-	    file->sparseReadAheadBuf = needMem(READAHEADBUFSIZE);
+	    file->sparseReadAheadBuf = (char *)needMem(READAHEADBUFSIZE);
 	file->sparseRAOffset = start;
 	size = READAHEADBUFSIZE;
 	end = start + size;
@@ -2019,7 +2020,7 @@ for (i=0; ; ++i)
     if (i >= bufSize)
         {
 	int newBufSize = bufSize*2;
-	char *newBuf = needLargeMem(newBufSize);
+	char *newBuf = (char *)needLargeMem(newBufSize);
 	memcpy(newBuf, buf, bufSize);
 	freeMem(longBuf);
 	buf = longBuf = newBuf;
@@ -2059,7 +2060,7 @@ for (i=0; ; ++i)
     if (i >= bufSize)
         {
 	int newBufSize = bufSize*2;
-	char *newBuf = needLargeMem(newBufSize);
+	char *newBuf = (char *)needLargeMem(newBufSize);
 	memcpy(newBuf, buf, bufSize);
 	freeMem(longBuf);
 	buf = longBuf = newBuf;
@@ -2090,7 +2091,7 @@ size_t size = file->size;
 if (maxSize != 0 && size > maxSize)
     errAbort("%s is %lld bytes, but maxSize to udcFileReadAll is %lld",
     	url, (long long)size, (long long)maxSize);
-char *buf = needLargeMem(size+1);
+char *buf = (char *)needLargeMem(size+1);
 udcMustRead(file, buf, size);
 buf[size] = 0;	// add trailing zero for string processing
 udcFileClose(&file);
@@ -2157,7 +2158,7 @@ int blockCount = (bits->fileSize + blockSize - 1)/blockSize;
 if (blockCount > 0)
     {
     int bitmapSize = bitToByteSize(blockCount);
-    Bits *b = needLargeMem(bitmapSize);
+    Bits *b = (Bits *)needLargeMem(bitmapSize);
     mustReadFd( bits->fd, b, bitmapSize);
     int bitsSet = bitCountRange(b, 0, blockCount);
     byteSize = (long)bitsSet*blockSize;

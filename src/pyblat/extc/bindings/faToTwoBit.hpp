@@ -1,6 +1,10 @@
 #ifndef CFA_TO_TWO_BIT_H
 #define CFA_TO_TWO_BIT_H
 
+#include <algorithm>
+using std::min;
+using std::max;
+
 #include <string>
 #include <vector>
 

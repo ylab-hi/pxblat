@@ -76,7 +76,9 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array = (signed char *)needLargeZeroedMem(sizeof(*array) * count);
+
 	count = 0;
 	for (;;)
 	    {
@@ -156,7 +158,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (unsigned char *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -236,7 +239,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (char *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -326,7 +330,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (short *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -406,7 +411,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (unsigned short *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -452,7 +458,8 @@ while (*p)
         count++;
 double *array = NULL;
 int arraySize = count + 1;
-AllocArray(array, arraySize);
+// AllocArray(array, arraySize);
+array = (double *)needLargeZeroedMem(sizeof(*array) * count);
 char *t = cloneString(s);
 count = sqlDoubleArray(cloneString(s), array, arraySize);
 freez(&t);
@@ -556,7 +563,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (double *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -584,7 +592,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (float *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -664,7 +673,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (unsigned *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -744,7 +754,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (int *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -825,7 +836,8 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (long long *)needLargeZeroedMem(sizeof(*array) * count);
 	count = 0;
 	for (;;)
 	    {
@@ -913,7 +925,9 @@ if (s)
     count = countSeparatedItems(s, ',');
     if (count > 0)
 	{
-	AllocArray(array, count);
+	// AllocArray(array, count);
+  array =  (char **)needLargeZeroedMem(sizeof(*array) * count);
+
 	count = 0;
 	s = cloneString(s);
 	for (;;)

@@ -141,7 +141,7 @@ char name[128], ext[64];
 int len;
 splitPath(program, NULL, name, ext);
 len = strlen(name) + strlen(ext) + 1;
-gProgram = needMem(len);
+gProgram = (char *)needMem(len);
 strcpy(gProgram, name);
 if (ext[0] != '\0')
     strcat(gProgram, ext); /* includes dot */
