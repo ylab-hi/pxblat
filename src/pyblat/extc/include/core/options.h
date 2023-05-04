@@ -9,7 +9,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif
 
 #include "common.h"
 
@@ -109,7 +109,7 @@ void optionFree();
 
 #ifdef __cplusplus
 }
-#endif  // __cplusplus
+#endif
 
 
 

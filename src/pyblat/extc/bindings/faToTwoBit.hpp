@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+extern "C" {
 #include "common.h"
 #include "dnaseq.h"
 #include "dnautil.h"
@@ -12,6 +13,7 @@
 #include "linefile.h"
 #include "options.h"
 #include "twoBit.h"
+}
 
 // "faToTwoBit - Convert DNA from fasta to 2bit format\n"
 // "usage:\n"
@@ -26,8 +28,7 @@
 // "   -ignoreDups    Convert first sequence only if there are duplicate "
 // "sequence\n"
 // "                  names.  Use 'twoBitDup' to find duplicate sequences.");
-void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile,
-                bool noMask = false, bool stripVersion = false,
+void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask = false, bool stripVersion = false,
                 bool ignoreDups = false, bool useLong = false);
 
 void unknownToN(char *s, int size);
