@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-extern "C" {
 #include "common.h"
 #include "dnaseq.h"
 #include "dnautil.h"
@@ -13,7 +12,6 @@ extern "C" {
 #include "linefile.h"
 #include "options.h"
 #include "twoBit.h"
-}
 
 // "faToTwoBit - Convert DNA from fasta to 2bit format\n"
 // "usage:\n"

@@ -1,3 +1,6 @@
+#include "common.h"
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 #include "gfServer.hpp"
 
 bool boolean2bool(boolean b) { return b == TRUE; }
@@ -396,7 +399,7 @@ void errorSafeSetup()
 {
   pushAbortHandler(gfAbort);  // must come before memTracker
   memTrackerStart();
-  ripCord = needMem(64 * 1024); /* Memory for error recovery. memTrackerEnd frees */
+  ripCord = (char *)needMem(64 * 1024); /* Memory for error recovery. memTrackerEnd frees */
 }
 
 void errorSafeCleanup()
@@ -687,9 +690,10 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
   auto maxNtSize = options.maxNtSize;
 
   struct dnaSeq *seq;
-  AllocVar(seq);
+  // AllocVar(seq);
+  seq = (dnaSeq *)needMem(sizeof(*seq));
   seq->size = qSize;
-  seq->dna = needLargeMem(qSize + 1);
+  seq->dna = (char *)needLargeMem(qSize + 1);
   if (gfReadMulti(STDIN_FILENO, seq->dna, qSize) != qSize) errAbort("read of %d bytes of query sequence failed", qSize);
   seq->dna[qSize] = '\0';
 
@@ -720,7 +724,7 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
   int qSize = atoi(args[3]);
 
   boolean queryIsProt = sameString(args[0], "protQuery");
-  mustWriteFd(STDOUT_FILENO, "Y", 1);
+  mustWriteFd(STDOUT_FILENO, (void *)"Y", 1);
   struct dnaSeq *seq = dynReadQuerySeq(qSize, gfIdx->isTrans, queryIsProt, options);
   if (gfIdx->isTrans) {
     if (queryIsProt)
@@ -1214,7 +1218,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
             seq.name = NULL;
             if (seq.size > 0) {
               ++blatCount;
-              seq.dna = needLargeMem(seq.size + 1);
+              seq.dna = (char *)needLargeMem(seq.size + 1);
               if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
                 warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
                 ++warnCount;

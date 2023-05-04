@@ -122,7 +122,11 @@ def get_extra_options():
 
 
 SOURCES = (
-    ["src/pyblat/extc/bindings/binding.cpp", "src/pyblat/extc/bindings/faToTwoBit.cpp"]
+    [
+        "src/pyblat/extc/bindings/binding.cpp",
+        "src/pyblat/extc/bindings/faToTwoBit.cpp",
+        "src/pyblat/extc/bindings/gfServer.cpp",
+    ]
     + list(get_files("src/pyblat/extc/src/core", [".c"]))
     + list(get_files("src/pyblat/extc/src/aux", [".c"]))
     + list(get_files("src/pyblat/extc/src/net", [".c"]))
