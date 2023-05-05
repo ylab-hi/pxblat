@@ -84,4 +84,17 @@ PYBIND11_MODULE(_extc, m) {
 
   m.def("genoPcrDirect", &genoPcrDirect, py::arg("fPrimer"), py::arg("rPrimer"), py::arg("fileCount"),
         py::arg("seqFiles"), py::arg("options"), "A function that performs PCR on genomic sequences");
+
+  m.def("stopServer", &stopServer, py::arg("hostName"), py::arg("portName"), "stop sever");
+
+  m.def("queryServer", &queryServer, py::arg("type"), py::arg("hostName"), py::arg("portName"), py::arg("faName"),
+        py::arg("complex"), py::arg("faName"), "queryServer");
+
+  m.def("pcrServer", &pcrServer, py::arg("hostName"), py::arg("portName"), py::arg("fPrimer"), py::arg("rPrimer"),
+        py::arg("maxSize"));
+
+  m.def("statusServer", &statusServer, py::arg("hostName"), py::arg("portName"), py::arg("options"));
+
+  // void getFileList(std::string &hostName, std::string &portName)
+  m.def("getFileList", &getFileList, py::arg("hostName"), py::arg())
 }
