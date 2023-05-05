@@ -25,6 +25,7 @@ black = "^23.3.0"
 ruff = "^0.0.263"
 ipython = "^8.13.1"
 pybind11-stubgen = "^0.13.0"
+invoke = "^2.1.1"
 
 [tool.poetry.build]
 script = "build.py"

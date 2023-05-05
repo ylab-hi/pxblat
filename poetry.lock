@@ -174,6 +174,18 @@ files = [
 ]
 
 [[package]]
+name = "invoke"
+version = "2.1.1"
+description = "Pythonic task execution"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "invoke-2.1.1-py3-none-any.whl", hash = "sha256:e86a53046eca453d3e609e7017f65db5f66b947d4d337b60658859eb8c8a80e3"},
+    {file = "invoke-2.1.1.tar.gz", hash = "sha256:7dcf054c4626b89713da650635c29e9dfeb8a1dd0a14edc60bd3e16f751292ff"},
+]
+
+[[package]]
 name = "ipython"
 version = "8.13.1"
 description = "IPython: Productive Interactive Computing"
@@ -666,4 +678,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "9257cbb13f1989ee41cb63608f5e6c1b68fa06aab6b6d363564a00fe19a8b1d4"
+content-hash = "34c32ed12610702f16ec545faa4ea4a858c2a9d63e65d7476741285eab3ee2a8"

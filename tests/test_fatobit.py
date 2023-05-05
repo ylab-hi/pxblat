@@ -1,7 +1,9 @@
 import filecmp
+from multiprocessing import Process
 from pathlib import Path
 
 import pyblat
+import pytest
 
 
 # open server from command line
@@ -62,13 +64,41 @@ import pyblat
 #       $rootdir/$genomeDataDir/$genome.perseqmax
 
 
+@pytest.fixture
+def options():
+    return pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+
+
 def test_fatwobit():
     test_file = Path("tests/data/test_ref.fa")
     output_file = Path("tests/data/test_ref.2bit")
     if output_file.exists():
         output_file.unlink()
     pyblat.faToTwoBit([test_file.as_posix()], output_file.as_posix())
-
     assert filecmp.cmp(output_file.as_posix(), "tests/data/test_ref.2bit")
 
-    output_file.unlink()
+
+def test_start_server():
+    two_bit_file = Path("tests/data/test_ref.2bit")
+    if not two_bit_file.exists():
+        pyblat.faToTwoBit(["tests/data/test_ref.fa"], two_bit_file.as_posix())
+
+    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.startServer("localhost", "88888", 1, [two_bit_file.as_posix()], options)
+
+
+def test_server_status():
+    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.statusServer("localhost", "88888", options)
+
+
+def test_query_server():
+    pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.queryServer(
+        "query", "localhost", "88888", "tests/data/test_query.fa", False, False
+    )
+
+
+def test_server_query():
+    process = Process(target=test_start_server)
+    process.start()
