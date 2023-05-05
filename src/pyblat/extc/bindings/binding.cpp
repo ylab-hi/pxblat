@@ -76,25 +76,41 @@ PYBIND11_MODULE(_extc, m) {
       .def("__str__", &gfServerOption::to_string);
 
   // gfserver -canStop -log={self.log_file_path} -stepSize=5 start localhost self.port self.ref_2bit
+  // void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
+  // gfServerOption &options)
   m.def("startServer", &startServer, py::arg("hostName"), py::arg("portName"), py::arg("fileCount"),
         py::arg("seqFiles"), py::arg("options"), "startServer");
 
-  m.def("genoFindDirect", &genoFindDirect, py::arg("fPrimer"), py::arg("rPrimer"), py::arg("fileCount"),
-        py::arg("seqFiles"), py::arg("options") "genoFindDirect");
+  // void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::string> &seqFiles, gfServerOption const
+  // &options)
+  m.def("genoFindDirect", &genoFindDirect, py::arg("probeName"), py::arg("fileCount"), py::arg("seqFiles"),
+        py::arg("options"), "genoFindDirect");
 
+  // void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, std::vector<std::string> &seqFiles,
+  // gfServerOption const &options)
   m.def("genoPcrDirect", &genoPcrDirect, py::arg("fPrimer"), py::arg("rPrimer"), py::arg("fileCount"),
         py::arg("seqFiles"), py::arg("options"), "A function that performs PCR on genomic sequences");
 
+  // void stopServer(std::string &hostName, std::string &portName)
   m.def("stopServer", &stopServer, py::arg("hostName"), py::arg("portName"), "stop sever");
 
+  // void queryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName, bool
+  // complex, bool isProt)
   m.def("queryServer", &queryServer, py::arg("type"), py::arg("hostName"), py::arg("portName"), py::arg("faName"),
-        py::arg("complex"), py::arg("faName"), "queryServer");
+        py::arg("complex"), py::arg("isProt"), "queryServer");
 
+  // void pcrServer(std::string &hostName, std::string &portName, std::string &fPrimer, std::string &rPrimer, int
+  // maxSize)
   m.def("pcrServer", &pcrServer, py::arg("hostName"), py::arg("portName"), py::arg("fPrimer"), py::arg("rPrimer"),
         py::arg("maxSize"));
 
+  // int statusServer(std::string &hostName, std::string &portName, gfServerOption &options)
   m.def("statusServer", &statusServer, py::arg("hostName"), py::arg("portName"), py::arg("options"));
 
   // void getFileList(std::string &hostName, std::string &portName)
-  m.def("getFileList", &getFileList, py::arg("hostName"), py::arg())
+  m.def("getFileList", &getFileList, py::arg("hostName"), py::arg());
+
+  // void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, gfServerOption const
+  // &options)
+  m.def("buildIndex", &buildIndex, py::arg("gfxFile"), py::arg("fileCount"), py::arg("seqFiles"), py::arg("options"));
 }

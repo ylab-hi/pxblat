@@ -21,10 +21,7 @@ $(LIBNAME): $(OBJS)
 cgfServer: $(LIBNAME) ## Build gfServer
 	$(CXX) $(COPTS) $(CFLAGS) src/pyblat/extc/bindings/gfServer.cpp  &(OBJS)  -o bin/gfServer -lm -pthread -lhts -lssl -lcrypto  -lblat
 
-gfServer2: bin $(LIBNAME) ## Build gfServer
-	$(CC) $(COPTS) $(CFLAGS)  -o bin/gfServer2 src/pyblat/extc/gfServer.c  libblat.a
-
-all_bin: blat faToTwoBit gfClient gfServer
+all_bin: faToTwoBit gfClient gfServer
 
 bin: ## Create bin folder
 	mkdir bin
@@ -69,30 +66,8 @@ install: ## install the lib
 clangd:
 	bear -- make all_bin
 
+test:
+	pytest -vls tests
 
-clean-bind: ## clean previous binding directory
-	rm -rf bindings && mkdir bindings
-
-
-SOURCE := utils
-BLOCK := arm sse emm
-NAMESPACE := StripedSmithWaterman
-INCLUDE := src/mssw/src
-
-
-all_include: ## make all include files into all_include.hpp
-	python ${SOURCE}/generate_headers.py ${INCLUDE} ${BLOCK}
-
-
-bind:  clean-bind  all_include ## make bindings for python
-	#https://cppbinder.readthedocs.io/en/latest/config.html
-	docker run -it --rm -v `pwd`:/bind yangliz5/binder:1.0.1 \
-	  binder --root-module _cpp \
-	  --prefix /bind/bindings \
-	  --bind ${NAMESPACE} \
-	  /bind/all_includes.hpp \
-	  -- -std=c++17 -I/bind/${INCLUDE} \
-	  -I/usr/include \
-	  -DMY_PROJECT_DEFINE -DNDEBUG
-
-	 echo "Binding Cpp to python"
+stubs:
+	pybind11-stubgen pyblat

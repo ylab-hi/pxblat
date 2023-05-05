@@ -436,6 +436,18 @@ files = [
 global = ["pybind11-global (==2.10.4)"]
 
 [[package]]
+name = "pybind11-stubgen"
+version = "0.13.0"
+description = "PEP 561 type stubs generator for pybind11 modules"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pybind11-stubgen-0.13.0.tar.gz", hash = "sha256:f837896dfd211f2f70fdbd3a6533889dd0a761babf8e36e765b1c2ba0ea1089a"},
+    {file = "pybind11_stubgen-0.13.0-py3-none-any.whl", hash = "sha256:5158a0d178f21d8f6a7521fe1fc96c4a5214912012b634b19a19ef61f6de0f40"},
+]
+
+[[package]]
 name = "pygments"
 version = "2.15.1"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -654,4 +666,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "353b6c6825a4428603e84595e7587a68888b204b53ef3a8b79d37d28e2bea54d"
+content-hash = "9257cbb13f1989ee41cb63608f5e6c1b68fa06aab6b6d363564a00fe19a8b1d4"
