@@ -1385,10 +1385,7 @@ int main(int argc, char *argv[])
     genoPcrDirect(argv[2], argv[3], argc - 4, argv + 4);
   } else if (sameWord(command, "start")) {
     if (argc < 5) usage();
-    for (int i = 0; i < argc; i++) {
-      printf("%s\n", argv[i]);
-    }
-    // startServer(argv[2], argv[3], argc - 4, argv + 4);
+    startServer(argv[2], argv[3], argc - 4, argv + 4);
   } else if (sameWord(command, "stop")) {
     if (argc != 4) usage();
     stopServer(argv[2], argv[3]);
