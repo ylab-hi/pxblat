@@ -2,20 +2,6 @@
 from __future__ import annotations
 import typing
 
-__all__ = [
-    "buildIndex",
-    "faToTwoBit",
-    "genoFindDirect",
-    "genoPcrDirect",
-    "getFileList",
-    "gfServerOption",
-    "pcrServer",
-    "queryServer",
-    "startServer",
-    "statusServer",
-    "stopServer",
-]
-
 class gfServerOption:
     @typing.overload
     def __init__(self) -> None: ...
@@ -245,7 +231,6 @@ class gfServerOption:
     @trans.setter
     def trans(self, arg0: bool) -> None:
         pass
-    pass
 
 def buildIndex(
     gfxFile: str, fileCount: int, seqFiles: typing.List[str], options: gfServerOption

@@ -1,7 +1,8 @@
-from invoke import task
-import pyblat
-
+from multiprocessing import Process
 from pathlib import Path
+
+import pyblat
+from invoke import task
 
 
 def test_start_server():
@@ -19,13 +20,10 @@ def test_server_status():
 
 
 def test_query_server():
-    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
     pyblat.queryServer(
         "query", "localhost", "88888", "tests/data/test_query.fa", False, False
     )
-
-
-from multiprocessing import Process
 
 
 @task
@@ -34,7 +32,7 @@ def server_query(c):
     process.start()
     process.join()
     print("here")
-    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
     pyblat.queryServer(
         "query", "localhost", "88888", "tests/data/test_case1.fa", False, False
     )
@@ -76,7 +74,10 @@ def pstart_server(c):
 @task
 def pstatus_server(c, docs=False):
     options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
-    pyblat.statusServer("localhost", "88888", options)
+    try:
+        pyblat.statusServer("localhost", "88888", options)
+    except Exception:
+        print("here")
 
 
 @task
@@ -86,7 +87,7 @@ def pstop_server(c):
 
 @task
 def pquery_server(c):
-    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
     pyblat.queryServer(
         "query", "localhost", "88888", "tests/data/test_case1.fa", False, False
     )

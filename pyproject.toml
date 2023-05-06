@@ -15,7 +15,40 @@ setuptools = "^67.7.2"
 
 [tool.ruff]
 line-length = 120
+fix = true
 extend-ignore = ["E501"]
+select = [
+  # pyflakes
+  "F",
+  # pycodestyle
+  "E", "W",
+  # flake8-2020
+  "YTT",
+  # flake8-bugbear
+  "B",
+  # flake8-quotes
+  "Q",
+  # flake8-debugger
+  "T10",
+  # pylint
+  "PLC", "PLE", "PLR", "PLW",
+  # misc lints
+  "PIE",
+  # flake8-pyi
+  "PYI",
+  # tidy imports
+  "TID",
+  # implicit string concatenation
+  "ISC",
+  # type-checking imports
+  "TCH",
+  # comprehensions
+  "C4",
+]
+exclude = ["src/pyblat/extc/__init__.pyi"]
+
+[tool.ruff.per-file-ignores]
+"src/pyblat/__init__.py" = ["F405"]
 
 
 [tool.poetry.group.dev.dependencies]
