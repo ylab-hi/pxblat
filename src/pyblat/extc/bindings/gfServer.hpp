@@ -22,7 +22,7 @@
 #include "internet.h"
 #include "log.h"
 #include "memalloc.h"
-#include "net.h"
+#include "netlib.h"
 #include "nib.h"
 #include "portable.h"
 #include "trans3.h"

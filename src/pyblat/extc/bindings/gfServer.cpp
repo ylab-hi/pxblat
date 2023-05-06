@@ -1238,6 +1238,10 @@ void pcrServer(std::string &hostName, std::string &portName, std::string &fPrime
   close(sd);
 }
 
+// port 88888
+// Couldn't read string length
+// Error reading status information from localhost:88888
+
 int statusServer(std::string &hostName, std::string &portName, gfServerOption &options)
 /* Send status message to server arnd report result. */
 {

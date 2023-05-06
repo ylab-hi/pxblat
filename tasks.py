@@ -74,10 +74,8 @@ def pstart_server(c):
 @task
 def pstatus_server(c, docs=False):
     options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
-    try:
-        pyblat.statusServer("localhost", "88888", options)
-    except Exception:
-        print("here")
+    ret = pyblat.statusServer("localhost", "88888", options)
+    print(f"here {ret}")
 
 
 @task

@@ -112,6 +112,16 @@ def get_files(
             yield file.as_posix()
 
 
+def filter_files(files, exclude=None):
+    if exclude is None:
+        exclude = []
+
+    for file in files:
+        file_name = Path(file).name
+        if file_name not in exclude:
+            yield file
+
+
 def get_extra_options():
     return [
         "-D_FILE_OFFSET_BITS=64",
@@ -127,10 +137,14 @@ SOURCES = (
         "src/pyblat/extc/bindings/faToTwoBit.cpp",
         "src/pyblat/extc/bindings/gfServer.cpp",
     ]
-    + list(get_files("src/pyblat/extc/src/core", [".c"]))
-    + list(get_files("src/pyblat/extc/src/aux", [".c"]))
-    + list(get_files("src/pyblat/extc/src/net", [".c"]))
+    + list(filter_files(get_files("src/pyblat/extc/src/core", [".c"])))
+    + list(
+        filter_files(get_files("src/pyblat/extc/src/aux", [".c"]), exclude=["net.c"])
+    )
+    + list(filter_files(get_files("src/pyblat/extc/src/net", [".c"])))
 )
+
+print(SOURCES)
 
 
 def build(setup_kwargs):

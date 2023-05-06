@@ -3,7 +3,7 @@
  * This file is copyright 2002 Jim Kent, but license is hereby
  * granted for all use - public, private or commercial. */
 
-#include "net.h"
+#include "netlib.h"
 
 #include <errno.h>
 #include <pthread.h>
@@ -234,7 +234,7 @@ int netMustConnect(char *hostName, int port)
 {
   int sd = netConnect(hostName, port);
   if (sd < 0) {
-    noWarnAbort();
+    // noWarnAbort();
   }
   return sd;
 }
