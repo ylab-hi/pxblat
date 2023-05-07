@@ -48,7 +48,7 @@ select = [
 exclude = ["src/pyblat/extc/__init__.pyi"]
 
 [tool.ruff.per-file-ignores]
-"src/pyblat/__init__.py" = ["F405"]
+"src/pyblat/extc/__init__.py" = ["F405", "F403"]
 
 
 [tool.poetry.group.dev.dependencies]

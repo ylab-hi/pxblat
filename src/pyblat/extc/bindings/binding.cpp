@@ -73,7 +73,8 @@ PYBIND11_MODULE(_extc, m) {
       .def("withIndexFile", &gfServerOption::withIndexFile, py::arg("withIndexFile"))
       .def("withTimeout", &gfServerOption::withTimeout, py::arg("withTimeout"))
       .def("build", &gfServerOption::build)
-      .def("__str__", &gfServerOption::to_string);
+      .def("__str__", &gfServerOption::to_string)
+      .def("__repr__", &gfServerOption::to_string);
 
   // gfserver -canStop -log={self.log_file_path} -stepSize=5 start localhost self.port self.ref_2bit
   // void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
@@ -113,4 +114,8 @@ PYBIND11_MODULE(_extc, m) {
   // void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, gfServerOption const
   // &options)
   m.def("buildIndex", &buildIndex, py::arg("gfxFile"), py::arg("fileCount"), py::arg("seqFiles"), py::arg("options"));
+
+  m.def("netMustConnectTo", &netMustConnectTo, py::arg("hostName"), py::arg("portName"));
+
+  m.def("test_stdout", &test_stdout);
 }

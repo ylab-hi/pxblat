@@ -2,8 +2,8 @@
 #define CFA_TO_TWO_BIT_H
 
 #include <algorithm>
-using std::min;
 using std::max;
+using std::min;
 
 #include <string>
 #include <vector>
@@ -30,8 +30,8 @@ using std::max;
 // "   -ignoreDups    Convert first sequence only if there are duplicate "
 // "sequence\n"
 // "                  names.  Use 'twoBitDup' to find duplicate sequences.");
-void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask = false, bool stripVersion = false,
-                bool ignoreDups = false, bool useLong = false);
+int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask = false, bool stripVersion = false,
+               bool ignoreDups = false, bool useLong = false);
 
 void unknownToN(char *s, int size);
 

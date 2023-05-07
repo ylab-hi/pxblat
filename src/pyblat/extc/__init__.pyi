@@ -244,7 +244,7 @@ def faToTwoBit(
     stripVersion: bool = False,
     ignoreDups: bool = False,
     useLong: bool = False,
-) -> None:
+) -> int:
     """
     A function that converts FASTA files to twoBit files:
      long:     use 64-bit offsets for index

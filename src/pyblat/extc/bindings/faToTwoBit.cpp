@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 #include "faToTwoBit.hpp"
 
 void unknownToN(char *s, int size)
@@ -16,8 +18,9 @@ void unknownToN(char *s, int size)
   }
 }
 
-void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask, bool stripVersion,
-                bool ignoreDups, bool useLong)
+//-1 errAbort("Duplicate sequence name %s", seq.name);
+int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask, bool stripVersion, bool ignoreDups,
+               bool useLong)
 
 /* Convert inFiles in fasta format to outfile in 2 bit
  * format. */
@@ -46,7 +49,8 @@ void faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool no
 
       if (hashLookup(uniqHash, seq.name)) {
         if (!ignoreDups)
-          errAbort("Duplicate sequence name %s", seq.name);
+          // errAbort("Duplicate sequence name %s", seq.name);
+          return -1;
         else
           continue;
       }

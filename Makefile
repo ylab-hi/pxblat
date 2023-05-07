@@ -61,7 +61,7 @@ format: ## Run pre-commit hooks
 	pre-commit run -a
 
 install: ## install the lib
-	poetry install
+	poetry install -vvvv
 
 clangd:
 	bear -- make all_bin

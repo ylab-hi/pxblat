@@ -74,7 +74,7 @@ struct gfServerOption {
                                 // proteins (or translated nucleotides)
   bool trans{false};            //-trans      Translate database to protein in 6 frames.  Note: it is best to run
                                 // this on RepeatMasked data in this case
-  bool syslog{};                //-syslog     Log to syslog.
+  bool syslog{false};           //-syslog     Log to syslog.
   std::string perSeqMax{};      //-perSeqMax=file File contains one seq filename (possibly with ':seq' suffix) per line
   bool noSimpRepMask{false};    //-noSimpRepMask  Suppresses simple repeat masking
   std::string indexFile{};      //-indexFile   Index file create by `gfServer index'. Saving index  can
@@ -142,6 +142,9 @@ void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, st
 void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
                  gfServerOption &options);
 
+int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
+                  gfServerOption &options);
+
 // void stopServer(char *hostName, char *portName);
 void stopServer(std::string &hostName, std::string &portName);
 
@@ -199,3 +202,5 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
 void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options);
 
 boolean badPcrPrimerSeq(char *s);
+
+void test_stdout();

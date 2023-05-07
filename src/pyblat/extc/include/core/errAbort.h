@@ -22,7 +22,6 @@
 extern "C" {
 #endif  // __cplusplus
 
-
 boolean isErrAbortInProgress();
 /* Flag to indicate that an error abort is in progress.
  * Needed so that a warn handler can tell if it's really
@@ -35,9 +34,9 @@ void errAbortSetDoContentType(boolean value);
 void errAbort(char *format, ...)
 /* Abort function, with optional (printf formatted) error message. */
 #if defined(__GNUC__)
-__attribute__((format(printf, 1, 2)))
+    __attribute__((format(printf, 1, 2)))
 #endif
-;
+    ;
 
 void vaErrAbort(char *format, va_list args);
 /* Abort function, with optional (vprintf formatted) error message. */
@@ -45,9 +44,9 @@ void vaErrAbort(char *format, va_list args);
 void errnoAbort(char *format, ...)
 /* Prints error message from UNIX errno first, then does errAbort. */
 #if defined(__GNUC__)
-__attribute__((format(printf, 1, 2)))
+    __attribute__((format(printf, 1, 2)))
 #endif
-;
+    ;
 
 typedef void (*AbortHandler)();
 /* Function that can abort. */
@@ -70,16 +69,16 @@ void vaWarn(char *format, va_list args);
 void warn(char *format, ...)
 /* Issue a warning message. */
 #if defined(__GNUC__)
-__attribute__((format(printf, 1, 2)))
+    __attribute__((format(printf, 1, 2)))
 #endif
-;
+    ;
 
 void errnoWarn(char *format, ...)
 /* Prints error message from UNIX errno first, then does rest of warning. */
 #if defined(__GNUC__)
-__attribute__((format(printf, 1, 2)))
+    __attribute__((format(printf, 1, 2)))
 #endif
-;
+    ;
 
 typedef void (*WarnHandler)(char *format, va_list args);
 /* Function that can warn. */
@@ -99,11 +98,8 @@ void pushSilentWarnHandler();
 void errAbortDebugnPushPopErr();
 /*  generate stack dump if there is a error in the push/pop functions */
 
-
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
-
-
 
 #endif /* ERRABORT_H */

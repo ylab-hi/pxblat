@@ -324,6 +324,7 @@ int netAcceptingSocket6n4(int port, int queueSize)
   return sd;
 }
 
+//-1 errAbort("unable to open listening socket");
 int netAcceptingSocket(int port, int queueSize)
 /* Create an IPV6 socket that can accept connections from
  * both IPV4 and IPV6 clients on the current machine.
@@ -342,7 +343,8 @@ int netAcceptingSocket(int port, int queueSize)
     sd = netAcceptingSocket4Only(port, queueSize);
   }
   errCatchFree(&errCatch);
-  if (sd == -1) errAbort("unable to open listening socket");
+  if (sd == -1) return sd;
+  // errAbort("unable to open listening socket");
   return sd;
 }
 
