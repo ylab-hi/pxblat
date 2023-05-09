@@ -42,3 +42,4 @@ compile_commands.json
 .cache
 *.a
 stubs
+*.psl

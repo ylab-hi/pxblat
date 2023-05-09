@@ -32,8 +32,22 @@
 #include "trans3.h"
 #include "twoBit.h"
 
-// constexpr int stepSize = 0; /* Can be overridden from command line. */
+// long baseCount = 0, blatCount = 0, aaCount = 0, pcrCount = 0;
+// int warnCount = 0;
+// int noSigCount = 0;
+// int missCount = 0;
+// int trimCount = 0;
 
+struct UsageStats {
+  long baseCount{0}, blatCount{0}, aaCount{0}, pcrCount{0};
+  int warnCount{0};
+  int noSigCount{0};
+  int missCount{0};
+  int trimCount{0};
+  UsageStats() = default;
+};
+
+// constexpr int stepSize = 0; /* Can be overridden from command line. */
 // boolean doTrans = FALSE; /* Do translation? */
 // boolean allowOneMismatch = FALSE;
 // boolean noSimpRepMask = FALSE;
@@ -127,7 +141,7 @@ boolean bool2boolean(bool b);
 
 void usage(gfServerOption const &options);
 
-void setSendOk();
+void setSendOk(boolean &sendOk);
 void errSendString(int sd, char *s);
 void errSendLongString(int sd, char *s);
 void logGenoFind(struct genoFind *gf);
@@ -178,17 +192,19 @@ int getPortIx(char *portName);
 /* Handle a query for DNA/DNA match. */
 // void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, struct hash *perSeqMaxHash);
 void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, struct hash *perSeqMaxHash,
-              gfServerOption const &options);
+              gfServerOption const &options, UsageStats &stats);
 
 // void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle);
-void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, gfServerOption const &options);
+void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, gfServerOption const &options,
+                UsageStats &stats);
 
 // void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int connectionHandle);
 void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int connectionHandle,
-                     gfServerOption const &options);
+                     gfServerOption const &options, UsageStats &stats);
 
 void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
-                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options);
+                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                    UsageStats &stats);
 
 void checkIndexFileName(char *gfxFile, char *seqFile, gfServerOption const &options);
 
@@ -198,12 +214,13 @@ void dynSessionInit(struct dynSession *dynSession, char *rootDir, char *genome, 
 int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, gfServerOption &options);
 
 /* NOTE: will change options' value <05-03-23, Yangyang Li yangyang.li@northwestern.edu> */
-bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options);
+bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options, UsageStats &stats);
 void dynamicServer(std::string &rootDir, gfServerOption &options);
 
 struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, gfServerOption const &options);
 
-void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options);
+void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options,
+                        UsageStats &stats);
 
 boolean badPcrPrimerSeq(char *s);
 

@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 
 #include "faToTwoBit.hpp"
+#include "gfClient.hpp"
 #include "gfServer.hpp"
 
 namespace py = pybind11;
@@ -129,4 +130,47 @@ PYBIND11_MODULE(_extc, m) {
   // bool complex, bool isProt)
   m.def("pyqueryServer", &pyqueryServer, py::arg("type"), py::arg("hostName"), py::arg("portName"), py::arg("faName"),
         py::arg("complex"), py::arg("isProt"));
+
+  py::class_<gfClientOption, std::shared_ptr<gfClientOption>>(m, "gfClientOption")
+      .def(py::init<>([]() { return new gfClientOption(); }))
+      .def(py::init([](gfClientOption &o) { return new gfClientOption(o); }))
+      .def_readwrite("hostName", &gfClientOption::hostName)
+      .def_readwrite("portName", &gfClientOption::portName)
+      .def_readwrite("tType", &gfClientOption::tType)
+      .def_readwrite("qType", &gfClientOption::qType)
+      .def_readwrite("dots", &gfClientOption::dots)
+      .def_readwrite("nohead", &gfClientOption::nohead)
+      .def_readwrite("minScore", &gfClientOption::minScore)
+      .def_readwrite("minIdentity", &gfClientOption::minIdentity)
+      .def_readwrite("outputFormat", &gfClientOption::outputFormat)
+      .def_readwrite("maxIntron", &gfClientOption::maxIntron)
+      .def_readwrite("genome", &gfClientOption::genome)
+      .def_readwrite("genomeDataDir", &gfClientOption::genomeDataDir)
+      .def_readwrite("isDynamic", &gfClientOption::isDynamic)
+      .def_readwrite("tSeqDir", &gfClientOption::tSeqDir)
+      .def_readwrite("inName", &gfClientOption::inName)
+      .def_readwrite("outName", &gfClientOption::outName)
+      .def("build", &gfClientOption::build)
+      .def("to_string", &gfClientOption::to_string)
+      .def("withHost", &gfClientOption::withHost)
+      .def("withPort", &gfClientOption::withPort)
+      .def("withTType", &gfClientOption::withTType)
+      .def("withQType", &gfClientOption::withQType)
+      .def("withDots", &gfClientOption::withDots)
+      .def("withNohead", &gfClientOption::withNohead)
+      .def("withMinScore", &gfClientOption::withMinScore)
+      .def("withMinIdentity", &gfClientOption::withMinIdentity)
+      .def("withOutputFormat", &gfClientOption::withOutputFormat)
+      .def("withMaxIntron", &gfClientOption::withMaxIntron)
+      .def("withGenome", &gfClientOption::withGenome)
+      .def("withGenomeDataDir", &gfClientOption::withGenomeDataDir)
+      .def("withIsDynamic", &gfClientOption::withIsDynamic)
+      .def("withTSeqDir", &gfClientOption::withTSeqDir)
+      .def("withInName", &gfClientOption::withInName)
+      .def("withOutName", &gfClientOption::withOutName)
+      .def("__str__", &gfClientOption::to_string)
+      .def("__repr__", &gfClientOption::to_string);
+
+  // std::string pygfClient(gfClientOption &option);
+  m.def("pygfClient", &pygfClient, py::arg("option"));
 }

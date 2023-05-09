@@ -63,24 +63,50 @@ def server_query(c):
 
 @task
 def cstatus_server(c, docs=False):
-    c.run("gfServer status localhost PORT")
+    c.run(f"gfServer status localhost {PORT}")
 
 
 @task
 def cstart_server(c):
     c.run(
-        "./bin/gfServer start localhost PORT tests/data/test_ref.2bit -canStop -stepSize=5"
+        f"./bin/gfServer start localhost {PORT} tests/data/test_ref.2bit -canStop -stepSize=5 -debugLog"
     )
 
 
 @task
 def cstop_server(c):
-    c.run("./bin/gfServer stop localhost PORT")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
 
 
 @task
 def cquery_server(c):
-    c.run("./bin/gfServer query localhost PORT  tests/data/test_case1.fa")
+    c.run(f"./bin/gfServer query localhost {PORT}  tests/data/test_case1.fa")
+
+
+@task
+def cclient(c):
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case1.fa testc.psl"
+    )
+
+    # f"{self.gfclient} -minScore=20 -minIdentity={mini_identity} localhost {self.port} . " f"{in_fasta} {out_psl}"
+
+
+@task
+def pclient(c):
+    option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withTSeqDir("tests/data/")
+        .withInName("tests/data/test_case1.fa")
+        .build()
+    )
+    ret = extc.pygfClient(option)
+    print(option)
+    print(ret)
 
 
 @task

@@ -65,6 +65,9 @@
 // long enterMainTime = 0;
 
 struct gfClientOption {
+  std::string hostName{};
+  std::string portName{};
+
   std::string tType{"dna"};
   std::string qType{"dna"};
   int dots{0};
@@ -72,7 +75,7 @@ struct gfClientOption {
   int minScore{30};
   double minIdentity{90.0};
   std::string outputFormat{"psl"};
-  long maxIntron{750000};
+  long maxIntron{ffIntronMaxDefault};
   std::string genome{};
   std::string genomeDataDir{};
   bool isDynamic{false};
@@ -80,6 +83,33 @@ struct gfClientOption {
   std::string tSeqDir{};
   std::string inName{};
   std::string outName{};
+
+  gfClientOption() = default;
+
+  gfClientOption &build();
+
+  gfClientOption &withHost(const std::string &hostName_);
+  gfClientOption &withPort(const std::string &portName_);
+
+  gfClientOption &withTType(const std::string &tType_);
+  gfClientOption &withQType(const std::string &qType_);
+  gfClientOption &withDots(int dots_);
+  gfClientOption &withNohead(bool nohead_);
+  gfClientOption &withMinScore(int minScore_);
+  gfClientOption &withMinIdentity(double minIdentity_);
+  gfClientOption &withOutputFormat(const std::string &outputFormat_);
+  gfClientOption &withMaxIntron(long maxIntron_);
+  gfClientOption &withGenome(const std::string &genome_);
+  gfClientOption &withGenomeDataDir(const std::string &genomeDataDir_);
+  gfClientOption &withIsDynamic(bool isDynamic_);
+  gfClientOption &withTSeqDir(const std::string &tSeqDir_);
+  gfClientOption &withInName(const std::string &inName_);
+  gfClientOption &withOutName(const std::string &outName_);
+
+  std::string to_string() const;
 };
+
+std::string pygfClient(gfClientOption &option);
+std::string read_inmem_file(FILE *file);
 
 #endif
