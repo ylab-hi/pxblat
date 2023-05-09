@@ -1,9 +1,8 @@
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#include "gfServer.hpp"
+
 #include <sstream>
 #include <string>
-
-#pragma GCC diagnostic ignored "-Wwrite-strings"
-
-#include "gfServer.hpp"
 
 bool boolean2bool(boolean b) { return b == TRUE; }
 boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
@@ -296,7 +295,7 @@ void errorSafeCleanupMess(int connectionHandle, char *message, boolean &sendOk)
 
 void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
                     int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
-                    UsageStats &stats)
+                    UsageStats &stats, boolean &sendOk)
 /* Wrap error handling code around index query. */
 {
   int status;
@@ -306,19 +305,20 @@ void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, st
   {
     if (doTrans) {
       if (queryIsProt)
-        transQuery(gfIdx->transGf, seq, connectionHandle, options, stats);
+        transQuery(gfIdx->transGf, seq, connectionHandle, options, stats, sendOk);
       else
-        transTransQuery(gfIdx->transGf, seq, connectionHandle, options, stats);
+        transTransQuery(gfIdx->transGf, seq, connectionHandle, options, stats, sendOk);
     } else
-      dnaQuery(gfIdx->untransGf, seq, connectionHandle, perSeqMaxHash, options, stats);
+      dnaQuery(gfIdx->untransGf, seq, connectionHandle, perSeqMaxHash, options, stats, sendOk);
     errorSafeCleanup();
   } else /* They long jumped here because of an error. */
   {
-    errorSafeCleanupMess(connectionHandle, "Error: gfServer out of memory. Try reducing size of query.");
+    errorSafeCleanupMess(connectionHandle, "Error: gfServer out of memory. Try reducing size of query.", sendOk);
   }
 }
 
-void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDistance, int connectionHandle)
+void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDistance, int connectionHandle,
+                  boolean &sendOk)
 /* Wrap error handling around pcr index query. */
 {
   int status;
@@ -326,11 +326,11 @@ void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDist
   status = setjmp(gfRecover);
   if (status == 0) /* Always true except after long jump. */
   {
-    pcrQuery(gf, fPrimer, rPrimer, maxDistance, connectionHandle);
+    pcrQuery(gf, fPrimer, rPrimer, maxDistance, connectionHandle, sendOk);
     errorSafeCleanup();
   } else /* They long jumped here because of an error. */
   {
-    errorSafeCleanupMess(connectionHandle, "Error: gfServer out of memory.");
+    errorSafeCleanupMess(connectionHandle, "Error: gfServer out of memory.", sendOk);
   }
 }
 
@@ -595,7 +595,7 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
 }
 
 void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options,
-                        UsageStats &stats)
+                        UsageStats &stats, boolean &sendOk)
 /* handle search queries
  *
  *  signature+command genome genomeDataDir qsize
@@ -610,11 +610,11 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
   struct dnaSeq *seq = dynReadQuerySeq(qSize, gfIdx->isTrans, queryIsProt, options);
   if (gfIdx->isTrans) {
     if (queryIsProt)
-      transQuery(gfIdx->transGf, seq, STDOUT_FILENO, options, stats);
+      transQuery(gfIdx->transGf, seq, STDOUT_FILENO, options, stats, sendOk);
     else
-      transTransQuery(gfIdx->transGf, seq, STDOUT_FILENO, options, stats);
+      transTransQuery(gfIdx->transGf, seq, STDOUT_FILENO, options, stats, sendOk);
   } else {
-    dnaQuery(gfIdx->untransGf, seq, STDOUT_FILENO, dynSession->perSeqMaxHash, options, stats);
+    dnaQuery(gfIdx->untransGf, seq, STDOUT_FILENO, dynSession->perSeqMaxHash, options, stats, sendOk);
   }
   netSendString(STDOUT_FILENO, "end");
 }
@@ -660,7 +660,7 @@ void dynamicServerStatus(int numArgs, char **args)
   netSendString(STDOUT_FILENO, "end");
 }
 
-void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **args)
+void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **args, boolean &sendOk)
 /* Execute a PCR query
  *
  *  signature+command genome genomeDataDir forward reverse maxDistance
@@ -672,10 +672,11 @@ void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **args)
   char *rPrimer = args[4];
   int maxDistance = atoi(args[5]);
   if (badPcrPrimerSeq(fPrimer) || badPcrPrimerSeq(rPrimer)) errAbort("Can only handle ACGT in primer sequences.");
-  pcrQuery(gfIdx->untransGf, fPrimer, rPrimer, maxDistance, STDOUT_FILENO);
+  pcrQuery(gfIdx->untransGf, fPrimer, rPrimer, maxDistance, STDOUT_FILENO, sendOk);
 }
 
-bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options, UsageStats &stats)
+bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options, UsageStats &stats,
+                          boolean &sendOk)
 /* Execute one command from stdin, (re)initializing session as needed */
 {
   const int DYN_CMD_MAX_ARGS = 8;  // more than needed to check for junk
@@ -691,7 +692,7 @@ bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServer
   } else if (sameString("untransInfo", args[0]) || sameString("transInfo", args[0])) {
     dynamicServerInfo(dynSession, numArgs, args);
   } else if (sameString("pcr", args[0])) {
-    dynamicServerPcr(dynSession, numArgs, args);
+    dynamicServerPcr(dynSession, numArgs, args, sendOk);
   } else
     errAbort("invalid command '%s'", args[0]);
 
@@ -1149,7 +1150,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
         ++stats.warnCount;
       } else {
         maxDistance = atoi(s);
-        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle);
+        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle, sendOk);
       }
     } else if (sameString("files", command)) {
       int i;
@@ -1301,7 +1302,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
                sameString("untransInfo", command)) {
       sprintf(buf, "version %s", gfVersion);
       errSendString(connectionHandle, buf, sendOk);
-      errSendString(connectionHandle, "serverType static");
+      errSendString(connectionHandle, "serverType static", sendOk);
       errSendString(connectionHandle, buf, sendOk);
       sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
       errSendString(connectionHandle, buf, sendOk);
@@ -1410,7 +1411,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
         ++stats.warnCount;
       } else {
         maxDistance = atoi(s);
-        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle);
+        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle, sendOk);
       }
     } else if (sameString("files", command)) {
       int i;
@@ -1718,7 +1719,7 @@ void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> se
   genoFindIndexWrite(gfIdx, gfxFile.data());
 }
 
-void dynamicServer(std::string &rootDir, gfServerOption &options)
+void dynamicServer(std::string &rootDir, gfServerOption &options, UsageStats &stats, boolean &sendOk)
 /* dynamic server for inetd. Read query from stdin, open index, query, respond,
  * exit. only one query at a time */
 {
@@ -1731,7 +1732,7 @@ void dynamicServer(std::string &rootDir, gfServerOption &options)
   struct dynSession dynSession;
   ZeroVar(&dynSession);
 
-  while (dynamicServerCommand(rootDir.data(), &dynSession, options)) continue;
+  while (dynamicServerCommand(rootDir.data(), &dynSession, options, stats, sendOk)) continue;
 
   struct runTimes endTimes = getTimesInSeconds();
   logInfo("dynserver: exit: clock: %0.4f user: %0.4f system: %0.4f (seconds)",
