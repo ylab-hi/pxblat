@@ -102,6 +102,8 @@ void pygfClient(char *hostName, char *portName, gfClientOption &option)
   auto outName = option.outName.data();
   auto tSeqDir = option.tSeqDir.data();
 
+  boolean nohead = option.nohead ? TRUE : FALSE;
+
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
@@ -115,12 +117,13 @@ void pygfClient(char *hostName, char *portName, gfClientOption &option)
   int dotMod = 0;
   char databaseName[256];
   struct hash *tFileCache = gfFileCacheNew();
+
   boolean gotConnection = FALSE;
 
   snprintf(databaseName, sizeof(databaseName), "%s:%s", hostName, portName);
 
-  gvo = gfOutputAny(outputFormat, round(minIdentity * 10), qType == gftProt, tType == gftProt, optionExists("nohead"),
-                    databaseName, 23, 3.0e9, minIdentity, out);
+  gvo = gfOutputAny(outputFormat, round(minIdentity * 10), qType == gftProt, tType == gftProt, nohead, databaseName, 23,
+                    3.0e9, minIdentity, out);
   gfOutputHead(gvo, out);
   struct errCatch *errCatch = errCatchNew();
   if (errCatchStart(errCatch)) {
