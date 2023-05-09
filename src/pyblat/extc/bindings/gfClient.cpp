@@ -1,33 +1,34 @@
-#pragma GCC diagnostic ignored "-Wwrite-strings"
-
 #include "gfClient.hpp"
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 /* Copyright 2001-2003 Jim Kent.  All rights reserved. */
-static struct optionSpec optionSpecs[] = {{"prot", OPTION_BOOLEAN},
-                                          {"q", OPTION_STRING},
-                                          {"t", OPTION_STRING},
-                                          {"minIdentity", OPTION_FLOAT},
-                                          {"minScore", OPTION_INT},
-                                          {"dots", OPTION_INT},
-                                          {"out", OPTION_STRING},
-                                          {"maxIntron", OPTION_INT},
-                                          {"nohead", OPTION_BOOLEAN},
-                                          {"genome", OPTION_STRING},
-                                          {"genomeDataDir", OPTION_STRING},
-                                          {NULL, 0}};
+// static struct optionSpec optionSpecs[] = {{"prot", OPTION_BOOLEAN},
+//                                           {"q", OPTION_STRING},
+//                                           {"t", OPTION_STRING},
+//                                           {"minIdentity", OPTION_FLOAT},
+//                                           {"minScore", OPTION_INT},
+//                                           {"dots", OPTION_INT},
+//                                           {"out", OPTION_STRING},
+//                                           {"maxIntron", OPTION_INT},
+//                                           {"nohead", OPTION_BOOLEAN},
+//                                           {"genome", OPTION_STRING},
+//                                           {"genomeDataDir", OPTION_STRING},
+//                                           {NULL, 0}};
 
 /* Variables that can be overridden by command line. */
-int dots = 0;
-int minScore = 30;
-double minIdentity = 90;
-char *outputFormat = "psl";
-char *qType = "dna";
-char *tType = "dna";
-char *genome = NULL;
-char *genomeDataDir = NULL;
-boolean isDynamic = FALSE;
-long enterMainTime = 0;
+// int dots = 0;
+// int minScore = 30;
+// double minIdentity = 90;
+// char *outputFormat = "psl";
+// char *qType = "dna";
+// char *tType = "dna";
+// char *genome = NULL;
+// char *genomeDataDir = NULL;
+// boolean isDynamic = FALSE;
+
+// long enterMainTime = 0;
 
 void usage()
 /* Explain usage and exit. */
@@ -85,12 +86,27 @@ void usage()
   exit(-1);
 }
 
-struct gfOutput *gvo;
-
-void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char *outName, char *tTypeName,
-              char *qTypeName)
+void pygfClient(char *hostName, char *portName, gfClientOption &option)
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 {
+  int enterMainTime = 0;
+  auto minIdentity = option.minIdentity;
+  auto dots = option.dots;
+  auto minScore = option.minScore;
+  auto outputFormat = option.outputFormat.data();
+  auto isDynamic = option.isDynamic;
+
+  auto qTypeName = option.qType.data();
+  auto tTypeName = option.tType.data();
+  auto inName = option.inName.data();
+  auto outName = option.outName.data();
+  auto tSeqDir = option.tSeqDir.data();
+
+  auto genome = option.genome.empty() ? NULL : option.genome.data();
+  auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
+
+  struct gfOutput *gvo;
+
   struct lineFile *lf = lineFileOpen(inName, TRUE);
   static bioSeq seq;
   FILE *out = mustOpen(outName, "w");
@@ -165,28 +181,107 @@ void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char 
   gfFileCacheFree(&tFileCache);
 }
 
-int main(int argc, char *argv[])
-/* Process command line. */
+void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char *outName, char *tTypeName,
+              char *qTypeName)
+/* gfClient - A client for the genomic finding program that produces a .psl file. */
 {
-  optionInit(&argc, argv, optionSpecs);
-  if (argc != 6) usage();
-  if (optionExists("prot")) qType = tType = "prot";
-  qType = optionVal("q", qType);
-  tType = optionVal("t", tType);
-  if (sameWord(tType, "prot") || sameWord(tType, "dnax") || sameWord(tType, "rnax")) minIdentity = 25;
-  minIdentity = optionFloat("minIdentity", minIdentity);
-  minScore = optionInt("minScore", minScore);
-  dots = optionInt("dots", 0);
-  outputFormat = optionVal("out", outputFormat);
-  genome = optionVal("genome", NULL);
-  genomeDataDir = optionVal("genomeDataDir", NULL);
-  if ((genomeDataDir != NULL) && (genome == NULL)) errAbort("-genomeDataDir requires the -genome option");
-  if ((genome != NULL) && (genomeDataDir == NULL)) genomeDataDir = ".";
-  if (genomeDataDir != NULL) isDynamic = TRUE;
+  struct gfOutput *gvo;
+  struct lineFile *lf = lineFileOpen(inName, TRUE);
+  static bioSeq seq;
+  FILE *out = mustOpen(outName, "w");
+  enum gfType qType = gfTypeFromName(qTypeName);
+  enum gfType tType = gfTypeFromName(tTypeName);
+  int dotMod = 0;
+  char databaseName[256];
+  struct hash *tFileCache = gfFileCacheNew();
+  boolean gotConnection = FALSE;
 
-  enterMainTime = clock1000();
-  /* set global for fuzzy find functions */
-  setFfIntronMax(optionInt("maxIntron", ffIntronMaxDefault));
-  gfClient(argv[1], argv[2], argv[3], argv[4], argv[5], tType, qType);
-  return 0;
+  snprintf(databaseName, sizeof(databaseName), "%s:%s", hostName, portName);
+
+  gvo = gfOutputAny(outputFormat, round(minIdentity * 10), qType == gftProt, tType == gftProt, optionExists("nohead"),
+                    databaseName, 23, 3.0e9, minIdentity, out);
+  gfOutputHead(gvo, out);
+  struct errCatch *errCatch = errCatchNew();
+  if (errCatchStart(errCatch)) {
+    struct gfConnection *conn = gfConnect(hostName, portName, genome, genomeDataDir);
+    gotConnection = TRUE;
+    while (faSomeSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name, qType != gftProt)) {
+      if (dots != 0) {
+        if (++dotMod >= dots) {
+          dotMod = 0;
+          verboseDot();
+        }
+      }
+      if (qType == gftProt && (tType == gftDnaX || tType == gftRnaX)) {
+        gvo->reportTargetStrand = TRUE;
+        gfAlignTrans(conn, tSeqDir, &seq, minScore, tFileCache, gvo);
+      } else if ((qType == gftRnaX || qType == gftDnaX) && (tType == gftDnaX || tType == gftRnaX)) {
+        gvo->reportTargetStrand = TRUE;
+        gfAlignTransTrans(conn, tSeqDir, &seq, FALSE, minScore, tFileCache, gvo, qType == gftRnaX);
+        if (qType == gftDnaX) {
+          reverseComplement(seq.dna, seq.size);
+          gfAlignTransTrans(conn, tSeqDir, &seq, TRUE, minScore, tFileCache, gvo, FALSE);
+        }
+      } else if ((tType == gftDna || tType == gftRna) && (qType == gftDna || qType == gftRna)) {
+        gfAlignStrand(conn, tSeqDir, &seq, FALSE, minScore, tFileCache, gvo);
+        reverseComplement(seq.dna, seq.size);
+        gfAlignStrand(conn, tSeqDir, &seq, TRUE, minScore, tFileCache, gvo);
+      } else {
+        errAbort("Comparisons between %s queries and %s databases not yet supported", qTypeName, tTypeName);
+      }
+      gfOutputQuery(gvo, out);
+    }
+    gfDisconnect(&conn);
+  } /*	if (errCatchStart(errCatch))	*/
+  errCatchEnd(errCatch);
+  if (errCatch->gotError) {
+    if (isNotEmpty(errCatch->message->string)) warn("# error: %s", errCatch->message->string);
+    if (gotConnection && isDynamic) {
+      long et = clock1000() - enterMainTime;
+      if (et > NET_TIMEOUT_MS)
+        errAbort(
+            "the dynamic server at %s:%s is taking too long to respond,\nperhaps overloaded at this time, try again "
+            "later",
+            hostName, portName);
+      else if (et < NET_QUICKEXIT_MS)
+        errAbort(
+            "the dynamic server at %s:%s is returning an error immediately,\nperhaps overloaded at this time, try "
+            "again later",
+            hostName, portName);
+      else
+        errAbort("the dynamic server at %s:%s is returning an error at this time,\ntry again later", hostName,
+                 portName);
+    } else
+      errAbort("gfClient error exit");
+  }
+  errCatchFree(&errCatch);
+
+  if (out != stdout) printf("Output is in %s\n", outName);
+  gfFileCacheFree(&tFileCache);
 }
+
+// int main(int argc, char *argv[])
+// /* Process command line. */
+// {
+//   optionInit(&argc, argv, optionSpecs);
+//   if (argc != 6) usage();
+//   if (optionExists("prot")) qType = tType = "prot";
+//   qType = optionVal("q", qType);
+//   tType = optionVal("t", tType);
+//   if (sameWord(tType, "prot") || sameWord(tType, "dnax") || sameWord(tType, "rnax")) minIdentity = 25;
+//   minIdentity = optionFloat("minIdentity", minIdentity);
+//   minScore = optionInt("minScore", minScore);
+//   dots = optionInt("dots", 0);
+//   outputFormat = optionVal("out", outputFormat);
+//   genome = optionVal("genome", NULL);
+//   genomeDataDir = optionVal("genomeDataDir", NULL);
+//   if ((genomeDataDir != NULL) && (genome == NULL)) errAbort("-genomeDataDir requires the -genome option");
+//   if ((genome != NULL) && (genomeDataDir == NULL)) genomeDataDir = ".";
+//   if (genomeDataDir != NULL) isDynamic = TRUE;
+
+//   enterMainTime = clock1000();
+//   /* set global for fuzzy find functions */
+//   setFfIntronMax(optionInt("maxIntron", ffIntronMaxDefault));
+//   gfClient(argv[1], argv[2], argv[3], argv[4], argv[5], tType, qType);
+//   return 0;
+// }
