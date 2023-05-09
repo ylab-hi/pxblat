@@ -11,6 +11,8 @@ python = "^3.9"
 loguru = "^0.7.0"
 pybind11 = "^2.10.4"
 setuptools = "^67.7.2"
+rich = "^13.3.5"
+pysimdjson = "^5.0.2"
 
 
 [tool.ruff]
@@ -49,6 +51,7 @@ exclude = ["src/pyblat/extc/__init__.pyi"]
 
 [tool.ruff.per-file-ignores]
 "src/pyblat/extc/__init__.py" = ["F405", "F403"]
+"src/pyblat/server.py" = ["PLR0913"]
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,3 +1,6 @@
+#include <sstream>
+#include <string>
+
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
 #include "gfServer.hpp"
@@ -61,7 +64,7 @@ void logGenoFind(struct genoFind *gf)
   logDebug("gf->tileSize: %d", gf->tileSize);
   logDebug("gf->stepSize: %d", gf->stepSize);
   logDebug("gf->tileSpaceSize: %d", gf->tileSpaceSize);
-  logDebug("gf->tileMask: %d", gf->tileMask);
+  logDebug("gf->tileMask: %dfrom . import server", gf->tileMask);
   logDebug("gf->sourceCount: %d", gf->sourceCount);
   logDebug("gf->isPep: %d", gf->isPep);
   logDebug("gf->allowOneMismatch: %d", gf->allowOneMismatch);
@@ -1203,6 +1206,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
   strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
 
   logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName.data(), portName.data(), timestr);
+  printf("gfServer version %s on host %s, port %d  (%s)", gfVersion, hostName.data(), port, timestr);
   struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, cseqFiles.data(), options);
 
   time_t startIndexTime = clock1000();
@@ -1426,6 +1430,60 @@ void stopServer(std::string &hostName, std::string &portName)
   printf("sent stop message to server\n");
 }
 
+std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
+                          bool complex, bool isProt)
+/* Send simple query to server and report results. */
+{
+  auto ret_str = std::ostringstream{};
+
+  char buf[256];
+  int sd = 0;
+  bioSeq *seq = faReadSeq(faName.data(), !isProt);
+  int matchCount = 0;
+
+  /* Put together query command. */
+  sd = netMustConnectTo(hostName.data(), portName.data());
+  sprintf(buf, "%s%s %d", gfSignature(), type.data(), seq->size);
+  mustWriteFd(sd, buf, strlen(buf));
+
+  if (read(sd, buf, 1) < 0) errAbort("queryServer: read failed: %s", strerror(errno));
+  // if (read(sd, buf, 1) < 0) return std::nullopt;
+  if (buf[0] != 'Y') errAbort("Expecting 'Y' from server, got %c", buf[0]);
+  // if (buf[0] != 'Y') return std::nullopt;
+  mustWriteFd(sd, seq->dna, seq->size);
+
+  if (complex) {
+    char *s = netRecieveString(sd, buf);
+    printf("%s\n", s);
+  }
+
+  for (;;) {
+    if (netGetString(sd, buf) == NULL) break;
+    if (sameString(buf, "end")) {
+      // printf("%d matches\n", matchCount);
+      ret_str << matchCount << " matches"
+              << "\n";
+      break;
+    } else if (startsWith("Error:", buf)) {
+      errAbort("%s", buf);
+      break;
+    } else {
+      printf("%s\n", buf);
+      ret_str << buf << "\n";
+      if (complex) {
+        char *s = netGetLongString(sd);
+        if (s == NULL) break;
+        // printf("%s\n", s);
+        ret_str << s << "\n";
+        freeMem(s);
+      }
+    }
+    ++matchCount;
+  }
+  close(sd);
+  return ret_str.str();
+}
+
 // void queryServer(char *type, char *hostName, char *portName, char *faName, boolean complex, boolean isProt)
 void queryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName, bool complex,
                  bool isProt)
@@ -1498,9 +1556,10 @@ void pcrServer(std::string &hostName, std::string &portName, std::string &fPrime
   close(sd);
 }
 
-int statusServer(std::string &hostName, std::string &portName, gfServerOption &options)
+std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options)
 /* Send status message to server arnd report result. */
 {
+  auto ret_str = std::ostringstream{};
   auto genome = options.genome.empty() ? NULL : options.genome.data();
   auto genomeDataDir = options.genomeDataDir.empty() ? NULL : options.genomeDataDir.data();
   boolean doTrans = bool2boolean(options.trans);
@@ -1527,10 +1586,72 @@ int statusServer(std::string &hostName, std::string &portName, gfServerOption &o
     if (sameString(buf, "end"))
       break;
     else
-      printf("%s\n", buf);
+      ret_str << buf << "\n";
+  }
+  close(sd);
+  return ret_str.str();
+}
+
+int statusServer(std::string &hostName, std::string &portName, gfServerOption &options)
+/* Send status message to server arnd report result. */
+{
+  auto genome = options.genome.empty() ? NULL : options.genome.data();
+  auto genomeDataDir = options.genomeDataDir.empty() ? NULL : options.genomeDataDir.data();
+  boolean doTrans = bool2boolean(options.trans);
+
+  char buf[256];
+  int sd = 0;
+  int ret = 0;
+
+  /* Put together command. */
+  sd = netMustConnectTo(hostName.data(), portName.data());
+  if (genome == NULL)
+    sprintf(buf, "%sstatus", gfSignature());
+  else
+    sprintf(buf, "%s%s %s %s", gfSignature(), (doTrans ? "transInfo" : "untransInfo"), genome, genomeDataDir);
+
+  printf("%s\n", buf);
+  mustWriteFd(sd, buf, strlen(buf));
+
+  for (;;) {
+    if (netGetString(sd, buf) == NULL) {
+      warn("Error reading status information from %s:%s", hostName.data(), portName.data());
+      ret = -1;
+      break;
+    }
+    if (sameString(buf, "end"))
+      break;
+    else
+      printf("%s from status\n", buf);
   }
   close(sd);
   return (ret);
+}
+
+std::string pygetFileList(std::string &hostName, std::string &portName)
+/* Get and display input file list. */
+{
+  auto res = std::ostringstream{};
+  char buf[256];
+  int sd = 0;
+  int fileCount;
+  int i;
+
+  /* Put together command. */
+  sd = netMustConnectTo(hostName.data(), portName.data());
+  sprintf(buf, "%sfiles", gfSignature());
+  mustWriteFd(sd, buf, strlen(buf));
+
+  /* Get count of files, and then each file name. */
+  if (netGetString(sd, buf) != NULL) {
+    fileCount = atoi(buf);
+    for (i = 0; i < fileCount; ++i) {
+      // printf("%s\n", netRecieveString(sd, buf));
+      res << netRecieveString(sd, buf) << "\n";
+    }
+  }
+  close(sd);
+  return res.str();
 }
 
 void getFileList(std::string &hostName, std::string &portName)
@@ -1764,3 +1885,4 @@ std::string gfServerOption::to_string() const {
 }
 
 void test_stdout() { printf("stdout\n"); }
+void test_add(int &a) { a += 1; }

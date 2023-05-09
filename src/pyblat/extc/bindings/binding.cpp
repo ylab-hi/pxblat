@@ -1,15 +1,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <iostream>
-
 #include "faToTwoBit.hpp"
 #include "gfServer.hpp"
 
+namespace py = pybind11;
+
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
-
-namespace py = pybind11;
 
 PYBIND11_MODULE(_extc, m) {
   m.doc() = "pybind11 plugin";  // optional module docstring
@@ -118,4 +116,17 @@ PYBIND11_MODULE(_extc, m) {
   m.def("netMustConnectTo", &netMustConnectTo, py::arg("hostName"), py::arg("portName"));
 
   m.def("test_stdout", &test_stdout);
+
+  m.def("test_add", &test_add, py::arg("a"));
+
+  // std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options);
+  m.def("pystatusServer", &pystatusServer, py::arg("hostName"), py::arg("portName"), py::arg("options"));
+
+  // std::string pygetFileList(std::string &hostName, std::string &portName)
+  m.def("pygetFileList", &pygetFileList, py::arg("hostName"), py::arg("portName"));
+
+  // std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
+  // bool complex, bool isProt)
+  m.def("pyqueryServer", &pyqueryServer, py::arg("type"), py::arg("hostName"), py::arg("portName"), py::arg("faName"),
+        py::arg("complex"), py::arg("isProt"));
 }

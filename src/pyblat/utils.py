@@ -1,11 +1,10 @@
+import functools
 import io
 import os
 import sys
-from contextlib import contextmanager
-
 import tempfile
-import functools
 import typing
+from contextlib import contextmanager
 
 
 class Result:

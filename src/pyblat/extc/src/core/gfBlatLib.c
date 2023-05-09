@@ -17,10 +17,8 @@
 #include "trans3.h"
 #include "twoBit.h"
 
-
 #ifdef BLAT
-struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome,
-                                  char *genomeDataDir)
+struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome, char *genomeDataDir)
 /* Set up our network connection to server, or return NULL. genome and
    genomeDataDir are for dynamic server. */
 {
@@ -28,8 +26,7 @@ struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome,
   int port = atoi(portName);
   int sd = netConnect(hostName, port);
   // if error, sd == -1
-  if (sd < 0)
-    return NULL;
+  if (sd < 0) return NULL;
   struct gfConnection *conn;
   AllocVar(conn);
   conn->fd = sd;
@@ -41,18 +38,17 @@ struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome,
   return conn;
 }
 
-struct gfConnection *gfConnect(char *hostName, char *portName, char *genome,
-                               char *genomeDataDir)
+struct gfConnection *gfConnect(char *hostName, char *portName, char *genome, char *genomeDataDir)
 /* Set up our network connection to server. Aborts on error. genome and
    genomeDataDir are for dynamic server. */
 {
   /* Connect to server. */
-  struct gfConnection *conn =
-      gfMayConnect(hostName, portName, genome, genomeDataDir);
+  struct gfConnection *conn = gfMayConnect(hostName, portName, genome, genomeDataDir);
   if (conn == NULL) {
-    errnoAbort("Sorry, the BLAT/iPCR server seems to be down.  Please try "
-               "again later: %s %s",
-               hostName, portName);
+    errnoAbort(
+        "Sorry, the BLAT/iPCR server seems to be down.  Please try "
+        "again later: %s %s",
+        hostName, portName);
   }
   return conn;
 }
@@ -64,9 +60,10 @@ void gfBeginRequest(struct gfConnection *conn)
   if (conn->fd < 0) {
     conn->fd = netConnect(conn->hostName, conn->port);
     if (conn->fd < 0)
-      errnoAbort("Sorry, the BLAT/iPCR server seems to be down.  Please try "
-                 "again later: %s %d",
-                 conn->hostName, conn->port);
+      errnoAbort(
+          "Sorry, the BLAT/iPCR server seems to be down.  Please try "
+          "again later: %s %d",
+          conn->hostName, conn->port);
   }
 }
 
@@ -86,8 +83,7 @@ void gfDisconnect(struct gfConnection **pConn)
 {
   struct gfConnection *conn = *pConn;
   if (conn != NULL) {
-    if (conn->fd >= 0)
-      close(conn->fd);
+    if (conn->fd >= 0) close(conn->fd);
     freeMem(conn->hostName);
     freeMem(conn->genome);
     freeMem(conn->genomeDataDir);
@@ -96,23 +92,20 @@ void gfDisconnect(struct gfConnection **pConn)
 }
 #endif
 
-
 static int ssAliCount = 16; /* Number of alignments returned by ssStitch. */
 
 #ifdef DEBUG
 void dumpRange(struct gfRange *r, FILE *f)
 /* Dump range to file. */
 {
-  fprintf(f, "%d-%d %s %d-%d, hits %d\n", r->qStart, r->qEnd, r->tName,
-          r->tStart, r->tEnd, r->hitCount);
+  fprintf(f, "%d-%d %s %d-%d, hits %d\n", r->qStart, r->qEnd, r->tName, r->tStart, r->tEnd, r->hitCount);
 }
 
 void dumpRangeList(struct gfRange *rangeList, FILE *f)
 /* Dump range list to file for debugging. */
 {
   struct gfRange *range;
-  for (range = rangeList; range != NULL; range = range->next)
-    dumpRange(range, f);
+  for (range = rangeList; range != NULL; range = range->next) dumpRange(range, f);
 }
 #endif /* DEBUG */
 
@@ -122,11 +115,9 @@ void gfRangeFree(struct gfRange **pEl)
 {
   struct gfRange *el;
 
-  if ((el = *pEl) == NULL)
-    return;
+  if ((el = *pEl) == NULL) return;
   freeMem(el->tName);
-  if (el->components != NULL)
-    gfRangeFreeList(&el->components);
+  if (el->components != NULL) gfRangeFreeList(&el->components);
   freez(pEl);
 }
 
@@ -175,32 +166,27 @@ int gfRangeCmpTarget(const void *va, const void *vb)
     else
       diff = 0;
 #ifdef SOLARIS_WORKAROUND_COMPILER_BUG_BUT_FAILS_IN_64_BIT
-    diff = (unsigned long)(a->t3) -
-           (unsigned long)(b->t3); /* Casts needed for Solaris.  Thanks Darren
-                                      Platt! */
-#endif /* SOLARIS_WORKAROUND_COMPILER_BUG_BUT_FAILS_IN_64_BIT */
+    diff = (unsigned long)(a->t3) - (unsigned long)(b->t3); /* Casts needed for Solaris.  Thanks Darren
+                                                               Platt! */
+#endif                                                      /* SOLARIS_WORKAROUND_COMPILER_BUG_BUT_FAILS_IN_64_BIT */
   }
-  if (diff == 0)
-    diff = a->tStart - b->tStart;
+  if (diff == 0) diff = a->tStart - b->tStart;
   return diff;
 }
 
 static void startSeqQuery(struct gfConnection *conn, bioSeq *seq, char *type)
 /* Send a query that involves some sequence. */
 {
-  char buf[1024]; // room for error message if we need it.
+  char buf[1024];  // room for error message if we need it.
   safef(buf, sizeof(buf), "%s%s", gfSignature(), type);
-  if (conn->genomeDataDir != NULL)
-    safefcat(buf, sizeof(buf), " %s %s", conn->genome, conn->genomeDataDir);
+  if (conn->genomeDataDir != NULL) safefcat(buf, sizeof(buf), " %s %s", conn->genome, conn->genomeDataDir);
   safefcat(buf, sizeof(buf), " %d", seq->size);
   mustWriteFd(conn->fd, buf, strlen(buf));
-  if (read(conn->fd, buf, 1) < 0)
-    errAbort("startSeqQuery: read failed: %s", strerror(errno));
+  if (read(conn->fd, buf, 1) < 0) errAbort("startSeqQuery: read failed: %s", strerror(errno));
   if (buf[0] != 'Y') {
     // try to get read of message, might be an a useful error
     int n = read(conn->fd, buf + 1, sizeof(buf) - 2);
-    if (n >= 0)
-      buf[n + 1] = '\0';
+    if (n >= 0) buf[n + 1] = '\0';
     errAbort("Expecting 'Y' from server, got %s", buf);
   }
   mustWriteFd(conn->fd, seq->dna, seq->size);
@@ -232,8 +218,7 @@ static struct gfRange *gfQuerySeq(struct gfConnection *conn, struct dnaSeq *seq)
       break;
     } else {
       rowSize = chopLine(buf, row);
-      if (rowSize < 6)
-        errAbort("Expecting 6 words from server got %d", rowSize);
+      if (rowSize < 6) errAbort("Expecting 6 words from server got %d", rowSize);
       range = gfRangeLoad(row);
       slAddHead(&rangeList, range);
     }
@@ -250,8 +235,7 @@ static int findTileSize(char *line)
   int tileSize = 4;
   for (;;) {
     var = nextWord(&line);
-    if (var == NULL)
-      break;
+    if (var == NULL) break;
     val = nextWord(&line);
     if (val == NULL) {
       internalErr();
@@ -259,8 +243,7 @@ static int findTileSize(char *line)
     }
     if (sameString("tileSize", var)) {
       tileSize = atoi(val);
-      if (tileSize <= 0)
-        internalErr();
+      if (tileSize <= 0) internalErr();
     }
   }
   return tileSize;
@@ -273,10 +256,8 @@ struct gfHit *getHitsFromServer(struct gfConnection *conn, struct lm *lm)
   struct gfHit *hitList = NULL, *hit;
   s = line = netRecieveLongString(conn->fd);
   for (;;) {
-    if ((q = nextWord(&line)) == NULL)
-      break;
-    if ((t = nextWord(&line)) == NULL)
-      internalErr();
+    if ((q = nextWord(&line)) == NULL) break;
+    if ((t = nextWord(&line)) == NULL) internalErr();
     lmAllocVar(lm, hit);
     hit->qStart = sqlUnsigned(q);
     hit->tStart = sqlUnsigned(t);
@@ -287,8 +268,7 @@ struct gfHit *getHitsFromServer(struct gfConnection *conn, struct lm *lm)
   return hitList;
 }
 
-static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq,
-                            struct gfClump *clumps[2][3], struct lm *lm,
+static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq, struct gfClump *clumps[2][3], struct lm *lm,
                             struct gfSeqSource **retSsList, int *retTileSize)
 /* Query server for clumps where aa sequence hits translated index. */
 {
@@ -300,8 +280,7 @@ static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq,
   struct gfSeqSource *ssList = NULL, *ss;
 
   for (isRc = 0; isRc <= 1; ++isRc)
-    for (frame = 0; frame < 3; ++frame)
-      clumps[isRc][frame] = NULL;
+    for (frame = 0; frame < 3; ++frame) clumps[isRc][frame] = NULL;
 
   /* Send sequence to server. */
   gfBeginRequest(conn);
@@ -321,8 +300,7 @@ static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq,
         break;
       }
       rowSize = chopLine(buf, row);
-      if (rowSize < 8)
-        errAbort("Expecting 8 words from server got %d", rowSize);
+      if (rowSize < 8) errAbort("Expecting 8 words from server got %d", rowSize);
       AllocVar(clump);
       clump->qStart = sqlUnsigned(row[0]);
       clump->qEnd = sqlUnsigned(row[1]);
@@ -342,8 +320,7 @@ static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq,
       assert(slCount(clump->hitList) == clump->hitCount);
     }
     for (isRc = 0; isRc <= 1; ++isRc)
-      for (frame = 0; frame < 3; ++frame)
-        slReverse(&clumps[isRc][frame]);
+      for (frame = 0; frame < 3; ++frame) slReverse(&clumps[isRc][frame]);
   } else {
     gfServerWarn(seq, line);
   }
@@ -352,10 +329,8 @@ static void gfQuerySeqTrans(struct gfConnection *conn, aaSeq *seq,
   *retTileSize = tileSize;
 }
 
-static void gfQuerySeqTransTrans(struct gfConnection *conn, struct dnaSeq *seq,
-                                 struct gfClump *clumps[2][3][3], struct lm *lm,
-                                 struct gfSeqSource **retSsList,
-                                 int *retTileSize)
+static void gfQuerySeqTransTrans(struct gfConnection *conn, struct dnaSeq *seq, struct gfClump *clumps[2][3][3],
+                                 struct lm *lm, struct gfSeqSource **retSsList, int *retTileSize)
 /* Query server for clumps where translated DNA sequence hits translated
  * index. */
 {
@@ -368,8 +343,7 @@ static void gfQuerySeqTransTrans(struct gfConnection *conn, struct dnaSeq *seq,
 
   for (isRc = 0; isRc <= 1; ++isRc)
     for (qFrame = 0; qFrame < 3; ++qFrame)
-      for (tFrame = 0; tFrame < 3; ++tFrame)
-        clumps[isRc][qFrame][tFrame] = NULL;
+      for (tFrame = 0; tFrame < 3; ++tFrame) clumps[isRc][qFrame][tFrame] = NULL;
 
   /* Send sequence to server. */
   gfBeginRequest(conn);
@@ -389,8 +363,7 @@ static void gfQuerySeqTransTrans(struct gfConnection *conn, struct dnaSeq *seq,
         break;
       }
       rowSize = chopLine(buf, row);
-      if (rowSize < 9)
-        errAbort("Expecting 9 words from server got %d", rowSize);
+      if (rowSize < 9) errAbort("Expecting 9 words from server got %d", rowSize);
       AllocVar(clump);
       clump->qStart = sqlUnsigned(row[0]);
       clump->qEnd = sqlUnsigned(row[1]);
@@ -412,8 +385,7 @@ static void gfQuerySeqTransTrans(struct gfConnection *conn, struct dnaSeq *seq,
     }
     for (isRc = 0; isRc <= 1; ++isRc)
       for (qFrame = 0; qFrame < 3; ++qFrame)
-        for (tFrame = 0; tFrame < 3; ++tFrame)
-          slReverse(&clumps[isRc][qFrame][tFrame]);
+        for (tFrame = 0; tFrame < 3; ++tFrame) slReverse(&clumps[isRc][qFrame][tFrame]);
   } else {
     gfServerWarn(seq, buf);
   }
@@ -428,13 +400,12 @@ struct gfRange *gfRangesBundle(struct gfRange *exonList, int maxIntron)
  * group together exons that are close to each other in the
  * same target sequence. */
 {
-  struct gfRange *geneList = NULL, *gene = NULL, *lastExon = NULL, *exon,
-                 *nextExon;
+  struct gfRange *geneList = NULL, *gene = NULL, *lastExon = NULL, *exon, *nextExon;
 
   for (exon = exonList; exon != NULL; exon = nextExon) {
     nextExon = exon->next;
-    if (lastExon == NULL || !sameString(lastExon->tName, exon->tName) ||
-        exon->t3 != lastExon->t3 || exon->tStart - lastExon->tEnd > maxIntron) {
+    if (lastExon == NULL || !sameString(lastExon->tName, exon->tName) || exon->t3 != lastExon->t3 ||
+        exon->tStart - lastExon->tEnd > maxIntron) {
       AllocVar(gene);
       gene->tStart = exon->tStart;
       gene->tEnd = exon->tEnd;
@@ -447,14 +418,10 @@ struct gfRange *gfRangesBundle(struct gfRange *exonList, int maxIntron)
       slAddHead(&gene->components, exon);
       slAddHead(&geneList, gene);
     } else {
-      if (exon->qStart < gene->qStart)
-        gene->qStart = exon->qStart;
-      if (exon->qEnd > gene->qEnd)
-        gene->qEnd = exon->qEnd;
-      if (exon->tStart < gene->tStart)
-        gene->tStart = exon->tStart;
-      if (exon->tEnd > gene->tEnd)
-        gene->tEnd = exon->tEnd;
+      if (exon->qStart < gene->qStart) gene->qStart = exon->qStart;
+      if (exon->qEnd > gene->qEnd) gene->qEnd = exon->qEnd;
+      if (exon->tStart < gene->tStart) gene->tStart = exon->tStart;
+      if (exon->tEnd > gene->tEnd) gene->tEnd = exon->tEnd;
       gene->hitCount += exon->hitCount;
       slAddTail(&gene->components, exon);
     }
@@ -466,8 +433,7 @@ struct gfRange *gfRangesBundle(struct gfRange *exonList, int maxIntron)
 
 static int usualExpansion = 500;
 
-static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun,
-                               enum ffStringency stringency)
+static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun, enum ffStringency stringency)
 /* Align each piece of combined->components and put result in
  * bun->ffList. */
 {
@@ -493,16 +459,11 @@ static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun,
       qEnd += extra;
       tEnd += extra;
     }
-    if (qStart < combined->qStart)
-      qStart = combined->qStart;
-    if (tStart < combined->tStart)
-      tStart = combined->tStart;
-    if (qEnd > combined->qEnd)
-      qEnd = combined->qEnd;
-    if (tEnd > combined->tEnd)
-      tEnd = combined->tEnd;
-    ali = ffFind(qSeq->dna + qStart, qSeq->dna + qEnd,
-                 tSeq->dna + tStart - combined->tStart,
+    if (qStart < combined->qStart) qStart = combined->qStart;
+    if (tStart < combined->tStart) tStart = combined->tStart;
+    if (qEnd > combined->qEnd) qEnd = combined->qEnd;
+    if (tEnd > combined->tEnd) tEnd = combined->tEnd;
+    ali = ffFind(qSeq->dna + qStart, qSeq->dna + qEnd, tSeq->dna + tStart - combined->tStart,
                  tSeq->dna + tEnd - combined->tStart, stringency);
     if (ali != NULL) {
       AllocVar(ffi);
@@ -514,8 +475,7 @@ static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun,
   return gotAny;
 }
 
-static int scoreAli(struct ffAli *ali, boolean isProt,
-                    enum ffStringency stringency, struct dnaSeq *tSeq,
+static int scoreAli(struct ffAli *ali, boolean isProt, enum ffStringency stringency, struct dnaSeq *tSeq,
                     struct trans3 *t3List)
 /* Score alignment. */
 {
@@ -540,10 +500,8 @@ static int scoreAli(struct ffAli *ali, boolean isProt,
   return score;
 }
 
-static void saveAlignments(char *chromName, int chromSize, int chromOffset,
-                           struct ssBundle *bun, struct hash *t3Hash,
-                           boolean qIsRc, boolean tIsRc,
-                           enum ffStringency stringency, int minMatch,
+static void saveAlignments(char *chromName, int chromSize, int chromOffset, struct ssBundle *bun, struct hash *t3Hash,
+                           boolean qIsRc, boolean tIsRc, enum ffStringency stringency, int minMatch,
                            struct gfOutput *out)
 /* Save significant alignments to file in .psl format. */
 {
@@ -553,12 +511,10 @@ static void saveAlignments(char *chromName, int chromSize, int chromOffset,
     struct ffAli *ff = ffi->ff;
     struct trans3 *t3List = NULL;
     int score;
-    if (t3Hash != NULL)
-      t3List = hashMustFindVal(t3Hash, tSeq->name);
+    if (t3Hash != NULL) t3List = hashMustFindVal(t3Hash, tSeq->name);
     score = scoreAli(ff, bun->isProt, stringency, tSeq, t3List);
     if (score >= minMatch) {
-      out->out(chromName, chromSize, chromOffset, ff, tSeq, t3Hash, qSeq, qIsRc,
-               tIsRc, stringency, minMatch, out);
+      out->out(chromName, chromSize, chromOffset, ff, tSeq, t3Hash, qSeq, qIsRc, tIsRc, stringency, minMatch, out);
     }
   }
 }
@@ -605,9 +561,8 @@ static void getTargetName(char *tSpec, boolean includeFile, char *targetName)
     gfiGetSeqName(tSpec, targetName, NULL);
 }
 
-void gfAlignStrand(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *seq,
-                   boolean isRc, int minMatch, struct hash *tFileCache,
-                   struct gfOutput *out)
+void gfAlignStrand(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *seq, boolean isRc, int minMatch,
+                   struct hash *tFileCache, struct gfOutput *out)
 /* Search genome on server with one strand of other sequence to find homology.
  * Then load homologous bits of genome locally and do detailed alignment.
  * Call 'outFunction' with each alignment that is found. */
@@ -624,16 +579,14 @@ void gfAlignStrand(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *seq,
   rangeList = gfRangesBundle(rangeList, ffIntronMax);
   for (range = rangeList; range != NULL; range = range->next) {
     getTargetName(range->tName, out->includeTargetFile, targetName);
-    targetSeq = gfiExpandAndLoadCached(range, tFileCache, tSeqDir, seq->size,
-                                       &range->tTotalSize, FALSE, FALSE,
-                                       usualExpansion);
+    targetSeq =
+        gfiExpandAndLoadCached(range, tFileCache, tSeqDir, seq->size, &range->tTotalSize, FALSE, FALSE, usualExpansion);
     AllocVar(bun);
     bun->qSeq = seq;
     bun->genoSeq = targetSeq;
     alignComponents(range, bun, ffCdna);
     ssStitch(bun, ffCdna, minMatch, ssAliCount);
-    saveAlignments(targetName, range->tTotalSize, range->tStart, bun, NULL,
-                   isRc, FALSE, ffCdna, minMatch, out);
+    saveAlignments(targetName, range->tTotalSize, range->tStart, bun, NULL, isRc, FALSE, ffCdna, minMatch, out);
     ssBundleFree(&bun);
     freeDnaSeq(&targetSeq);
   }
@@ -649,8 +602,7 @@ char *clumpTargetName(struct gfClump *clump)
     name = target->seq->name;
   else
     name = target->fileName;
-  if (name == NULL)
-    internalErr();
+  if (name == NULL) internalErr();
   return name;
 }
 
@@ -679,9 +631,8 @@ static struct gfRange *seqClumpToRangeList(struct gfClump *clumpList, int frame)
   return rangeList;
 }
 
-static struct ssBundle *
-gfClumpsToBundles(struct gfClump *clumpList, boolean isRc, struct dnaSeq *seq,
-                  int minScore, struct gfRange **retRangeList)
+static struct ssBundle *gfClumpsToBundles(struct gfClump *clumpList, boolean isRc, struct dnaSeq *seq, int minScore,
+                                          struct gfRange **retRangeList)
 /* Convert gfClumps to an actual alignments (ssBundles) */
 {
   struct ssBundle *bun, *bunList = NULL;
@@ -693,8 +644,7 @@ gfClumpsToBundles(struct gfClump *clumpList, boolean isRc, struct dnaSeq *seq,
   rangeList = gfRangesBundle(rangeList, 2000);
   for (range = rangeList; range != NULL; range = range->next) {
     targetSeq = range->tSeq;
-    gfiExpandRange(range, seq->size, targetSeq->size, FALSE, isRc,
-                   usualExpansion);
+    gfiExpandRange(range, seq->size, targetSeq->size, FALSE, isRc, usualExpansion);
     range->tStart = 0;
     range->tEnd = targetSeq->size;
     AllocVar(bun);
@@ -709,8 +659,8 @@ gfClumpsToBundles(struct gfClump *clumpList, boolean isRc, struct dnaSeq *seq,
   return bunList;
 }
 
-static void extendHitRight(int qMax, int tMax, char **pEndQ, char **pEndT,
-                           int (*scoreMatch)(char a, char b), int maxDown)
+static void extendHitRight(int qMax, int tMax, char **pEndQ, char **pEndT, int (*scoreMatch)(char a, char b),
+                           int maxDown)
 /* Extend endQ/endT as much to the right as possible. */
 {
   int maxScore = 0;
@@ -733,8 +683,8 @@ static void extendHitRight(int qMax, int tMax, char **pEndQ, char **pEndT,
   *pEndT = t + maxPos + 1;
 }
 
-static void extendHitLeft(int qMax, int tMax, char **pStartQ, char **pStartT,
-                          int (*scoreMatch)(char a, char b), int maxDown)
+static void extendHitLeft(int qMax, int tMax, char **pStartQ, char **pStartT, int (*scoreMatch)(char a, char b),
+                          int maxDown)
 /* Extend startQ/startT as much to the left as possible. */
 {
   int maxScore = 0;
@@ -757,10 +707,8 @@ static void extendHitLeft(int qMax, int tMax, char **pStartQ, char **pStartT,
   *pStartT = t + maxPos;
 }
 
-static void clumpToHspRange(struct gfClump *clump, bioSeq *qSeq, int tileSize,
-                            int frame, struct trans3 *t3,
-                            struct gfRange **pRangeList, boolean isProt,
-                            boolean fastMap)
+static void clumpToHspRange(struct gfClump *clump, bioSeq *qSeq, int tileSize, int frame, struct trans3 *t3,
+                            struct gfRange **pRangeList, boolean isProt, boolean fastMap)
 /* Covert clump->hitList to HSPs (high scoring local sequence pair,
  * that is longest alignment without gaps) and add resulting HSPs to
  * rangeList. */
@@ -784,8 +732,7 @@ static void clumpToHspRange(struct gfClump *clump, bioSeq *qSeq, int tileSize,
     minSpan = 0;
   }
 
-  if (tSeq == NULL)
-    internalErr();
+  if (tSeq == NULL) internalErr();
 
   /* The termination condition of this loop is a little complicated.
    * We want to output something either when the next hit can't be
@@ -810,8 +757,7 @@ static void clumpToHspRange(struct gfClump *clump, bioSeq *qSeq, int tileSize,
         ts = tSeq->dna + tStart;
         qe = qSeq->dna + qEnd;
         te = tSeq->dna + tEnd;
-        extendHitRight(qSeq->size - qEnd, tSeq->size - tEnd, &qe, &te,
-                       scoreMatch, maxDown);
+        extendHitRight(qSeq->size - qEnd, tSeq->size - tEnd, &qe, &te, scoreMatch, maxDown);
         extendHitLeft(qStart, tStart, &qs, &ts, scoreMatch, maxDown);
         if (qs != lastQs || ts != lastTs || qe != lastQe || qs != lastQs) {
           lastQs = qs;
@@ -836,8 +782,7 @@ static void clumpToHspRange(struct gfClump *clump, bioSeq *qSeq, int tileSize,
         outOfIt = TRUE;
       }
     }
-    if (hit == NULL)
-      break;
+    if (hit == NULL) break;
 
     if (outOfIt) {
       qStart = newQ;
@@ -876,9 +821,7 @@ struct ssFfItem *gfRangesToFfItem(struct gfRange *rangeList, aaSeq *qSeq)
   return ffi;
 }
 
-static struct ssBundle *fastMapClumpsToBundles(struct genoFind *gf,
-                                               struct gfClump *clumpList,
-                                               bioSeq *qSeq)
+static struct ssBundle *fastMapClumpsToBundles(struct genoFind *gf, struct gfClump *clumpList, bioSeq *qSeq)
 /* Convert gfClumps ffAlis. */
 {
   struct gfClump *clump;
@@ -887,8 +830,7 @@ static struct ssBundle *fastMapClumpsToBundles(struct genoFind *gf,
   struct ssBundle *bunList = NULL, *bun;
 
   for (clump = clumpList; clump != NULL; clump = clump->next)
-    clumpToHspRange(clump, qSeq, gf->tileSize, 0, NULL, &rangeList, FALSE,
-                    TRUE);
+    clumpToHspRange(clump, qSeq, gf->tileSize, 0, NULL, &rangeList, FALSE, TRUE);
   slReverse(&rangeList);
   slSort(&rangeList, gfRangeCmpTarget);
   rangeList = gfRangesBundle(rangeList, 256);
@@ -905,10 +847,8 @@ static struct ssBundle *fastMapClumpsToBundles(struct genoFind *gf,
   return bunList;
 }
 
-static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList,
-                              bioSeq *seq, boolean isRc, int minMatch,
-                              struct gfOutput *out, boolean isProt,
-                              enum ffStringency stringency)
+static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList, bioSeq *seq, boolean isRc, int minMatch,
+                              struct gfOutput *out, boolean isProt, enum ffStringency stringency)
 /* Convert gfClumps to an actual alignment that gets saved via
  * outFunction/outData. */
 {
@@ -918,11 +858,9 @@ static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList,
   struct ssBundle *bun;
   int intronMax = ffIntronMax;
 
-  if (isProt)
-    intronMax /= 3;
+  if (isProt) intronMax /= 3;
   for (clump = clumpList; clump != NULL; clump = clump->next) {
-    clumpToHspRange(clump, seq, gf->tileSize, 0, NULL, &rangeList, isProt,
-                    FALSE);
+    clumpToHspRange(clump, seq, gf->tileSize, 0, NULL, &rangeList, isProt, FALSE);
   }
   slReverse(&rangeList);
   slSort(&rangeList, gfRangeCmpTarget);
@@ -935,15 +873,14 @@ static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList,
     bun->ffList = gfRangesToFfItem(range->components, seq);
     bun->isProt = isProt;
     ssStitch(bun, stringency, minMatch, ssAliCount);
-    saveAlignments(targetSeq->name, targetSeq->size, 0, bun, NULL, isRc, FALSE,
-                   stringency, minMatch, out);
+    saveAlignments(targetSeq->name, targetSeq->size, 0, bun, NULL, isRc, FALSE, stringency, minMatch, out);
     ssBundleFree(&bun);
   }
   gfRangeFreeList(&rangeList);
 }
 
-void gfAlignAaClumps(struct genoFind *gf, struct gfClump *clumpList, aaSeq *seq,
-                     boolean isRc, int minMatch, struct gfOutput *out) {
+void gfAlignAaClumps(struct genoFind *gf, struct gfClump *clumpList, aaSeq *seq, boolean isRc, int minMatch,
+                     struct gfOutput *out) {
   gfAlignSomeClumps(gf, clumpList, seq, isRc, minMatch, out, TRUE, ffTight);
 }
 
@@ -955,16 +892,13 @@ int rangeScore(struct gfRange *range, struct dnaSeq *qSeq)
   int score = 0;
   for (comp = range->components; comp != NULL; comp = comp->next) {
     tSeq = comp->tSeq;
-    score += dnaScoreMatch(tSeq->dna + range->tStart, qSeq->dna + range->qStart,
-                           range->tEnd - range->tStart);
-    if (comp->next != NULL)
-      score -= 4;
+    score += dnaScoreMatch(tSeq->dna + range->tStart, qSeq->dna + range->qStart, range->tEnd - range->tStart);
+    if (comp->next != NULL) score -= 4;
   }
   return score;
 }
 
-void gfFindAlignAaTrans(struct genoFind *gfs[3], aaSeq *qSeq,
-                        struct hash *t3Hash, boolean tIsRc, int minMatch,
+void gfFindAlignAaTrans(struct genoFind *gfs[3], aaSeq *qSeq, struct hash *t3Hash, boolean tIsRc, int minMatch,
                         struct gfOutput *out)
 /* Look for qSeq alignment in three translated reading frames. Save alignment
  * via outFunction/outData. */
@@ -983,8 +917,7 @@ void gfFindAlignAaTrans(struct genoFind *gfs[3], aaSeq *qSeq,
   gfTransFindClumps(gfs, qSeq, clumps, lm, &hitCount);
   for (frame = 0; frame < 3; ++frame) {
     for (clump = clumps[frame]; clump != NULL; clump = clump->next) {
-      clumpToHspRange(clump, qSeq, tileSize, frame, NULL, &rangeList, TRUE,
-                      FALSE);
+      clumpToHspRange(clump, qSeq, tileSize, frame, NULL, &rangeList, TRUE, FALSE);
     }
   }
   slReverse(&rangeList);
@@ -1000,13 +933,11 @@ void gfFindAlignAaTrans(struct genoFind *gfs[3], aaSeq *qSeq,
     bun->isProt = TRUE;
     bun->t3List = t3;
     ssStitch(bun, ffCdna, minMatch, ssAliCount);
-    saveAlignments(targetSeq->name, t3->seq->size, 0, bun, t3Hash, FALSE, tIsRc,
-                   ffCdna, minMatch, out);
+    saveAlignments(targetSeq->name, t3->seq->size, 0, bun, t3Hash, FALSE, tIsRc, ffCdna, minMatch, out);
     ssBundleFree(&bun);
   }
   gfRangeFreeList(&rangeList);
-  for (frame = 0; frame < 3; ++frame)
-    gfClumpFreeList(&clumps[frame]);
+  for (frame = 0; frame < 3; ++frame) gfClumpFreeList(&clumps[frame]);
   lmCleanup(&lm);
 }
 
@@ -1023,10 +954,8 @@ void rangeCoorTimes3(struct gfRange *rangeList)
   }
 }
 
-static void loadHashT3Ranges(struct gfRange *rangeList, char *tSeqDir,
-                             struct hash *tFileCache, int qSeqSize,
-                             boolean isRc, struct hash **retT3Hash,
-                             struct dnaSeq **retSeqList,
+static void loadHashT3Ranges(struct gfRange *rangeList, char *tSeqDir, struct hash *tFileCache, int qSeqSize,
+                             boolean isRc, struct hash **retT3Hash, struct dnaSeq **retSeqList,
                              struct slRef **retT3RefList)
 /* Load DNA in ranges into memory, and put translation in a hash
  * that gets returned. */
@@ -1039,9 +968,8 @@ static void loadHashT3Ranges(struct gfRange *rangeList, char *tSeqDir,
   for (range = rangeList; range != NULL; range = range->next) {
     struct trans3 *t3, *oldT3;
 
-    targetSeq =
-        gfiExpandAndLoadCached(range, tFileCache, tSeqDir, qSeqSize * 3,
-                               &range->tTotalSize, TRUE, isRc, usualExpansion);
+    targetSeq = gfiExpandAndLoadCached(range, tFileCache, tSeqDir, qSeqSize * 3, &range->tTotalSize, TRUE, isRc,
+                                       usualExpansion);
     slAddHead(&tSeqList, targetSeq);
     freez(&targetSeq->name);
     targetSeq->name = cloneString(range->tName);
@@ -1062,8 +990,8 @@ static void loadHashT3Ranges(struct gfRange *rangeList, char *tSeqDir,
   *retT3RefList = t3RefList;
 }
 
-void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq,
-                  int minMatch, struct hash *tFileCache, struct gfOutput *out)
+void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq, int minMatch, struct hash *tFileCache,
+                  struct gfOutput *out)
 /* Search indexed translated genome on server with an amino acid sequence.
  * Then load homologous bits of genome locally and do detailed alignment.
  * Call 'outFunction' with each alignment that is found. */
@@ -1094,8 +1022,7 @@ void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq,
     rangeCoorTimes3(rangeList);
     slSort(&rangeList, gfRangeCmpTarget);
     rangeList = gfRangesBundle(rangeList, ffIntronMax);
-    loadHashT3Ranges(rangeList, tSeqDir, tFileCache, seq->size, isRc, &t3Hash,
-                     &tSeqList, &t3RefList);
+    loadHashT3Ranges(rangeList, tSeqDir, tFileCache, seq->size, isRc, &t3Hash, &tSeqList, &t3RefList);
 
     /* The old range list was not very precise - it was just to get
      * the DNA loaded.  */
@@ -1107,13 +1034,11 @@ void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq,
     for (frame = 0; frame < 3; ++frame) {
       for (clump = clumps[isRc][frame]; clump != NULL; clump = clump->next) {
         struct gfSeqSource *ss = clump->target;
-        t3 = trans3Find(t3Hash, clumpTargetName(clump), clump->tStart * 3,
-                        clump->tEnd * 3);
+        t3 = trans3Find(t3Hash, clumpTargetName(clump), clump->tStart * 3, clump->tEnd * 3);
         ss->seq = t3->trans[frame];
         ss->start = t3->start / 3;
         ss->end = t3->end / 3;
-        clumpToHspRange(clump, seq, tileSize, frame, t3, &rangeList, TRUE,
-                        FALSE);
+        clumpToHspRange(clump, seq, tileSize, frame, t3, &rangeList, TRUE, FALSE);
       }
     }
     slReverse(&rangeList);
@@ -1132,8 +1057,7 @@ void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq,
       bun->t3List = t3;
       ssStitch(bun, ffCdna, minMatch, ssAliCount);
       getTargetName(range->tName, out->includeTargetFile, targetName);
-      saveAlignments(targetName, t3->nibSize, 0, bun, t3Hash, FALSE, isRc,
-                     ffCdna, minMatch, out);
+      saveAlignments(targetName, t3->nibSize, 0, bun, t3Hash, FALSE, isRc, ffCdna, minMatch, out);
       ssBundleFree(&bun);
     }
 
@@ -1150,16 +1074,14 @@ void gfAlignTrans(struct gfConnection *conn, char *tSeqDir, aaSeq *seq,
 
   /* Final cleanup. */
   for (isRc = 0; isRc <= 1; ++isRc)
-    for (frame = 0; frame < 3; ++frame)
-      gfClumpFreeList(&clumps[isRc][frame]);
-  for (ss = ssList; ss != NULL; ss = ss->next)
-    freeMem(ss->fileName);
+    for (frame = 0; frame < 3; ++frame) gfClumpFreeList(&clumps[isRc][frame]);
+  for (ss = ssList; ss != NULL; ss = ss->next) freeMem(ss->fileName);
   slFreeList(&ssList);
   lmCleanup(&lm);
 }
 
-void untranslateRangeList(struct gfRange *rangeList, int qFrame, int tFrame,
-                          struct hash *t3Hash, struct trans3 *t3, int tOffset)
+void untranslateRangeList(struct gfRange *rangeList, int qFrame, int tFrame, struct hash *t3Hash, struct trans3 *t3,
+                          int tOffset)
 /* Translate coordinates from protein to dna. */
 {
   struct gfRange *range;
@@ -1168,18 +1090,14 @@ void untranslateRangeList(struct gfRange *rangeList, int qFrame, int tFrame,
     range->qEnd = 3 * range->qEnd + qFrame;
     range->tStart = 3 * range->tStart + tFrame;
     range->tEnd = 3 * range->tEnd + tFrame;
-    if (t3Hash)
-      t3 = trans3Find(t3Hash, range->tSeq->name, range->tStart + tOffset,
-                      range->tEnd + tOffset);
+    if (t3Hash) t3 = trans3Find(t3Hash, range->tSeq->name, range->tStart + tOffset, range->tEnd + tOffset);
     range->tSeq = t3->seq;
     range->t3 = t3;
   }
 }
 
-void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir,
-                       struct dnaSeq *qSeq, boolean qIsRc, int minMatch,
-                       struct hash *tFileCache, struct gfOutput *out,
-                       boolean isRna)
+void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *qSeq, boolean qIsRc, int minMatch,
+                       struct hash *tFileCache, struct gfOutput *out, boolean isRna)
 /* Search indexed translated genome on server with an dna sequence.  Translate
  * this sequence in three frames. Load homologous bits of genome locally
  * and do detailed alignment.  Call 'outFunction' with each alignment
@@ -1212,8 +1130,7 @@ void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir,
     rangeCoorTimes3(rangeList);
     slSort(&rangeList, gfRangeCmpTarget);
     rangeList = gfRangesBundle(rangeList, ffIntronMax);
-    loadHashT3Ranges(rangeList, tSeqDir, tFileCache, qSeq->size / 3, tIsRc,
-                     &t3Hash, &tSeqList, &t3RefList);
+    loadHashT3Ranges(rangeList, tSeqDir, tFileCache, qSeq->size / 3, tIsRc, &t3Hash, &tSeqList, &t3RefList);
 
     /* The old range list was not very precise - it was just to get
      * the DNA loaded.  */
@@ -1224,17 +1141,14 @@ void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir,
      * by extending hits in clumps. */
     for (qFrame = 0; qFrame < 3; ++qFrame) {
       for (tFrame = 0; tFrame < 3; ++tFrame) {
-        for (clump = clumps[tIsRc][qFrame][tFrame]; clump != NULL;
-             clump = clump->next) {
+        for (clump = clumps[tIsRc][qFrame][tFrame]; clump != NULL; clump = clump->next) {
           struct gfSeqSource *ss = clump->target;
           struct gfRange *rangeSet = NULL;
-          t3 = trans3Find(t3Hash, clumpTargetName(clump), clump->tStart * 3,
-                          clump->tEnd * 3);
+          t3 = trans3Find(t3Hash, clumpTargetName(clump), clump->tStart * 3, clump->tEnd * 3);
           ss->seq = t3->trans[tFrame];
           ss->start = t3->start / 3;
           ss->end = t3->end / 3;
-          clumpToHspRange(clump, qTrans->trans[qFrame], tileSize, tFrame, t3,
-                          &rangeSet, TRUE, FALSE);
+          clumpToHspRange(clump, qTrans->trans[qFrame], tileSize, tFrame, t3, &rangeSet, TRUE, FALSE);
           untranslateRangeList(rangeSet, qFrame, tFrame, NULL, t3, t3->start);
           rangeList = slCat(rangeSet, rangeList);
         }
@@ -1255,8 +1169,7 @@ void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir,
       ssStitch(bun, stringency, minMatch, ssAliCount);
       getTargetName(range->tName, out->includeTargetFile, targetName);
       t3 = range->t3;
-      saveAlignments(targetName, t3->nibSize, t3->start, bun, NULL, qIsRc,
-                     tIsRc, stringency, minMatch, out);
+      saveAlignments(targetName, t3->nibSize, t3->start, bun, NULL, qIsRc, tIsRc, stringency, minMatch, out);
       ssBundleFree(&bun);
     }
 
@@ -1271,16 +1184,13 @@ void gfAlignTransTrans(struct gfConnection *conn, char *tSeqDir,
     freeDnaSeqList(&tSeqList);
   }
   trans3Free(&qTrans);
-  for (ss = ssList; ss != NULL; ss = ss->next)
-    freeMem(ss->fileName);
+  for (ss = ssList; ss != NULL; ss = ss->next) freeMem(ss->fileName);
   slFreeList(&ssList);
   lmCleanup(&lm);
 }
 
-static struct ssBundle *
-gfTransTransFindBundles(struct genoFind *gfs[3], struct dnaSeq *qSeq,
-                        struct hash *t3Hash, boolean isRc, int minMatch,
-                        boolean isRna)
+static struct ssBundle *gfTransTransFindBundles(struct genoFind *gfs[3], struct dnaSeq *qSeq, struct hash *t3Hash,
+                                                boolean isRc, int minMatch, boolean isRna)
 /* Look for alignment to three translations of qSeq in three translated reading
  * frames. Save alignment via outFunction/outData. */
 {
@@ -1300,8 +1210,7 @@ gfTransTransFindBundles(struct genoFind *gfs[3], struct dnaSeq *qSeq,
     for (tFrame = 0; tFrame < 3; ++tFrame) {
       for (clump = clumps[qFrame][tFrame]; clump != NULL; clump = clump->next) {
         struct gfRange *rangeSet = NULL;
-        clumpToHspRange(clump, qTrans->trans[qFrame], tileSize, tFrame, NULL,
-                        &rangeSet, TRUE, FALSE);
+        clumpToHspRange(clump, qTrans->trans[qFrame], tileSize, tFrame, NULL, &rangeSet, TRUE, FALSE);
         untranslateRangeList(rangeSet, qFrame, tFrame, t3Hash, NULL, 0);
         rangeList = slCat(rangeSet, rangeList);
       }
@@ -1319,8 +1228,7 @@ gfTransTransFindBundles(struct genoFind *gfs[3], struct dnaSeq *qSeq,
     slAddHead(&bunList, bun);
   }
   for (qFrame = 0; qFrame < 3; ++qFrame)
-    for (tFrame = 0; tFrame < 3; ++tFrame)
-      gfClumpFreeList(&clumps[qFrame][tFrame]);
+    for (tFrame = 0; tFrame < 3; ++tFrame) gfClumpFreeList(&clumps[qFrame][tFrame]);
   gfRangeFreeList(&rangeList);
   trans3Free(&qTrans);
   lmCleanup(&lm);
@@ -1328,8 +1236,8 @@ gfTransTransFindBundles(struct genoFind *gfs[3], struct dnaSeq *qSeq,
   return bunList;
 }
 
-static void addToBigBundleList(struct ssBundle **pOneList, struct hash *bunHash,
-                               struct ssBundle **pBigList, struct dnaSeq *query)
+static void addToBigBundleList(struct ssBundle **pOneList, struct hash *bunHash, struct ssBundle **pBigList,
+                               struct dnaSeq *query)
 /* Add bundles in one list to bigList, consolidating bundles that refer
  * to the same target sequence.  This will destroy oneList in the process. */
 {
@@ -1352,8 +1260,7 @@ static void addToBigBundleList(struct ssBundle **pOneList, struct hash *bunHash,
   ssBundleFreeList(pOneList);
 }
 
-static boolean jiggleSmallExons(struct ffAli *ali, struct dnaSeq *nSeq,
-                                struct dnaSeq *hSeq)
+static boolean jiggleSmallExons(struct ffAli *ali, struct dnaSeq *nSeq, struct dnaSeq *hSeq)
 /* See if can jiggle small exons to match splice sites a little
  * better. */
 {
@@ -1361,16 +1268,14 @@ static boolean jiggleSmallExons(struct ffAli *ali, struct dnaSeq *nSeq,
   int orient;
   boolean creeped = FALSE;
 
-  if (ffAliCount(ali) < 3)
-    return FALSE;
+  if (ffAliCount(ali) < 3) return FALSE;
   orient = ffIntronOrientation(ali);
   left = ali;
   mid = left->right;
   right = mid->right;
   while (right != NULL) {
     int midSizeN = mid->nEnd - mid->nStart;
-    if (midSizeN < 10 && mid->hStart - left->hEnd > 1 &&
-        right->hStart - mid->hEnd > 1) {
+    if (midSizeN < 10 && mid->hStart - left->hEnd > 1 && right->hStart - mid->hEnd > 1) {
       DNA *spLeft, *spRight; /* Splice sites on either side of exon. */
       DNA exonX[10 + 2 + 2]; /* Storage for exon with splice sites. */
       DNA *match;
@@ -1395,8 +1300,7 @@ static boolean jiggleSmallExons(struct ffAli *ali, struct dnaSeq *nSeq,
         creepR = creeps[creepIx][1];
         /* Check to see if we already match consensus, and if so just bail. */
         if (hs[-1] == spLeft[1] && he[0] == spRight[0]) {
-          if ((creepL == 1 || hs[-2] == spLeft[0]) &&
-              (creepR == 1 || he[1] == spRight[1])) {
+          if ((creepL == 1 || hs[-2] == spLeft[0]) && (creepR == 1 || he[1] == spRight[1])) {
             break;
           }
         }
@@ -1416,19 +1320,16 @@ static boolean jiggleSmallExons(struct ffAli *ali, struct dnaSeq *nSeq,
     mid = right;
     right = right->right;
   }
-  if (creeped)
-    ffSlideIntrons(ali);
+  if (creeped) ffSlideIntrons(ali);
   return creeped;
 }
 
-static struct ffAli *refineSmallExons(struct ffAli *ff, struct dnaSeq *nSeq,
-                                      struct dnaSeq *hSeq)
+static struct ffAli *refineSmallExons(struct ffAli *ff, struct dnaSeq *nSeq, struct dnaSeq *hSeq)
 /* Tweak small exons slightly - refining positions to match splice
  * sites if possible and looking a little harder for small first
  * and last exons. */
 {
-  if (jiggleSmallExons(ff, nSeq, hSeq))
-    ff = ffRemoveEmptyAlis(ff, TRUE);
+  if (jiggleSmallExons(ff, nSeq, hSeq)) ff = ffRemoveEmptyAlis(ff, TRUE);
   return ff;
 }
 
@@ -1466,19 +1367,16 @@ void dumpBunList(struct ssBundle *bunList)
       totalItems += 1;
     }
   }
-  printf("total bundles %d, alignments %d, blocks %d, bases %d\n",
-         slCount(bunList), totalItems, totalBlocks, totalBases);
+  printf("total bundles %d, alignments %d, blocks %d, bases %d\n", slCount(bunList), totalItems, totalBlocks,
+         totalBases);
 }
 #endif /* DEBUG */
 
-static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList,
-                              bioSeq *seq, boolean isRc, int minMatch,
-                              struct gfOutput *out, boolean isProt,
-                              enum ffStringency stringency);
+static void gfAlignSomeClumps(struct genoFind *gf, struct gfClump *clumpList, bioSeq *seq, boolean isRc, int minMatch,
+                              struct gfOutput *out, boolean isProt, enum ffStringency stringency);
 
-void gfLongDnaInMem(struct dnaSeq *query, struct genoFind *gf, boolean isRc,
-                    int minScore, Bits *qMaskBits, struct gfOutput *out,
-                    boolean fastMap, boolean band)
+void gfLongDnaInMem(struct dnaSeq *query, struct genoFind *gf, boolean isRc, int minScore, Bits *qMaskBits,
+                    struct gfOutput *out, boolean fastMap, boolean band)
 /* Chop up query into pieces, align each, and stitch back
  * together again. */
 {
@@ -1518,16 +1416,13 @@ void gfLongDnaInMem(struct dnaSeq *query, struct genoFind *gf, boolean isRc,
     saveEnd = *endPos;
     *endPos = 0;
     if (band) {
-      oneBunList = ffSeedExtInMem(gf, &subQuery, qMaskBits, subOffset, lm,
-                                  minScore, isRc);
+      oneBunList = ffSeedExtInMem(gf, &subQuery, qMaskBits, subOffset, lm, minScore, isRc);
     } else {
-      clumpList = gfFindClumpsWithQmask(gf, &subQuery, qMaskBits, subOffset, lm,
-                                        &hitCount);
+      clumpList = gfFindClumpsWithQmask(gf, &subQuery, qMaskBits, subOffset, lm, &hitCount);
       if (fastMap) {
         oneBunList = fastMapClumpsToBundles(gf, clumpList, &subQuery);
       } else {
-        oneBunList =
-            gfClumpsToBundles(clumpList, isRc, &subQuery, minScore, &rangeList);
+        oneBunList = gfClumpsToBundles(clumpList, isRc, &subQuery, minScore, &rangeList);
         gfRangeFreeList(&rangeList);
       }
       gfClumpFreeList(&clumpList);
@@ -1540,26 +1435,22 @@ void gfLongDnaInMem(struct dnaSeq *query, struct genoFind *gf, boolean isRc,
 #endif /* DEBUG */
   for (bun = bigBunList; bun != NULL; bun = bun->next) {
     ssStitch(bun, ffCdna, minScore, ssAliCount);
-    if (!fastMap && !band)
-      refineSmallExonsInBundle(bun);
-    saveAlignments(bun->genoSeq->name, bun->genoSeq->size, 0, bun, NULL, isRc,
-                   FALSE, ffCdna, minScore, out);
+    if (!fastMap && !band) refineSmallExonsInBundle(bun);
+    saveAlignments(bun->genoSeq->name, bun->genoSeq->size, 0, bun, NULL, isRc, FALSE, ffCdna, minScore, out);
   }
   ssBundleFreeList(&bigBunList);
   freeHash(&bunHash);
   lmCleanup(&lm);
 }
 
-void gfLongTransTransInMem(struct dnaSeq *query, struct genoFind *gfs[3],
-                           struct hash *t3Hash, boolean qIsRc, boolean tIsRc,
-                           boolean qIsRna, int minScore, struct gfOutput *out)
+void gfLongTransTransInMem(struct dnaSeq *query, struct genoFind *gfs[3], struct hash *t3Hash, boolean qIsRc,
+                           boolean tIsRc, boolean qIsRna, int minScore, struct gfOutput *out)
 /* Chop up query into pieces, align each in translated space, and stitch back
  * together again as nucleotides. */
 {
   enum ffStringency stringency = (qIsRna ? ffCdna : ffLoose);
   int maxSize = 1500;
-  int preferredSize =
-      1200; /* PreferredSize - overlapSize might need to be multiple of 3. */
+  int preferredSize = 1200; /* PreferredSize - overlapSize might need to be multiple of 3. */
   int overlapSize = 270;
   struct dnaSeq subQuery = *query;
   int subOffset, subSize, nextOffset;
@@ -1588,15 +1479,13 @@ void gfLongTransTransInMem(struct dnaSeq *query, struct genoFind *gfs[3],
     endPos = &subQuery.dna[subSize];
     saveEnd = *endPos;
     *endPos = 0;
-    oneBunList = gfTransTransFindBundles(gfs, &subQuery, t3Hash, qIsRc,
-                                         minScore, qIsRna);
+    oneBunList = gfTransTransFindBundles(gfs, &subQuery, t3Hash, qIsRc, minScore, qIsRna);
     addToBigBundleList(&oneBunList, bunHash, &bigBunList, query);
     *endPos = saveEnd;
   }
   for (bun = bigBunList; bun != NULL; bun = bun->next) {
     ssStitch(bun, ffCdna, minScore, ssAliCount);
-    saveAlignments(bun->genoSeq->name, bun->genoSeq->size, 0, bun, NULL, qIsRc,
-                   tIsRc, stringency, minScore, out);
+    saveAlignments(bun->genoSeq->name, bun->genoSeq->size, 0, bun, NULL, qIsRc, tIsRc, stringency, minScore, out);
   }
   hashFree(&bunHash);
   ssBundleFreeList(&bigBunList);
