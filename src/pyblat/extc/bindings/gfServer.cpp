@@ -686,7 +686,7 @@ bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServer
   int numArgs = dynNextCommand(rootDir, dynSession, args, options);
   if (numArgs == 0) return FALSE;
   if (sameString("query", args[0]) || sameString("protQuery", args[0]) || sameString("transQuery", args[0])) {
-    dynamicServerQuery(dynSession, numArgs, args, options, stats);
+    dynamicServerQuery(dynSession, numArgs, args, options, stats, sendOk);
   } else if (sameString("status", args[0])) {
     dynamicServerStatus(numArgs, args);
   } else if (sameString("untransInfo", args[0]) || sameString("transInfo", args[0])) {
