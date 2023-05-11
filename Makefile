@@ -64,6 +64,10 @@ clean-logs: ## Clean logs
 format: ## Run pre-commit hooks
 	pre-commit run -a
 
+commit: format
+	oc
+
+
 clangd: ## Generate clangd index
 	bear -- make all_bin
 

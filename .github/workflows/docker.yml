@@ -1,11 +1,8 @@
-name: docker
+name: docker-binder
 
 on:
-  push:
-    branches:
-      - "main"
   schedule:
-    - cron: "0 0 * * 1"
+    - cron: "0 9,21 * * *"
   workflow_dispatch:
 
 jobs:
