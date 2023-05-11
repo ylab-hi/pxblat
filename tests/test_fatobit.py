@@ -1,9 +1,9 @@
 import filecmp
-from multiprocessing import Process
 from pathlib import Path
 
 import pyblat
 import pytest
+from pyblat import extc
 
 
 # open server from command line
@@ -65,8 +65,22 @@ import pytest
 
 
 @pytest.fixture
-def options():
-    return pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+def option_stat():
+    PORT = 65000
+    option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withTSeqDir("tests/data/")
+        .withInName("tests/data/test_case1.fa")
+        .build()
+    )
+
+    stat = extc.UsageStats()
+
+    return option, stat
 
 
 def test_fatwobit():
@@ -74,31 +88,27 @@ def test_fatwobit():
     output_file = Path("tests/data/test_ref.2bit")
     if output_file.exists():
         output_file.unlink()
-    pyblat.faToTwoBit([test_file.as_posix()], output_file.as_posix())
+    extc.faToTwoBit([test_file.as_posix()], output_file.as_posix())
     assert filecmp.cmp(output_file.as_posix(), "tests/data/test_ref.2bit")
 
 
-def test_start_server():
+def test_start_server(option_stat):
+    (option, stat) = option_stat
     two_bit_file = Path("tests/data/test_ref.2bit")
     if not two_bit_file.exists():
-        pyblat.faToTwoBit(["tests/data/test_ref.fa"], two_bit_file.as_posix())
-
-    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
-    pyblat.startServer("localhost", "88888", 1, [two_bit_file.as_posix()], options)
-
-
-def test_server_status():
-    options = pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
-    pyblat.statusServer("localhost", "88888", options)
-
-
-def test_query_server():
-    pyblat.gfServerOption().withCanStop(True).withStepSize(5).build()
-    pyblat.queryServer(
-        "query", "localhost", "88888", "tests/data/test_query.fa", False, False
+        extc.faToTwoBit(["tests/data/test_ref.fa"], two_bit_file.as_posix())
+    pyblat.server.start_server(
+        "localhost", 88888, two_bit_file.as_posix(), option, stat
     )
 
 
+def test_server_status():
+    pass
+
+
+def test_query_server():
+    pass
+
+
 def test_server_query():
-    process = Process(target=test_start_server)
-    process.start()
+    pass

@@ -1,8 +1,9 @@
+#include "dbg.h"
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-#include "gfServer.hpp"
-
 #include <sstream>
 #include <string>
+
+#include "gfServer.hpp"
 namespace cppbinding {
 
 bool boolean2bool(boolean b) { return b == TRUE; }
@@ -1231,6 +1232,8 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
     char const *desc = doTrans ? "translated" : "untranslated";
     uglyf("starting %s server...\n", desc);
     logInfo("setting up %s index", desc);
+
+    dbg(hostName, portName, fileCount, cseqFiles, options, stats);
     gfIdx = genoFindIndexBuild(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
                                allowOneMismatch, doMask, stepSize, noSimpRepMask);
     logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
@@ -1755,7 +1758,10 @@ gfServerOption &gfServerOption::build() {
     repMatch = gfPepMaxTileUse;
   }
 
-  if (repMatch > 0) repMatch = gfDefaultRepMatch(tileSize, stepSize, bool2boolean(trans));
+  if (repMatch == 0)  // do not exist
+    repMatch = gfDefaultRepMatch(tileSize, stepSize, bool2boolean(trans));
+  else
+    repMatch = 0;
 
   return *this;
 }
@@ -1923,4 +1929,15 @@ std::ostream &operator<<(std::ostream &os, const UsageStats &stats) {
 
 void test_stdout() { printf("stdout\n"); }
 void test_add(int &a) { a += 1; }
+void test_stat(UsageStats &stats) {
+  stats.baseCount += 1;
+  stats.blatCount += 1;
+  stats.aaCount += 1;
+  stats.pcrCount += 1;
+  stats.warnCount += 1;
+  stats.noSigCount += 1;
+  stats.missCount += 1;
+  stats.trimCount += 1;
+}
+
 }  // namespace cppbinding

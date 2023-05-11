@@ -75,6 +75,28 @@ char *genomeDataDir = NULL;
 
 int timeout = 90;  // default timeout in seconds
 
+void print_option() {
+  printf("maxNtSize: %d\n", maxNtSize);
+  printf("maxAaSize: %d\n", maxAaSize);
+  printf("minMatch: %d\n", minMatch);
+  printf("tileSize: %d\n", tileSize);
+  printf("stepSize: %d\n", stepSize);
+  printf("doTrans: %d\n", doTrans);
+  printf("allowOneMismatch: %d\n", allowOneMismatch);
+  printf("noSimpRepMask: %d\n", noSimpRepMask);
+  printf("repMatch: %d\n", repMatch);
+  printf("maxDnaHits: %d\n", maxDnaHits);
+  printf("maxTransHits: %d\n", maxTransHits);
+  printf("maxGap: %d\n", maxGap);
+  printf("seqLog: %d\n", seqLog);
+  printf("ipLog: %d\n", ipLog);
+  printf("doMask: %d\n", doMask);
+  printf("canStop: %d\n", canStop);
+  printf("indexFile: %s\n", indexFile);
+  printf("genome: %s\n", genome);
+  printf("genomeDataDir: %s\n", genomeDataDir);
+}
+
 void usage()
 /* Explain usage and exit. */
 {
@@ -680,6 +702,15 @@ void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[]
     char *desc = doTrans ? "translated" : "untranslated";
     uglyf("starting %s server...\n", desc);
     logInfo("setting up %s index", desc);
+
+    printf("hostName: %s\n", hostName);
+    printf("portName: %s\n", portName);
+    printf("fileCount: %d\n", fileCount);
+    for (int i = 0; i < fileCount; i++) {
+      printf("seqFiles[%d]: %s\n", i, seqFiles[i]);
+    }
+    print_option();
+
     gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
                                allowOneMismatch, doMask, stepSize, noSimpRepMask);
     logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));

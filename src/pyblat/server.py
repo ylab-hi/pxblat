@@ -8,6 +8,7 @@ from .extc import gfServerOption
 from .extc import pygetFileList
 from .extc import pyqueryServer
 from .extc import startServer
+from .extc import UsageStats
 from .utils import redirected
 
 
@@ -101,9 +102,11 @@ def query_server(
     return re_str
 
 
-@redirected
-def start_server(host: str, port: int, two_bit_file: str, options: gfServerOption):
-    return startServer(host, str(port), 1, [two_bit_file], options)
+# @redirected
+def start_server(
+    host: str, port: int, two_bit_file: str, option: gfServerOption, stat: UsageStats
+):
+    return startServer(host, str(port), 1, [two_bit_file], option, stat)
 
 
 class Server:

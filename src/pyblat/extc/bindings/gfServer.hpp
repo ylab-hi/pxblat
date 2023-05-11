@@ -226,12 +226,13 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
 
 boolean badPcrPrimerSeq(char *s);
 
-void test_stdout();
-void test_add(int &a);
-
 std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options);
 std::string pygetFileList(std::string &hostName, std::string &portName);
 std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
                           bool complex, bool isProt);
+
+void test_stdout();
+void test_add(int &a);
+void test_stat(UsageStats &stats);
 }  // namespace cppbinding
 #endif

@@ -91,44 +91,43 @@ void bind_gfServer(std::function< pybind11::module &(std::string const &namespac
 		cl.def("withNoSimpRepMask", (struct cppbinding::gfServerOption & (cppbinding::gfServerOption::*)(bool)) &cppbinding::gfServerOption::withNoSimpRepMask, "C++: cppbinding::gfServerOption::withNoSimpRepMask(bool) --> struct cppbinding::gfServerOption &", pybind11::return_value_policy::automatic, pybind11::arg("noSimpRepMask_"));
 		cl.def("withIndexFile", (struct cppbinding::gfServerOption & (cppbinding::gfServerOption::*)(std::string)) &cppbinding::gfServerOption::withIndexFile, "C++: cppbinding::gfServerOption::withIndexFile(std::string) --> struct cppbinding::gfServerOption &", pybind11::return_value_policy::automatic, pybind11::arg("indexFile_"));
 		cl.def("withTimeout", (struct cppbinding::gfServerOption & (cppbinding::gfServerOption::*)(int)) &cppbinding::gfServerOption::withTimeout, "C++: cppbinding::gfServerOption::withTimeout(int) --> struct cppbinding::gfServerOption &", pybind11::return_value_policy::automatic, pybind11::arg("timeout_"));
+
+		cl.def("__str__", [](cppbinding::gfServerOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 	}
-	// cppbinding::gfServer(struct cppbinding::gfServerOption &) file:gfServer.hpp line:141
+	// cppbinding::gfServer(struct cppbinding::gfServerOption &) file:gfServer.hpp line:143
 	M("cppbinding").def("gfServer", (void (*)(struct cppbinding::gfServerOption &)) &cppbinding::gfServer, "C++: cppbinding::gfServer(struct cppbinding::gfServerOption &) --> void", pybind11::arg("options"));
 
-	// cppbinding::genoFindDirect(std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:153
+	// cppbinding::genoFindDirect(std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:155
 	M("cppbinding").def("genoFindDirect", (void (*)(std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &)) &cppbinding::genoFindDirect, "C++: cppbinding::genoFindDirect(std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) --> void", pybind11::arg("probeName"), pybind11::arg("fileCount"), pybind11::arg("seqFiles"), pybind11::arg("options"));
 
-	// cppbinding::genoPcrDirect(std::string &, std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:157
+	// cppbinding::genoPcrDirect(std::string &, std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:159
 	M("cppbinding").def("genoPcrDirect", (void (*)(std::string &, std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &)) &cppbinding::genoPcrDirect, "C++: cppbinding::genoPcrDirect(std::string &, std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) --> void", pybind11::arg("fPrimer"), pybind11::arg("rPrimer"), pybind11::arg("fileCount"), pybind11::arg("seqFiles"), pybind11::arg("options"));
 
-	// cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) file:gfServer.hpp line:162
+	// cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) file:gfServer.hpp line:164
 	M("cppbinding").def("startServer", (void (*)(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &)) &cppbinding::startServer, "C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> void", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("fileCount"), pybind11::arg("seqFiles"), pybind11::arg("options"), pybind11::arg("stats"));
 
-	// cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) file:gfServer.hpp line:165
+	// cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) file:gfServer.hpp line:167
 	M("cppbinding").def("pystartServer", (int (*)(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &)) &cppbinding::pystartServer, "C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> int", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("fileCount"), pybind11::arg("seqFiles"), pybind11::arg("options"), pybind11::arg("stats"));
 
-	// cppbinding::stopServer(std::string &, std::string &) file:gfServer.hpp line:169
+	// cppbinding::stopServer(std::string &, std::string &) file:gfServer.hpp line:171
 	M("cppbinding").def("stopServer", (void (*)(std::string &, std::string &)) &cppbinding::stopServer, "C++: cppbinding::stopServer(std::string &, std::string &) --> void", pybind11::arg("hostName"), pybind11::arg("portName"));
 
-	// cppbinding::queryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) file:gfServer.hpp line:172
+	// cppbinding::queryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) file:gfServer.hpp line:174
 	M("cppbinding").def("queryServer", (void (*)(std::string &, std::string &, std::string &, std::string &, bool, bool)) &cppbinding::queryServer, "C++: cppbinding::queryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) --> void", pybind11::arg("type"), pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("faName"), pybind11::arg("complex"), pybind11::arg("isProt"));
 
-	// cppbinding::pcrServer(std::string &, std::string &, std::string &, std::string &, int) file:gfServer.hpp line:177
+	// cppbinding::pcrServer(std::string &, std::string &, std::string &, std::string &, int) file:gfServer.hpp line:179
 	M("cppbinding").def("pcrServer", (void (*)(std::string &, std::string &, std::string &, std::string &, int)) &cppbinding::pcrServer, "C++: cppbinding::pcrServer(std::string &, std::string &, std::string &, std::string &, int) --> void", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("fPrimer"), pybind11::arg("rPrimer"), pybind11::arg("maxSize"));
 
-	// cppbinding::statusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) file:gfServer.hpp line:180
+	// cppbinding::statusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) file:gfServer.hpp line:182
 	M("cppbinding").def("statusServer", (int (*)(std::string &, std::string &, struct cppbinding::gfServerOption &)) &cppbinding::statusServer, "C++: cppbinding::statusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) --> int", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("options"));
 
-	// cppbinding::getFileList(std::string &, std::string &) file:gfServer.hpp line:183
+	// cppbinding::getFileList(std::string &, std::string &) file:gfServer.hpp line:185
 	M("cppbinding").def("getFileList", (void (*)(std::string &, std::string &)) &cppbinding::getFileList, "C++: cppbinding::getFileList(std::string &, std::string &) --> void", pybind11::arg("hostName"), pybind11::arg("portName"));
 
-	// cppbinding::buildIndex(std::string &, int, class std::vector<std::string >, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:187
+	// cppbinding::buildIndex(std::string &, int, class std::vector<std::string >, const struct cppbinding::gfServerOption &) file:gfServer.hpp line:189
 	M("cppbinding").def("buildIndex", (void (*)(std::string &, int, class std::vector<std::string >, const struct cppbinding::gfServerOption &)) &cppbinding::buildIndex, "C++: cppbinding::buildIndex(std::string &, int, class std::vector<std::string >, const struct cppbinding::gfServerOption &) --> void", pybind11::arg("gfxFile"), pybind11::arg("fileCount"), pybind11::arg("seqFiles"), pybind11::arg("options"));
 
-	// cppbinding::getPortIx(char *) file:gfServer.hpp line:189
+	// cppbinding::getPortIx(char *) file:gfServer.hpp line:191
 	M("cppbinding").def("getPortIx", (int (*)(char *)) &cppbinding::getPortIx, "C++: cppbinding::getPortIx(char *) --> int", pybind11::arg("portName"));
-
-	// cppbinding::test_stdout() file:gfServer.hpp line:227
-	M("cppbinding").def("test_stdout", (void (*)()) &cppbinding::test_stdout, "C++: cppbinding::test_stdout() --> void");
 
 }
