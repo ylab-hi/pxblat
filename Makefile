@@ -64,7 +64,8 @@ clean-logs: ## Clean logs
 format: ## Run pre-commit hooks
 	pre-commit run -a
 
-commit: format
+commit: format ## Commit changes
+	git add .
 	oc
 
 
