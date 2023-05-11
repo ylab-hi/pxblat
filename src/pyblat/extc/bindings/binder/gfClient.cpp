@@ -1,7 +1,11 @@
 #include <gfClient.hpp>
+#include <ios>
 #include <iterator>
+#include <locale>
 #include <memory>
+#include <ostream>
 #include <sstream> // __str__
+#include <streambuf>
 #include <string>
 
 #include <functional>
@@ -19,7 +23,7 @@
 
 void bind_gfClient(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // cppbinding::gfClientOption file:gfClient.hpp line:68
+	{ // cppbinding::gfClientOption file:gfClient.hpp line:69
 		pybind11::class_<cppbinding::gfClientOption, std::shared_ptr<cppbinding::gfClientOption>> cl(M("cppbinding"), "gfClientOption", "");
 		cl.def( pybind11::init( [](){ return new cppbinding::gfClientOption(); } ) );
 		cl.def( pybind11::init( [](cppbinding::gfClientOption const &o){ return new cppbinding::gfClientOption(o); } ) );
@@ -57,8 +61,10 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
 		cl.def("withInName", (struct cppbinding::gfClientOption & (cppbinding::gfClientOption::*)(const std::string &)) &cppbinding::gfClientOption::withInName, "C++: cppbinding::gfClientOption::withInName(const std::string &) --> struct cppbinding::gfClientOption &", pybind11::return_value_policy::automatic, pybind11::arg("inName_"));
 		cl.def("withOutName", (struct cppbinding::gfClientOption & (cppbinding::gfClientOption::*)(const std::string &)) &cppbinding::gfClientOption::withOutName, "C++: cppbinding::gfClientOption::withOutName(const std::string &) --> struct cppbinding::gfClientOption &", pybind11::return_value_policy::automatic, pybind11::arg("outName_"));
 		cl.def("to_string", (std::string (cppbinding::gfClientOption::*)() const) &cppbinding::gfClientOption::to_string, "C++: cppbinding::gfClientOption::to_string() const --> std::string");
+
+		cl.def("__str__", [](cppbinding::gfClientOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 	}
-	// cppbinding::pygfClient(struct cppbinding::gfClientOption &) file:gfClient.hpp line:113
+	// cppbinding::pygfClient(struct cppbinding::gfClientOption &) file:gfClient.hpp line:115
 	M("cppbinding").def("pygfClient", (std::string (*)(struct cppbinding::gfClientOption &)) &cppbinding::pygfClient, "C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string", pybind11::arg("option"));
 
 }

@@ -245,4 +245,10 @@ std::string gfClientOption::to_string() const {
 
   return ret.str();
 }
+
+std::ostream &operator<<(std::ostream &os, const gfClientOption &option) {
+  os << option.to_string();
+  return os;
+}
+
 }  // namespace cppbinding

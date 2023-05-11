@@ -10,6 +10,7 @@
 #include <cstring>
 #include <ctime>
 #include <optional>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -47,6 +48,7 @@ struct UsageStats {
   int missCount{0};
   int trimCount{0};
   UsageStats() = default;
+  friend std::ostream &operator<<(std::ostream &os, const UsageStats &stats);
 };
 
 // constexpr int stepSize = 0; /* Can be overridden from command line. */
@@ -134,6 +136,8 @@ struct gfServerOption {
   gfServerOption &withNoSimpRepMask(bool noSimpRepMask_);
   gfServerOption &withIndexFile(std::string indexFile_);
   gfServerOption &withTimeout(int timeout_);
+
+  friend std::ostream &operator<<(std::ostream &os, const self &option);
 };
 
 void gfServer(gfServerOption &options);

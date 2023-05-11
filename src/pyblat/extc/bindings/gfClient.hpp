@@ -1,6 +1,7 @@
 #ifndef GFCLIENT_HPP
 #define GFCLIENT_HPP
 
+#include <ostream>
 #include <string>
 
 #include "aliType.h"
@@ -108,6 +109,7 @@ struct gfClientOption {
   gfClientOption &withOutName(const std::string &outName_);
 
   std::string to_string() const;
+  friend std::ostream &operator<<(std::ostream &os, const gfClientOption &option);
 };
 
 std::string pygfClient(gfClientOption &option);

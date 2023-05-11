@@ -1902,6 +1902,25 @@ std::string gfServerOption::to_string() const {
   return s.str();
 }
 
+std::ostream &operator<<(std::ostream &os, const gfServerOption &option) {
+  os << option.to_string();
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const UsageStats &stats) {
+  os << "UsageStats(";
+  os << "baseCount: " << stats.baseCount;
+  os << ", blatCount: " << stats.blatCount;
+  os << ", aaCount: " << stats.aaCount;
+  os << ", pcrCount: " << stats.pcrCount;
+  os << ", warnCount: " << stats.warnCount;
+  os << ", noSigCount: " << stats.noSigCount;
+  os << ", missCount: " << stats.missCount;
+  os << ", trimCount: " << stats.trimCount;
+  os << ")";
+  return os;
+}
+
 void test_stdout() { printf("stdout\n"); }
 void test_add(int &a) { a += 1; }
 }  // namespace cppbinding
