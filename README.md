@@ -22,8 +22,9 @@ pyblat
 
 ## TODO
 
-- [ ] parse gfserver result
-- [ ] parser gfclient result
+- [ ] parse gfserver query result
+- [x] parser gfclient result
+- [ ] multi-connection server
 
 A binding for blat server and client
 

@@ -23,6 +23,8 @@ _HANDLE_MAP = {
     "psl": PslOutput,
 }
 
+# https://github.com/biopython/biopython/blob/master/Bio/SearchIO/BlatIO.py
+
 
 def get_handle(format: str, mapping):
     try:
