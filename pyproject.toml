@@ -13,6 +13,7 @@ pybind11 = "^2.10.4"
 setuptools = "^67.7.2"
 rich = "^13.3.5"
 pysimdjson = "^5.0.2"
+biopython = "^1.81"
 
 
 [tool.ruff]
@@ -62,6 +63,7 @@ ruff = "^0.0.263"
 ipython = "^8.13.1"
 pybind11-stubgen = "^0.13.0"
 invoke = "^2.1.1"
+ipdb = "^0.13.13"
 
 [tool.poetry.build]
 script = "build.py"

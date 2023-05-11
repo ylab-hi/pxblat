@@ -119,8 +119,36 @@ def cclient(c):
 def pclient(c):
     server_option, client_option, stat = option_stat()
     ret = extc.pygfClient(client_option)
-    print(client_option)
+    # print(client_option)
+    print(f"{ret!r}")
+    pyblat.read(ret, "psl")
+
+
+@task
+def pclient2(c):
+    from Bio import SearchIO
+
+    ret = SearchIO.read("testcg.psl", "blat-psl")
     print(ret)
+
+
+@task
+def cmp(c):
+    from pyblat.parser import PslOutput
+
+    f1 = open("testcg.psl")
+
+    while a := f1.readline():
+        print(f"{a!r}")
+
+    f1.close()
+    server_option, client_option, stat = option_stat()
+    print("\n")
+
+    ret = extc.pygfClient(client_option)
+    f2 = PslOutput(ret)
+    while b := f2.readline():
+        print(f"{b!r}")
 
 
 @task
@@ -148,7 +176,7 @@ def pquery_server(c):
         "query", "localhost", str(PORT), "tests/data/test_case1.fa", False, False
     )
 
-    print(f"{ret=}")
+    print(f"{ret!r}")
 
 
 @task
@@ -219,55 +247,6 @@ def sc(c):
 
 
 @task
-def st(c):
-    pyblat.server.stop_server("localhost", PORT)
-
-
-@task
 def ls(c):
     ret = pyblat.server.files("localhost", PORT)
     print(f"{ret=}")
-
-
-# c server
-# hostName: localhost
-# portName: 65000
-# fileCount: 1
-# seqFiles[0]: tests/data/test_ref.2bit
-# maxNtSize: 40000
-# maxAaSize: 8000
-# minMatch: 2
-# tileSize: 11
-# stepSize: 5
-# doTrans: 0
-# allowOneMismatch: 0
-# noSimpRepMask: 0
-# repMatch: 2252 WARN:
-# maxDnaHits: 100
-# maxTransHits: 200
-# maxGap: 2
-# seqLog: 0
-# ipLog: 0
-# doMask: 0
-# canStop: 1
-# indexFile: (null)
-# genome: (null)
-# genomeDataDir: (null)
-# Counting tiles in tests/data/test_ref.2bit
-
-# p server
-# [..indings/gfServer.cpp:1236 (startServer)] hostName = "localhost" (std::string&)
-# [..indings/gfServer.cpp:1236 (startServer)] portName = "65000" (std::string&)
-# [..indings/gfServer.cpp:1236 (startServer)] fileCount = 1 (int32_t)
-# [..indings/gfServer.cpp:1236 (startServer)] cseqFiles = {tests/data/test_ref.2bit} (std::vector<char*>)
-# [..indings/gfServer.cpp:1236 (startServer)] options = gfServerOption(canStop: true, log: , logFacility: , mask: false,
-# maxAaSize: 8000, maxDnaHits: 100, maxGap: 2,
-# maxNtSize: 40000, maxTransHits: 200, minMatch: 2,
-# repMatch: 0, seqLog: false, ipLog: false,
-# debugLog: false, tileSize: 11, stepSize: 5, trans: false,
-# syslog: false, perSeqMax: , noSimpRepMask: false, indexFile: ,
-# timeout: 90, genome: , genomeDataDir: , allowOneMismatch: false) (cppbinding::gfServerOption&)
-
-# [..indings/gfServer.cpp:1236 (startServer)] stats = UsageStats(baseCount: 0, blatCount: 0, aaCount: 0,
-# pcrCount: 0, warnCount: 0, noSigCount: 0, missCount: 0, trimCount: 0) (cppbinding::UsageStats&)
-# Counting tiles in tests/data/test_ref.2bit
