@@ -1,36 +1,409 @@
-"""pybind11 plugin"""
+"""Bindings for ::cppbinding namespace"""
 from __future__ import annotations
+import pyblat._extc.cppbinding
 import typing
+
+__all__ = [
+    "UsageStats",
+    "buildIndex",
+    "faToTwoBit",
+    "genoFindDirect",
+    "genoPcrDirect",
+    "getFileList",
+    "getPortIx",
+    "gfClientOption",
+    "gfServer",
+    "gfServerOption",
+    "pcrServer",
+    "pygetFileList",
+    "pygfClient",
+    "pyqueryServer",
+    "pystartServer",
+    "pystatusServer",
+    "queryServer",
+    "startServer",
+    "statusServer",
+    "stopServer",
+    "test_add",
+    "test_stdout",
+]
+
+class UsageStats:
+    def __init__(self) -> None: ...
+    @property
+    def aaCount(self) -> int:
+        """
+        :type: int
+        """
+    @aaCount.setter
+    def aaCount(self, arg0: int) -> None:
+        pass
+    @property
+    def baseCount(self) -> int:
+        """
+        :type: int
+        """
+    @baseCount.setter
+    def baseCount(self, arg0: int) -> None:
+        pass
+    @property
+    def blatCount(self) -> int:
+        """
+        :type: int
+        """
+    @blatCount.setter
+    def blatCount(self, arg0: int) -> None:
+        pass
+    @property
+    def missCount(self) -> int:
+        """
+        :type: int
+        """
+    @missCount.setter
+    def missCount(self, arg0: int) -> None:
+        pass
+    @property
+    def noSigCount(self) -> int:
+        """
+        :type: int
+        """
+    @noSigCount.setter
+    def noSigCount(self, arg0: int) -> None:
+        pass
+    @property
+    def pcrCount(self) -> int:
+        """
+        :type: int
+        """
+    @pcrCount.setter
+    def pcrCount(self, arg0: int) -> None:
+        pass
+    @property
+    def trimCount(self) -> int:
+        """
+        :type: int
+        """
+    @trimCount.setter
+    def trimCount(self, arg0: int) -> None:
+        pass
+    @property
+    def warnCount(self) -> int:
+        """
+        :type: int
+        """
+    @warnCount.setter
+    def warnCount(self, arg0: int) -> None:
+        pass
+    pass
+
+class gfClientOption:
+    @typing.overload
+    def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, arg0: gfClientOption) -> None: ...
+    def build(self) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::build() --> struct cppbinding::gfClientOption &
+        """
+    def to_string(self) -> str:
+        """
+        C++: cppbinding::gfClientOption::to_string() const --> std::string
+        """
+    def withDots(self, dots_: int) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withDots(int) --> struct cppbinding::gfClientOption &
+        """
+    def withGenome(self, genome_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withGenome(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withGenomeDataDir(self, genomeDataDir_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withGenomeDataDir(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withHost(self, hostName_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withHost(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withInName(self, inName_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withInName(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withIsDynamic(self, isDynamic_: bool) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withIsDynamic(bool) --> struct cppbinding::gfClientOption &
+        """
+    def withMaxIntron(self, maxIntron_: int) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withMaxIntron(long) --> struct cppbinding::gfClientOption &
+        """
+    def withMinIdentity(self, minIdentity_: float) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withMinIdentity(double) --> struct cppbinding::gfClientOption &
+        """
+    def withMinScore(self, minScore_: int) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withMinScore(int) --> struct cppbinding::gfClientOption &
+        """
+    def withNohead(self, nohead_: bool) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withNohead(bool) --> struct cppbinding::gfClientOption &
+        """
+    def withOutName(self, outName_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withOutName(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withOutputFormat(self, outputFormat_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withOutputFormat(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withPort(self, portName_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withPort(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withQType(self, qType_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withQType(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withTSeqDir(self, tSeqDir_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withTSeqDir(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    def withTType(self, tType_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withTType(const std::string &) --> struct cppbinding::gfClientOption &
+        """
+    @property
+    def dots(self) -> int:
+        """
+        :type: int
+        """
+    @dots.setter
+    def dots(self, arg0: int) -> None:
+        pass
+    @property
+    def genome(self) -> str:
+        """
+        :type: str
+        """
+    @genome.setter
+    def genome(self, arg0: str) -> None:
+        pass
+    @property
+    def genomeDataDir(self) -> str:
+        """
+        :type: str
+        """
+    @genomeDataDir.setter
+    def genomeDataDir(self, arg0: str) -> None:
+        pass
+    @property
+    def hostName(self) -> str:
+        """
+        :type: str
+        """
+    @hostName.setter
+    def hostName(self, arg0: str) -> None:
+        pass
+    @property
+    def inName(self) -> str:
+        """
+        :type: str
+        """
+    @inName.setter
+    def inName(self, arg0: str) -> None:
+        pass
+    @property
+    def isDynamic(self) -> bool:
+        """
+        :type: bool
+        """
+    @isDynamic.setter
+    def isDynamic(self, arg0: bool) -> None:
+        pass
+    @property
+    def maxIntron(self) -> int:
+        """
+        :type: int
+        """
+    @maxIntron.setter
+    def maxIntron(self, arg0: int) -> None:
+        pass
+    @property
+    def minIdentity(self) -> float:
+        """
+        :type: float
+        """
+    @minIdentity.setter
+    def minIdentity(self, arg0: float) -> None:
+        pass
+    @property
+    def minScore(self) -> int:
+        """
+        :type: int
+        """
+    @minScore.setter
+    def minScore(self, arg0: int) -> None:
+        pass
+    @property
+    def nohead(self) -> bool:
+        """
+        :type: bool
+        """
+    @nohead.setter
+    def nohead(self, arg0: bool) -> None:
+        pass
+    @property
+    def outName(self) -> str:
+        """
+        :type: str
+        """
+    @outName.setter
+    def outName(self, arg0: str) -> None:
+        pass
+    @property
+    def outputFormat(self) -> str:
+        """
+        :type: str
+        """
+    @outputFormat.setter
+    def outputFormat(self, arg0: str) -> None:
+        pass
+    @property
+    def portName(self) -> str:
+        """
+        :type: str
+        """
+    @portName.setter
+    def portName(self, arg0: str) -> None:
+        pass
+    @property
+    def qType(self) -> str:
+        """
+        :type: str
+        """
+    @qType.setter
+    def qType(self, arg0: str) -> None:
+        pass
+    @property
+    def tSeqDir(self) -> str:
+        """
+        :type: str
+        """
+    @tSeqDir.setter
+    def tSeqDir(self, arg0: str) -> None:
+        pass
+    @property
+    def tType(self) -> str:
+        """
+        :type: str
+        """
+    @tType.setter
+    def tType(self, arg0: str) -> None:
+        pass
+    pass
 
 class gfServerOption:
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
     def __init__(self, arg0: gfServerOption) -> None: ...
-    def __str__(self) -> str: ...
-    def build(self) -> gfServerOption: ...
-    def withCanStop(self, withCanStop: bool) -> gfServerOption: ...
-    def withDebugLog(self, withDebugLog: bool) -> gfServerOption: ...
-    def withIndexFile(self, withIndexFile: str) -> gfServerOption: ...
-    def withIpLog(self, withIpLog: bool) -> gfServerOption: ...
-    def withLog(self, withLog: str) -> gfServerOption: ...
-    def withLogFacility(self, withLogFacility: str) -> gfServerOption: ...
-    def withMask(self, withMask: bool) -> gfServerOption: ...
-    def withMaxAaSize(self, withMaxAaSize: int) -> gfServerOption: ...
-    def withMaxDnaHits(self, withMaxDnaHits: int) -> gfServerOption: ...
-    def withMaxGap(self, withMaxGap: int) -> gfServerOption: ...
-    def withMaxNtSize(self, withMaxNtSize: int) -> gfServerOption: ...
-    def withMaxTransHits(self, withMaxTransHits: int) -> gfServerOption: ...
-    def withMinMatch(self, withMinMatch: int) -> gfServerOption: ...
-    def withNoSimpRepMask(self, withNoSimpRepMask: bool) -> gfServerOption: ...
-    def withPerSeqMax(self, withPerSeqMax: str) -> gfServerOption: ...
-    def withRepMatch(self, withRepMatch: int) -> gfServerOption: ...
-    def withSeqLog(self, withSeqLog: bool) -> gfServerOption: ...
-    def withStepSize(self, withStepSize: int) -> gfServerOption: ...
-    def withSyslog(self, withSyslog: bool) -> gfServerOption: ...
-    def withTileSize(self, withTileSize: int) -> gfServerOption: ...
-    def withTimeout(self, withTimeout: int) -> gfServerOption: ...
-    def withTrans(self, withTrans: bool) -> gfServerOption: ...
+    def build(self) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::build() --> struct cppbinding::gfServerOption &
+        """
+    def to_string(self) -> str:
+        """
+        C++: cppbinding::gfServerOption::to_string() const --> std::string
+        """
+    def withCanStop(self, canStop_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withCanStop(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withDebugLog(self, debugLog_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withDebugLog(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withIndexFile(self, indexFile_: str) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withIndexFile(std::string) --> struct cppbinding::gfServerOption &
+        """
+    def withIpLog(self, ipLog_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withIpLog(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withLog(self, log_: str) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withLog(std::string) --> struct cppbinding::gfServerOption &
+        """
+    def withLogFacility(self, logFacility_: str) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withLogFacility(std::string) --> struct cppbinding::gfServerOption &
+        """
+    def withMask(self, mask_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMask(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withMaxAaSize(self, maxAaSize_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMaxAaSize(int) --> struct cppbinding::gfServerOption &
+        """
+    def withMaxDnaHits(self, maxDnaHits_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMaxDnaHits(int) --> struct cppbinding::gfServerOption &
+        """
+    def withMaxGap(self, maxGap_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMaxGap(int) --> struct cppbinding::gfServerOption &
+        """
+    def withMaxNtSize(self, maxNtSize_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMaxNtSize(int) --> struct cppbinding::gfServerOption &
+        """
+    def withMaxTransHits(self, maxTransHits_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMaxTransHits(int) --> struct cppbinding::gfServerOption &
+        """
+    def withMinMatch(self, minMatch_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withMinMatch(int) --> struct cppbinding::gfServerOption &
+        """
+    def withNoSimpRepMask(self, noSimpRepMask_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withNoSimpRepMask(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withPerSeqMax(self, perSeqMax_: str) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withPerSeqMax(std::string) --> struct cppbinding::gfServerOption &
+        """
+    def withRepMatch(self, repMatch_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withRepMatch(int) --> struct cppbinding::gfServerOption &
+        """
+    def withSeqLog(self, seqLog_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withSeqLog(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withStepSize(self, stepSize_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withStepSize(int) --> struct cppbinding::gfServerOption &
+        """
+    def withSyslog(self, syslog_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withSyslog(bool) --> struct cppbinding::gfServerOption &
+        """
+    def withTileSize(self, tileSize_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withTileSize(int) --> struct cppbinding::gfServerOption &
+        """
+    def withTimeout(self, timeout_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withTimeout(int) --> struct cppbinding::gfServerOption &
+        """
+    def withTrans(self, trans_: bool) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withTrans(bool) --> struct cppbinding::gfServerOption &
+        """
     @property
     def allowOneMismatch(self) -> bool:
         """
@@ -231,33 +604,57 @@ class gfServerOption:
     @trans.setter
     def trans(self, arg0: bool) -> None:
         pass
+    pass
 
 def buildIndex(
     gfxFile: str, fileCount: int, seqFiles: typing.List[str], options: gfServerOption
 ) -> None:
+    """
+    C++: cppbinding::buildIndex(std::string &, int, class std::vector<std::string >, const struct cppbinding::gfServerOption &) --> void
+    """
+
+@typing.overload
+def faToTwoBit(inFiles: typing.List[str], outFile: str) -> int:
+    """
+    C++: cppbinding::faToTwoBit(class std::vector<std::string > &, std::string &, bool, bool, bool, bool) --> int
+    """
+
+@typing.overload
+def faToTwoBit(inFiles: typing.List[str], outFile: str, noMask: bool) -> int:
     pass
 
+@typing.overload
+def faToTwoBit(
+    inFiles: typing.List[str], outFile: str, noMask: bool, stripVersion: bool
+) -> int:
+    pass
+
+@typing.overload
 def faToTwoBit(
     inFiles: typing.List[str],
     outFile: str,
-    noMask: bool = False,
-    stripVersion: bool = False,
-    ignoreDups: bool = False,
-    useLong: bool = False,
+    noMask: bool,
+    stripVersion: bool,
+    ignoreDups: bool,
 ) -> int:
-    """
-    A function that converts FASTA files to twoBit files:
-     long:     use 64-bit offsets for index
-    noMask: Ignore lower-case masking in fa file.
-    stripVersion:  Strip off version number after .
-    ignoreDups:    Convert first sequence only if there are duplicate sequence names.
-    """
+    pass
+
+@typing.overload
+def faToTwoBit(
+    inFiles: typing.List[str],
+    outFile: str,
+    noMask: bool,
+    stripVersion: bool,
+    ignoreDups: bool,
+    useLong: bool,
+) -> int:
+    pass
 
 def genoFindDirect(
     probeName: str, fileCount: int, seqFiles: typing.List[str], options: gfServerOption
 ) -> None:
     """
-    genoFindDirect
+    C++: cppbinding::genoFindDirect(std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) --> void
     """
 
 def genoPcrDirect(
@@ -268,22 +665,70 @@ def genoPcrDirect(
     options: gfServerOption,
 ) -> None:
     """
-    A function that performs PCR on genomic sequences
+    C++: cppbinding::genoPcrDirect(std::string &, std::string &, int, class std::vector<std::string > &, const struct cppbinding::gfServerOption &) --> void
     """
 
-def getFileList(hostName: str, arg1: str) -> None:
-    pass
+def getFileList(hostName: str, portName: str) -> None:
+    """
+    C++: cppbinding::getFileList(std::string &, std::string &) --> void
+    """
+
+def getPortIx(portName: str) -> int:
+    """
+    C++: cppbinding::getPortIx(char *) --> int
+    """
+
+def gfServer(options: gfServerOption) -> None:
+    """
+    C++: cppbinding::gfServer(struct cppbinding::gfServerOption &) --> void
+    """
 
 def pcrServer(
     hostName: str, portName: str, fPrimer: str, rPrimer: str, maxSize: int
 ) -> None:
-    pass
+    """
+    C++: cppbinding::pcrServer(std::string &, std::string &, std::string &, std::string &, int) --> void
+    """
+
+def pygetFileList(hostName: str, portName: str) -> str:
+    """
+    C++: cppbinding::pygetFileList(std::string &, std::string &) --> std::string
+    """
+
+def pygfClient(option: gfClientOption) -> str:
+    """
+    C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string
+    """
+
+def pyqueryServer(
+    type: str, hostName: str, portName: str, faName: str, complex: bool, isProt: bool
+) -> str:
+    """
+    C++: cppbinding::pyqueryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) --> std::string
+    """
+
+def pystartServer(
+    hostName: str,
+    portName: str,
+    fileCount: int,
+    seqFiles: typing.List[str],
+    options: gfServerOption,
+    stats: UsageStats,
+) -> int:
+    """
+    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> int
+    """
+
+def pystatusServer(hostName: str, portName: str, options: gfServerOption) -> str:
+    """
+    C++: cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) --> std::string
+    """
 
 def queryServer(
     type: str, hostName: str, portName: str, faName: str, complex: bool, isProt: bool
 ) -> None:
     """
-    queryServer
+    C++: cppbinding::queryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) --> void
     """
 
 def startServer(
@@ -292,15 +737,28 @@ def startServer(
     fileCount: int,
     seqFiles: typing.List[str],
     options: gfServerOption,
+    stats: UsageStats,
 ) -> None:
     """
-    startServer
+    C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> void
     """
 
 def statusServer(hostName: str, portName: str, options: gfServerOption) -> int:
-    pass
+    """
+    C++: cppbinding::statusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) --> int
+    """
 
 def stopServer(hostName: str, portName: str) -> None:
     """
-    stop sever
+    C++: cppbinding::stopServer(std::string &, std::string &) --> void
+    """
+
+def test_add(a: int) -> None:
+    """
+    C++: cppbinding::test_add(int &) --> void
+    """
+
+def test_stdout() -> None:
+    """
+    C++: cppbinding::test_stdout() --> void
     """
