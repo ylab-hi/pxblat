@@ -1489,7 +1489,7 @@ std::string pyqueryServer(std::string &type, std::string &hostName, std::string 
       errAbort("%s", buf);
       break;
     } else {
-      printf("%s\n", buf);
+      // printf("%s\n", buf);
       ret_str << buf << "\n";
       if (complex) {
         char *s = netGetLongString(sd);
@@ -1758,7 +1758,7 @@ gfServerOption &gfServerOption::build() {
     repMatch = gfPepMaxTileUse;
   }
 
-  if (repMatch == 0)  // do not exist
+  if (repMatch == 0)
     repMatch = gfDefaultRepMatch(tileSize, stepSize, bool2boolean(trans));
   else
     repMatch = 0;

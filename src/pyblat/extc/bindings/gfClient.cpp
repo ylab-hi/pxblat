@@ -1,8 +1,7 @@
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "gfClient.hpp"
 
 #include <sstream>
-
-#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 /* Copyright 2001-2003 Jim Kent.  All rights reserved. */
@@ -13,9 +12,10 @@ std::string read_inmem_file(FILE *file) {
   std::ostringstream ret_str{};
   fseek(file, 0, SEEK_SET);
 
-  char line[1024];
+  int buffsize = 1024;
+  char line[buffsize];
 
-  while (fgets(line, sizeof(line), file) != NULL) {
+  while (fgets(line, buffsize, file) != NULL) {
     ret_str << line;
   }
   return ret_str.str();
@@ -46,8 +46,9 @@ std::string pygfClient(gfClientOption &option)
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
-  char buffer[1024];
-  FILE *out = fmemopen(buffer, strlen(buffer), "w+");
+  int buffsize = 1024;
+  char buffer[buffsize];
+  FILE *out = fmemopen(buffer, buffsize, "w+");
   if (out == NULL) {
     errAbort("Can't open in memory file %s", outName);
   }

@@ -20,6 +20,11 @@ pyblat
 
 ---
 
+## TODO
+
+- [ ] parse gfserver result
+- [ ] parser gfclient result
+
 A binding for blat server and client
 
 ## 📚 Table of Contents

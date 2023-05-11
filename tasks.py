@@ -118,7 +118,6 @@ def cclient(c):
 @task
 def pclient(c):
     server_option, client_option, stat = option_stat()
-
     ret = extc.pygfClient(client_option)
     print(client_option)
     print(ret)
@@ -145,10 +144,11 @@ def pstop_server(c):
 
 @task
 def pquery_server(c):
-    extc.gfServerOption().withCanStop(True).withStepSize(5).build()
-    extc.queryServer(
-        "query", "localhost", "PORT", "tests/data/test_case1.fa", False, False
+    ret = extc.pyqueryServer(
+        "query", "localhost", str(PORT), "tests/data/test_case1.fa", False, False
     )
+
+    print(f"{ret=}")
 
 
 @task
@@ -165,13 +165,6 @@ def server(c):
 
     server.stop()
     print("python: server stopped")
-
-
-@task
-def stdout(c):
-    # Call a function from the shared library that prints to stdout
-    # extc.test_stdout()
-    pass
 
 
 @task
@@ -233,14 +226,6 @@ def st(c):
 @task
 def ls(c):
     ret = pyblat.server.files("localhost", PORT)
-    print(f"{ret=}")
-
-
-@task
-def qu(c):
-    ret = pyblat.server.query_server(
-        "query", "localhost", PORT, "tests/data/test_case1.fa", False, False
-    )
     print(f"{ret=}")
 
 

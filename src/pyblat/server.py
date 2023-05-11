@@ -76,11 +76,6 @@ def status_server(host: str, port: int, options: gfServerOption):
     return data
 
 
-# @redirected
-# def stop_server(host: str, port: int):
-#     return stopServer(host, str(port))
-
-
 def stop_server(host: str, port: int):
     message = f"{gfSignature()}quit".encode()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -139,8 +134,8 @@ class Server:
     def files(self) -> list[str]:
         return files(self.host, self.port)
 
-    def query(self):
-        pass
+    def query(self, intype: str, faName: str, isComplex: bool, isProt: bool):
+        return query_server(intype, self.host, self.port, faName, isComplex, isProt)
 
     def __str__(self):
         return f"Server({self.host}, {self.port}, {self.options})"
