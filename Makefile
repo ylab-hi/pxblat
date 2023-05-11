@@ -62,10 +62,10 @@ clean-logs: ## Clean logs
 format: ## Run pre-commit hooks
 	pre-commit run -a
 
-clangd:
+clangd: ## Generate clangd index
 	bear -- make all_bin
 
-test:
+test: ## Run tests
 	pytest -vls tests
 
 install: binder ## install the lib
