@@ -32,7 +32,7 @@ RUN apt-get install -yq \
     build-essential \
     zlib1g-dev \
     libhts-dev \
-    libssl-dev 
+    libssl-dev
 
 # Clone binder source
 ARG REPO="https://github.com/RosettaCommons/binder.git"

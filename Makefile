@@ -69,9 +69,11 @@ test: ## Run tests
 	pytest -vls tests
 
 install: binder ## install the lib
+	echo "Installing pyblat"
 	poetry install -vvvv
 
-stubs: install ## Generate pybind11 stubs
+stubs: ## Generate pybind11 stubs
+	echo "Generating pybind11 stubs"
 	rm -rf stubs
 	pybind11-stubgen pyblat._extc.cppbinding
 	cp stubs/pyblat/_extc/cppbinding-stubs/__init__.pyi src/pyblat/extc/__init__.pyi
@@ -79,6 +81,7 @@ stubs: install ## Generate pybind11 stubs
 BINDER_DIR=src/pyblat/extc/bindings/binder
 
 binder: ## Generate pybind11 bindings
+	echo "Generating pybind11 bindings"
 	# rm -rf $(BINDER_DIR)/*cpp
 	# rm -rf $(BINDER_DIR)/*modules
 	# rm -rf $(BINDER_DIR)/*sources
