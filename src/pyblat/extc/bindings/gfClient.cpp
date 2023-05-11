@@ -7,6 +7,8 @@
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 /* Copyright 2001-2003 Jim Kent.  All rights reserved. */
 
+namespace cppbinding {
+
 std::string read_inmem_file(FILE *file) {
   std::ostringstream ret_str{};
   fseek(file, 0, SEEK_SET);
@@ -243,3 +245,4 @@ std::string gfClientOption::to_string() const {
 
   return ret.str();
 }
+}  // namespace cppbinding

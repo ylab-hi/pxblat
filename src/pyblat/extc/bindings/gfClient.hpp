@@ -14,6 +14,7 @@
 #include "portable.h"
 #include "psl.h"
 
+namespace cppbinding {
 // "   -t=type       Database type. Type is one of:\n"
 // "                   dna - DNA sequence\n"
 // "                   prot - protein sequence\n"
@@ -111,5 +112,6 @@ struct gfClientOption {
 
 std::string pygfClient(gfClientOption &option);
 std::string read_inmem_file(FILE *file);
+}  // namespace cppbinding
 
 #endif

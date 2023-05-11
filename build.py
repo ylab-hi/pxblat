@@ -134,11 +134,11 @@ def get_extra_options():
 
 SOURCES = (
     [
-        "src/pyblat/extc/bindings/binding.cpp",
         "src/pyblat/extc/bindings/faToTwoBit.cpp",
         "src/pyblat/extc/bindings/gfServer.cpp",
         "src/pyblat/extc/bindings/gfClient.cpp",
     ]
+    + list(filter_files(get_files("src/pyblat/extc/bindings/binder", [".cpp"])))
     + list(filter_files(get_files("src/pyblat/extc/src/core", [".c"])))
     + list(
         filter_files(get_files("src/pyblat/extc/src/aux", [".c"]), exclude=["net.c"])

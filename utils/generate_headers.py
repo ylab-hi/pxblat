@@ -67,7 +67,6 @@ def main():
             write_headers_to_file(
                 Path("./all_includes.hpp"), generate_headers(path), sys.argv[2:]
             )
-
         print("Done. Please check the file 'all_includes.hpp'.")
 
 

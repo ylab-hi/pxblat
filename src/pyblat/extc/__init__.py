@@ -1,1 +1,1 @@
-from pyblat._extc import *
+from pyblat._extc.cppbinding import *

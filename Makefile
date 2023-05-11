@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 help:  ## Show help
 	@grep -E '^[.a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
@@ -71,3 +73,21 @@ test:
 
 stubs:
 	pybind11-stubgen pyblat
+
+BINDER_DIR=src/pyblat/extc/bindings/binder
+
+binder:
+	rm -rf $(BINDER_DIR)
+	mkdir $(BINDER_DIR)
+	module load singularity
+	singularity  run -B  .:/bind  docker://yangliz5/binder-pyblat \
+		binder --root-module _extc \
+		--prefix /bind/$(BINDER_DIR) \
+		--config /bind/binder.cfg \
+		--include-pybind11-stl \
+		/bind/all_includes.hpp \
+		-- -I/bind/src/pyblat/extc/include/core \
+		-I/bind/src/pyblat/extc/include/aux \
+		-I/bind/src/pyblat/extc/include/net \
+		-I/bind/src/pyblat/extc/bindings \
+		-DNDEBUG

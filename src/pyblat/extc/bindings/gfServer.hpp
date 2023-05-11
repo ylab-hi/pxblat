@@ -32,6 +32,8 @@
 #include "trans3.h"
 #include "twoBit.h"
 
+namespace cppbinding {
+
 // long baseCount = 0, blatCount = 0, aaCount = 0, pcrCount = 0;
 // int warnCount = 0;
 // int noSigCount = 0;
@@ -111,8 +113,8 @@ struct gfServerOption {
   std::string to_string() const;
 
   gfServerOption &withCanStop(bool canStop_);
-  gfServerOption &withLog(std::string log_);
   gfServerOption &withLogFacility(std::string logFacility_);
+  gfServerOption &withLog(std::string log_);
   gfServerOption &withMask(bool mask_);
   gfServerOption &withMaxAaSize(int maxAaSize_);
   gfServerOption &withMaxDnaHits(int maxDnaHits_);
@@ -134,12 +136,10 @@ struct gfServerOption {
   gfServerOption &withTimeout(int timeout_);
 };
 
-void gfServer();
-
+void gfServer(gfServerOption &options);
 bool boolean2bool(boolean b);
-boolean bool2boolean(bool b);
 
-void usage(gfServerOption const &options);
+boolean bool2boolean(bool b);
 
 void setSendOk(boolean &sendOk);
 void errSendString(int sd, char *s, boolean &sendOk);
@@ -229,4 +229,5 @@ std::string pystatusServer(std::string &hostName, std::string &portName, gfServe
 std::string pygetFileList(std::string &hostName, std::string &portName);
 std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
                           bool complex, bool isProt);
+}  // namespace cppbinding
 #endif

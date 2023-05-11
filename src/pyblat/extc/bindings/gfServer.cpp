@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <string>
+namespace cppbinding {
 
 bool boolean2bool(boolean b) { return b == TRUE; }
 boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
@@ -796,7 +797,8 @@ void gfServer(gfServerOption &options)
     // dynamicServer(argv[2]);
     printf("dynserver\n");
   } else {
-    usage(options);
+    // usage(options);
+    printf("usage\n");
   }
 }
 
@@ -1124,7 +1126,8 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
                   faWriteNext(lf, "query", seq.dna, seq.size);
                   fflush(lf);
                 }
-                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, options, stats);
+                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, options, stats,
+                               sendOk);
                 if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
               }
               freez(&seq.dna);
@@ -1385,7 +1388,8 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
                   faWriteNext(lf, "query", seq.dna, seq.size);
                   fflush(lf);
                 }
-                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, options, stats);
+                errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, options, stats,
+                               sendOk);
                 if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
               }
               freez(&seq.dna);
@@ -1900,3 +1904,4 @@ std::string gfServerOption::to_string() const {
 
 void test_stdout() { printf("stdout\n"); }
 void test_add(int &a) { a += 1; }
+}  // namespace cppbinding

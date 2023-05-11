@@ -2,6 +2,8 @@
 
 #include "faToTwoBit.hpp"
 
+namespace cppbinding {
+
 void unknownToN(char *s, int size)
 /* Convert non ACGT characters to N. */
 {
@@ -71,4 +73,7 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
     twoBitWriteOne(twoBit, f);
   }
   carefulClose(&f);
+
+  return 0;
 }
+}  // namespace cppbinding

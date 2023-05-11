@@ -17,6 +17,7 @@ using std::min;
 #include "options.h"
 #include "twoBit.h"
 
+namespace cppbinding {
 // "faToTwoBit - Convert DNA from fasta to 2bit format\n"
 // "usage:\n"
 // "   faToTwoBit in.fa [in2.fa in3.fa ...] out.2bit\n"
@@ -34,5 +35,7 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
                bool ignoreDups = false, bool useLong = false);
 
 void unknownToN(char *s, int size);
+
+}  // namespace cppbinding
 
 #endif  // CFA_TO_TWO_BIT_H
