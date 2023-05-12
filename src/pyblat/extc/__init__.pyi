@@ -4,6 +4,7 @@ import pyblat._extc.cppbinding
 import typing
 
 __all__ = [
+    "Signal",
     "UsageStats",
     "buildIndex",
     "faToTwoBit",
@@ -18,18 +19,32 @@ __all__ = [
     "pygetFileList",
     "pygfClient",
     "pyqueryServer",
-    "pystartServer",
     "pystatusServer",
     "queryServer",
     "startServer",
     "statusServer",
     "stopServer",
     "test_add",
+    "test_stat",
     "test_stdout",
 ]
 
+class Signal:
+    def __init__(self) -> None: ...
+    def __str__(self) -> str: ...
+    @property
+    def isReady(self) -> bool:
+        """
+        :type: bool
+        """
+    @isReady.setter
+    def isReady(self, arg0: bool) -> None:
+        pass
+    pass
+
 class UsageStats:
     def __init__(self) -> None: ...
+    def __str__(self) -> str: ...
     @property
     def aaCount(self) -> int:
         """
@@ -101,6 +116,7 @@ class gfClientOption:
     def __init__(self) -> None: ...
     @typing.overload
     def __init__(self, arg0: gfClientOption) -> None: ...
+    def __str__(self) -> str: ...
     def build(self) -> gfClientOption:
         """
         C++: cppbinding::gfClientOption::build() --> struct cppbinding::gfClientOption &
@@ -308,6 +324,7 @@ class gfServerOption:
     def __init__(self) -> None: ...
     @typing.overload
     def __init__(self, arg0: gfServerOption) -> None: ...
+    def __str__(self) -> str: ...
     def build(self) -> gfServerOption:
         """
         C++: cppbinding::gfServerOption::build() --> struct cppbinding::gfServerOption &
@@ -707,18 +724,6 @@ def pyqueryServer(
     C++: cppbinding::pyqueryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) --> std::string
     """
 
-def pystartServer(
-    hostName: str,
-    portName: str,
-    fileCount: int,
-    seqFiles: typing.List[str],
-    options: gfServerOption,
-    stats: UsageStats,
-) -> int:
-    """
-    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> int
-    """
-
 def pystatusServer(hostName: str, portName: str, options: gfServerOption) -> str:
     """
     C++: cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) --> std::string
@@ -738,9 +743,10 @@ def startServer(
     seqFiles: typing.List[str],
     options: gfServerOption,
     stats: UsageStats,
+    signal: Signal,
 ) -> None:
     """
-    C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> void
+    C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &, struct cppbinding::Signal &) --> void
     """
 
 def statusServer(hostName: str, portName: str, options: gfServerOption) -> int:
@@ -756,6 +762,11 @@ def stopServer(hostName: str, portName: str) -> None:
 def test_add(a: int) -> None:
     """
     C++: cppbinding::test_add(int &) --> void
+    """
+
+def test_stat(stats: UsageStats) -> None:
+    """
+    C++: cppbinding::test_stat(struct cppbinding::UsageStats &) --> void
     """
 
 def test_stdout() -> None:

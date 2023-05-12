@@ -39,9 +39,12 @@ def test_start_server():
 
     server_option, client_option, stat = option_stat()
 
+    signal = extc.Signal()
+    print(signal.isReady)
     ret = pyblat.server.start_server(
-        "localhost", PORT, two_bit_file.as_posix(), server_option, stat
+        "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
     )
+    print(signal.isReady)
     return ret
 
 

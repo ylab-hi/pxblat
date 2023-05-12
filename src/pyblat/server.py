@@ -7,6 +7,7 @@ from .extc import faToTwoBit
 from .extc import gfServerOption
 from .extc import pygetFileList
 from .extc import pyqueryServer
+from .extc import Signal
 from .extc import startServer
 from .extc import UsageStats
 from .utils import redirected
@@ -102,9 +103,14 @@ def query_server(
 
 # @redirected
 def start_server(
-    host: str, port: int, two_bit_file: str, option: gfServerOption, stat: UsageStats
+    host: str,
+    port: int,
+    two_bit_file: str,
+    option: gfServerOption,
+    stat: UsageStats,
+    signal: Signal,
 ):
-    return startServer(host, str(port), 1, [two_bit_file], option, stat)
+    return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
 
 
 class Server:
@@ -114,6 +120,7 @@ class Server:
         self.two_bit = two_bit
         self.options = options
         self.process_handle = None
+        self.signal = Signal()
 
     def start(self):
         self.process_handle = Process(
@@ -146,7 +153,7 @@ class Server:
     __repr__ = __str__
 
     def is_ready(self):
-        return self.status().is_ok()
+        return self.signal.isReady
 
     def wait_ready(self):
         while not self.is_ready():
