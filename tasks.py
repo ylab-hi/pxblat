@@ -250,3 +250,13 @@ def sc(c):
 def ls(c):
     ret = pyblat.server.files("localhost", PORT)
     print(f"{ret=}")
+
+
+@task
+def tb(c):
+    a = extc.Signal()
+    a.isReady = True
+
+    print(f"before {a.isReady=}")
+    extc.test_bool(a)
+    print(f"after {a.isReady=}")

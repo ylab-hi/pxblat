@@ -9,6 +9,7 @@
 
 #include <cstring>
 #include <ctime>
+#include <ios>
 #include <optional>
 #include <ostream>
 #include <sstream>
@@ -34,6 +35,12 @@
 #include "twoBit.h"
 
 namespace cppbinding {
+
+struct Signal {
+  bool isReady{};
+  Signal() = default;
+  friend std::ostream &operator<<(std::ostream &os, const Signal &signal);
+};
 
 // long baseCount = 0, blatCount = 0, aaCount = 0, pcrCount = 0;
 // int warnCount = 0;
@@ -165,7 +172,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
                  gfServerOption &options, UsageStats &stats);
 
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &options, UsageStats &stats);
+                  gfServerOption &options, UsageStats &stats, Signal &signal);
 
 // void stopServer(char *hostName, char *portName);
 void stopServer(std::string &hostName, std::string &portName);
@@ -226,6 +233,9 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
 
 boolean badPcrPrimerSeq(char *s);
 
+genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName, int fileCount, char *seqFiles[],
+                                   hash *perSeqMaxHash, gfServerOption &option);
+
 std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options);
 std::string pygetFileList(std::string &hostName, std::string &portName);
 std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
@@ -234,5 +244,6 @@ std::string pyqueryServer(std::string &type, std::string &hostName, std::string 
 void test_stdout();
 void test_add(int &a);
 void test_stat(UsageStats &stats);
+
 }  // namespace cppbinding
 #endif

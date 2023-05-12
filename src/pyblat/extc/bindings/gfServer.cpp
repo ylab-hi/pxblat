@@ -1,9 +1,10 @@
-#include "dbg.h"
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#include "gfServer.hpp"
+
 #include <sstream>
 #include <string>
 
-#include "gfServer.hpp"
+#include "dbg.h"
 namespace cppbinding {
 
 bool boolean2bool(boolean b) { return b == TRUE; }
@@ -908,13 +909,64 @@ void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, st
   genoFindFree(&gf);
 }
 
+genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName, int fileCount, char *seqFiles[],
+                                   hash *perSeqMaxHash, gfServerOption &option) {
+  auto indexFile = option.indexFile.empty() ? NULL : option.indexFile.data();
+
+  auto ipLog = option.ipLog;
+  auto minMatch = option.minMatch;
+  auto maxGap = option.maxGap;
+  auto tileSize = option.tileSize;
+  auto repMatch = option.repMatch;
+  auto stepSize = option.stepSize;
+  auto timeout = option.timeout;
+  auto maxAaSize = option.maxAaSize;
+  auto maxNtSize = option.maxNtSize;
+
+  boolean seqLog = bool2boolean(option.seqLog);
+  boolean canStop = bool2boolean(option.canStop);
+  boolean doTrans = bool2boolean(option.trans);
+  boolean doMask = bool2boolean(option.mask);
+  boolean allowOneMismatch = bool2boolean(option.allowOneMismatch);
+  boolean noSimpRepMask = bool2boolean(option.noSimpRepMask);
+
+  struct genoFindIndex *gfIdx = NULL;
+  time_t curtime;
+  struct tm *loctime;
+  char timestr[256];
+
+  netBlockBrokenPipes();
+
+  curtime = time(NULL);                                          /* Get the current time. */
+  loctime = localtime(&curtime);                                 /* Convert it to local time representation. */
+  strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
+
+  logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName.data(), portName.data(), timestr);
+  perSeqMaxHash = maybePerSeqMax(fileCount, seqFiles, option);
+
+  time_t startIndexTime = clock1000();
+  if (indexFile == NULL) {
+    char const *desc = doTrans ? "translated" : "untranslated";
+    uglyf("starting %s server...\n", desc);
+    logInfo("setting up %s index", desc);
+    gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
+                               allowOneMismatch, doMask, stepSize, noSimpRepMask);
+    logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+  } else {
+    gfIdx = genoFindIndexLoad(indexFile, doTrans);
+    logInfo("index loading completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
+  }
+  logGenoFindIndex(gfIdx);
+  return gfIdx;
+}
+
 /* error code
  * -1 errAbort("Fatal Error: Unable to open listening socket on port %d.", port)
   -2 errAbort( "100 continuous connection failures, no point in filling up "
             "the log in an infinite loop.");
  */
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &options, UsageStats &stats)
+                  gfServerOption &options, UsageStats &stats, Signal &signal)
 /* Load up index and hang out in RAM. */
 {
   auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
@@ -947,7 +999,6 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     cseqFiles.push_back(string.data());
   }
 
-  struct genoFindIndex *gfIdx = NULL;
   char buf[256];
   char *line, *command;
   struct sockaddr_in6 fromAddr;
@@ -955,45 +1006,27 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
   int readSize;
   int socketHandle = 0, connectionHandle = 0;
   int port = atoi(portName.data());
-  time_t curtime;
-  struct tm *loctime;
-  char timestr[256];
 
-  netBlockBrokenPipes();
-
-  curtime = time(NULL);                                          /* Get the current time. */
-  loctime = localtime(&curtime);                                 /* Convert it to local time representation. */
-  strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M", loctime); /* formate datetime as string */
-
-  logInfo("gfServer version %s on host %s, port %s  (%s)", gfVersion, hostName.data(), portName.data(), timestr);
-  struct hash *perSeqMaxHash = maybePerSeqMax(fileCount, cseqFiles.data(), options);
-
-  time_t startIndexTime = clock1000();
-  if (indexFile == NULL) {
-    char const *desc = doTrans ? "translated" : "untranslated";
-    uglyf("starting %s server...\n", desc);
-    logInfo("setting up %s index", desc);
-    gfIdx = genoFindIndexBuild(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
-                               allowOneMismatch, doMask, stepSize, noSimpRepMask);
-    logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
-  } else {
-    gfIdx = genoFindIndexLoad(indexFile, doTrans);
-    logInfo("index loading completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
-  }
-  logGenoFindIndex(gfIdx);
+  struct hash *perSeqMaxHash;
+  genoFindIndex *gfIdx = pybuildIndex4Server(hostName, portName, fileCount, cseqFiles.data(), perSeqMaxHash, options);
 
   /* Set up socket.  Get ready to listen to it. */
   socketHandle = netAcceptingSocket(port, 100);
   if (socketHandle < 0) return -1;
 
-  logInfo("Server ready for queries!");
-  printf("Server ready for queries!\n");
+  signal.isReady = true;
+  // logInfo("Server ready for queries!");
+  // printf("Server ready for queries!\n");
+
   int connectFailCount = 0;
   for (;;) {
     ZeroVar(&fromAddr);
     fromLen = sizeof(fromAddr);
     connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
     setSendOk(sendOk);
+
+    // use poll
+
     if (connectionHandle < 0) {
       warn("Error accepting the connection");
       ++stats.warnCount;
@@ -1003,6 +1036,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     } else {
       connectFailCount = 0;
     }
+
     setSocketTimeout(connectionHandle, timeout);
     if (ipLog) {
       struct sockaddr_in6 clientAddr;
@@ -1013,6 +1047,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       logInfo("gfServer version %s on host %s, port %s connection from %s", gfVersion, hostName.data(), portName.data(),
               ipStr);
     }
+
     readSize = read(connectionHandle, buf, sizeof(buf) - 1);
     if (readSize < 0) {
       warn("Error reading from socket: %s", strerror(errno));
@@ -1020,12 +1055,14 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       close(connectionHandle);
       continue;
     }
+
     if (readSize == 0) {
       warn("Zero sized query");
       ++stats.warnCount;
       close(connectionHandle);
       continue;
     }
+
     buf[readSize] = 0;
     logDebug("%s", buf);
     if (!startsWith(gfSignature(), buf)) {
@@ -1033,6 +1070,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       close(connectionHandle);
       continue;
     }
+
     line = buf + strlen(gfSignature());
     command = nextWord(&line);
     if (sameString("quit", command)) {
@@ -1040,6 +1078,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
         break;
       else
         logError("Ignoring quit message");
+
     } else if (sameString("status", command) || sameString("transInfo", command) ||
                sameString("untransInfo", command)) {
       sprintf(buf, "version %s", gfVersion);
@@ -1077,12 +1116,14 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       sprintf(buf, "warnings %d", stats.warnCount);
       errSendString(connectionHandle, buf, sendOk);
       errSendString(connectionHandle, "end", sendOk);
+
     } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command)) {
       boolean queryIsProt = sameString(command, "protQuery");
       char *s = nextWord(&line);
       if (s == NULL || !isdigit(s[0])) {
         warn("Expecting query size after query command");
         ++stats.warnCount;
+
       } else {
         struct dnaSeq seq;
         ZeroVar(&seq);
@@ -1924,6 +1965,12 @@ std::ostream &operator<<(std::ostream &os, const UsageStats &stats) {
   os << ", missCount: " << stats.missCount;
   os << ", trimCount: " << stats.trimCount;
   os << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Signal &signal) {
+  os << "Signal(";
+  os << "signal: " << std::boolalpha << signal.isReady;
   return os;
 }
 

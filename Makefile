@@ -89,9 +89,6 @@ BINDER_DIR=src/pyblat/extc/bindings/binder
 
 binder: ## Generate pybind11 bindings
 	echo "Generating pybind11 bindings"
-	# rm -rf $(BINDER_DIR)/*cpp
-	# rm -rf $(BINDER_DIR)/*modules
-	# rm -rf $(BINDER_DIR)/*sources
 	singularity  run -B  .:/bind  docker://yangliz5/binder-pyblat \
 		binder --root-module _extc \
 		--prefix /bind/$(BINDER_DIR) \
