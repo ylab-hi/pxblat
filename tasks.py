@@ -1,4 +1,8 @@
 import asyncio
+import subprocess
+import time
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pyblat
@@ -59,32 +63,6 @@ def wait_for_ready(options):
 
 
 @task
-def server_query(c):
-    two_bit_file = Path("tests/data/test_ref.2bit")
-    server_option, client_option, stat = option_stat()
-
-    pyblat.server.start_server(
-        "localhost", PORT, two_bit_file.as_posix(), server_option, stat
-    )
-
-    while True:
-        res2 = pyblat.server.status_server("localhost", PORT, server_option)
-        if res2.returncode >= 0:
-            break
-
-    # print("server is ready")
-
-    # pyblat.server.stop_server("localhost", PORT)
-    # print("stopping server")
-    # res1.result().join()
-
-    # print(f"{res1.stdout=}")
-    # print(f"{res1.stderr=}")
-
-    # extc.stopServer("localhost", "PORT")
-
-
-@task
 def cstatus_server(c, docs=False):
     c.run(f"gfServer status localhost {PORT}")
 
@@ -115,8 +93,8 @@ def cclient(c):
     # f"{self.gfclient} -minScore=20 -minIdentity={mini_identity} localhost {self.port} . " f"{in_fasta} {out_psl}"
 
 
-@task
-def pclient(c):
+def _pclient():
+    time.sleep(10)
     server_option, client_option, stat = option_stat()
     ret = extc.pygfClient(client_option)
     # print(client_option)
@@ -126,30 +104,64 @@ def pclient(c):
 
 
 @task
-def pclient2(c):
-    from Bio import SearchIO
+def pclient(c):
+    start = time.perf_counter()
 
-    ret = SearchIO.read("testcg.psl", "blat-psl")
-    print(ret)
+    with ThreadPoolExecutor(4) as executor:
+        for _i in range(100):
+            # _pclient()
+            executor.submit(_pclient)
+
+    print(f"time: {time.perf_counter() - start}")
+
+
+def _ps():
+    server_option, client_option, stat = option_stat()
+    ret = pyblat.server.status_server("localhost", PORT, server_option)
+    print(f"{ret}")
 
 
 @task
-def cmp(c):
-    from pyblat.parser import PslOutput
+def bpst(c):
+    start = time.perf_counter()
+    idx = 0
 
-    f1 = open("testcg.psl")
+    with ProcessPoolExecutor(4) as executor:
+        for _i in range(4):
+            # _pclient()
+            executor.submit(_ps)
+            print(f"run {idx}")
+            idx += 1
 
-    while a := f1.readline():
-        print(f"{a!r}")
+    print(f"time: {time.perf_counter() - start}")
 
-    f1.close()
-    server_option, client_option, stat = option_stat()
-    print("\n")
 
-    ret = extc.pygfClient(client_option)
-    f2 = PslOutput(ret)
-    while b := f2.readline():
-        print(f"{b!r}")
+@task
+def bcst(c):
+    # 100 0.47
+    # 50 0.24
+    # 1 0.01
+    start = time.perf_counter()
+    ret = []
+    idx = 0
+    for _i in range(4):
+        # "gfServer status localhost {PORT}"
+        t = subprocess.Popen(
+            [
+                "./bin/gfServer",
+                "status",
+                "localhost",
+                str(PORT),
+            ]
+        )
+        ret.append(t)
+        print(f"run {idx}")
+        idx += 1
+
+    for i in ret:
+        i.wait()
+
+    print(f"time: {time.perf_counter() - start}")
 
 
 @task

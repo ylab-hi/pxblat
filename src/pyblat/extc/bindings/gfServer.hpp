@@ -233,6 +233,11 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
 
 boolean badPcrPrimerSeq(char *s);
 
+void setSocketTimeout(int sockfd, int delayInSeconds);
+void hashZeroVals(struct hash *hash);
+void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDistance, int connectionHandle,
+                  boolean &sendOk);
+
 genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName, int fileCount, char *seqFiles[],
                                    hash *perSeqMaxHash, gfServerOption &option);
 

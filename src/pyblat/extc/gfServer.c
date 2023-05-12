@@ -782,6 +782,7 @@ void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[]
         logError("Ignoring quit message");
     } else if (sameString("status", command) || sameString("transInfo", command) ||
                sameString("untransInfo", command)) {
+      sleep(10);
       sprintf(buf, "version %s", gfVersion);
       errSendString(connectionHandle, buf);
       errSendString(connectionHandle, "serverType static");

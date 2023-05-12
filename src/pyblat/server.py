@@ -58,6 +58,7 @@ def status_server(host: str, port: int, options: gfServerOption):
             b"\x07": b"\n",
             b"\x08": b"\n",
             b"\x11": b"\n",
+            b"\x10": b"\n",
             b"\x0b": b"\n",
             b"\x0c": b"\n",
             b"\x0e": b"\n",
@@ -66,11 +67,13 @@ def status_server(host: str, port: int, options: gfServerOption):
             b"end": b"",
         }
 
+    print(f"{data!r}")
+
     for k, v in mapping.items():
         data = data.replace(k, v)
 
     data = {
-        line.split()[0]: line.split()[1]
+        " ".join(line.split()[:-1]): line.split()[-1]
         for line in data.decode("utf-8").strip().split("\n")
     }
     return data

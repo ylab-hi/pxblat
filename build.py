@@ -136,6 +136,7 @@ SOURCES = (
     [
         "src/pyblat/extc/bindings/faToTwoBit.cpp",
         "src/pyblat/extc/bindings/gfServer.cpp",
+        "src/pyblat/extc/bindings/pygfServer.cpp",
         "src/pyblat/extc/bindings/gfClient.cpp",
     ]
     + list(filter_files(get_files("src/pyblat/extc/bindings/binder", [".cpp"])))
