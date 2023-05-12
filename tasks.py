@@ -121,7 +121,8 @@ def pclient(c):
     ret = extc.pygfClient(client_option)
     # print(client_option)
     print(f"{ret!r}")
-    pyblat.read(ret, "psl")
+    res = pyblat.read(ret, "psl")
+    print(res)
 
 
 @task
@@ -253,10 +254,8 @@ def ls(c):
 
 
 @task
-def tb(c):
-    a = extc.Signal()
-    a.isReady = True
-
-    print(f"before {a.isReady=}")
-    extc.test_bool(a)
-    print(f"after {a.isReady=}")
+def cp(c):
+    c.run(
+        "g++ -I/home/ylk4626/miniconda3/envs/pyblat/include -L/home/ylk4626/miniconda3/envs/pyblat/lib -o main  main.cpp -luv"
+    )
+    c.run("./main")

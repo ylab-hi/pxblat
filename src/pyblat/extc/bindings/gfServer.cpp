@@ -1,10 +1,10 @@
+#include "dbg.h"
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-#include "gfServer.hpp"
-
 #include <sstream>
 #include <string>
 
-#include "dbg.h"
+#include "gfServer.hpp"
+
 namespace cppbinding {
 
 bool boolean2bool(boolean b) { return b == TRUE; }
@@ -1974,7 +1974,13 @@ std::ostream &operator<<(std::ostream &os, const Signal &signal) {
   return os;
 }
 
-void test_stdout() { printf("stdout\n"); }
+int globalint = 1;
+
+void test_stdout() {
+  printf("stdout\n");
+  globalint += 1;
+  printf("globalint is %d\n", globalint);
+}
 void test_add(int &a) { a += 1; }
 void test_stat(UsageStats &stats) {
   stats.baseCount += 1;

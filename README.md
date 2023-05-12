@@ -22,9 +22,16 @@ pyblat
 
 ## TODO
 
-- [ ] parse gfserver query result
 - [x] parser gfclient result
+- [ ] parse gfserver query result
 - [ ] multi-connection server
+- [ ] benchmarking multi connection and original version
+- [ ] test result with original version
+- [ ] fix build.py to build ssl, hts, maybe libuv when install with pip
+- [ ] add tool to conda channel
+- [ ] add too to dokerhub
+- [ ] add tool to pip
+- [ ] change abort to throw exceptions
 
 A binding for blat server and client
 
