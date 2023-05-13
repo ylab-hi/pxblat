@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pyblat"
+name = "pxblat"
 version = "0.1.0"
 description = "A native python binding for blat suit"
 authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
@@ -49,11 +49,12 @@ select = [
   # comprehensions
   "C4",
 ]
-exclude = ["src/pyblat/extc/__init__.pyi", "src/pyblat/__init__.py"]
+exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py"]
 
 [tool.ruff.per-file-ignores]
-"src/pyblat/extc/__init__.py" = ["F405", "F403"]
-"src/pyblat/server.py" = ["PLR0913"]
+"src/pxblat/extc/__init__.py" = ["F405", "F403"]
+"src/pxblat/server/basic.py" = ["PLR0913"]
+"src/pxblat/server/server.py" = ["PLR0913"]
 
 
 [tool.poetry.group.dev.dependencies]

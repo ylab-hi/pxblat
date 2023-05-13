@@ -20,8 +20,8 @@ logger.add(
     format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>",
 )
 
-HEADER_DEST_PATH = Path("src/pyblat/extc/header")
-LIB_DEST_PATH = Path("src/pyblat/extc/source")
+HEADER_DEST_PATH = Path("src/pxblat/extc/header")
+LIB_DEST_PATH = Path("src/pxblat/extc/source")
 
 LIB_BASE_PATH1 = Path("kent/src/lib")
 LIB_BASE_PATH2 = Path("kent/src/jkOwnLib")

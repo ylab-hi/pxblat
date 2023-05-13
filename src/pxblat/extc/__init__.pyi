@@ -1,6 +1,6 @@
 """Bindings for ::cppbinding namespace"""
 from __future__ import annotations
-import pyblat._extc.cppbinding
+import pxblat._extc.cppbinding
 import typing
 
 __all__ = [

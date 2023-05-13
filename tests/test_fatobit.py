@@ -1,9 +1,9 @@
 import filecmp
 from pathlib import Path
 
-import pyblat
+import pxblat
 import pytest
-from pyblat import extc
+from pxblat import extc
 
 
 # open server from command line
@@ -97,7 +97,7 @@ def test_start_server(option_stat):
     two_bit_file = Path("tests/data/test_ref.2bit")
     if not two_bit_file.exists():
         extc.faToTwoBit(["tests/data/test_ref.fa"], two_bit_file.as_posix())
-    pyblat.server.start_server(
+    pxblat.server.start_server(
         "localhost", 88888, two_bit_file.as_posix(), option, stat
     )
 

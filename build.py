@@ -134,17 +134,17 @@ def get_extra_options():
 
 SOURCES = (
     [
-        "src/pyblat/extc/bindings/faToTwoBit.cpp",
-        "src/pyblat/extc/bindings/gfServer.cpp",
-        "src/pyblat/extc/bindings/pygfServer.cpp",
-        "src/pyblat/extc/bindings/gfClient.cpp",
+        "src/pxblat/extc/bindings/faToTwoBit.cpp",
+        "src/pxblat/extc/bindings/gfServer.cpp",
+        "src/pxblat/extc/bindings/pygfServer.cpp",
+        "src/pxblat/extc/bindings/gfClient.cpp",
     ]
-    + list(filter_files(get_files("src/pyblat/extc/bindings/binder", [".cpp"])))
-    + list(filter_files(get_files("src/pyblat/extc/src/core", [".c"])))
+    + list(filter_files(get_files("src/pxblat/extc/bindings/binder", [".cpp"])))
+    + list(filter_files(get_files("src/pxblat/extc/src/core", [".c"])))
     + list(
-        filter_files(get_files("src/pyblat/extc/src/aux", [".c"]), exclude=["net.c"])
+        filter_files(get_files("src/pxblat/extc/src/aux", [".c"]), exclude=["net.c"])
     )
-    + list(filter_files(get_files("src/pyblat/extc/src/net", [".c"])))
+    + list(filter_files(get_files("src/pxblat/extc/src/net", [".c"])))
 )
 
 print(SOURCES)
@@ -154,15 +154,15 @@ def build(setup_kwargs):
     """Build cpp extension."""
     ext_modules = [
         Pybind11Extension(
-            "pyblat._extc",
+            "pxblat._extc",
             language="c++",
             sources=SOURCES,
             include_dirs=htslib_include_dirs
             + [
-                "src/pyblat/extc/include/core",
-                "src/pyblat/extc/include/aux",
-                "src/pyblat/extc/include/net",
-                "src/pyblat/extc/bindings",
+                "src/pxblat/extc/include/core",
+                "src/pxblat/extc/include/aux",
+                "src/pxblat/extc/include/net",
+                "src/pxblat/extc/bindings",
             ],
             library_dirs=htslib_library_dirs,
             libraries=external_htslib_libraries,

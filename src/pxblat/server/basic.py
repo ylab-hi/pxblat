@@ -1,17 +1,15 @@
 import socket
 import typing
-from multiprocessing import Process
-from pathlib import Path
 
-from .extc import faToTwoBit
-from .extc import gfServerOption
-from .extc import pygetFileList
-from .extc import pyqueryServer
-from .extc import pystartServer
-from .extc import Signal
-from .extc import startServer
-from .extc import UsageStats
-from .utils import redirected
+from pxblat.extc import faToTwoBit
+from pxblat.extc import gfServerOption
+from pxblat.extc import pygetFileList
+from pxblat.extc import pyqueryServer
+from pxblat.extc import pystartServer
+from pxblat.extc import Signal
+from pxblat.extc import startServer
+from pxblat.extc import UsageStats
+from pxblat.utils import redirected
 
 
 def gfSignature() -> str:
@@ -114,50 +112,3 @@ def start_server_mt(
     signal: Signal,
 ):
     return pystartServer(host, str(port), 1, [two_bit_file], option, stat, signal)
-
-
-class Server:
-    def __init__(self, host: str, port: int, two_bit: Path, options: gfServerOption):
-        self.host = host
-        self.port = port
-        self.two_bit = two_bit
-        self.options = options
-        self.process_handle = None
-        self.signal = Signal()
-
-    def start(self):
-        self.process_handle = Process(
-            target=startServer,
-            args=(
-                self.host,
-                str(self.port),
-                1,
-                [self.two_bit.as_posix()],
-                self.options,
-            ),
-        )
-        self.process_handle.start()
-
-    def stop(self):
-        stop_server(self.host, self.port)
-
-    def status(self) -> typing.Dict[str, str]:
-        return status_server(self.host, self.port, self.options)
-
-    def files(self) -> list[str]:
-        return files(self.host, self.port)
-
-    def query(self, intype: str, faName: str, isComplex: bool, isProt: bool):
-        return query_server(intype, self.host, self.port, faName, isComplex, isProt)
-
-    def __str__(self):
-        return f"Server({self.host}, {self.port}, {self.options})"
-
-    __repr__ = __str__
-
-    def is_ready(self):
-        return self.signal.isReady
-
-    def wait_ready(self):
-        while not self.is_ready():
-            pass

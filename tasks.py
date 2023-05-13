@@ -5,10 +5,10 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import pyblat
+import pxblat
 import simdjson
 from invoke import task
-from pyblat import extc
+from pxblat import extc
 from rich import print
 
 PORT = 65000
@@ -43,7 +43,7 @@ def test_start_server():
 
     signal = extc.Signal()
     print(signal.isReady)
-    ret = pyblat.server.start_server(
+    ret = pxblat.server.start_server(
         "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
     )
     print(signal.isReady)
@@ -59,7 +59,7 @@ def test_start_server2():
 
     signal = extc.Signal()
     print(signal.isReady)
-    ret = pyblat.server.start_server_mt(
+    ret = pxblat.server.start_server_mt(
         "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
     )
     print(signal.isReady)
@@ -118,7 +118,7 @@ def _pclient():
     ret = extc.pygfClient(client_option)
     # print(client_option)
     print(f"{ret!r}")
-    res = pyblat.read(ret, "psl")
+    res = pxblat.read(ret, "psl")
     print(res)
 
 
@@ -136,7 +136,7 @@ def pclient(c):
 
 def _ps():
     server_option, client_option, stat = option_stat()
-    ret = pyblat.server.status_server("localhost", PORT, server_option)
+    ret = pxblat.server.status_server("localhost", PORT, server_option)
     print(f"{ret}")
 
 
@@ -198,13 +198,13 @@ def pstart_server2(c):
 @task
 def pstatus_server(c):
     server_option, client_option, stat = option_stat()
-    ret = pyblat.server.status_server("localhost", PORT, server_option)
+    ret = pxblat.server.status_server("localhost", PORT, server_option)
     print(f"{ret}")
 
 
 @task
 def pstop_server(c):
-    res = pyblat.server.stop_server("localhost", PORT)
+    res = pxblat.server.stop_server("localhost", PORT)
     print(f"{res=}")
 
 
@@ -222,7 +222,7 @@ def server(c):
     option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
     two_bit_file = Path("tests/data/test_ref.2bit")
 
-    server = pyblat.server.Server("localhost", PORT, two_bit_file, option)
+    server = pxblat.server.Server("localhost", PORT, two_bit_file, option)
     server.start()
     server.wait_ready()
 
@@ -280,13 +280,13 @@ def sc(c):
         .withStepSize(5)
         .build()
     )
-    data = pyblat.server.status_server("localhost", PORT, options)
+    data = pxblat.server.status_server("localhost", PORT, options)
     print(simdjson.dumps(data, indent=4))
 
 
 @task
 def ls(c):
-    ret = pyblat.server.files("localhost", PORT)
+    ret = pxblat.server.files("localhost", PORT)
     print(f"{ret=}")
 
 
@@ -304,7 +304,7 @@ def cp(c):
         if temp.exists():
             temp.unlink()
 
-    complie_cmd = "g++ -I/home/ylk4626/miniconda3/envs/pyblat/include -L/home/ylk4626/miniconda3/envs/pyblat/lib -o test_server/{}  {} -luv".format
+    complie_cmd = "g++ -I/home/ylk4626/miniconda3/envs/pxblat/include -L/home/ylk4626/miniconda3/envs/pxblat/lib -o test_server/{}  {} -luv".format
 
     for file in files:
         c.run(complie_cmd(file.stem, file.as_posix()))
