@@ -114,6 +114,7 @@ struct gfServerOption {
   std::string genome{};         // no need to get
   std::string genomeDataDir{};  // no need to get
 
+  int threads{2};
   bool allowOneMismatch{false};
 
   gfServerOption() = default;
@@ -143,6 +144,7 @@ struct gfServerOption {
   gfServerOption &withNoSimpRepMask(bool noSimpRepMask_);
   gfServerOption &withIndexFile(std::string indexFile_);
   gfServerOption &withTimeout(int timeout_);
+  gfServerOption &withThreads(int threads_);
 
   friend std::ostream &operator<<(std::ostream &os, const self &option);
 };

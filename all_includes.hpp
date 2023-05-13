@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <pygfServer.hpp>
 #include <queue>
 #include <sstream>
 #include <stack>

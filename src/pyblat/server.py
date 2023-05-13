@@ -68,8 +68,6 @@ def status_server(host: str, port: int, options: gfServerOption):
             b"end": b"",
         }
 
-    print(f"{data!r}")
-
     for k, v in mapping.items():
         data = data.replace(k, v)
 

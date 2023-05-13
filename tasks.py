@@ -1,4 +1,5 @@
 import asyncio
+import socket
 import subprocess
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -270,7 +271,35 @@ def ls(c):
 
 @task
 def cp(c):
-    c.run(
-        "g++ -I/home/ylk4626/miniconda3/envs/pyblat/include -L/home/ylk4626/miniconda3/envs/pyblat/lib -o main  main.cpp -luv"
-    )
-    c.run("./main")
+    folder = Path("./test_server")
+    files = []
+
+    for i in folder.iterdir():
+        if i.is_file and i.suffix == ".cpp":
+            files.append(i)
+
+    for executor in files:
+        temp = executor.parent / executor.stem
+        if temp.exists():
+            temp.unlink()
+
+    complie_cmd = "g++ -I/home/ylk4626/miniconda3/envs/pyblat/include -L/home/ylk4626/miniconda3/envs/pyblat/lib -o test_server/{}  {} -luv".format
+
+    for file in files:
+        c.run(complie_cmd(file.stem, file.as_posix()))
+
+
+@task
+def sk(c):
+    data = b""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(("localhost", 65001))
+        s.sendall(b"hello world from python")
+
+        while True:
+            if data:
+                data += s.recv(1024)
+            else:
+                break
+
+    print("Received", repr(data))

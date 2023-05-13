@@ -99,4 +99,5 @@ binder: ## Generate pybind11 bindings
 		-I/bind/src/pyblat/extc/include/aux \
 		-I/bind/src/pyblat/extc/include/net \
 		-I/bind/src/pyblat/extc/bindings \
+		--std=c++17 \
 		-DNDEBUG

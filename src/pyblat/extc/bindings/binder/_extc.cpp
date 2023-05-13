@@ -13,6 +13,7 @@ void bind_faToTwoBit(std::function< pybind11::module &(std::string const &namesp
 void bind_gfClient(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_gfServer(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_gfServer_1(std::function< pybind11::module &(std::string const &namespace_) > &M);
+void bind_pygfServer(std::function< pybind11::module &(std::string const &namespace_) > &M);
 
 
 PYBIND11_MODULE(_extc, root_module) {
@@ -38,6 +39,7 @@ PYBIND11_MODULE(_extc, root_module) {
 
 	std::vector< std::pair<std::string, std::string> > sub_modules {
 		{"", "cppbinding"},
+		{"", "ecppbinding"},
 	};
 	for(auto &p : sub_modules ) modules[p.first.size() ? p.first+"::"+p.second : p.second] = modules[p.first].def_submodule( mangle_namespace_name(p.second).c_str(), ("Bindings for " + p.first + "::" + p.second + " namespace").c_str() );
 
@@ -47,5 +49,6 @@ PYBIND11_MODULE(_extc, root_module) {
 	bind_gfClient(M);
 	bind_gfServer(M);
 	bind_gfServer_1(M);
+	bind_pygfServer(M);
 
 }

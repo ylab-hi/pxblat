@@ -1665,6 +1665,11 @@ gfServerOption &gfServerOption::withTimeout(int timeout_) {
   return *this;
 }
 
+gfServerOption &gfServerOption::withThreads(int threads_) {
+  threads = threads_;
+  return *this;
+}
+
 std::string gfServerOption::to_string() const {
   std::stringstream s{};
   s << "gfServerOption(";
@@ -1692,6 +1697,7 @@ std::string gfServerOption::to_string() const {
   s << ", timeout: " << timeout;
   s << ", genome: " << genome;
   s << ", genomeDataDir: " << genomeDataDir;
+  s << ", threads: " << threads;
   s << ", allowOneMismatch: " << std::boolalpha << allowOneMismatch << ")";
 
   return s.str();
