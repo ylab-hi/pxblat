@@ -1,138 +1,259 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "pygfServer.hpp"
 
+#include "bs_thread_pool.hpp"
+#include "dbg.h"
+#include "gfServer.hpp"
+
 namespace ecppbinding {
 
-void py_server_status(int connectionHandle, char const *hostName, char const *portName, boolean doTrans, int minMatch,
-                      int stepSize, int tileSize, UsageStats const &stats) {
-  char buf[256];
-  boolean sendOk = 1;
-  sprintf(buf, "version %s", gfVersion);
-  errSendString(connectionHandle, buf, sendOk);
-  errSendString(connectionHandle, "serverType static", sendOk);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "host %s", hostName);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "port %s", portName);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "tileSize %d", tileSize);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "stepSize %d", stepSize);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "minMatch %d", minMatch);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "pcr requests %ld", stats.pcrCount);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "blat requests %ld", stats.blatCount);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "bases %ld", stats.baseCount);
-  errSendString(connectionHandle, buf, sendOk);
-  if (doTrans) {
-    sprintf(buf, "aa %ld", stats.aaCount);
-    errSendString(connectionHandle, buf, sendOk);
-  }
-  sprintf(buf, "misses %d", stats.missCount);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "noSig %d", stats.noSigCount);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "trimmed %d", stats.trimCount);
-  errSendString(connectionHandle, buf, sendOk);
-  sprintf(buf, "warnings %d", stats.warnCount);
-  errSendString(connectionHandle, buf, sendOk);
-  errSendString(connectionHandle, "end", sendOk);
-}
-
-void py_server_query(int connectionHandle, int seq_size, hash *perSeqMaxHash, genoFindIndex *gfIdx, boolean queryIsProt,
-                     gfServerOption &options, boolean sendOk) {
-  UsageStats stats{};
-  auto maxAaSize = options.maxAaSize;
-  auto maxNtSize = options.maxNtSize;
-
-  boolean doTrans = bool2boolean(options.trans);
-
-  struct dnaSeq seq;
-  ZeroVar(&seq);
-
-  char buf[4];
-  buf[0] = 'Y';
-
-  if (write(connectionHandle, buf, 1) == 1) {
-    seq.size = seq_size;
-    seq.name = NULL;
-    if (seq.size > 0) {
-      ++stats.blatCount;
-      seq.dna = (char *)needLargeMem(seq.size + 1);
-      if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
-        warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
-        ++stats.warnCount;
-      } else {
-        int maxSize = (doTrans ? maxAaSize : maxNtSize);
-        seq.dna[seq.size] = 0;
-
-        if (queryIsProt) {
-          seq.size = aaFilteredSize(seq.dna);
-          aaFilter(seq.dna, seq.dna);
-        } else {
-          seq.size = dnaFilteredSize(seq.dna);
-          dnaFilter(seq.dna, seq.dna);
-        }
-
-        if (seq.size > maxSize) {
-          ++stats.trimCount;
-          seq.size = maxSize;
-          seq.dna[maxSize] = 0;
-        }
-
-        if (queryIsProt)
-          stats.aaCount += seq.size;
-        else
-          stats.baseCount += seq.size;
-
-        errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, options, stats, sendOk);
-        if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
-      }
-      freez(&seq.dna);
-    }
-    errSendString(connectionHandle, "end", sendOk);
-  }
-}
-
-/* error code
- * -1 errAbort("Fatal Error: Unable to open listening socket on port %d.", port)
-  -2 errAbort( "100 continuous connection failures, no point in filling up "
-            "the log in an infinite loop.");
- */
-int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &options, UsageStats &stats, Signal &signal)
-/* Load up index and hang out in RAM. */
+boolean pynetSendString(int sd, char *s)
+/* Send a string down a socket - length byte first. */
 {
-  BS::thread_pool pool{4};
+  int length = strlen(s);
+  UBYTE len;
 
-  auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
+  if (length > 255) errAbort("Trying to send a string longer than 255 bytes (%d bytes)", length);
+  // throw std::runtime_error("Trying to send a string longer than 255 bytes");
+  len = length;
+  if (write(sd, &len, 1) < 0) {
+    warn("Couldn't send string to socket");
+    return FALSE;
+  }
+  if (write(sd, s, length) < 0) {
+    warn("Couldn't send string to socket");
+    return FALSE;
+  }
+  return TRUE;
+}
 
-  auto ipLog = options.ipLog;
-  auto minMatch = options.minMatch;
-  auto maxGap = options.maxGap;
-  auto tileSize = options.tileSize;
-  auto repMatch = options.repMatch;
-  auto stepSize = options.stepSize;
-  auto timeout = options.timeout;
-  auto maxAaSize = options.maxAaSize;
-  auto maxNtSize = options.maxNtSize;
+void pyerrSendString(int sd, char *s, boolean &sendOk)
+// Send string. If not OK, remember we had an error, do not try to write
+// anything more on this connection.
+{
+  if (sendOk) sendOk = pynetSendString(sd, s);
+}
 
-  boolean seqLog = bool2boolean(options.seqLog);
-  boolean canStop = bool2boolean(options.canStop);
-  boolean doTrans = bool2boolean(options.trans);
-  boolean doMask = bool2boolean(options.mask);
-  boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
-  boolean noSimpRepMask = bool2boolean(options.noSimpRepMask);
+void handle_client(int connectionHandle, std::string hostName, std::string portName, int fileCount,
+                   std::vector<std::string> const &seqFiles, hash *perSeqMaxHash, genoFindIndex *gfIdx,
+                   gfServerOption const &option) {
+  dbg("begin func ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+
+  // auto ipLog = option.ipLog;
+  auto minMatch = option.minMatch;
+  // auto maxGap = option.maxGap;
+  auto tileSize = option.tileSize;
+  // auto repMatch = option.repMatch;
+  auto stepSize = option.stepSize;
+  auto timeout = option.timeout;
+  auto maxAaSize = option.maxAaSize;
+  auto maxNtSize = option.maxNtSize;
+
+  boolean seqLog = bool2boolean(option.seqLog);
+  // boolean canStop = bool2boolean(option.canStop);
+  boolean doTrans = bool2boolean(option.trans);
+  // boolean doMask = bool2boolean(option.mask);
+  // boolean allowOneMismatch = bool2boolean(option.allowOneMismatch);
+  // boolean noSimpRepMask = bool2boolean(option.noSimpRepMask);
 
   boolean sendOk = TRUE;
+  UsageStats stats{};
 
-  printf("optons: %s, %s, %d, %zu, %d, %d, %d, %d, %d, %d, %d, %d\n", hostName.data(), portName.data(), fileCount,
-         seqFiles.size(), minMatch, maxGap, tileSize, repMatch, stepSize, timeout, maxAaSize, maxNtSize);
+  char buf[256];
+  char *line{nullptr};
+  char *command{nullptr};
+
+  setSocketTimeout(connectionHandle, timeout);
+
+  int readSize = read(connectionHandle, buf, sizeof(buf) - 1);
+
+  if (readSize < 0) {
+    warn("Error reading from socket: %s", strerror(errno));
+    ++stats.warnCount;
+    close(connectionHandle);
+    return;
+  }
+
+  if (readSize == 0) {
+    warn("Zero sized query");
+    ++stats.warnCount;
+    close(connectionHandle);
+    return;
+  }
+
+  buf[readSize] = 0;
+  // logDebug("%s", buf);
+  if (!startsWith(gfSignature(), buf)) {
+    ++stats.noSigCount;
+    close(connectionHandle);
+    return;
+  }
+
+  line = buf + strlen(gfSignature());
+  command = nextWord(&line);
+
+  if (sameString("quit", command)) {
+    exit(0);
+  }
+
+  if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {
+    dbg(command);
+    // sleep 10 s
+    // sleep(10);
+    sprintf(buf, "version %s", gfVersion);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    pyerrSendString(connectionHandle, "serverType static", sendOk);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "host %s", hostName.data());
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "port %s", portName.data());
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "tileSize %d", tileSize);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "stepSize %d", stepSize);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "minMatch %d", minMatch);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "pcr requests %ld", stats.pcrCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "blat requests %ld", stats.blatCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "bases %ld", stats.baseCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    if (doTrans) {
+      sprintf(buf, "aa %ld", stats.aaCount);
+      pyerrSendString(connectionHandle, buf, sendOk);
+    }
+    sprintf(buf, "misses %d", stats.missCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "noSig %d", stats.noSigCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "trimmed %d", stats.trimCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    sprintf(buf, "warnings %d", stats.warnCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    pyerrSendString(connectionHandle, "end", sendOk);
+  } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command)) {
+    boolean queryIsProt = sameString(command, "protQuery");
+    char *s = nextWord(&line);
+    if (s == NULL || !isdigit(s[0])) {
+      warn("Expecting query size after query command");
+      ++stats.warnCount;
+    } else {
+      struct dnaSeq seq;
+      ZeroVar(&seq);
+
+      if (queryIsProt && !doTrans) {
+        warn("protein query sent to nucleotide server");
+        ++stats.warnCount;
+        queryIsProt = FALSE;
+      } else {
+        buf[0] = 'Y';
+        if (write(connectionHandle, buf, 1) == 1) {
+          seq.size = atoi(s);
+          seq.name = NULL;
+          if (seq.size > 0) {
+            ++stats.blatCount;
+            seq.dna = (char *)needLargeMem(seq.size + 1);
+            if (gfReadMulti(connectionHandle, seq.dna, seq.size) != seq.size) {
+              warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
+              ++stats.warnCount;
+            } else {
+              int maxSize = (doTrans ? maxAaSize : maxNtSize);
+
+              seq.dna[seq.size] = 0;
+              if (queryIsProt) {
+                seq.size = aaFilteredSize(seq.dna);
+                aaFilter(seq.dna, seq.dna);
+              } else {
+                seq.size = dnaFilteredSize(seq.dna);
+                dnaFilter(seq.dna, seq.dna);
+              }
+              if (seq.size > maxSize) {
+                ++stats.trimCount;
+                seq.size = maxSize;
+                seq.dna[maxSize] = 0;
+              }
+              if (queryIsProt)
+                stats.aaCount += seq.size;
+              else
+                stats.baseCount += seq.size;
+              if (seqLog && (logGetFile() != NULL)) {
+                FILE *lf = logGetFile();
+                faWriteNext(lf, "query", seq.dna, seq.size);
+                fflush(lf);
+              }
+              errorSafeQuery(doTrans, queryIsProt, &seq, gfIdx, connectionHandle, buf, perSeqMaxHash, option, stats,
+                             sendOk);
+              if (perSeqMaxHash) hashZeroVals(perSeqMaxHash);
+            }
+            freez(&seq.dna);
+          }
+          pyerrSendString(connectionHandle, "end", sendOk);
+        }
+      }
+    }
+  } else if (sameString("pcr", command)) {
+    char *f = nextWord(&line);
+    char *r = nextWord(&line);
+    char *s = nextWord(&line);
+    int maxDistance;
+    ++stats.pcrCount;
+    if (s == NULL || !isdigit(s[0])) {
+      warn("Badly formatted pcr command");
+      ++stats.warnCount;
+    } else if (doTrans) {
+      warn("Can't pcr on translated server");
+      ++stats.warnCount;
+    } else if (badPcrPrimerSeq(f) || badPcrPrimerSeq(r)) {
+      warn("Can only handle ACGT in primer sequences.");
+      ++stats.warnCount;
+    } else {
+      maxDistance = atoi(s);
+      errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle, sendOk);
+    }
+  } else if (sameString("files", command)) {
+    int i;
+    sprintf(buf, "%d", fileCount);
+    pyerrSendString(connectionHandle, buf, sendOk);
+    for (i = 0; i < fileCount; ++i) {
+      sprintf(buf, "%s", seqFiles[i].data());
+      pyerrSendString(connectionHandle, buf, sendOk);
+    }
+  } else {
+    warn("Unknown command %s", command);
+    ++stats.warnCount;
+  }
+  close(connectionHandle);
+  // connectionHandle = 0;
+}
+
+int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
+                  gfServerOption &options, UsageStats &stats, Signal &signal) {
+  // auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
+
+  // auto ipLog = options.ipLog;
+  // auto minMatch = options.minMatch;
+  // auto maxGap = options.maxGap;
+  // auto tileSize = options.tileSize;
+  // auto repMatch = options.repMatch;
+  // auto stepSize = options.stepSize;
+  // auto timeout = options.timeout;
+  // auto maxAaSize = options.maxAaSize;
+  // auto maxNtSize = options.maxNtSize;
+
+  // boolean seqLog = bool2boolean(options.seqLog);
+  // boolean canStop = bool2boolean(options.canStop);
+  // boolean doTrans = bool2boolean(options.trans);
+  // boolean doMask = bool2boolean(options.mask);
+  // boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
+  // boolean noSimpRepMask = bool2boolean(options.noSimpRepMask);
+
+  // boolean sendOk = TRUE;
+
+  // dbg(options);
 
   std::vector<char *> cseqFiles{};
   cseqFiles.reserve(seqFiles.size());
@@ -140,141 +261,73 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     cseqFiles.push_back(string.data());
   }
 
-  char buf[256];
-  char *line, *command;
+  // struct genoFindIndex *gfIdx = NULL;
 
   struct sockaddr_in6 fromAddr;
   socklen_t fromLen;
-  int readSize;
-  int socketHandle = 0, connectionHandle = 0;
+
+  // int readSize{};
+
+  int socketHandle = 0;
+  // int connectionHandle = 0;
   int port = atoi(portName.data());
 
-  struct hash *perSeqMaxHash;
+  hash *perSeqMaxHash = nullptr;
   genoFindIndex *gfIdx = pybuildIndex4Server(hostName, portName, fileCount, cseqFiles.data(), perSeqMaxHash, options);
 
   /* Set up socket.  Get ready to listen to it. */
   socketHandle = netAcceptingSocket(port, 100);
-  if (socketHandle < 0) return -1;
+  if (socketHandle < 0)
+    throw std::runtime_error("Fatal Error: Unable to open listening socket on port " + portName + ".");
+  // errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
   signal.isReady = true;
+
   // logInfo("Server ready for queries!");
   // printf("Server ready for queries!\n");
+
+  // char buf[256];
+  // char *line{nullptr};
+  // char *command{nullptr};
 
   int connectFailCount = 0;
   for (;;) {
     ZeroVar(&fromAddr);
     fromLen = sizeof(fromAddr);
-    connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
-    setSendOk(sendOk);
+    int connectionHandle = accept(socketHandle, (struct sockaddr *)&fromAddr, &fromLen);
+
+    // setSendOk(sendOk);
 
     if (connectionHandle < 0) {
       warn("Error accepting the connection");
       ++stats.warnCount;
       ++connectFailCount;
-      if (connectFailCount >= 100) return -2;
+
+      if (connectFailCount >= 100)
+        // errAbort( "100 continuous connection failures, no point in filling up " "the log in an infinite loop.");
+        throw std::runtime_error(
+            "100 continuous connection failures, no point in filling up the log in an infinite loop.");
       continue;
     } else {
       connectFailCount = 0;
     }
-    setSocketTimeout(connectionHandle, timeout);
 
-    readSize = read(connectionHandle, buf, sizeof(buf) - 1);
-    if (readSize < 0) {
-      warn("Error reading from socket: %s", strerror(errno));
-      ++stats.warnCount;
-      close(connectionHandle);
-      continue;
-    }
+    // line = buf + strlen(gfSignature());
+    // command = nextWord(&line);
 
-    if (readSize == 0) {
-      warn("Zero sized query");
-      ++stats.warnCount;
-      close(connectionHandle);
-      continue;
-    }
+    // if (sameString("quit", command)) {
+    //   if (canStop)
+    //     break;
+    //   else
+    //     logError("Ignoring quit message");
+    // } else {
+    //   handle_client();
+    // }
 
-    buf[readSize] = 0;
-    logDebug("%s", buf);
-    if (!startsWith(gfSignature(), buf)) {
-      ++stats.noSigCount;
-      close(connectionHandle);
-      continue;
-    }
-
-    line = buf + strlen(gfSignature());
-    command = nextWord(&line);
-
-    if (sameString("quit", command)) {
-      if (canStop)
-        break;
-      else
-        logError("Ignoring quit message");
-
-    } else if (sameString("status", command) || sameString("transInfo", command) ||
-               sameString("untransInfo", command)) {
-      pool.push_task(py_server_status, connectionHandle, hostName.data(), portName.data(), doTrans, minMatch, stepSize,
-                     tileSize, stats);
-      // py_server_status(connectionHandle, hostName.data(), portName.data(), doTrans, minMatch, stepSize, tileSize,
-      // stats);
-    } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command)) {
-      char *s = nextWord(&line);
-      if (s == NULL || !isdigit(s[0])) {
-        warn("Expecting query size after query command");
-        // ++stats.warnCount;
-        continue;
-      }
-
-      int seqSize = atoi(s);
-      boolean queryIsProt = sameString(command, "protQuery");
-      if (queryIsProt && !doTrans) {
-        warn("protein query sent to nucleotide server");
-        ++stats.warnCount;
-        queryIsProt = FALSE;
-        continue;
-      }
-
-      py_server_query(connectionHandle, seqSize, perSeqMaxHash, gfIdx, queryIsProt, options, sendOk);
-
-    } else if (sameString("pcr", command)) {
-      char *f = nextWord(&line);
-      char *r = nextWord(&line);
-      char *s = nextWord(&line);
-      // int maxDistance;
-
-      ++stats.pcrCount;
-
-      if (s == NULL || !isdigit(s[0])) {
-        warn("Badly formatted pcr command");
-        ++stats.warnCount;
-      } else if (doTrans) {
-        warn("Can't pcr on translated server");
-        ++stats.warnCount;
-      } else if (badPcrPrimerSeq(f) || badPcrPrimerSeq(r)) {
-        warn("Can only handle ACGT in primer sequences.");
-        ++stats.warnCount;
-      } else {
-        int maxDistance = atoi(s);
-        errorSafePcr(gfIdx->untransGf, f, r, maxDistance, connectionHandle, sendOk);
-      }
-
-    } else if (sameString("files", command)) {
-      int i;
-      sprintf(buf, "%d", fileCount);
-      errSendString(connectionHandle, buf, sendOk);
-      for (i = 0; i < fileCount; ++i) {
-        sprintf(buf, "%s", seqFiles[i].data());
-        errSendString(connectionHandle, buf, sendOk);
-      }
-    } else {
-      warn("Unknown command %s", command);
-      ++stats.warnCount;
-    }
-    close(connectionHandle);
-    connectionHandle = 0;
+    dbg("before ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
+    handle_client(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
   }
   close(socketHandle);
-
-  pool.wait_for_tasks();
   return 0;
 }
 

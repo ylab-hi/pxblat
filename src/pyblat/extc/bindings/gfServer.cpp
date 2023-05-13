@@ -1,9 +1,10 @@
-#include "dbg.h"
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#include "gfServer.hpp"
+
 #include <sstream>
 #include <string>
 
-#include "gfServer.hpp"
+#include "dbg.h"
 
 namespace cppbinding {
 
@@ -913,18 +914,18 @@ genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName,
                                    hash *perSeqMaxHash, gfServerOption &option) {
   auto indexFile = option.indexFile.empty() ? NULL : option.indexFile.data();
 
-  auto ipLog = option.ipLog;
+  // auto ipLog = option.ipLog;
   auto minMatch = option.minMatch;
   auto maxGap = option.maxGap;
   auto tileSize = option.tileSize;
   auto repMatch = option.repMatch;
   auto stepSize = option.stepSize;
-  auto timeout = option.timeout;
-  auto maxAaSize = option.maxAaSize;
-  auto maxNtSize = option.maxNtSize;
+  // auto timeout = option.timeout;
+  // auto maxAaSize = option.maxAaSize;
+  // auto maxNtSize = option.maxNtSize;
 
-  boolean seqLog = bool2boolean(option.seqLog);
-  boolean canStop = bool2boolean(option.canStop);
+  // boolean seqLog = bool2boolean(option.seqLog);
+  // boolean canStop = bool2boolean(option.canStop);
   boolean doTrans = bool2boolean(option.trans);
   boolean doMask = bool2boolean(option.mask);
   boolean allowOneMismatch = bool2boolean(option.allowOneMismatch);
@@ -1093,8 +1094,11 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
         logError("Ignoring quit message");
     } else if (sameString("status", command) || sameString("transInfo", command) ||
                sameString("untransInfo", command)) {
+      // dbg(hostName, portName, fileCount, cseqFiles, options, stats);
+
+      dbg(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
       // sleep 10 s
-      sleep(10);
+      // sleep(10);
       sprintf(buf, "version %s", gfVersion);
       errSendString(connectionHandle, buf, sendOk);
       errSendString(connectionHandle, "serverType static", sendOk);

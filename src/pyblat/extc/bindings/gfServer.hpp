@@ -230,6 +230,7 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
 void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options,
                         UsageStats &stats, boolean &sendOk);
 
+struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], gfServerOption &options);
 boolean badPcrPrimerSeq(char *s);
 
 void setSocketTimeout(int sockfd, int delayInSeconds);
