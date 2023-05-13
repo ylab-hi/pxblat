@@ -1,8 +1,8 @@
-import typer
-
-from .log import log
 from pathlib import Path
-from rich import print
+
+import typer
+from pxblat.extc import pygfClient
+from pxblat.server import create_client_option
 
 
 # gfClient v. 37x1 - A client for the genomic finding program that produces a .psl file
@@ -54,6 +54,9 @@ from rich import print
 #                  that contained the genome data files.  Defaults to being the root directory.
 
 
+default_option = create_client_option()
+
+
 def client(
     host: str = typer.Argument(help="The name of the machine running the gfServer"),
     port: int = typer.Argument(help="The same port that you started the gfServer with"),
@@ -64,46 +67,77 @@ def client(
         help="Fasta format file.  May contain multiple records"
     ),
     outpsl: Path = typer.Argument(help="where to put the output"),
-    t: str = typer.Option(
-        "dna",
+    tType: str = typer.Option(
+        default_option.tType,
         "--type",
         "-t",
         help="Database type. Type is one of: dna, prot, dnax",
     ),
-    q: str = typer.Option(
-        "dna",
+    qType: str = typer.Option(
+        default_option.qType,
         "--qtype",
         "-q",
         help="Query type. Type is one of: dna, rna, prot, dnax, rnax",
     ),
     prot: bool = typer.Option(False, "--prot", help="Synonymous with -t=prot -q=prot."),
-    dots: int = typer.Option(0, "--dots", help="Output a dot every N query sequences."),
+    dots: int = typer.Option(
+        default_option.dots, "--dots", help="Output a dot every N query sequences."
+    ),
     nohead: bool = typer.Option(
-        False, "--nohead", help="Suppresses 5-line psl header."
+        default_option.nohead, "--nohead", help="Suppresses 5-line psl header."
     ),
     minnScore: int = typer.Option(
-        30,
+        default_option.minScore,
         "--minScore",
         help="Sets minimum score.  This is twice the matches minus the mismatches minus some sort of gap penalty.  Default is 30.",
     ),
     minIdentity: int = typer.Option(
-        90,
+        default_option.minIdentity,
         "--minIdentity",
         help="Sets minimum sequence identity (in percent).  Default is 90 for nucleotide searches, 25 for protein or translated protein searches.",
     ),
     out: str = typer.Option(
-        "psl",
+        default_option.outputFormat,
         "--out",
         help="Controls output file format.  Type is one of: psl, pslx, axt, maf, sim4, wublast, blast, blast8, blast9",
     ),
     maxIntron: int = typer.Option(
-        750000, "--maxIntron", help="Sets maximum intron size. Default is 750000."
+        default_option.maxIntron,
+        "--maxIntron",
+        help="Sets maximum intron size. Default is 750000.",
     ),
-    genome: str = typer.Option("", "--genome", help="dynamic"),
-    genomeDataDir: str = typer.Option("", "--genomeDataDir", help="dynamic"),
+    genome: str = typer.Option(default_option.genome, "--genome", help="dynamic"),
+    genomeDataDir: str = typer.Option(
+        default_option.genomeDataDir, "--genomeDataDir", help="dynamic"
+    ),
 ):
     """A client for the genomic finding program that produces a .psl file"""
 
-    print(
-        f"{host=}, {port=}, {seqDir=}, {infasta=}, {outpsl=}, {t=}, {q=}, {prot=}, {dots=}, {nohead=}, {minnScore=}, {minIdentity=}, {out=}, {maxIntron=}, {genome=}, {genomeDataDir=}"
+    if prot:
+        tType = "prot"
+        qType = "prot"
+
+    client_option = (
+        create_client_option()
+        .withHost(host)
+        .withPort(str(port))
+        .withTSeqDir(seqDir.as_posix())
+        .withInName(infasta.as_posix())
+        .withOutName(outpsl.as_posix())
+        .withTType(tType)
+        .withQType(qType)
+        .withDots(dots)
+        .withNohead(nohead)
+        .withMinScore(minnScore)
+        .withMinIdentity(minIdentity)
+        .withOutputFormat(out)
+        .withMaxIntron(maxIntron)
+        .withGenome(genome)
+        .withGenomeDataDir(genomeDataDir)
+        .build()
     )
+
+    rest = pygfClient(client_option)
+
+    with outpsl.open("w") as f:
+        f.write(rest)

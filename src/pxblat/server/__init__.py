@@ -8,6 +8,7 @@ from .basic import stop_server
 from .client import Client
 from .client import create_client_option
 from .client import query_server
+from .server import create_server_option
 from .server import Server
 
 
@@ -23,4 +24,5 @@ __all__ = [
     "create_client_option",
     "query_server",
     "fa_to_two_bit",
+    "create_server_option",
 ]

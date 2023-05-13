@@ -135,7 +135,10 @@ gfClientOption &gfClientOption::build() {
   // char *hostName, char *portName, char *tSeqDir, char *inName, char *outName, char *tTypeName, char *qTypeName
   if (tType == "prot" || tType == "dnax" || tType == "rnax") minIdentity = 25;
 
-  if (!genomeDataDir.empty() && genome.empty()) errAbort("-genomeDataDir requires the -genome option");
+  if (!genomeDataDir.empty() && genome.empty())
+    // errAbort("-genomeDataDir requires the -genome option");
+    throw std::runtime_error("-genomeDataDir requires the -genome option");
+
   if (!genome.empty() && genomeDataDir.empty()) genomeDataDir = ".";
   if (!genomeDataDir.empty()) isDynamic = true;
 

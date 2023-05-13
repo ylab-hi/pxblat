@@ -1,8 +1,8 @@
 from threading import Thread
 
-from pxblat import read
 from pxblat.extc import gfClientOption
 from pxblat.extc import pygfClient
+from pxblat.parser import read
 
 
 def create_client_option():

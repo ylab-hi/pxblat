@@ -1,7 +1,7 @@
 import typer
 
-from .fa2twobit import fa2TwoBit
 from .client import client
+from .fa2twobit import faToTwoBit
 from .server import server_app
 
 app = typer.Typer(
@@ -9,7 +9,7 @@ app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
-app.command()(fa2TwoBit)
+app.command()(faToTwoBit)
 app.command()(client)
 
 

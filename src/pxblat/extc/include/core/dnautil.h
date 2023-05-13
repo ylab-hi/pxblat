@@ -1,3 +1,4 @@
+
 /* Some stuff that you'll likely need in any program that works with
  * DNA.  Includes stuff for amino acids as well.
  *

@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import typer
-
 from pxblat.server import fa_to_two_bit
-from .log import log
+
+from .log import logger
 
 # faToTwoBit - Convert DNA from fasta to 2bit format
 # usage:
@@ -58,14 +58,14 @@ def faToTwoBit(
     """Convert DNA from fasta to 2bit format"""
     for file in infa:
         if not file.exists():
-            log.error(f"{file} not exists")
+            logger.error(f"{file} not exists")
             raise typer.Abort()
         elif not file.is_file():
-            log.error(f"{file} is not a file")
+            logger.error(f"{file} is not a file")
             raise typer.Abort()
 
     if out2bit.exists():
-        log.warning(f"{out2bit} exist will be overide")
+        logger.warning(f"{out2bit} exist will be overide")
 
     fa_to_two_bit(
         [f.as_posix() for f in infa],

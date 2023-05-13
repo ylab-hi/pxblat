@@ -13,6 +13,10 @@ from .basic import status_server
 from .basic import stop_server
 
 
+def create_server_option():
+    return gfServerOption()
+
+
 class Server(Process):
     def __init__(
         self,
@@ -64,3 +68,7 @@ class Server(Process):
     def block_until_ready(self):
         while not self.is_ready():
             pass
+
+    @classmethod
+    def create_option(cls):
+        return create_server_option()
