@@ -93,6 +93,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
   command = nextWord(&line);
 
   if (sameString("quit", command)) {
+    // NOTE: workaround <Yangyang Li yangyang.li@northwestern.edu>
     exit(0);
   }
 
@@ -231,29 +232,8 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 }
 
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &options, UsageStats &stats, Signal &signal) {
-  // auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
-
-  // auto ipLog = options.ipLog;
-  // auto minMatch = options.minMatch;
-  // auto maxGap = options.maxGap;
-  // auto tileSize = options.tileSize;
-  // auto repMatch = options.repMatch;
-  // auto stepSize = options.stepSize;
-  // auto timeout = options.timeout;
-  // auto maxAaSize = options.maxAaSize;
-  // auto maxNtSize = options.maxNtSize;
-
-  // boolean seqLog = bool2boolean(options.seqLog);
-  // boolean canStop = bool2boolean(options.canStop);
-  // boolean doTrans = bool2boolean(options.trans);
-  // boolean doMask = bool2boolean(options.mask);
-  // boolean allowOneMismatch = bool2boolean(options.allowOneMismatch);
-  // boolean noSimpRepMask = bool2boolean(options.noSimpRepMask);
-
-  // boolean sendOk = TRUE;
-
-  // dbg(options);
+                  gfServerOption &option, UsageStats &stats, Signal &signal) {
+  BS::thread_pool pool(option.threads);
 
   std::vector<char *> cseqFiles{};
   cseqFiles.reserve(seqFiles.size());
@@ -261,19 +241,14 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     cseqFiles.push_back(string.data());
   }
 
-  // struct genoFindIndex *gfIdx = NULL;
-
   struct sockaddr_in6 fromAddr;
   socklen_t fromLen;
 
-  // int readSize{};
-
   int socketHandle = 0;
-  // int connectionHandle = 0;
   int port = atoi(portName.data());
 
   hash *perSeqMaxHash = nullptr;
-  genoFindIndex *gfIdx = pybuildIndex4Server(hostName, portName, fileCount, cseqFiles.data(), perSeqMaxHash, options);
+  genoFindIndex *gfIdx = pybuildIndex4Server(hostName, portName, fileCount, cseqFiles.data(), perSeqMaxHash, option);
 
   /* Set up socket.  Get ready to listen to it. */
   socketHandle = netAcceptingSocket(port, 100);
@@ -282,13 +257,6 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
   // errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
   signal.isReady = true;
-
-  // logInfo("Server ready for queries!");
-  // printf("Server ready for queries!\n");
-
-  // char buf[256];
-  // char *line{nullptr};
-  // char *command{nullptr};
 
   int connectFailCount = 0;
   for (;;) {
@@ -312,21 +280,14 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       connectFailCount = 0;
     }
 
-    // line = buf + strlen(gfSignature());
-    // command = nextWord(&line);
-
-    // if (sameString("quit", command)) {
-    //   if (canStop)
-    //     break;
-    //   else
-    //     logError("Ignoring quit message");
-    // } else {
-    //   handle_client();
-    // }
-
-    dbg("before ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
-    handle_client(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
+    dbg("before ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+    // handle_client(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+    pool.push_task(handle_client, connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx,
+                   option);
   }
+
+  pool.wait_for_tasks();
+
   close(socketHandle);
   return 0;
 }

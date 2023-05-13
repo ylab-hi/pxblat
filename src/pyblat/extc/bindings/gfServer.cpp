@@ -1085,8 +1085,10 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
       close(connectionHandle);
       continue;
     }
+
     line = buf + strlen(gfSignature());
     command = nextWord(&line);
+
     if (sameString("quit", command)) {
       if (canStop)
         break;
