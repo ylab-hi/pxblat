@@ -186,7 +186,6 @@ def start(
     """
 
 
-
 @server_app.command()
 def stop(host: str, port: int):
     print(f"{host=} {port=}")
