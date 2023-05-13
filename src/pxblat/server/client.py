@@ -1,6 +1,6 @@
 from threading import Thread
 
-from .. import read
+from pxblat import read
 from pxblat.extc import gfClientOption
 from pxblat.extc import pygfClient
 

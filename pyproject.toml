@@ -17,6 +17,10 @@ biopython = "^1.81"
 typer = "^0.9.0"
 
 
+[tool.poetry.scripts]
+pxblat="pxblat.cli:app"
+
+
 [tool.ruff]
 line-length = 120
 fix = true
@@ -55,6 +59,7 @@ exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py"]
 "src/pxblat/extc/__init__.py" = ["F405", "F403"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
 "src/pxblat/server/server.py" = ["PLR0913"]
+"src/pxblat/cli.py" = ["PLR0913"]
 
 
 [tool.poetry.group.dev.dependencies]

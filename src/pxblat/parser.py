@@ -69,6 +69,9 @@ def get_processor(format, mapping):
 
 
 def parse(content: str, format=None, **kwargs):
+    if format is None:
+        format = "psl"
+
     iterator = get_processor(format, _ITERATOR_MAP)
     handle = get_handle(format, _HANDLE_MAP)
     yield from iterator(handle(content), **kwargs)
