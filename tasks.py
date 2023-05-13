@@ -2,7 +2,6 @@ import asyncio
 import socket
 import subprocess
 import time
-from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -16,7 +15,9 @@ PORT = 65000
 
 
 def option_stat():
-    server_option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+    )
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)
@@ -58,7 +59,7 @@ def test_start_server2():
 
     signal = extc.Signal()
     print(signal.isReady)
-    ret = pyblat.server.start_server2(
+    ret = pyblat.server.start_server_mt(
         "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
     )
     print(signal.isReady)
@@ -110,8 +111,6 @@ def cclient(c):
         f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case1.fa testc.psl"
     )
 
-    # f"{self.gfclient} -minScore=20 -minIdentity={mini_identity} localhost {self.port} . " f"{in_fasta} {out_psl}"
-
 
 def _pclient():
     time.sleep(10)
@@ -146,7 +145,7 @@ def bpst(c):
     start = time.perf_counter()
     idx = 0
 
-    with ProcessPoolExecutor(4) as executor:
+    with ThreadPoolExecutor(4) as executor:
         for _i in range(4):
             # _pclient()
             executor.submit(_ps)

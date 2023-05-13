@@ -1100,7 +1100,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
 
       dbg(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
       // sleep 10 s
-      // sleep(10);
+      sleep(10);
       sprintf(buf, "version %s", gfVersion);
       errSendString(connectionHandle, buf, sendOk);
       errSendString(connectionHandle, "serverType static", sendOk);

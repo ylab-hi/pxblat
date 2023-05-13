@@ -64,9 +64,11 @@ install: binder ## install the lib
 	poetry install -vvvv
 	echo "Installing pyblat"
 
-stubs: ## Generate pybind11 stubs
-	echo "Generating pybind11 stubs"
+clean-stubs:
 	rm -rf stubs
+
+stubs: clean-stubs ## Generate pybind11 stubs
+	echo "Generating pybind11 stubs"
 	pybind11-stubgen pyblat._extc.cppbinding
 	cp stubs/pyblat/_extc/cppbinding-stubs/__init__.pyi src/pyblat/extc/__init__.pyi
 

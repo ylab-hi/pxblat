@@ -39,7 +39,6 @@ PYBIND11_MODULE(_extc, root_module) {
 
 	std::vector< std::pair<std::string, std::string> > sub_modules {
 		{"", "cppbinding"},
-		{"", "ecppbinding"},
 	};
 	for(auto &p : sub_modules ) modules[p.first.size() ? p.first+"::"+p.second : p.second] = modules[p.first].def_submodule( mangle_namespace_name(p.second).c_str(), ("Bindings for " + p.first + "::" + p.second + " namespace").c_str() );
 

@@ -30,11 +30,6 @@ def fa_to_two_bit(
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)
 
 
-# @redirected
-# def status_server(host: str, port: int, options: gfServerOption):
-#     return statusServer(host, str(port), options)
-
-
 def status_server(host: str, port: int, options: gfServerOption):
     if not options.genome:
         message = f"{gfSignature()}status".encode()
@@ -92,7 +87,6 @@ def files(host: str, port: int) -> list[str]:
     return [file for file in ret_str.split("\n") if file]
 
 
-# d::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName, bool complex, bool isProt)
 def query_server(
     intype: str, host: str, port: int, faName: str, isComplex: bool, isProt: bool
 ):
@@ -111,7 +105,7 @@ def start_server(
     return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
 
 
-def start_server2(
+def start_server_mt(
     host: str,
     port: int,
     two_bit_file: str,
@@ -119,7 +113,6 @@ def start_server2(
     stat: UsageStats,
     signal: Signal,
 ):
-    # return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
     return pystartServer(host, str(port), 1, [two_bit_file], option, stat, signal)
 
 

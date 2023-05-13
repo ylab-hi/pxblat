@@ -5,7 +5,7 @@
 #include "dbg.h"
 #include "gfServer.hpp"
 
-namespace ecppbinding {
+namespace cppbinding {
 
 boolean pynetSendString(int sd, char *s)
 /* Send a string down a socket - length byte first. */
@@ -38,6 +38,10 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
                    std::vector<std::string> const &seqFiles, hash *perSeqMaxHash, genoFindIndex *gfIdx,
                    gfServerOption const &option) {
   dbg("begin func ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+
+  // print current thread id
+
+  dbg("thread id: ", std::this_thread::get_id());
 
   // auto ipLog = option.ipLog;
   auto minMatch = option.minMatch;
@@ -100,7 +104,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
   if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {
     dbg(command);
     // sleep 10 s
-    // sleep(10);
+    sleep(10);
     sprintf(buf, "version %s", gfVersion);
     pyerrSendString(connectionHandle, buf, sendOk);
     pyerrSendString(connectionHandle, "serverType static", sendOk);
@@ -292,4 +296,4 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
   return 0;
 }
 
-}  // namespace ecppbinding
+}  // namespace cppbinding

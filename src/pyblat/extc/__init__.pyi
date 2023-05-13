@@ -19,6 +19,7 @@ __all__ = [
     "pygetFileList",
     "pygfClient",
     "pyqueryServer",
+    "pystartServer",
     "pystatusServer",
     "queryServer",
     "startServer",
@@ -409,6 +410,10 @@ class gfServerOption:
         """
         C++: cppbinding::gfServerOption::withSyslog(bool) --> struct cppbinding::gfServerOption &
         """
+    def withThreads(self, threads_: int) -> gfServerOption:
+        """
+        C++: cppbinding::gfServerOption::withThreads(int) --> struct cppbinding::gfServerOption &
+        """
     def withTileSize(self, tileSize_: int) -> gfServerOption:
         """
         C++: cppbinding::gfServerOption::withTileSize(int) --> struct cppbinding::gfServerOption &
@@ -598,6 +603,14 @@ class gfServerOption:
     def syslog(self, arg0: bool) -> None:
         pass
     @property
+    def threads(self) -> int:
+        """
+        :type: int
+        """
+    @threads.setter
+    def threads(self, arg0: int) -> None:
+        pass
+    @property
     def tileSize(self) -> int:
         """
         :type: int
@@ -722,6 +735,19 @@ def pyqueryServer(
 ) -> str:
     """
     C++: cppbinding::pyqueryServer(std::string &, std::string &, std::string &, std::string &, bool, bool) --> std::string
+    """
+
+def pystartServer(
+    hostName: str,
+    portName: str,
+    fileCount: int,
+    seqFiles: typing.List[str],
+    options: gfServerOption,
+    stats: UsageStats,
+    signal: Signal,
+) -> int:
+    """
+    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &, struct cppbinding::Signal &) --> int
     """
 
 def pystatusServer(hostName: str, portName: str, options: gfServerOption) -> str:
