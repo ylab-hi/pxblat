@@ -1,4 +1,4 @@
-# pxblat
+# PxBLAT
 
 <div align="center">
 <h1 align="center">
@@ -24,7 +24,7 @@ pxblat
 
 - [x] parser gfclient result
 - [ ] parse gfserver query result
-- [ ] multi-connection server
+- [x] multi-connection server
 - [ ] benchmarking multi connection and original version
 - [ ] test result with original version
 - [ ] fix build.py to build ssl, hts, maybe libuv when install with pip

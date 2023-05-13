@@ -84,8 +84,7 @@ void faToTwoBit(char *inFiles[], int inFileCount, char *outFile)
       if (stripVersion) {
         char *sp = NULL;
         sp = strchr(seq.name, '.');
-        if (sp != NULL)
-          *sp = '\0';
+        if (sp != NULL) *sp = '\0';
       }
 
       if (hashLookup(uniqHash, seq.name)) {
@@ -117,8 +116,7 @@ int main(int argc, char *argv[])
 /* Process command line. */
 {
   optionInit(&argc, argv, options);
-  if (argc < 3)
-    usage();
+  if (argc < 3) usage();
   noMask = optionExists("noMask");
   stripVersion = optionExists("stripVersion");
   ignoreDups = optionExists("ignoreDups");

@@ -7,7 +7,7 @@ from pxblat.extc import Signal
 from pxblat.extc import UsageStats
 
 from .basic import files
-from .basic import query_server
+from .basic import server_query
 from .basic import start_server_mt
 from .basic import status_server
 from .basic import stop_server
@@ -51,7 +51,7 @@ class Server(Process):
         return files(self.host, self.port)
 
     def query(self, intype: str, faName: str, isComplex: bool, isProt: bool):
-        return query_server(intype, self.host, self.port, faName, isComplex, isProt)
+        return server_query(intype, self.host, self.port, faName, isComplex, isProt)
 
     def __str__(self):
         return f"Server({self.host}, {self.port}, {self.options})"

@@ -85,7 +85,7 @@ def files(host: str, port: int) -> list[str]:
     return [file for file in ret_str.split("\n") if file]
 
 
-def query_server(
+def server_query(
     intype: str, host: str, port: int, faName: str, isComplex: bool, isProt: bool
 ):
     re_str = pyqueryServer(intype, host, str(port), faName, isComplex, isProt)
