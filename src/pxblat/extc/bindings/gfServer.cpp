@@ -735,7 +735,7 @@ void gfServer(gfServerOption &options)
   // canStop = optionExists("canStop");
   // noSimpRepMask = optionExists("noSimpRepMask");
 
-  auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
+  // auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
 
   // no need to get from command line
   auto genome = options.genome.empty() ? NULL : options.genome.data();
@@ -744,7 +744,7 @@ void gfServer(gfServerOption &options)
   if ((genomeDataDir != NULL) && (genome == NULL)) errAbort("-genomeDataDir requires the -genome option");
   if ((genome != NULL) && (genomeDataDir == NULL)) genomeDataDir = ".";
 
-  auto timeout = options.timeout;
+  // auto timeout = options.timeout;
 
   // if (optionExists("log")) logOpenFile(argv[0], optionVal("log", NULL));
   // if (optionExists("syslog")) logOpenSyslog(argv[0], optionVal("logFacility", NULL));

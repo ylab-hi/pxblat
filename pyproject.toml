@@ -18,7 +18,7 @@ typer = "^0.9.0"
 
 
 [tool.poetry.scripts]
-pxblat="pxblat.cli:app"
+pxblat="pxblat.cli.cli:app"
 
 
 [tool.ruff]

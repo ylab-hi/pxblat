@@ -5,7 +5,7 @@ from pxblat.extc import gfClientOption
 from pxblat.extc import pygfClient
 
 
-def create_option():
+def create_client_option():
     return gfClientOption()
 
 
@@ -41,4 +41,4 @@ class Client(Thread):
 
     @classmethod
     def create_option(cls):
-        return create_option()
+        return create_client_option()

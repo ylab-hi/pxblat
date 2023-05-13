@@ -28,7 +28,7 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
  * format. */
 {
   struct twoBit *twoBitList = NULL, *twoBit;
-  int i;
+  // int i;
   struct hash *uniqHash = newHash(18);
   FILE *f;
 
@@ -66,6 +66,7 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
     }
     lineFileClose(&lf);
   }
+
   slReverse(&twoBitList);
   f = mustOpen(outFile.data(), "wb");
   twoBitWriteHeaderExt(twoBitList, f, useLong);

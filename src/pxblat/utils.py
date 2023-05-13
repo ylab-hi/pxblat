@@ -103,7 +103,7 @@ def redirected(func):
         stdout_file = tempfile.TemporaryFile("w+")
         stderr_file = tempfile.TemporaryFile("w+")
 
-        with stdout_redirected(to=stdout_file), stderr_redirected(to=stderr_file):
+        with stdout_redirected(to=stdout_file), stderr_redirected(to=stderr_file):  # type: ignore
             ret = func(*args, **kwargs)
 
         stdout_file.seek(0)

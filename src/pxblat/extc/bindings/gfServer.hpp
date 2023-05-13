@@ -42,12 +42,6 @@ struct Signal {
   friend std::ostream &operator<<(std::ostream &os, const Signal &signal);
 };
 
-// long baseCount = 0, blatCount = 0, aaCount = 0, pcrCount = 0;
-// int warnCount = 0;
-// int noSigCount = 0;
-// int missCount = 0;
-// int trimCount = 0;
-
 struct UsageStats {
   long baseCount{0}, blatCount{0}, aaCount{0}, pcrCount{0};
   int warnCount{0};
