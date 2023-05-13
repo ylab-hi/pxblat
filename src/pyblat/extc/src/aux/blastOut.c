@@ -103,13 +103,13 @@ return databaseSize * exp(logProbOne);
 static int blastzScoreToNcbiBits(int bzScore)
 /* Convert blastz score to bit score in NCBI sense. */
 {
-return round(bzScore * 0.0205);
+return cround(bzScore * 0.0205);
 }
 
 static int blastzScoreToNcbiScore(int bzScore)
 /* Conver blastz score to NCBI matrix score. */
 {
-return round(bzScore * 0.0529);
+return cround(bzScore * 0.0529);
 }
 
 static double blastzScoreToNcbiExpectation(int bzScore)
@@ -440,8 +440,8 @@ for (target = targetList; target != NULL; target = target->next)
 		     blastzScoreToWuExpectation(axt->score, databaseLetterCount),
 		     blastzScoreToWuExpectation(axt->score, databaseLetterCount));
 		fprintf(f, " Identities = %d/%d (%d%%), Positives = %d/%d (%d%%)",
-		     matches, axt->symCount, round(100.0 * matches / axt->symCount),
-		     positives, axt->symCount, round(100.0 * positives / axt->symCount));
+		     matches, axt->symCount, cround(100.0 * matches / axt->symCount),
+		     positives, axt->symCount, cround(100.0 * positives / axt->symCount));
 		if (isProt)
 		    {
 		    if (axt->frame != 0)
@@ -531,7 +531,7 @@ for (target = targetList; target != NULL; target = target->next)
 	axt = ref->axt;
 
 	matches = countMatches(axt->qSym, axt->tSym, axt->symCount);
-	identity = round(100.0 * matches / axt->symCount);
+	identity = cround(100.0 * matches / axt->symCount);
 	/* skip output if minIdentity not reached */
 	if (identity < minIdentity) continue;
 
@@ -562,7 +562,7 @@ for (target = targetList; target != NULL; target = target->next)
 	axt = ref->axt;
 
 	matches = countMatches(axt->qSym, axt->tSym, axt->symCount);
-	identity = round(100.0 * matches / axt->symCount);
+	identity = cround(100.0 * matches / axt->symCount);
 
 	/* skip output if minIdentity not reached */
 	if (identity < minIdentity) continue;
@@ -587,11 +587,11 @@ for (target = targetList; target != NULL; target = target->next)
 	    int positives = countPositives(axt->qSym, axt->tSym, axt->symCount);
 	    gaps = countGaps(axt->qSym, axt->tSym, axt->symCount);
 	    fprintf(f, " Identities = %d/%d (%d%%),",
-		 matches, axt->symCount, round(100.0 * matches / axt->symCount));
+		 matches, axt->symCount, cround(100.0 * matches / axt->symCount));
 	    fprintf(f, " Positives = %d/%d (%d%%),",
-		 positives, axt->symCount, round(100.0 * positives / axt->symCount));
+		 positives, axt->symCount, cround(100.0 * positives / axt->symCount));
 	    fprintf(f, " Gaps = %d/%d (%d%%)\n",
-		 gaps, axt->symCount, round(100.0 * gaps / axt->symCount));
+		 gaps, axt->symCount, cround(100.0 * gaps / axt->symCount));
 	    if (axt->frame != 0)
 		fprintf(f, " Frame = %c%d\n", axt->tStrand, axt->frame);
 	    /* set the special global variable, answer_for_kg.
@@ -601,7 +601,7 @@ for (target = targetList; target != NULL; target = target->next)
 	else
 	    {
 	    fprintf(f, " Identities = %d/%d (%d%%)\n",
-		 matches, axt->symCount, round(100.0 * matches / axt->symCount));
+		 matches, axt->symCount, cround(100.0 * matches / axt->symCount));
 	    /* blast displays dna searches as +- instead of blat's default -+ */
 	    if (!isTranslated)
 		if ((axt->qStrand == '-') && (axt->tStrand == '+'))

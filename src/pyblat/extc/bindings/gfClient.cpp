@@ -68,8 +68,8 @@ std::string pygfClient(gfClientOption &option)
 
   snprintf(databaseName, sizeof(databaseName), "%s:%s", hostName, portName);
 
-  gvo = gfOutputAny(outputFormat, round(minIdentity * 10), qType == gftProt, tType == gftProt, nohead, databaseName, 23,
-                    3.0e9, minIdentity, out);
+  gvo = gfOutputAny(outputFormat, cround(minIdentity * 10), qType == gftProt, tType == gftProt, nohead, databaseName,
+                    23, 3.0e9, minIdentity, out);
   gfOutputHead(gvo, out);
   struct errCatch *errCatch = errCatchNew();
   if (errCatchStart(errCatch)) {

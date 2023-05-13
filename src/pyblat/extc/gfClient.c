@@ -110,7 +110,7 @@ void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char 
 
   snprintf(databaseName, sizeof(databaseName), "%s:%s", hostName, portName);
 
-  gvo = gfOutputAny(outputFormat, round(minIdentity * 10), qType == gftProt, tType == gftProt, optionExists("nohead"),
+  gvo = gfOutputAny(outputFormat, cround(minIdentity * 10), qType == gftProt, tType == gftProt, optionExists("nohead"),
                     databaseName, 23, 3.0e9, minIdentity, out);
   gfOutputHead(gvo, out);
   struct errCatch *errCatch = errCatchNew();

@@ -1086,7 +1086,7 @@ for (i=0; i<size; ++i)
     if (ntChars[(int)poly[i]])
 	dnaCount += 1;
     }
-return (dnaCount >= round(0.9 * size));
+return (dnaCount >= cround(0.9 * size));
 }
 
 boolean isAllNt(char *seq, int size)

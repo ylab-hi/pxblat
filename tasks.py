@@ -49,6 +49,22 @@ def test_start_server():
     return ret
 
 
+def test_start_server2():
+    two_bit_file = Path("tests/data/test_ref.2bit")
+    if not two_bit_file.exists():
+        extc.faToTwoBit(["tests/data/test_ref.fa"], two_bit_file.as_posix())
+
+    server_option, client_option, stat = option_stat()
+
+    signal = extc.Signal()
+    print(signal.isReady)
+    ret = pyblat.server.start_server2(
+        "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
+    )
+    print(signal.isReady)
+    return ret
+
+
 def test_server_status():
     server_option, client_option, stat = option_stat()
     extc.statusServer("localhost", str(PORT), server_option)
@@ -171,6 +187,12 @@ def bcst(c):
 @task
 def pstart_server(c):
     res = test_start_server()
+    print(f"here {res=}")
+
+
+@task
+def pstart_server2(c):
+    res = test_start_server2()
     print(f"here {res=}")
 
 

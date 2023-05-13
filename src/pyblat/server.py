@@ -7,6 +7,7 @@ from .extc import faToTwoBit
 from .extc import gfServerOption
 from .extc import pygetFileList
 from .extc import pyqueryServer
+from .extc import pystartServer
 from .extc import Signal
 from .extc import startServer
 from .extc import UsageStats
@@ -99,7 +100,6 @@ def query_server(
     return re_str
 
 
-# @redirected
 def start_server(
     host: str,
     port: int,
@@ -109,6 +109,18 @@ def start_server(
     signal: Signal,
 ):
     return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
+
+
+def start_server2(
+    host: str,
+    port: int,
+    two_bit_file: str,
+    option: gfServerOption,
+    stat: UsageStats,
+    signal: Signal,
+):
+    # return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
+    return pystartServer(host, str(port), 1, [two_bit_file], option, stat, signal)
 
 
 class Server:

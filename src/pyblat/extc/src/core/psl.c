@@ -896,7 +896,7 @@ if (!isMrna)
 
 total = (sizeMul * (psl->match + psl->repMatch + psl->misMatch));
 if (total != 0)
-    milliBad = (1000 * (psl->misMatch*sizeMul + insertFactor + round(3*log(1+sizeDif)))) / total;
+    milliBad = (1000 * (psl->misMatch*sizeMul + insertFactor + cround(3*log(1+sizeDif)))) / total;
 return milliBad;
 }
 

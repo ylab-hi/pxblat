@@ -149,5 +149,5 @@ return val;
 int intExp(char *text)
 /* Convert text to int expression and evaluate. */
 {
-return round(doubleExp(text));
+return cround(doubleExp(text));
 }

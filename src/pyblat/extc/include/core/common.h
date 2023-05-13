@@ -1297,7 +1297,7 @@ int intAbs(int a);
 #define logBase2(x) (log(x) / log(2))
 /* return log base two of number */
 
-#define round(a) ((int)((a) + 0.5))
+#define cround(a) ((int)((a) + 0.5))
 /* Round floating point val to nearest integer. */
 
 #define roundll(a) ((long long)((a) + 0.5))
