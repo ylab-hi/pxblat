@@ -2,6 +2,7 @@ import os
 import random
 import subprocess
 from pathlib import Path
+from typing import Optional
 
 import typer
 from pysam import FastaFile
@@ -27,24 +28,42 @@ def build_index_fa(infa: Path):
 def extract_fa(infa: Path, chr: str):
     # build_index_fa(infa)
 
-    fa = FastaFile(infa)
+    fa = FastaFile(infa.as_posix())
     ret = fa.fetch(chr)
     with open(f"{chr}.fa", "w") as f:
         f.write(f">{chr}\n")
         f.write(ret)
 
 
+def get_length(start: int, end: int, fixed: Optional[int] = None):
+    if fixed is None:
+        return random.randrange(start, end)
+    else:
+        return fixed
+
+
 @app.command()
 def create_bench_data(infa: Path, number_of_data: int):
-    fa = FastaFile(infa)
+    outdir = Path("./benchmark/fas/")
+
+    if not outdir.exists():
+        outdir.mkdir(parents=True)
+
+    fa = FastaFile(infa.as_posix())
+
     chr_len = fa.get_reference_length("chr20")
     print(f"chr20 length: {chr_len}")
 
-    for _i in range(number_of_data):
-        start = random.randint(0, chr_len - 1000)
-        end = start + 1000
+    for i in range(number_of_data):
+        length = get_length(1000, 3000)
+        print(f"length: {length}")
+
+        start = random.randint(0, chr_len - length)
+        end = start + length
         ret = fa.fetch("chr20", start, end)
-        with open(f"chr20_{start}_{end}.fa", "w") as f:
+        outfile = outdir / f"chr20_{start}_{end}.fa"
+        print(f"Writing id {i} to {outfile}")
+        with open(outfile, "w") as f:
             f.write(f">chr20_{start}_{end}\n")
             f.write(ret)
 

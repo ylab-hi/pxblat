@@ -308,3 +308,22 @@ def cp(c):
 
     for file in files:
         c.run(complie_cmd(file.stem, file.as_posix()))
+
+
+@task
+def pc(c):
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withTSeqDir("benchmark/data/")
+        .withInName("benchmark/fas/chr20_2828159_2830288.fa")
+        .build()
+    )
+
+    ret = extc.pygfClient(client_option)
+
+    res = pxblat.read(ret, "psl")
+    print(res)
