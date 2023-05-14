@@ -38,7 +38,7 @@ std::string pygfClient(gfClientOption &option) {
   auto tTypeName = option.tType.data();
   auto inName = option.inName.data();
   // auto outName = option.outName.data();
-  auto tSeqDir = option.tSeqDir.data();
+  auto SeqDir = option.SeqDir.data();
 
   boolean nohead = option.nohead ? TRUE : FALSE;
 
@@ -85,18 +85,18 @@ std::string pygfClient(gfClientOption &option) {
       }
       if (qType == gftProt && (tType == gftDnaX || tType == gftRnaX)) {
         gvo->reportTargetStrand = TRUE;
-        gfAlignTrans(conn, tSeqDir, &seq, minScore, tFileCache, gvo);
+        gfAlignTrans(conn, SeqDir, &seq, minScore, tFileCache, gvo);
       } else if ((qType == gftRnaX || qType == gftDnaX) && (tType == gftDnaX || tType == gftRnaX)) {
         gvo->reportTargetStrand = TRUE;
-        gfAlignTransTrans(conn, tSeqDir, &seq, FALSE, minScore, tFileCache, gvo, qType == gftRnaX);
+        gfAlignTransTrans(conn, SeqDir, &seq, FALSE, minScore, tFileCache, gvo, qType == gftRnaX);
         if (qType == gftDnaX) {
           reverseComplement(seq.dna, seq.size);
-          gfAlignTransTrans(conn, tSeqDir, &seq, TRUE, minScore, tFileCache, gvo, FALSE);
+          gfAlignTransTrans(conn, SeqDir, &seq, TRUE, minScore, tFileCache, gvo, FALSE);
         }
       } else if ((tType == gftDna || tType == gftRna) && (qType == gftDna || qType == gftRna)) {
-        gfAlignStrand(conn, tSeqDir, &seq, FALSE, minScore, tFileCache, gvo);
+        gfAlignStrand(conn, SeqDir, &seq, FALSE, minScore, tFileCache, gvo);
         reverseComplement(seq.dna, seq.size);
-        gfAlignStrand(conn, tSeqDir, &seq, TRUE, minScore, tFileCache, gvo);
+        gfAlignStrand(conn, SeqDir, &seq, TRUE, minScore, tFileCache, gvo);
       } else {
         errAbort("Comparisons between %s queries and %s databases not yet supported", qTypeName, tTypeName);
       }
@@ -211,8 +211,8 @@ gfClientOption &gfClientOption::withIsDynamic(bool isDynamic_) {
   return *this;
 }
 
-gfClientOption &gfClientOption::withTSeqDir(const std::string &tSeqDir_) {
-  tSeqDir = tSeqDir_;
+gfClientOption &gfClientOption::withSeqDir(const std::string &SeqDir_) {
+  SeqDir = SeqDir_;
   return *this;
 }
 
@@ -248,7 +248,7 @@ std::string gfClientOption::to_string() const {
   ret << ", genome=" << genome;
   ret << ", genomeDataDir=" << genomeDataDir;
   ret << ", isDynamic=" << std::boolalpha << isDynamic;
-  ret << ", tSeqDir=" << tSeqDir;
+  ret << ", tSeqDir=" << SeqDir;
   ret << ", inName=" << inName;
   ret << ", outName=" << outName;
   ret << ")";

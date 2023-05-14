@@ -82,7 +82,7 @@ struct gfClientOption {
   std::string genomeDataDir{};
   bool isDynamic{false};
 
-  std::string tSeqDir{};
+  std::string SeqDir{};
   std::string inName{};
   std::string outName{};
 
@@ -106,7 +106,7 @@ struct gfClientOption {
   gfClientOption &withGenome(const std::string &genome_);
   gfClientOption &withGenomeDataDir(const std::string &genomeDataDir_);
   gfClientOption &withIsDynamic(bool isDynamic_);
-  gfClientOption &withTSeqDir(const std::string &tSeqDir_);
+  gfClientOption &withSeqDir(const std::string &SeqDir_);
   gfClientOption &withInName(const std::string &inName_);
   gfClientOption &withOutName(const std::string &outName_);
   gfClientOption &withInseq(const std::string &inseq_);

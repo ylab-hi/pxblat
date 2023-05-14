@@ -127,7 +127,7 @@ def client(
         create_client_option()
         .withHost(host)
         .withPort(str(port))
-        .withTSeqDir(seqdir.as_posix())
+        .withSeqDir(seqdir.as_posix())
         .withInName(infasta.as_posix())
         .withOutName(outpsl.as_posix())
         .withTType(tType)

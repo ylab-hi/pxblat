@@ -13,7 +13,7 @@ def option_stat():
         .withMinIdentity(90)
         .withHost("localhost")
         .withPort(str(PORT))
-        .withTSeqDir("tests/data/")
+        .withSeqDir("tests/data/")
         .withInName("tests/data/test_case1.fa")
         .build()
     )
