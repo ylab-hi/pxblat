@@ -1,9 +1,10 @@
+#include <stdexcept>
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-#include "pygfServer.hpp"
 
 #include "bs_thread_pool.hpp"
 #include "dbg.h"
 #include "gfServer.hpp"
+#include "pygfServer.hpp"
 
 namespace cppbinding {
 
@@ -98,8 +99,8 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 
   if (sameString("quit", command)) {
     // NOTE: workaround <Yangyang Li yangyang.li@northwestern.edu>
-    // exit(0);
-    throw std::runtime_error("exit server");
+    exit(0);
+    // throw std::invalid_argument("exit server");
   }
 
   if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {

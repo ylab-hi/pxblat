@@ -4,7 +4,9 @@ import typer
 from pxblat.extc import Signal
 from pxblat.extc import UsageStats
 from pxblat.server import create_server_option
+from pxblat.server import files as server_files
 from pxblat.server import start_server_mt
+from pxblat.server import status_server
 from pxblat.server import stop_server
 from rich import print
 
@@ -236,28 +238,33 @@ def start(
 
     server_option.build()
 
-    # server = Server(host, port, two_bit, server_option, False)
-    # server.start()
-
-    # for i in range(10):
-    # print(f"server is ready {server.is_ready()}")
-
     stat = UsageStats()
     signal = Signal()
 
-    print(f"server is ready {signal.isReady}")
-
-    # process = Process(
-    #     target=start_server_mt,
-    #     args=(host, port, two_bit.as_posix(), server_option, stat, signal),
-    # )
     start_server_mt(host, port, two_bit.as_posix(), server_option, stat, signal)
-
-    # process.start()
-    print(f"server is ready {signal.isReady}")
-    # process.join()
 
 
 @server_app.command()
 def stop(host: str, port: int):
+    """To remove a server"""
     stop_server(host, port)
+
+
+@server_app.command()
+def status(
+    host: str,
+    port: int,
+    trans: bool = trans,
+):
+    """To figure out if server is alive, on static instances get usage statics"""
+    server_option = create_server_option().withTrans(trans)
+    server_option.build()
+    ret = status_server(host, port, server_option)
+    print(ret)
+
+
+@server_app.command()
+def files(host: str, port: int):
+    """To get input file list"""
+    ret = server_files(host, port)
+    print(ret)
