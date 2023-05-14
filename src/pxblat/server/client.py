@@ -1,5 +1,6 @@
 import tempfile
 from threading import Thread
+from typing import Optional
 
 from pxblat.extc import gfClientOption
 from pxblat.extc import pygfClient
@@ -10,11 +11,16 @@ def create_client_option():
     return gfClientOption()
 
 
-def query_server(host: str, port: int, option: gfClientOption):
-    option.hostName = host
-    option.portName = str(port)
-    fafile = None
+def query_server(
+    option: gfClientOption, host: Optional[str] = None, port: Optional[int] = None
+):
+    if host is not None:
+        option.hostName = host
 
+    if port is not None:
+        option.portName = str(port)
+
+    fafile = None
     if not option.inName and not option.inSeq:
         raise ValueError("inName and inSeq are both empty")
 
@@ -36,15 +42,20 @@ def query_server(host: str, port: int, option: gfClientOption):
 
 
 class Client(Thread):
-    def __init__(self, host: str, port: int, option: gfClientOption):
+    def __init__(
+        self,
+        option: gfClientOption,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+    ):
         super().__init__()
+        self.option = option
         self.host = host
         self.port = port
-        self.option = option
         self.result = None
 
     def run(self):
-        parsed_ret = query_server(self.host, self.port, self.option)
+        parsed_ret = query_server(self.option, self.host, self.port)
         self.result = parsed_ret
 
     def get(self):

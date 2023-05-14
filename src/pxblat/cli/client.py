@@ -119,8 +119,6 @@ def client(
 ):
     """A client for the genomic finding program that produces a .psl file"""
 
-    print("client")
-
     if prot:
         tType = "prot"
         qType = "prot"
@@ -144,8 +142,6 @@ def client(
         .withGenomeDataDir(genomeDataDir)
         .build()
     )
-
-    print(client_option)
 
     rest = pygfClient(client_option)
 
