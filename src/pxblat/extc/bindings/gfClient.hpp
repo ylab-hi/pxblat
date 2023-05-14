@@ -86,6 +86,8 @@ struct gfClientOption {
   std::string inName{};
   std::string outName{};
 
+  std::string inseq{};
+
   gfClientOption() = default;
 
   gfClientOption &build();

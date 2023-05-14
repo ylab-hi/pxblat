@@ -1753,4 +1753,6 @@ void test_stat(UsageStats &stats) {
   stats.trimCount += 1;
 }
 
+void test_exception() { throw std::runtime_error("test exception"); }
+
 }  // namespace cppbinding

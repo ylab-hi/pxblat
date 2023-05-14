@@ -49,6 +49,7 @@ std::string pygfClient(gfClientOption &option)
   int buffsize = 1024;
   char buffer[buffsize];
   FILE *out = fmemopen(buffer, buffsize, "w+");
+
   if (out == NULL) {
     errAbort("Can't open in memory file %s", outName);
   }

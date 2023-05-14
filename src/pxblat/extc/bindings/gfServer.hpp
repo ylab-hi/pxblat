@@ -243,6 +243,7 @@ std::string pyqueryServer(std::string &type, std::string &hostName, std::string 
 void test_stdout();
 void test_add(int &a);
 void test_stat(UsageStats &stats);
+void test_exception();
 
 }  // namespace cppbinding
 #endif
