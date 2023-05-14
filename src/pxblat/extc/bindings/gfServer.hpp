@@ -165,7 +165,7 @@ void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, st
 /* Load up index and hang out in RAM. */
 // void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[]);
 void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                 gfServerOption &options, UsageStats &stats, Signal &signal);
+                 gfServerOption &options, UsageStats &stats);
 
 // void stopServer(char *hostName, char *portName);
 void stopServer(std::string &hostName, std::string &portName);

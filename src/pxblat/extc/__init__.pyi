@@ -26,6 +26,7 @@ __all__ = [
     "statusServer",
     "stopServer",
     "test_add",
+    "test_exception",
     "test_stat",
     "test_stdout",
 ]
@@ -146,6 +147,10 @@ class gfClientOption:
         """
         C++: cppbinding::gfClientOption::withInName(const std::string &) --> struct cppbinding::gfClientOption &
         """
+    def withInseq(self, inseq_: str) -> gfClientOption:
+        """
+        C++: cppbinding::gfClientOption::withInseq(const std::string &) --> struct cppbinding::gfClientOption &
+        """
     def withIsDynamic(self, isDynamic_: bool) -> gfClientOption:
         """
         C++: cppbinding::gfClientOption::withIsDynamic(bool) --> struct cppbinding::gfClientOption &
@@ -229,6 +234,14 @@ class gfClientOption:
         """
     @inName.setter
     def inName(self, arg0: str) -> None:
+        pass
+    @property
+    def inSeq(self) -> str:
+        """
+        :type: str
+        """
+    @inSeq.setter
+    def inSeq(self, arg0: str) -> None:
         pass
     @property
     def isDynamic(self) -> bool:
@@ -788,6 +801,11 @@ def stopServer(hostName: str, portName: str) -> None:
 def test_add(a: int) -> None:
     """
     C++: cppbinding::test_add(int &) --> void
+    """
+
+def test_exception() -> None:
+    """
+    C++: cppbinding::test_exception() --> void
     """
 
 def test_stat(stats: UsageStats) -> None:

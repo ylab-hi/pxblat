@@ -14,7 +14,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
                    gfServerOption const &option);
 
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &options, UsageStats &stats, Signal &signal);
+                  gfServerOption &options, UsageStats &stats);
 
 }  // namespace cppbinding
 

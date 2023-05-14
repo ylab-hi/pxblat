@@ -238,7 +238,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 }
 
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &option, UsageStats &stats, Signal &signal) {
+                  gfServerOption &option, UsageStats &stats) {
   BS::thread_pool pool(option.threads);
 
   std::vector<char *> cseqFiles{};
@@ -262,7 +262,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     throw std::runtime_error("Fatal Error: Unable to open listening socket on port " + portName + ".");
   // errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
-  signal.isReady = true;
+  // signal.isReady = true;
 
   int connectFailCount = 0;
   for (;;) {

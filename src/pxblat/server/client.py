@@ -13,6 +13,7 @@ def create_client_option():
 def query_server(host: str, port: int, option: gfClientOption):
     option.hostName = host
     option.portName = str(port)
+    fafile = None
 
     if not option.inName and not option.inSeq:
         raise ValueError("inName and inSeq are both empty")
@@ -28,7 +29,7 @@ def query_server(host: str, port: int, option: gfClientOption):
     ret = pygfClient(option)
     parsed_ret = read(ret, "psl")
 
-    if option.inSeq:
+    if fafile is not None:
         fafile.close()
 
     return parsed_ret

@@ -3,7 +3,6 @@ from multiprocessing import Process
 from pathlib import Path
 
 from pxblat.extc import gfServerOption
-from pxblat.extc import Signal
 from pxblat.extc import UsageStats
 
 from .basic import files
@@ -33,7 +32,6 @@ class Server(Process):
         self.options = options
 
         self.stat = UsageStats()
-        self.signal = Signal()
 
     def run(self):
         start_server_mt(

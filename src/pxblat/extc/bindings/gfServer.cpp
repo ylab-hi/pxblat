@@ -962,7 +962,7 @@ genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName,
 }
 // void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[])
 void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                 gfServerOption &options, UsageStats &stats, Signal &signal)
+                 gfServerOption &options, UsageStats &stats)
 /* Load up index and hang out in RAM. */
 {
   auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
@@ -1033,7 +1033,7 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
   socketHandle = netAcceptingSocket(port, 100);
   if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
-  signal.isReady = true;
+  // signal.isReady = true;
   logInfo("Server ready for queries!");
   printf("Server ready for queries!\n");
 

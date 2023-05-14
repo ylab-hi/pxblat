@@ -9,14 +9,12 @@ from pxblat.extc import pystartServer
 from pxblat.extc import Signal
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
-from pxblat.utils import redirected
 
 
 def gfSignature() -> str:
     return "0ddf270562684f29"
 
 
-@redirected
 def fa_to_two_bit(
     inFiles: typing.List[str],
     outFile: str,
@@ -109,6 +107,5 @@ def start_server_mt(
     two_bit_file: str,
     option: gfServerOption,
     stat: UsageStats,
-    signal: Signal,
 ):
-    return pystartServer(host, str(port), 1, [two_bit_file], option, stat, signal)
+    return pystartServer(host, str(port), 1, [two_bit_file], option, stat)
