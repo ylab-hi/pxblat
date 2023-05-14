@@ -757,10 +757,9 @@ def pystartServer(
     seqFiles: typing.List[str],
     options: gfServerOption,
     stats: UsageStats,
-    signal: Signal,
 ) -> int:
     """
-    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &, struct cppbinding::Signal &) --> int
+    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> int
     """
 
 def pystatusServer(hostName: str, portName: str, options: gfServerOption) -> str:
@@ -782,10 +781,9 @@ def startServer(
     seqFiles: typing.List[str],
     options: gfServerOption,
     stats: UsageStats,
-    signal: Signal,
 ) -> None:
     """
-    C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &, struct cppbinding::Signal &) --> void
+    C++: cppbinding::startServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> void
     """
 
 def statusServer(hostName: str, portName: str, options: gfServerOption) -> int:

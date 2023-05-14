@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import typer
-from pxblat.extc import Signal
 from pxblat.extc import UsageStats
 from pxblat.server import create_server_option
 from pxblat.server import files as server_files
@@ -239,9 +238,8 @@ def start(
     server_option.build()
 
     stat = UsageStats()
-    signal = Signal()
 
-    start_server_mt(host, port, two_bit.as_posix(), server_option, stat, signal)
+    start_server_mt(host, port, two_bit.as_posix(), server_option, stat)
 
 
 @server_app.command()

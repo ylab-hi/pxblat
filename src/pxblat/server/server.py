@@ -40,9 +40,7 @@ class Server(Process):
             self.two_bit.as_posix(),
             self.options,
             self.stat,
-            self.signal,
         )
-        print(f"{self.signal=}")
 
     def stop(self):
         stop_server(self.host, self.port)
@@ -62,7 +60,7 @@ class Server(Process):
     __repr__ = __str__
 
     def is_ready(self):
-        return self.signal.isReady
+        raise NotImplementedError
 
     def block_until_ready(self):
         while not self.is_ready():

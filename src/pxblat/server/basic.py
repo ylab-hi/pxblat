@@ -6,7 +6,6 @@ from pxblat.extc import gfServerOption
 from pxblat.extc import pygetFileList
 from pxblat.extc import pyqueryServer
 from pxblat.extc import pystartServer
-from pxblat.extc import Signal
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
 
@@ -96,9 +95,8 @@ def start_server(
     two_bit_file: str,
     option: gfServerOption,
     stat: UsageStats,
-    signal: Signal,
 ):
-    return startServer(host, str(port), 1, [two_bit_file], option, stat, signal)
+    return startServer(host, str(port), 1, [two_bit_file], option, stat)
 
 
 def start_server_mt(
