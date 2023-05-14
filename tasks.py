@@ -1,5 +1,4 @@
 import asyncio
-import socket
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -308,19 +307,3 @@ def cp(c):
 
     for file in files:
         c.run(complie_cmd(file.stem, file.as_posix()))
-
-
-@task
-def sk(c):
-    data = b""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(("localhost", 65001))
-        s.sendall(b"hello world from python")
-
-        while True:
-            if data:
-                data += s.recv(1024)
-            else:
-                break
-
-    print("Received", repr(data))
