@@ -327,3 +327,11 @@ def pc(c):
 
     res = pxblat.read(ret, "psl")
     print(res)
+
+
+@task
+def test1(c):
+    try:
+        pxblat.extc.test_exception()
+    except RuntimeError as e:
+        print(f"{e=}")

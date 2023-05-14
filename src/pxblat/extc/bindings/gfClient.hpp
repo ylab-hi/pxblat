@@ -86,7 +86,7 @@ struct gfClientOption {
   std::string inName{};
   std::string outName{};
 
-  std::string inseq{};
+  std::string inSeq{};
 
   gfClientOption() = default;
 
@@ -109,6 +109,7 @@ struct gfClientOption {
   gfClientOption &withTSeqDir(const std::string &tSeqDir_);
   gfClientOption &withInName(const std::string &inName_);
   gfClientOption &withOutName(const std::string &outName_);
+  gfClientOption &withInseq(const std::string &inseq_);
 
   std::string to_string() const;
   friend std::ostream &operator<<(std::ostream &os, const gfClientOption &option);

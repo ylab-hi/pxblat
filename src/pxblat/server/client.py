@@ -1,3 +1,4 @@
+import tempfile
 from threading import Thread
 
 from pxblat.extc import gfClientOption
@@ -12,8 +13,24 @@ def create_client_option():
 def query_server(host: str, port: int, option: gfClientOption):
     option.hostName = host
     option.portName = str(port)
+
+    if not option.inName and not option.inSeq:
+        raise ValueError("inName and inSeq are both empty")
+
+    if option.inSeq:
+        fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+
+        fafile.write(f">{fafile.inName}\n")
+        fafile.write(option.inSeq)
+
+        option.inName = fafile.name
+
     ret = pygfClient(option)
     parsed_ret = read(ret, "psl")
+
+    if option.inSeq:
+        fafile.close()
+
     return parsed_ret
 
 
@@ -25,14 +42,8 @@ class Client(Thread):
         self.option = option
         self.result = None
 
-    def _check_option(self):
-        self.option.hostName = self.host
-        self.option.portName = str(self.port)
-
     def run(self):
-        self._check_option()
-        ret = pygfClient(self.option)
-        parsed_ret = read(ret, "psl")
+        parsed_ret = query_server(self.host, self.port, self.option)
         self.result = parsed_ret
 
     def get(self):

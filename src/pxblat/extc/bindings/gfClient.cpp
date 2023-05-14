@@ -21,9 +21,8 @@ std::string read_inmem_file(FILE *file) {
   return ret_str.str();
 }
 
-std::string pygfClient(gfClientOption &option)
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
-{
+std::string pygfClient(gfClientOption &option) {
   int enterMainTime = 0;
 
   auto hostName = option.hostName.data();
@@ -38,7 +37,7 @@ std::string pygfClient(gfClientOption &option)
   auto qTypeName = option.qType.data();
   auto tTypeName = option.tType.data();
   auto inName = option.inName.data();
-  auto outName = option.outName.data();
+  // auto outName = option.outName.data();
   auto tSeqDir = option.tSeqDir.data();
 
   boolean nohead = option.nohead ? TRUE : FALSE;
@@ -51,7 +50,8 @@ std::string pygfClient(gfClientOption &option)
   FILE *out = fmemopen(buffer, buffsize, "w+");
 
   if (out == NULL) {
-    errAbort("Can't open in memory file %s", outName);
+    // errAbort("Can't open in memory file %s", outName);
+    throw std::runtime_error("cient Can't open in memory file");
   }
 
   struct gfOutput *gvo;
@@ -223,6 +223,11 @@ gfClientOption &gfClientOption::withInName(const std::string &inName_) {
 
 gfClientOption &gfClientOption::withOutName(const std::string &outName_) {
   outName = outName_;
+  return *this;
+}
+
+gfClientOption &gfClientOption::withInseq(const std::string &inseq_) {
+  inSeq = inseq_;
   return *this;
 }
 
