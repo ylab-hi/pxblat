@@ -37,7 +37,7 @@ void pyerrSendString(int sd, char *s, boolean &sendOk)
 void handle_client(int connectionHandle, std::string hostName, std::string portName, int fileCount,
                    std::vector<std::string> const &seqFiles, hash *perSeqMaxHash, genoFindIndex *gfIdx,
                    gfServerOption const &option) {
-  dbg("begin func ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+  // dbg("begin func ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
 
   // print current thread id
 
@@ -98,7 +98,8 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 
   if (sameString("quit", command)) {
     // NOTE: workaround <Yangyang Li yangyang.li@northwestern.edu>
-    exit(0);
+    // exit(0);
+    throw std::runtime_error("exit server");
   }
 
   if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {

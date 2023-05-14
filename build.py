@@ -20,6 +20,27 @@ def remove_env(key: str):
             raise RuntimeError(f"Please remove {key} from CFLAGS and CPPFLAGS.")
 
 
+def find_lib_path_in_conda(lib_name: str):
+    check_conda_env()
+
+    conda_path = Path(os.environ["CONDA_PREFIX"])
+    lib_dir = conda_path / "lib"
+    conda_path / "include"
+
+    lib_path_linux = lib_dir / f"lib{lib_name}.so"
+    lib_path_macos = lib_dir / f"lib{lib_name}.dylib"
+    lib_path_static = lib_dir / f"lib{lib_name}.a"
+
+    if lib_path_linux.exists():
+        return lib_path_linux
+    elif lib_path_macos.exists():
+        return lib_path_macos
+    elif lib_path_static.exists():
+        return lib_path_static
+
+    return None
+
+
 def check_conda_env() -> None:
     """Check if conda env is activated."""
     if "CONDA_PREFIX" not in os.environ:
@@ -146,8 +167,6 @@ SOURCES = (
     )
     + list(filter_files(get_files("src/pxblat/extc/src/net", [".c"])))
 )
-
-print(SOURCES)
 
 
 def build(setup_kwargs):

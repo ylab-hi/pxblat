@@ -71,6 +71,7 @@ stubs: clean-stubs ## Generate pybind11 stubs
 	echo "Generating pybind11 stubs"
 	pybind11-stubgen pxblat._extc.cppbinding
 	cp stubs/pxblat/_extc/cppbinding-stubs/__init__.pyi src/pxblat/extc/__init__.pyi
+	rm -rf stubs
 
 BINDER_DIR=src/pxblat/extc/bindings/binder
 

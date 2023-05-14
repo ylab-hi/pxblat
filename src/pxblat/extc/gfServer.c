@@ -724,6 +724,8 @@ void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[]
   socketHandle = netAcceptingSocket(port, 100);
   if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
+  printf("perSeqMaxHash: %p gfIdx % ", perSeqMaxHash);
+
   logInfo("Server ready for queries!");
   printf("Server ready for queries!\n");
   int connectFailCount = 0;

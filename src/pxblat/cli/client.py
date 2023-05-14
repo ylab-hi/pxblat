@@ -58,15 +58,21 @@ default_option = create_client_option()
 
 
 def client(
-    host: str = typer.Argument(help="The name of the machine running the gfServer"),
-    port: int = typer.Argument(help="The same port that you started the gfServer with"),
-    seqDir: Path = typer.Argument(
-        help="The path of the .2bit or .nib files relative to the current dir"
+    host: str = typer.Argument(
+        ..., help="The name of the machine running the gfServer"
+    ),
+    port: int = typer.Argument(
+        ..., help="The same port that you started the gfServer with"
+    ),
+    seqdir: Path = typer.Argument(
+        ...,
+        dir_okay=True,
+        help="The path of the .2bit or .nib files relative to the current dir",
     ),
     infasta: Path = typer.Argument(
-        help="Fasta format file.  May contain multiple records"
+        ..., help="Fasta format file.  May contain multiple records"
     ),
-    outpsl: Path = typer.Argument(help="where to put the output"),
+    outpsl: Path = typer.Argument(..., help="where to put the output"),
     tType: str = typer.Option(
         default_option.tType,
         "--type",
@@ -113,6 +119,8 @@ def client(
 ):
     """A client for the genomic finding program that produces a .psl file"""
 
+    print("client")
+
     if prot:
         tType = "prot"
         qType = "prot"
@@ -121,7 +129,7 @@ def client(
         create_client_option()
         .withHost(host)
         .withPort(str(port))
-        .withTSeqDir(seqDir.as_posix())
+        .withTSeqDir(seqdir.as_posix())
         .withInName(infasta.as_posix())
         .withOutName(outpsl.as_posix())
         .withTType(tType)
@@ -136,6 +144,8 @@ def client(
         .withGenomeDataDir(genomeDataDir)
         .build()
     )
+
+    print(client_option)
 
     rest = pygfClient(client_option)
 

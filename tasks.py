@@ -17,6 +17,7 @@ def option_stat():
     server_option = (
         extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
+
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)

@@ -1,8 +1,12 @@
 from pathlib import Path
 
 import typer
+from pxblat.extc import Signal
+from pxblat.extc import UsageStats
 from pxblat.server import create_server_option
-
+from pxblat.server import start_server_mt
+from pxblat.server import stop_server
+from rich import print
 
 # gfServer v 37x1 - Make a server to quickly find where DNA occurs in genome
 
@@ -68,7 +72,7 @@ from pxblat.server import create_server_option
 #          $rootdir/$genomeDataDir/$genome.perseqmax
 
 
-default_config = create_server_option()
+default_option = create_server_option()
 
 server_app = typer.Typer(
     help="Make a server to quickly find where DNA occurs in genome"
@@ -76,92 +80,110 @@ server_app = typer.Typer(
 
 
 tileSize: int = typer.Option(
-    default_config.tileSize,
+    default_option.tileSize,
     "--tile-size",
     help="Size of n-mers to index.  Default is 11 for nucleotides, 4 for proteins (or translated nucleotides).",
 )
 
 stepSize: int = typer.Option(
-    default_config.stepSize,
+    default_option.stepSize,
     "--stepSize",
     help="Spacing between tiles. Default is tileSize.",
 )
 
 minMatch: int = typer.Option(
-    default_config.minMatch,
+    default_option.minMatch,
     "--min-match",
     help="Number of n-mer matches that trigger detailed alignment. Default is 2 for nucleotides, 3 for proteins.",
 )
 
 trans: bool = typer.Option(
-    default_config.trans, "--trans", help="Translate database to protein in 6 frames."
+    default_option.trans, "--trans", help="Translate database to protein in 6 frames."
 )
 
 log: str = typer.Option(
-    default_config.log, "--log", help="Keep a log file that records server requests."
+    None,
+    "--log",
+    exists=True,
+    dir_okay=False,
+    help="Keep a log file that records server requests.",
 )
 
 mask: bool = typer.Option(
-    default_config.mask, "--mask", help="Use masking from .2bit file."
+    default_option.mask, "--mask", help="Use masking from .2bit file."
 )
 
 repMatch: int = typer.Option(
-    default_config.repMatch,
+    default_option.repMatch,
     "--repMatch",
     help="Number of occurrences of a tile (n-mer) that triggers repeat masking the tile. Default is 1024.",
 )
 
 noSimpRepMask: bool = typer.Option(
-    default_config.noSimpRepMask,
+    default_option.noSimpRepMask,
     "--noSimpRepMask",
     help="Suppresses simple repeat masking.",
 )
 
 maxDnaHits: int = typer.Option(
-    default_config.maxDnaHits,
+    default_option.maxDnaHits,
     "--maxDnaHits",
     help="Maximum number of hits for a DNA query that are sent from the server.",
 )
 
 maxTransHits: int = typer.Option(
-    default_config.maxTransHits,
+    default_option.maxTransHits,
     "--maxTransHits",
     help="Maximum number of hits for a translated query that are sent from the server.",
 )
 
 maxNtSize: int = typer.Option(
-    default_config.maxNtSize,
+    default_option.maxNtSize,
     "--maxNtSize",
     help="Maximum size of untranslated DNA query sequence.",
 )
 
 perSeqMax: Path = typer.Option(
-    default_config.perSeqMax,
+    None,
     "--perSeqMax",
+    exists=True,
+    dir_okay=False,
     help="File contains one seq filename (possibly with ':seq' suffix) per line.",
 )
 
 canStop: bool = typer.Option(
-    default_config.canStop,
+    default_option.canStop,
     "--canStop",
     help="If set, a quit message will actually take down the server.",
 )
 
 indexFile: Path = typer.Option(
-    default_config.indexFile,
+    None,
     "--indexFile",
+    exists=True,
+    dir_okay=False,
     help="Index file create by `gfServer index'.",
 )
-
 timeout: int = typer.Option(
-    default_config.timeout, "--timeout", help="Timeout in seconds."
+    default_option.timeout, "--timeout", help="Timeout in seconds."
 )
+
+
+two_bit: Path = typer.Argument(
+    ...,
+    exists=True,
+    dir_okay=False,
+    help="Two bit file",
+)
+
+threads: int = typer.Option(2, "--threads", help="Number of threads to use")
 
 
 @server_app.command()
 def start(
     host: str,
     port: int,
+    two_bit: Path = two_bit,
     tileSize: int = tileSize,
     stepSize: int = stepSize,
     minMatch: int = minMatch,
@@ -177,6 +199,7 @@ def start(
     canStop: bool = canStop,
     indexFile: Path = indexFile,
     timeout: int = timeout,
+    threads: int = threads,
 ):
     """To set up a server
 
@@ -185,7 +208,56 @@ def start(
     where the files are .2bit or .nib format files specified relative to the current directory
     """
 
+    server_option = (
+        create_server_option()
+        .withTileSize(tileSize)
+        .withStepSize(stepSize)
+        .withMinMatch(minMatch)
+        .withTrans(trans)
+        .withMask(mask)
+        .withRepMatch(repMatch)
+        .withNoSimpRepMask(noSimpRepMask)
+        .withMaxDnaHits(maxDnaHits)
+        .withMaxTransHits(maxTransHits)
+        .withMaxNtSize(maxNtSize)
+        .withCanStop(canStop)
+        .withTimeout(timeout)
+        .withThreads(threads)
+    )
+
+    if log is not None:
+        server_option.withLog(log)
+
+    if perSeqMax is not None:
+        server_option.withPerSeqMax(perSeqMax.as_posix())
+
+    if indexFile is not None:
+        server_option.withIndexFile(indexFile.as_posix())
+
+    server_option.build()
+
+    # server = Server(host, port, two_bit, server_option, False)
+    # server.start()
+
+    # for i in range(10):
+    # print(f"server is ready {server.is_ready()}")
+
+    stat = UsageStats()
+    signal = Signal()
+
+    print(f"server is ready {signal.isReady}")
+
+    # process = Process(
+    #     target=start_server_mt,
+    #     args=(host, port, two_bit.as_posix(), server_option, stat, signal),
+    # )
+    start_server_mt(host, port, two_bit.as_posix(), server_option, stat, signal)
+
+    # process.start()
+    print(f"server is ready {signal.isReady}")
+    # process.join()
+
 
 @server_app.command()
 def stop(host: str, port: int):
-    print(f"{host=} {port=}")
+    stop_server(host, port)

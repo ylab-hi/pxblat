@@ -44,6 +44,7 @@ class Server(Process):
             self.stat,
             self.signal,
         )
+        print(f"{self.signal=}")
 
     def stop(self):
         stop_server(self.host, self.port)
