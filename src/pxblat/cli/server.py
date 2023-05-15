@@ -239,7 +239,9 @@ def start(
 
     stat = UsageStats()
 
-    start_server_mt(host, port, two_bit.as_posix(), server_option, stat)
+    start_server_mt(
+        host, port, two_bit.as_posix(), server_option, stat, try_new_port=False
+    )
 
 
 @server_app.command()

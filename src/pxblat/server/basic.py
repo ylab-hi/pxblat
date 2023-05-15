@@ -18,14 +18,14 @@ from .utils import logger
 DEFAULT_PORT = 65000
 
 
-def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 4):
+def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3):
     res = []
-    for _i in range(tries):
+    for _ in range(tries):
         res.append(_check_port_in_use(host, port))
 
     counter = Counter(res)
 
-    logger.info(f"{res}")
+    logger.debug(f"{res}")
 
     if counter[True] > counter[False]:
         return True
@@ -171,6 +171,7 @@ def start_server_mt(
     stat: UsageStats,
     use_others: bool = False,
     timeout: int = 60,
+    try_new_port: bool = True,
 ):
     """Start server in blocking mode.
 
@@ -187,9 +188,11 @@ def start_server_mt(
                 pass
                 # wait_server_ready(host, port, timeout)
                 # status_server(host, port, option)
-            else:
+            elif try_new_port:
                 port = find_free_port(host, start=port + 1)
                 pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+            else:
+                raise ValueError(f"The port {port} is used")
         else:
             pystartServer(host, str(port), 1, [two_bit_file], option, stat)
     except Exception as e:
@@ -202,6 +205,9 @@ def start_server_mt_nb(
     two_bit_file: str,
     option: gfServerOption,
     stat: UsageStats,
+    use_others: bool = False,
+    timeout: int = 60,
+    try_new_port: bool = True,
 ) -> Process:
     """Start server in non-blocking mode.
 
@@ -217,7 +223,16 @@ def start_server_mt_nb(
     """
     process = Process(
         target=start_server_mt,
-        args=(host, port, two_bit_file, option, stat),
+        args=(
+            host,
+            port,
+            two_bit_file,
+            option,
+            stat,
+            use_others,
+            timeout,
+            try_new_port,
+        ),
         daemon=True,
     )
 

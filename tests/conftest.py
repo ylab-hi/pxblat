@@ -3,6 +3,9 @@ from pxblat import extc
 from pxblat.server import Server
 
 
+# TODO: change check open way to use status <05-15-23, Yangyang Li>
+
+
 @pytest.fixture
 def port():
     return 65000
@@ -49,10 +52,25 @@ def client_option(port):
     )
 
 
+from pxblat.server import stop_server
+
+close = True
+
+
 @pytest.fixture
-def start_server(server_option, port, two_bit):
+def start_server(server_option, port, two_bit, caplog):
+    global close
+    if close:
+        close = False
+
+        try:
+            stop_server("localhost", port)
+        except Exception:
+            pass
+
     server = Server("localhost", port, two_bit, server_option, use_others=True)
     server.start()
-
-    server.wait_ready()
+    print(f"{server}")
+    server.wait_ready(timeout=10, restart=True)
     yield server
+    # server.stop()

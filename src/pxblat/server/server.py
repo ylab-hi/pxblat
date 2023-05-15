@@ -31,6 +31,7 @@ class Server:
         daemon=True,
         use_others: bool = False,
         timeout: int = 60,
+        block: bool = False,
     ):
         self._host = host
         self._port = port
@@ -42,9 +43,9 @@ class Server:
         self.daemon = daemon
 
         self._is_ready = False
-        self._is_open = False
-
+        self._is_open = True
         self._process = None
+        self._block = block
 
     @property
     def host(self):
@@ -62,21 +63,52 @@ class Server:
     def port(self, value: int):
         self._port = value
 
-    def start(self):
+    def _start_b(self):
         two_bit_file = (
             self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
         )
         try:
-            if check_port_in_use(self._host, self.port):
-                logger.info(f"{self.port} port in use")
+            if check_port_in_use(self.host, self.port):
                 if self.use_others:
+                    self._is_open = False
                     pass
                     # wait_server_ready(host, port, timeout)
                     # status_server(host, port, option)
                 else:
+                    self._is_open = True
+                    new_port = find_free_port(self.host, start=self.port + 1)
+                    self.port = new_port
+                    pystartServer(
+                        self.host,
+                        str(self.port),
+                        1,
+                        [two_bit_file],
+                        self.option,
+                        self.stat,
+                    )
+            else:
+                pystartServer(
+                    self.host, str(self.port), 1, [two_bit_file], self.option, self.stat
+                )
+        except Exception as e:
+            raise e
+
+    def _start_nb(self):
+        two_bit_file = (
+            self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
+        )
+        try:
+            if check_port_in_use(self.host, self.port):
+                logger.debug(f"{self.port} port in use")
+                if self.use_others:
+                    self._is_open = False
+                    pass
+                    # wait_server_ready(host, port, timeout)
+                    # status_server(host, port, option)
+                else:
+                    self._is_open = True
                     new_port = find_free_port(self._host, start=self.port + 1)
                     self.port = new_port
-                    self._is_open = True
                     self._process = Process(
                         target=pystartServer,
                         args=(
@@ -90,9 +122,8 @@ class Server:
                         daemon=self.daemon,
                     )
             else:
-                logger.info(f"{self.port} port not in use")
-
                 self._is_open = True
+                logger.debug(f"{self.port} port not in use")
                 self._process = Process(
                     target=pystartServer,
                     args=(
@@ -112,6 +143,12 @@ class Server:
             if self._process is not None:
                 self._process.start()
 
+    def start(self):
+        if not self._block:
+            self._start_nb()
+        else:
+            self._start_b()
+
     def stop(self):
         if self._is_open:
             stop_server(self.host, self.port)
@@ -128,16 +165,26 @@ class Server:
     def is_ready(self) -> bool:
         return self._is_ready
 
-    def wait_ready(self, timeout: int = 60):
+    def is_open(self) -> bool:
+        return self._is_open
+
+    def wait_ready(self, timeout: int = 60, restart: bool = False):
         if not self._is_ready:
-            wait_server_ready(self.host, self.port, timeout)
-            self._is_ready = True
+            try:
+                wait_server_ready(self.host, self.port, timeout)
+            except RuntimeError as e:
+                # NOTE: handle false address use message <05-15-23, Yangyang Li>
+                if restart and self.use_others:
+                    self.use_others = False
+                    self.start()
+                else:
+                    raise e
+            else:
+                self._is_ready = True
 
     @classmethod
     def create_option(cls):
         return create_server_option()
 
     def __str__(self):
-        return (
-            f"Server({self.host}, {self.port}, ready: {self.is_ready()} {self.option})"
-        )
+        return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()} {self.option})"
