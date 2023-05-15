@@ -10,6 +10,7 @@ from pxblat.extc import UsageStats
 from .basic import check_port_in_use
 from .basic import files
 from .basic import find_free_port
+from .basic import logger
 from .basic import server_query
 from .basic import status_server
 from .basic import stop_server
@@ -20,7 +21,7 @@ def create_server_option():
     return gfServerOption()
 
 
-class Server(Process):
+class Server:
     def __init__(
         self,
         host: str,
@@ -31,7 +32,6 @@ class Server(Process):
         use_others: bool = False,
         timeout: int = 60,
     ):
-        super().__init__(daemon=daemon)
         self._host = host
         self._port = port
         self.two_bit = two_bit
@@ -39,8 +39,12 @@ class Server(Process):
         self.stat = UsageStats()
         self.use_others = use_others
         self.timeout = timeout
+        self.daemon = daemon
 
         self._is_ready = False
+        self._is_open = False
+
+        self._process = None
 
     @property
     def host(self):
@@ -58,13 +62,13 @@ class Server(Process):
     def port(self, value: int):
         self._port = value
 
-    def run(self):
+    def start(self):
         two_bit_file = (
             self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
         )
-
         try:
             if check_port_in_use(self._host, self.port):
+                logger.info(f"{self.port} port in use")
                 if self.use_others:
                     pass
                     # wait_server_ready(host, port, timeout)
@@ -72,30 +76,45 @@ class Server(Process):
                 else:
                     new_port = find_free_port(self._host, start=self.port + 1)
                     self.port = new_port
-                    pystartServer(
-                        self._host,
-                        str(new_port),
+                    self._is_open = True
+                    self._process = Process(
+                        target=pystartServer,
+                        args=(
+                            self.host,
+                            str(self.port),
+                            1,
+                            [two_bit_file],
+                            self.option,
+                            self.stat,
+                        ),
+                        daemon=self.daemon,
+                    )
+            else:
+                logger.info(f"{self.port} port not in use")
+
+                self._is_open = True
+                self._process = Process(
+                    target=pystartServer,
+                    args=(
+                        self.host,
+                        str(self.port),
                         1,
                         [two_bit_file],
                         self.option,
                         self.stat,
-                    )
-            else:
-                # self.openq.put(True)
-                pystartServer(
-                    self.host,
-                    str(self.port),
-                    1,
-                    [two_bit_file],
-                    self.option,
-                    self.stat,
+                    ),
+                    daemon=self.daemon,
                 )
-
         except Exception as e:
             raise e
 
+        else:
+            if self._process is not None:
+                self._process.start()
+
     def stop(self):
-        stop_server(self._host, self.port)
+        if self._is_open:
+            stop_server(self.host, self.port)
 
     def status(self) -> typing.Dict[str, str]:
         return status_server(self.host, self.port, self.option)
@@ -122,5 +141,3 @@ class Server(Process):
         return (
             f"Server({self.host}, {self.port}, ready: {self.is_ready()} {self.option})"
         )
-
-    __repr__ = __str__

@@ -8,7 +8,6 @@ from typing import Optional
 
 import typer
 from pxblat import extc
-from pxblat.server import query_server
 from pxblat.server import Server
 from pxblat.server import status_server
 from pysam import FastaFile
@@ -25,21 +24,9 @@ def option_stat():
     server_option = (
         extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
-
-    client_option = (
-        extc.gfClientOption()
-        .withMinScore(20)
-        .withMinIdentity(90)
-        .withHost("localhost")
-        .withPort(str(PORT))
-        .withSeqDir("tests/data/")
-        .withInName("tests/data/test_case1.fa")
-        .build()
-    )
-
     stat = extc.UsageStats()
 
-    return server_option, client_option, stat
+    return server_option, stat
 
 
 def build_index_fa(infa: Path):
@@ -122,7 +109,7 @@ def runc():
 
     time.sleep(20)
 
-    server_option, client_option, stat = option_stat()
+    server_option, stat = option_stat()
     print(status_server("localhost", PORT, server_option))
 
     for fa in fas():
@@ -132,15 +119,19 @@ def runc():
 
 @app.command()
 def runp():
-    server_option, client_option, stat = option_stat()
-    two_bit = "benchmark/data/chr20.2bit"
-    server = Server("localhost", PORT, two_bit, server_option)
+    server_option, stat = option_stat()
+    two_bit2 = "tests/data/test_ref.2bit"
+    server = Server("localhost", PORT, two_bit2, server_option)
     server.start()
-    server.wait_ready(timeout=120)
+    server.wait_ready()
+
+    print(server.status())
+    print(server.files())
+    print(server)
 
     fa1 = list(fas())[0]
 
-    client_option = (
+    (
         extc.gfClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
@@ -153,10 +144,10 @@ def runp():
 
     # client = Client(client_option)
 
-    print(f"fa1: {fa1}")
+    # print(f"fa1: {fa1}")
 
-    ret = query_server(client_option, parse=False)
-    print(ret)
+    # ret = query_server(client_option, parse=False)
+    # print(ret)
 
 
 @app.command()

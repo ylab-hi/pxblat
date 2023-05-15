@@ -2,6 +2,7 @@ import errno
 import socket
 import time
 import typing
+from collections import Counter
 from multiprocessing import Process
 
 from pxblat.extc import faToTwoBit
@@ -12,14 +13,33 @@ from pxblat.extc import pystartServer
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
 
+from .utils import logger
+
 DEFAULT_PORT = 65000
 
 
-def check_port_in_use(host: str, port: int = DEFAULT_PORT):
+def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 4):
+    res = []
+    for _i in range(tries):
+        res.append(_check_port_in_use(host, port))
+
+    counter = Counter(res)
+
+    logger.info(f"{res}")
+
+    if counter[True] > counter[False]:
+        return True
+    else:
+        return False
+
+
+def _check_port_in_use(host: str, port: int = DEFAULT_PORT):
+    logger.debug(f"check port {host}:{port}")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.bind((host, port))
     except socket.error as e:
+        logger.debug(f"port {host}:{port} is in use {e}")
         if e.errno == errno.EADDRINUSE:
             return True
             #     print("Port is already in use", port)
@@ -35,7 +55,7 @@ def check_port_in_use(host: str, port: int = DEFAULT_PORT):
 def wait_server_ready(host: str, port: int, timeout: int = 60):
     start = time.perf_counter()
     while not check_port_open(host, port):
-        time.sleep(2)
+        # time.sleep(1)
         if time.perf_counter() - start > timeout:
             raise RuntimeError("wait for server ready timeout")
 
