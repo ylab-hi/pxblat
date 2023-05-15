@@ -948,8 +948,9 @@ genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName,
   time_t startIndexTime = clock1000();
   if (indexFile == NULL) {
     char const *desc = doTrans ? "translated" : "untranslated";
-    uglyf("starting %s server...\n", desc);
-    logInfo("setting up %s index", desc);
+    // uglyf("starting %s server...\n", desc);
+    dbg("starting %s server...\n", desc);
+    // logInfo("setting up %s index", desc);
     gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
                                allowOneMismatch, doMask, stepSize, noSimpRepMask);
     logInfo("index building completed in %4.3f seconds", 0.001 * (clock1000() - startIndexTime));
@@ -1016,8 +1017,9 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
   time_t startIndexTime = clock1000();
   if (indexFile == NULL) {
     char const *desc = doTrans ? "translated" : "untranslated";
-    uglyf("starting %s server...\n", desc);
-    logInfo("setting up %s index", desc);
+    // uglyf("starting %s server...\n", desc);
+    dbg("starting %s server...\n", desc);
+    // logInfo("setting up %s index", desc);
 
     dbg(hostName, portName, fileCount, cseqFiles, options, stats);
     gfIdx = genoFindIndexBuild(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
