@@ -58,6 +58,7 @@ def query_server(
     return ret_decode
 
 
+# TODO: test for client <05-15-23, Yangyang Li>
 class Client(Thread):
     def __init__(
         self,
