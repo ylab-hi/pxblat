@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include "dbg.h"
+
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 /* Copyright 2001-2003 Jim Kent.  All rights reserved. */
 
@@ -123,12 +125,15 @@ std::string pygfClient(gfClientOption &option) {
         errAbort("the dynamic server at %s:%s is returning an error at this time,\ntry again later", hostName,
                  portName);
     } else
-      errAbort("gfClient error exit");
+      throw std::runtime_error("gfClient error exit");
+    // errAbort("gfClient error exit");
   }
   errCatchFree(&errCatch);
 
   // if (out != stdout) printf("Output is in %s\n", outName);
   gfFileCacheFree(&tFileCache);
+
+  dbg("returning read_inmem_file");
   return read_inmem_file(out);
 }
 
@@ -226,7 +231,7 @@ gfClientOption &gfClientOption::withOutName(const std::string &outName_) {
   return *this;
 }
 
-gfClientOption &gfClientOption::withInseq(const std::string &inseq_) {
+gfClientOption &gfClientOption::withInSeq(const std::string &inseq_) {
   inSeq = inseq_;
   return *this;
 }

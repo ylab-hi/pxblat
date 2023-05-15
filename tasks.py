@@ -8,6 +8,8 @@ import pxblat
 import simdjson
 from invoke import task
 from pxblat import extc
+from pxblat.server import start_server_mt_nb
+from pxblat.server import wait_server_ready
 from rich import print
 
 PORT = 65000
@@ -24,7 +26,7 @@ def option_stat():
         .withMinIdentity(90)
         .withHost("localhost")
         .withPort(str(PORT))
-        .withTSeqDir("tests/data/")
+        .withSeqDir("tests/data/")
         .withInName("tests/data/test_case1.fa")
         .build()
     )
@@ -41,12 +43,9 @@ def test_start_server():
 
     server_option, client_option, stat = option_stat()
 
-    signal = extc.Signal()
-    print(signal.isReady)
     ret = pxblat.server.start_server(
-        "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
+        "localhost", PORT, two_bit_file.as_posix(), server_option, stat
     )
-    print(signal.isReady)
     return ret
 
 
@@ -78,9 +77,9 @@ def test_query_server():
     )
 
 
-def wait_for_ready(options):
-    while extc.statusServer("localhost", str(PORT), options) < 0:
-        pass
+# def wait_server_ready(options):
+#     while extc.statusServer("localhost", str(PORT), options) < 0:
+#         pass
 
 
 @task
@@ -108,8 +107,17 @@ def cquery_server(c):
 @task
 def cclient(c):
     c.run(
-        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case1.fa testc.psl"
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case2.fa testc2.psl"
     )
+
+
+@task
+def cclient2(c):
+    from Bio import SearchIO
+
+    ret = SearchIO.read("testcg.psl", "blat-psl")
+
+    print(ret)
 
 
 def _pclient():
@@ -318,7 +326,7 @@ def pc(c):
         .withMinIdentity(90)
         .withHost("localhost")
         .withPort(str(PORT))
-        .withTSeqDir("benchmark/data/")
+        .withSeqDir("benchmark/data/")
         .withInName("benchmark/fas/chr20_2828159_2830288.fa")
         .build()
     )
@@ -335,3 +343,33 @@ def test1(c):
         pxblat.extc.test_exception()
     except RuntimeError as e:
         print(f"{e=}")
+
+
+@task
+def test2(c):
+    # open server
+    server_option, client_option, stat = option_stat()
+    start_server_mt_nb(
+        "localhost", PORT, "tests/data/test_ref.2bit", server_option, stat
+    )
+
+    print("wait server ready")
+    wait_server_ready("localhost", PORT)
+
+    # .withInName("tests/data/test_case1.fa")
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir("tests/data/")
+        .withInSeq(
+            "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+        )
+        .build()
+    )
+
+    ret = pxblat.server.query_server(client_option)
+    res = pxblat.read(ret, "psl")
+    print(res)

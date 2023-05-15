@@ -1,4 +1,5 @@
 import tempfile
+from pathlib import Path
 from threading import Thread
 from typing import Optional
 
@@ -12,7 +13,10 @@ def create_client_option():
 
 
 def query_server(
-    option: gfClientOption, host: Optional[str] = None, port: Optional[int] = None
+    option: gfClientOption,
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    seqname: Optional[str] = None,
 ):
     if host is not None:
         option.hostName = host
@@ -27,18 +31,25 @@ def query_server(
     if option.inSeq:
         fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
 
-        fafile.write(f">{fafile.inName}\n")
+        seqname = fafile.name if seqname is None else seqname
+        fafile.write(f">{seqname}\n")
         fafile.write(option.inSeq)
+        fafile.close()
 
         option.inName = fafile.name
 
+    # return bytes
     ret = pygfClient(option)
-    parsed_ret = read(ret, "psl")
+
+    try:
+        ret_decode = ret.decode().rsplit("\n", 1)[0]  # type: ignore
+    except UnicodeDecodeError:
+        ret_decode = ret.decode("latin-1").rsplit("\n", 1)[0]  # type: ignore
 
     if fafile is not None:
-        fafile.close()
+        Path(fafile.name).unlink()
 
-    return parsed_ret
+    return ret_decode
 
 
 class Client(Thread):
@@ -55,7 +66,8 @@ class Client(Thread):
         self.result = None
 
     def run(self):
-        parsed_ret = query_server(self.option, self.host, self.port)
+        ret = query_server(self.option, self.host, self.port)
+        parsed_ret = read(ret, "psl")
         self.result = parsed_ret
 
     def get(self):

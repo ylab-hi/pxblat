@@ -109,7 +109,7 @@ struct gfClientOption {
   gfClientOption &withSeqDir(const std::string &SeqDir_);
   gfClientOption &withInName(const std::string &inName_);
   gfClientOption &withOutName(const std::string &outName_);
-  gfClientOption &withInseq(const std::string &inseq_);
+  gfClientOption &withInSeq(const std::string &inseq_);
 
   std::string to_string() const;
   friend std::ostream &operator<<(std::ostream &os, const gfClientOption &option);

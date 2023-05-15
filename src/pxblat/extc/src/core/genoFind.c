@@ -680,7 +680,7 @@ int nibSize, i;
 int endBuf, basesInBuf;
 struct dnaSeq *seq;
 
-printf("Counting tiles in %s\n", fileName);
+// printf("Counting tiles in %s\n", fileName);
 nibOpenVerify(fileName, &f, &nibSize);
 for (i=0; i < nibSize; i = endBuf)
     {
@@ -725,7 +725,7 @@ struct twoBitIndex *index;
 int seqCount = 0;
 long long baseCount = twoBitCheckTotalSize(tbf);
 
-printf("Counting tiles in %s\n", fileName);
+// printf("Counting tiles in %s\n", fileName);
 for (index = tbf->indexList; index != NULL; index = index->next)
     {
     seq = twoBitReadSeqFragLower(tbf, index->name, 0, 0);
@@ -883,7 +883,7 @@ int nibSize, i;
 int endBuf, basesInBuf;
 struct dnaSeq *seq;
 
-printf("Adding tiles in %s\n", fileName);
+// printf("Adding tiles in %s\n", fileName);
 nibOpenVerify(fileName, &f, &nibSize);
 for (i=0; i < nibSize; i = endBuf)
     {
@@ -1022,7 +1022,7 @@ for (i=0; i<fileCount; ++i)
     }
 gf->totalSeqSize = offset;
 gfZeroOverused(gf);
-printf("Done adding\n");
+// printf("Done adding\n");
 return gf;
 }
 

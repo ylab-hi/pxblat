@@ -83,6 +83,7 @@ def read(content: str, format=None, **kwargs):
         query_result = next(query_results)
     except StopIteration:
         raise ValueError("No query results found in handle") from None
+
     try:
         next(query_results)
         raise ValueError("More than one query result found in handle")

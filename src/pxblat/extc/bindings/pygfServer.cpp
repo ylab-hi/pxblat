@@ -80,7 +80,8 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
   }
 
   if (readSize == 0) {
-    warn("Zero sized query");
+    // warn("Zero sized query");
+    dbg("Zero sized query");
     ++stats.warnCount;
     close(connectionHandle);
     return;
@@ -96,6 +97,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 
   line = buf + strlen(gfSignature());
   command = nextWord(&line);
+  dbg("receive", command);
 
   if (sameString("quit", command)) {
     // NOTE: workaround <Yangyang Li yangyang.li@northwestern.edu>
@@ -104,7 +106,6 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
   }
 
   if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {
-    dbg(command);
     // sleep 10 s
     sleep(10);
     sprintf(buf, "version %s", gfVersion);
@@ -286,7 +287,7 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
       connectFailCount = 0;
     }
 
-    dbg("before ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
+    // dbg("before ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
     // handle_client(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
     pool.push_task(handle_client, connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx,
                    option);

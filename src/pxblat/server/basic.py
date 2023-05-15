@@ -1,5 +1,6 @@
 import socket
 import typing
+from multiprocessing import Process
 
 from pxblat.extc import faToTwoBit
 from pxblat.extc import gfServerOption
@@ -8,6 +9,20 @@ from pxblat.extc import pyqueryServer
 from pxblat.extc import pystartServer
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
+
+
+def check_port_open(host: str, port: int) -> bool:
+    """Check the port is open and can accept message or not.
+
+    Args:
+        host: Hostname
+        port: Port number
+
+    Returns:
+        True if the port is open and can accept message, otherwise False.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex((host, port)) == 0
 
 
 def gfSignature() -> str:
@@ -106,4 +121,42 @@ def start_server_mt(
     option: gfServerOption,
     stat: UsageStats,
 ):
+    """Start server in blocking mode.
+
+    Args:
+        host: host name
+        port: port number
+        two_bit_file: two bit file path
+        option: gfServeoption
+        stat: statastic for server
+    """
     return pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+
+
+def start_server_mt_nb(
+    host: str,
+    port: int,
+    two_bit_file: str,
+    option: gfServerOption,
+    stat: UsageStats,
+) -> Process:
+    """Start server in non-blocking mode.
+
+    Args:
+        host: host name
+        port: port number
+        two_bit_file: two bit file path
+        option: gfServeoption
+        stat: statastic for server
+
+    Returns:
+        Process: a process object
+    """
+    process = Process(
+        target=start_server_mt,
+        args=(host, port, two_bit_file, option, stat),
+        daemon=True,
+    )
+
+    process.start()
+    return process

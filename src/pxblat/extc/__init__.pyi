@@ -147,9 +147,9 @@ class gfClientOption:
         """
         C++: cppbinding::gfClientOption::withInName(const std::string &) --> struct cppbinding::gfClientOption &
         """
-    def withInseq(self, inseq_: str) -> gfClientOption:
+    def withInSeq(self, inseq_: str) -> gfClientOption:
         """
-        C++: cppbinding::gfClientOption::withInseq(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::gfClientOption::withInSeq(const std::string &) --> struct cppbinding::gfClientOption &
         """
     def withIsDynamic(self, isDynamic_: bool) -> gfClientOption:
         """
@@ -187,14 +187,22 @@ class gfClientOption:
         """
         C++: cppbinding::gfClientOption::withQType(const std::string &) --> struct cppbinding::gfClientOption &
         """
-    def withTSeqDir(self, tSeqDir_: str) -> gfClientOption:
+    def withSeqDir(self, SeqDir_: str) -> gfClientOption:
         """
-        C++: cppbinding::gfClientOption::withTSeqDir(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::gfClientOption::withSeqDir(const std::string &) --> struct cppbinding::gfClientOption &
         """
     def withTType(self, tType_: str) -> gfClientOption:
         """
         C++: cppbinding::gfClientOption::withTType(const std::string &) --> struct cppbinding::gfClientOption &
         """
+    @property
+    def SeqDir(self) -> str:
+        """
+        :type: str
+        """
+    @SeqDir.setter
+    def SeqDir(self, arg0: str) -> None:
+        pass
     @property
     def dots(self) -> int:
         """
@@ -314,14 +322,6 @@ class gfClientOption:
         """
     @qType.setter
     def qType(self, arg0: str) -> None:
-        pass
-    @property
-    def tSeqDir(self) -> str:
-        """
-        :type: str
-        """
-    @tSeqDir.setter
-    def tSeqDir(self, arg0: str) -> None:
         pass
     @property
     def tType(self) -> str:
