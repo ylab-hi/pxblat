@@ -1,3 +1,4 @@
+import errno
 import socket
 import time
 import typing
@@ -10,6 +11,24 @@ from pxblat.extc import pyqueryServer
 from pxblat.extc import pystartServer
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
+
+DEFAULT_PORT = 65000
+
+
+def check_port_in_use(host: str, port: int = DEFAULT_PORT):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, port))
+    except socket.error as e:
+        # if e.errno == errno.EADDRINUSE:
+        #     print("Port is already in use", port)
+        # else:
+        #     print(e)
+
+        raise e
+
+    s.close()
+    return False
 
 
 def wait_server_ready(host: str, port: int, timeout: int = 60):
@@ -139,6 +158,7 @@ def start_server_mt(
         option: gfServeoption
         stat: statastic for server
     """
+    check_port_in_use(host, port)
     return pystartServer(host, str(port), 1, [two_bit_file], option, stat)
 
 
@@ -169,3 +189,24 @@ def start_server_mt_nb(
 
     process.start()
     return process
+
+
+def find_free_port(host: str, start: int = DEFAULT_PORT, end: int = 65535) -> int:
+    """Find an available port in the range of [start, end].
+    Args:
+        host: Hostname
+        start: Start port number
+        end: End port number
+    """
+    assert start < end
+
+    for port in range(start, end):
+        try:
+            if not check_port_in_use(host, port):
+                return port
+        except socket.error as e:
+            if e.errno == errno.EADDRINUSE:
+                pass
+            else:
+                raise e
+    raise RuntimeError(f"Cannot find available port in range [{start}, {end}]")

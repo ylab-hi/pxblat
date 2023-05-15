@@ -8,6 +8,7 @@ import pxblat
 import simdjson
 from invoke import task
 from pxblat import extc
+from pxblat.server import Server
 from pxblat.server import start_server_mt_nb
 from pxblat.server import wait_server_ready
 from rich import print
@@ -373,3 +374,24 @@ def test2(c):
     ret = pxblat.server.query_server(client_option)
     res = pxblat.read(ret, "psl")
     print(res)
+
+
+@task
+def test3(c):
+    server_option, client_option, stat = option_stat()
+    server = Server("localhost", PORT, "tests/data/test_ref.2bit", server_option)
+    server.start()
+    print("wait server ready")
+
+
+@task
+def test4(c):
+    import socket
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    sock.bind(("localhost", PORT))
+    # res = sock.connect_ex(("localhost", PORT))
+    # print(f"{res=}")
+
+    sock.close()

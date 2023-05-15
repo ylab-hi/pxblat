@@ -1,6 +1,9 @@
+from .basic import check_port_in_use
 from .basic import check_port_open
+from .basic import DEFAULT_PORT
 from .basic import fa_to_two_bit
 from .basic import files
+from .basic import find_free_port
 from .basic import server_query
 from .basic import start_server
 from .basic import start_server_mt
@@ -31,4 +34,7 @@ __all__ = [
     "check_port_open",
     "start_server_mt_nb",
     "wait_server_ready",
+    "find_free_port",
+    "check_port_in_use",
+    "DEFAULT_PORT",
 ]

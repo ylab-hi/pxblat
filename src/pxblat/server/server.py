@@ -1,6 +1,7 @@
 import typing
 from multiprocessing import Process
 from pathlib import Path
+from typing import Union
 
 from pxblat.extc import gfServerOption
 from pxblat.extc import UsageStats
@@ -22,7 +23,7 @@ class Server(Process):
         self,
         host: str,
         port: int,
-        two_bit: Path,
+        two_bit: Union[Path, str],
         options: gfServerOption,
         daemon=True,
     ):
