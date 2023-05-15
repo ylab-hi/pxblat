@@ -1,22 +1,18 @@
 import os
 import random
 import subprocess
+import time
+from multiprocessing import Process
 from pathlib import Path
 from typing import Optional
 
 import typer
+from pxblat import extc
+from pxblat.server import query_server
+from pxblat.server import Server
+from pxblat.server import status_server
 from pysam import FastaFile
 from rich import print
-
-from pxblat.server import Server, Client, query_server
-from pxblat import extc
-from multiprocessing import Process
-
-from pathlib import Path
-
-from pxblat.server import status_server
-
-import time
 
 PORT = 65000
 
@@ -110,7 +106,6 @@ def run_cmd(cmd: str) -> None:
 
 
 # f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case2.fa testc2.psl"
-
 # f"./bin/gfServer start localhost {PORT} tests/data/test_ref.2bit -canStop -stepSize=5 -debugLog"
 
 
@@ -122,7 +117,6 @@ def fas():
 @app.command()
 def runc():
     start_server_cmd = f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog"
-    client_cmd = "./bin/gfClient -minScore=20 -minIdentity=90 localhost {} {} {}".format
     process = Process(target=run_cmd, args=[start_server_cmd], daemon=True)
     process.start()
 

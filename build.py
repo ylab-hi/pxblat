@@ -2,11 +2,33 @@ import os
 import shlex
 import typing
 from contextlib import contextmanager
+from ctypes.util import find_library
 from functools import wraps
 from pathlib import Path
 
 from pybind11.setup_helpers import build_ext
 from pybind11.setup_helpers import Pybind11Extension
+
+
+header_path = []
+lib_path = []
+
+
+def find_available_library(lib_name: str):
+    lib_path = find_library(lib_name)
+    if not lib_path:
+        raise RuntimeError(f"Cannot find {lib_name} library.")
+
+    header_path = Path(lib_path).parent.parent / "include"
+
+    return Path(lib_path), header_path
+
+
+external_htslib_libraries = ["z", "hts", "ssl", "crypto", "m"]
+
+
+for lb in external_htslib_libraries:
+    find_available_library(lb)
 
 
 def remove_env(key: str):
@@ -77,19 +99,6 @@ def get_hts_lib_path() -> tuple[Path, Path]:
     check_hts_path(htslib_library_dir, htslib_include_dir)
 
     return htslib_library_dir, htslib_include_dir
-
-
-# linking against a shared, externally installed htslib version, no
-# sources required for htslib
-htslib_sources = []
-shared_htslib_sources = []
-chtslib_sources = []
-
-HTSLIB_LIBRARY_DIR, HTSLIB_INCLUDE_DIR = get_hts_lib_path()
-
-htslib_library_dirs = [HTSLIB_LIBRARY_DIR.as_posix()]
-htslib_include_dirs = [HTSLIB_INCLUDE_DIR.as_posix()]
-external_htslib_libraries = ["z", "hts", "ssl", "crypto", "m"]
 
 
 @contextmanager
@@ -176,14 +185,14 @@ def build(setup_kwargs):
             "pxblat._extc",
             language="c++",
             sources=SOURCES,
-            include_dirs=htslib_include_dirs
+            include_dirs=header_path
             + [
                 "src/pxblat/extc/include/core",
                 "src/pxblat/extc/include/aux",
                 "src/pxblat/extc/include/net",
                 "src/pxblat/extc/bindings",
             ],
-            library_dirs=htslib_library_dirs,
+            library_dirs=lib_path,
             libraries=external_htslib_libraries,
             extra_compile_args=get_extra_options(),
         )
