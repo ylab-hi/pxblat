@@ -1,8 +1,6 @@
 import pytest
-
 from pxblat import extc
-from pxblat.server import Server, wait_server_ready
-from pxblat.server import start_server as m_start_server
+from pxblat.server import Server
 
 
 @pytest.fixture
@@ -18,6 +16,11 @@ def two_bit():
 @pytest.fixture
 def fa_seq1():
     return "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+
+
+@pytest.fixture
+def fa_seq2():
+    return "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
 
 
 @pytest.fixture

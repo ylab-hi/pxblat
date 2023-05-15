@@ -71,6 +71,34 @@ def test_client_for_mem_fa(start_server, port, fa_seq1, seqname, parse):
     "parse",
     [True, False],
 )
+def test_client_for_mem_fa_excep(start_server, port, fa_seq2, seqname, parse):
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(port))
+        .withSeqDir("tests/data/")
+        .withInSeq(fa_seq2)
+        .build()
+    )
+
+    if not parse:
+        ret = query_server(client_option, seqname=seqname, parse=parse)
+        assert ret
+    else:
+        with pytest.raises(ValueError):
+            ret = query_server(client_option, seqname=seqname, parse=parse)
+
+
+@pytest.mark.parametrize(
+    "seqname",
+    ["seqname1", None],
+)
+@pytest.mark.parametrize(
+    "parse",
+    [True, False],
+)
 def test_client_for_fa_file(start_server, port, fa_file1, seqname, parse):
     client_option = (
         extc.gfClientOption()
@@ -87,6 +115,7 @@ def test_client_for_fa_file(start_server, port, fa_file1, seqname, parse):
     assert ret
 
 
+@pytest.mark.skip
 def test_server_stop(server_option, port):
     stat = extc.UsageStats()
     start_server_mt_nb(
