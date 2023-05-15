@@ -7,12 +7,12 @@ from .basic import start_server_mt
 from .basic import start_server_mt_nb
 from .basic import status_server
 from .basic import stop_server
+from .basic import wait_server_ready
 from .client import Client
 from .client import create_client_option
 from .client import query_server
 from .server import create_server_option
 from .server import Server
-from .server import wait_server_ready
 
 
 __all__ = [

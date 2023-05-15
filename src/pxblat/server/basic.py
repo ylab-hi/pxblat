@@ -1,4 +1,5 @@
 import socket
+import time
 import typing
 from multiprocessing import Process
 
@@ -9,6 +10,14 @@ from pxblat.extc import pyqueryServer
 from pxblat.extc import pystartServer
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
+
+
+def wait_server_ready(host: str, port: int, timeout: int = 60):
+    start = time.perf_counter()
+    while not check_port_open(host, port):
+        time.sleep(2)
+        if time.perf_counter() - start > timeout:
+            raise RuntimeError("wait for server ready timeout")
 
 
 def check_port_open(host: str, port: int) -> bool:

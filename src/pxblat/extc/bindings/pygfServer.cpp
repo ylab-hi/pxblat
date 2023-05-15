@@ -107,7 +107,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 
   if (sameString("status", command) || sameString("transInfo", command) || sameString("untransInfo", command)) {
     // sleep 10 s
-    sleep(10);
+    // sleep(10);
     sprintf(buf, "version %s", gfVersion);
     pyerrSendString(connectionHandle, buf, sendOk);
     pyerrSendString(connectionHandle, "serverType static", sendOk);

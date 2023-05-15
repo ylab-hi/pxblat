@@ -7,6 +7,8 @@ from pxblat.extc import gfClientOption
 from pxblat.extc import pygfClient
 from pxblat.parser import read
 
+from .basic import wait_server_ready
+
 
 def create_client_option():
     return gfClientOption()
@@ -17,6 +19,7 @@ def query_server(
     host: Optional[str] = None,
     port: Optional[int] = None,
     seqname: Optional[str] = None,
+    parse: bool = True,
 ):
     if host is not None:
         option.hostName = host
@@ -49,6 +52,9 @@ def query_server(
     if fafile is not None:
         Path(fafile.name).unlink()
 
+    if parse:
+        return read(ret_decode, "psl")
+
     return ret_decode
 
 
@@ -58,22 +64,54 @@ class Client(Thread):
         option: gfClientOption,
         host: Optional[str] = None,
         port: Optional[int] = None,
+        wait_ready: bool = False,
     ):
         super().__init__()
         self.option = option
-        self.host = host
-        self.port = port
+        self._host = host
+        self._port = port
         self.result = None
+        self.wait_ready = wait_ready
+        self.check_host_port()
 
     def run(self):
+        if self.wait_ready:
+            wait_server_ready(self.host, self.port)
+
         ret = query_server(self.option, self.host, self.port)
-        parsed_ret = read(ret, "psl")
+        parsed_ret = read(ret, "psl")  # type: ignore
         self.result = parsed_ret
 
     def get(self):
         self.join()
         return self.result
 
+    @property
+    def host(self):
+        if self._host is None:
+            return self.option.hostName
+
+        return self._host
+
+    @host.setter
+    def host(self, value: str):
+        self._host = value
+
+    @property
+    def port(self):
+        if self._port is None:
+            return int(self.option.portName)
+
+        return self._port
+
+    @port.setter
+    def port(self, value: int):
+        self._port = value
+
     @classmethod
     def create_option(cls):
         return create_client_option()
+
+    def check_host_port(self):
+        if not self.host and self.port == 0:
+            raise ValueError("host and port are both empty")
