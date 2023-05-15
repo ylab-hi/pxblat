@@ -68,5 +68,18 @@ def create_bench_data(infa: Path, number_of_data: int):
             f.write(ret)
 
 
+def runc():
+    pass
+
+
+def runp():
+    pass
+
+
+@app.command()
+def test_result():
+    pass
+
+
 if __name__ == "__main__":
     app()

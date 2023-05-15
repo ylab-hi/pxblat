@@ -395,3 +395,20 @@ def test4(c):
     # print(f"{res=}")
 
     sock.close()
+
+
+@task
+def test5(c):
+    server_option, client_option, stat = option_stat()
+    server = Server(
+        "localhost",
+        PORT,
+        "tests/data/test_ref.2bit",
+        server_option,
+        # daemon=False,
+        # use_os=True,
+    )
+    server.start()
+    server.wait_ready()
+
+    print(f"{server.status()=}")

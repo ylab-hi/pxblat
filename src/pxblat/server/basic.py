@@ -20,8 +20,9 @@ def check_port_in_use(host: str, port: int = DEFAULT_PORT):
     try:
         s.bind((host, port))
     except socket.error as e:
-        # if e.errno == errno.EADDRINUSE:
-        #     print("Port is already in use", port)
+        if e.errno == errno.EADDRINUSE:
+            return True
+            #     print("Port is already in use", port)
         # else:
         #     print(e)
 
@@ -148,6 +149,8 @@ def start_server_mt(
     two_bit_file: str,
     option: gfServerOption,
     stat: UsageStats,
+    use_others: bool = False,
+    timeout: int = 60,
 ):
     """Start server in blocking mode.
 
@@ -158,8 +161,19 @@ def start_server_mt(
         option: gfServeoption
         stat: statastic for server
     """
-    check_port_in_use(host, port)
-    return pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+    try:
+        if check_port_in_use(host, port):
+            if use_others:
+                pass
+                # wait_server_ready(host, port, timeout)
+                # status_server(host, port, option)
+            else:
+                port = find_free_port(host, start=port + 1)
+                pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+        else:
+            pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+    except Exception as e:
+        raise e
 
 
 def start_server_mt_nb(
@@ -205,8 +219,5 @@ def find_free_port(host: str, start: int = DEFAULT_PORT, end: int = 65535) -> in
             if not check_port_in_use(host, port):
                 return port
         except socket.error as e:
-            if e.errno == errno.EADDRINUSE:
-                pass
-            else:
-                raise e
+            raise e
     raise RuntimeError(f"Cannot find available port in range [{start}, {end}]")

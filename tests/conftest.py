@@ -51,7 +51,7 @@ def client_option(port):
 
 @pytest.fixture
 def start_server(server_option, port, two_bit):
-    server = Server("localhost", port, two_bit, server_option)
+    server = Server("localhost", port, two_bit, server_option, use_others=True)
     server.start()
 
     server.wait_ready()

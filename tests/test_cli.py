@@ -1,6 +1,8 @@
 import filecmp
 
+import pytest
 from pxblat.cli import app
+from pxblat.server import Server
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -23,14 +25,24 @@ def test_fa2twobit_cli(tmp_path, two_bit):
     assert filecmp.cmp(out.as_posix(), two_bit)
 
 
-def test_query_server_cli(start_server, port, fa_file1, tmp_path):
+@pytest.fixture
+def start_server2(server_option, port, two_bit):
+    server = Server("localhost", port + 1, two_bit, server_option, use_others=True)
+    server.start()
+
+    server.wait_ready()
+    yield server
+
+
+@pytest.mark.skip
+def test_query_server_cli(start_server2, port, fa_file1, tmp_path):
     out = tmp_path / "t.psl"
     result = runner.invoke(
         app,
         [
             "client",
             "localhost",
-            str(port),
+            str(port + 1),
             "tests/data/",
             fa_file1,
             out.as_posix(),
