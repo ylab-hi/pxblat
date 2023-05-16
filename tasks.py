@@ -8,6 +8,7 @@ import pxblat
 import simdjson
 from invoke import task
 from pxblat import extc
+from pxblat.server import Client
 from pxblat.server import Server
 from pxblat.server import start_server_mt_nb
 from pxblat.server import wait_server_ready
@@ -57,12 +58,9 @@ def test_start_server2():
 
     server_option, client_option, stat = option_stat()
 
-    signal = extc.Signal()
-    print(signal.isReady)
     ret = pxblat.server.start_server_mt(
-        "localhost", PORT, two_bit_file.as_posix(), server_option, stat, signal
+        "localhost", PORT, two_bit_file.as_posix(), server_option, stat
     )
-    print(signal.isReady)
     return ret
 
 
@@ -376,39 +374,124 @@ def test2(c):
     print(res)
 
 
-@task
-def test3(c):
-    server_option, client_option, stat = option_stat()
-    server = Server("localhost", PORT, "tests/data/test_ref.2bit", server_option)
-    server.start()
-    print("wait server ready")
+def fas():
+    for f in Path("./benchmark/fas/").glob("*.fa"):
+        yield f
 
 
 @task
-def test4(c):
-    import socket
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    sock.bind(("localhost", PORT))
-    # res = sock.connect_ex(("localhost", PORT))
-    # print(f"{res=}")
-
-    sock.close()
-
-
-@task
-def test5(c):
-    server_option, client_option, stat = option_stat()
-    server = Server(
-        "localhost",
-        PORT,
-        "tests/data/test_ref.2bit",
-        server_option,
-        # daemon=False,
-        # use_os=True,
-    )
+def runp(c):
+    server_option, _, stat = option_stat()
+    two_bit = Path("tests/data/test_ref.2bit")
+    # two_bit = Path("benchmark/data/chr20.2bit")
+    server = Server("localhost", PORT, two_bit, server_option)
     server.start()
     server.wait_ready()
 
-    print(f"{server.status()=}")
+    print(server.status())
+    print(server.files())
+
+    # fa1 = list(fas())[0]
+    fa1 = "tests/data/test_case1.fa"
+    print(f"{fa1=}")
+
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(server.port))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .build()
+    )
+
+    client = Client(client_option, server_option=server_option)
+    client.start()
+
+    ret = client.get()
+    print(ret)
+
+
+@task
+def runp2(c):
+    server_option, _, stat = option_stat()
+    # two_bit = Path("tests/data/test_ref.2bit")
+    two_bit = Path("benchmark/data/chr20.2bit")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    print(server.status())
+    print(server.files())
+
+    # fa1 = list(fas())[0]
+    # fa1 = "tests/data/test_case1.fa"
+    fa1 = "benchmark/fas/chr20_2828159_2830288.fa"
+    print(f"{fa1=}")
+
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(server.port))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .build()
+    )
+
+    client = Client(client_option, server_option=server_option)
+    client.start()
+
+    ret = client.get()
+    print(ret)
+
+
+@task
+def runc2(c):
+    server_option, _, stat = option_stat()
+    # # two_bit = Path("tests/data/test_ref.2bit")
+    two_bit = Path("benchmark/data/chr20.2bit")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    # print(server.status())
+    # print(server.files())
+
+    # # fa1 = list(fas())[0]
+    # # fa1 = "tests/data/test_case1.fa"
+    fa1 = Path("benchmark/fas/chr20_2828159_2830288.fa")
+    print(f"{fa1=}")
+
+    # # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+    # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
+
+    # client_option = (
+    #     extc.gfClientOption()
+    #     .withMinScore(20)
+    #     .withMinIdentity(90)
+    #     .withHost("localhost")
+    #     .withPort(str(server.port))
+    #     .withSeqDir(two_bit.parent.as_posix())
+    #     .withInName(fa1)
+    #     .build()
+    # )
+
+    # client = Client(client_option, server_option=server_option)
+    # client.start()
+
+    # ret = client.get()
+    # print(ret)
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} testc2.psl"
+    )
+
+    #     c.run(
+    #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case2.fa testc2.psl"
+    # )

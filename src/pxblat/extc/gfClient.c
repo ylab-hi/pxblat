@@ -98,6 +98,9 @@ void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char 
               char *qTypeName)
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 {
+  printf("hostName %s portName %s tSeqDir %s, inName %s, outName %s, tType %s qtype %s ", hostName, portName, tSeqDir,
+         inName, outName, tTypeName, qTypeName);
+
   struct lineFile *lf = lineFileOpen(inName, TRUE);
   static bioSeq seq;
   FILE *out = mustOpen(outName, "w");

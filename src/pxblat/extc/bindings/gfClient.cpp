@@ -47,7 +47,7 @@ std::string pygfClient(gfClientOption &option) {
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
-  int buffsize = 1024;
+  int buffsize = 65536;
   char buffer[buffsize];
   FILE *out = fmemopen(buffer, buffsize, "w+");
 
@@ -55,6 +55,8 @@ std::string pygfClient(gfClientOption &option) {
     // errAbort("Can't open in memory file %s", outName);
     throw std::runtime_error("cient Can't open in memory file");
   }
+
+  dbg(option);
 
   struct gfOutput *gvo;
 

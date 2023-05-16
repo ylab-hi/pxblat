@@ -100,7 +100,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
   dbg("receive", command);
 
   if (sameString("quit", command)) {
-    // NOTE: workaround <Yangyang Li yangyang.li@northwestern.edu>
+    // WARN: workaround <Yangyang Li yangyang.li@northwestern.edu>
     exit(0);
     // throw std::invalid_argument("exit server");
   }

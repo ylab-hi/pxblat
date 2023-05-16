@@ -949,7 +949,7 @@ genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName,
   if (indexFile == NULL) {
     char const *desc = doTrans ? "translated" : "untranslated";
     // uglyf("starting %s server...\n", desc);
-    dbg("starting %s server...\n", desc);
+    dbg("starting %s server...", desc);
     // logInfo("setting up %s index", desc);
     gfIdx = genoFindIndexBuild(fileCount, seqFiles, minMatch, maxGap, tileSize, repMatch, doTrans, NULL,
                                allowOneMismatch, doMask, stepSize, noSimpRepMask);
