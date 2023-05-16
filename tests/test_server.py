@@ -3,6 +3,7 @@ import time
 import pytest
 from pxblat import extc
 from pxblat.server import check_port_open
+from pxblat.server import Client
 from pxblat.server import find_free_port
 from pxblat.server import query_server
 from pxblat.server import Server
@@ -93,9 +94,10 @@ def test_thread_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
         .build()
     )
     print(client_option)
-
-    ret = query_server(client_option, seqname=seqname, parse=parse)
-    assert ret
+    client = Client(client_option, seqname=seqname, parse=parse)
+    client.start()
+    ret = client.get()
+    print(ret)
 
 
 @pytest.mark.parametrize(
