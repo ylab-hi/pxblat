@@ -76,6 +76,8 @@ class Client(Thread):
         wait_ready: bool = False,
         wait_timeout: int = 60,
         server_option: Optional[gfClientOption] = None,
+        sequence_name: Optional[str] = None,
+        parse: bool = True,
         daemon: bool = True,
     ):
         super().__init__(daemon=daemon)
@@ -87,6 +89,9 @@ class Client(Thread):
         self._wait_ready = wait_ready
         self._wait_timeout = wait_timeout
         self._server_option = server_option
+        self._sequence_name = sequence_name
+        self._parse = parse
+
         self.result = None
 
     def run(self):
@@ -98,9 +103,9 @@ class Client(Thread):
                 gfserver_option=self._server_option,
             )
 
-        ret = query_server(self.option)
-        parsed_ret = read(ret, "psl")  # type: ignore
-        self.result = parsed_ret
+        ret = query_server(self.option, seqname=self._sequence_name, parse=self._parse)
+
+        self.result = ret
 
     def get(self):
         self.join()

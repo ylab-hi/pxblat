@@ -81,6 +81,31 @@ def test_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
     "parse",
     [True, False],
 )
+def test_thread_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(start_server.port))
+        .withSeqDir("tests/data/")
+        .withInSeq(fa_seq1)
+        .build()
+    )
+    print(client_option)
+
+    ret = query_server(client_option, seqname=seqname, parse=parse)
+    assert ret
+
+
+@pytest.mark.parametrize(
+    "seqname",
+    ["seqname1", None],
+)
+@pytest.mark.parametrize(
+    "parse",
+    [True, False],
+)
 def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
     client_option = (
         extc.gfClientOption()
