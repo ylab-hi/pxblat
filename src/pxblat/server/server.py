@@ -35,17 +35,19 @@ class Server:
     ):
         self._host = host
         self._port = port
+
         self.two_bit = two_bit
         self.option = option
         self.stat = UsageStats()
+
         self.use_others = use_others
         self.timeout = timeout
         self.daemon = daemon
 
+        self._block = block
         self._is_ready = False
         self._is_open = True
         self._process = None
-        self._block = block
 
     @property
     def host(self):
@@ -64,6 +66,7 @@ class Server:
         self._port = value
 
     def _start_b(self):
+        """Start server in blocking mode."""
         two_bit_file = (
             self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
         )
@@ -71,9 +74,10 @@ class Server:
             if check_port_in_use(self.host, self.port):
                 if self.use_others:
                     self._is_open = False
-                    pass
+                    # WARN: Use server that is already open. However, the server may be not opened by gfServer <05-16-23>
+                    # Hence, the `wait_server_ready` may be timeout.
+
                     # wait_server_ready(host, port, timeout)
-                    # status_server(host, port, option)
                 else:
                     self._is_open = True
                     new_port = find_free_port(self.host, start=self.port + 1)
@@ -102,9 +106,7 @@ class Server:
                 logger.debug(f"{self.port} port in use")
                 if self.use_others:
                     self._is_open = False
-                    pass
                     # wait_server_ready(host, port, timeout)
-                    # status_server(host, port, option)
                 else:
                     self._is_open = True
                     new_port = find_free_port(self._host, start=self.port + 1)
@@ -169,16 +171,24 @@ class Server:
         return self._is_open
 
     def wait_ready(self, timeout: int = 60, restart: bool = False):
+        """Wait server ready in block mode.
+
+        Args:
+            timeout: Timeout for wait server ready.
+            restart: If timeout, restart server and wait again.
+        """
         if not self._is_ready:
             try:
                 wait_server_ready(self.host, self.port, timeout, self.option)
             except RuntimeError as e:
-                # NOTE: handle false address use message <05-15-23, Yangyang Li>
                 if restart and self.use_others:
                     self.use_others = False
                     self.start()
+                    self.wait_ready(timeout * 2, restart)
                 else:
-                    raise e
+                    raise RuntimeError(
+                        f"Timeout for Waitting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
+                    ) from e
             else:
                 self._is_ready = True
 

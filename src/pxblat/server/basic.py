@@ -2,12 +2,11 @@ import errno
 import socket
 import time
 import typing
-from deprecated import deprecated  # type: ignore
 import warnings
-
 from collections import Counter
 from multiprocessing import Process
 
+from deprecated import deprecated  # type: ignore
 from pxblat.extc import faToTwoBit
 from pxblat.extc import gfServerOption
 from pxblat.extc import pygetFileList
