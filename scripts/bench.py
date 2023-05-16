@@ -8,6 +8,7 @@ from typing import Optional
 
 import typer
 from pxblat import extc
+from pxblat.server import Client
 from pxblat.server import Server
 from pxblat.server import status_server
 from pysam import FastaFile
@@ -117,37 +118,52 @@ def runc():
         run_cmd(cmd)
 
 
+# TODO: Debug here <05-16-23, Yangyang Li yangyang.li@northwestern.edu>
 @app.command()
 def runp():
     server_option, stat = option_stat()
-    two_bit2 = "tests/data/test_ref.2bit"
-    server = Server("localhost", PORT, two_bit2, server_option)
+    # two_bit = Path("tests/data/test_ref.2bit")
+    two_bit = Path("benchmark/data/chr20.2bit")
+    server = Server("localhost", PORT, two_bit, server_option)
     server.start()
     server.wait_ready()
 
     print(server.status())
     print(server.files())
-    print(server)
 
     fa1 = list(fas())[0]
 
-    (
+    # client_option = (
+    #         extc.gfClientOption()
+    #         .withMinScore(20)
+    #         .withMinIdentity(90)
+    #         .withHost("localhost")
+    #         .withPort(str(start_server.port))
+    #         .withSeqDir("tests/data/")
+    #         .withInSeq(fa_seq1)
+    #         .build()
+    #     )
+    print(fa1)
+
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+    seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
+
+    client_option = (
         extc.gfClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
-        .withPort(str(PORT))
-        .withSeqDir("benchmark/data")
-        .withInName(fa1.as_posix())
+        .withPort(str(server.port))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInSeq(seq)
         .build()
     )
 
-    # client = Client(client_option)
+    client = Client(client_option, server_option=server_option)
+    client.start()
 
-    # print(f"fa1: {fa1}")
-
-    # ret = query_server(client_option, parse=False)
-    # print(ret)
+    ret = client.get()
+    print(ret)
 
 
 @app.command()

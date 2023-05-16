@@ -8,6 +8,7 @@ from pxblat.extc import pygfClient
 from pxblat.parser import read
 
 from .basic import wait_server_ready
+from .server import gfServerOption
 
 
 def create_client_option():
@@ -75,7 +76,7 @@ class Client(Thread):
         port: Optional[int] = None,
         wait_ready: bool = False,
         wait_timeout: int = 60,
-        server_option: Optional[gfClientOption] = None,
+        server_option: Optional[gfServerOption] = None,
         seqname: Optional[str] = None,
         parse: bool = True,
         daemon: bool = True,
