@@ -2,6 +2,9 @@ import errno
 import socket
 import time
 import typing
+from deprecated import deprecated  # type: ignore
+import warnings
+
 from collections import Counter
 from multiprocessing import Process
 
@@ -21,7 +24,7 @@ DEFAULT_PORT = 65000
 def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3):
     res = []
     for _ in range(tries):
-        res.append(_check_port_in_use(host, port))
+        res.append(_check_port_in_use_by_connect(host, port))
 
     counter = Counter(res)
 
@@ -33,7 +36,62 @@ def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3):
         return False
 
 
-def _check_port_in_use(host: str, port: int = DEFAULT_PORT):
+def _check_port_in_use_by_status(
+    host: str, port: int, gfserver_option: gfServerOption
+) -> bool:
+    """Check the port is in use by status_server
+
+    Args:
+        host: host name
+        port: port number
+        gfserver_option: server option for the opening server
+
+    Returns:
+        True if the port is in use
+
+    note:
+        The server option can be default value and will not influence result
+        Also, it can detect if the port is opened by gfServer as well
+    """
+    logger.debug(f"check port {host}:{port}")
+    return check_server_status(host, port, gfserver_option)
+
+
+def _check_port_in_use_by_connect(host: str, port: int):
+    """Check the port is in use by connect to the port
+
+    Args:
+        host: host name
+        port: port number
+
+    Returns:
+        True if the port is in use
+
+    note:
+        The function has same feature as `_check_port_in_use_by_status`
+        It check the port if it is in use by connect to the port.
+        But it cannot detect if the port is opened by gfServer
+    """
+    return check_port_open(host, port)
+
+
+@deprecated(
+    reason="The func will generate false alarm. Please use `_check_port_in_use_by_status` or  `_check_port_in_use_by_connect` instead"
+)
+def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
+    """Check the port is in use by bind to the port
+
+    Args:
+        host: host name
+        port: port number
+
+    Returns:
+        True if the port is in use
+
+    note:
+        The function check the port if it is in use by bind to the port.
+        It is not reliable as `_check_port_in_use_by_connect` or `_check_port_in_use_by_status`
+    """
     logger.debug(f"check port {host}:{port}")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -42,9 +100,6 @@ def _check_port_in_use(host: str, port: int = DEFAULT_PORT):
         logger.debug(f"port {host}:{port} is in use {e}")
         if e.errno == errno.EADDRINUSE:
             return True
-            #     print("Port is already in use", port)
-        # else:
-        #     print(e)
 
         raise e
 
@@ -52,12 +107,53 @@ def _check_port_in_use(host: str, port: int = DEFAULT_PORT):
     return False
 
 
-def wait_server_ready(host: str, port: int, timeout: int = 60):
+def wait_server_ready(
+    host: str, port: int, timeout: int = 60, gfserver_option=None
+) -> None:
+    """
+    Wait for a server to become ready by checking if a given port is open or if a specific server status is reached.
+
+    Args:
+        host (str): The hostname or IP address of the server to check.
+        port (int): The port number to check for open status.
+        timeout (int, optional): The maximum number of seconds to wait for the server to become ready. Defaults to 60.
+        gfserver_option (str, optional): The specific server status to check for. If None, the function will check for an open port. Defaults to None.
+
+    Raises:
+        RuntimeError: If the server does not become ready within the specified timeout.
+
+    Returns:
+        None
+    """
     start = time.perf_counter()
-    while not check_port_open(host, port):
-        # time.sleep(1)
-        if time.perf_counter() - start > timeout:
-            raise RuntimeError("wait for server ready timeout")
+
+    if gfserver_option is None:
+        warnings.warn(
+            "Use `check_server_status` instead of `check_port_open` when wait for ready",
+            stacklevel=1,
+        )
+        while not check_port_open(host, port):
+            time.sleep(1)
+            if time.perf_counter() - start > timeout:
+                raise RuntimeError("wait for server ready timeout")
+    else:
+        while not check_server_status(host, port, gfserver_option):
+            time.sleep(1)
+            if time.perf_counter() - start > timeout:
+                raise RuntimeError("wait for server ready timeout")
+
+
+def check_server_status(
+    host: str,
+    port: int,
+    gfserver_option: gfServerOption,
+) -> bool:
+    try:
+        status_server(host, port, gfserver_option)
+    except ConnectionRefusedError:
+        return False
+    else:
+        return True
 
 
 def check_port_open(host: str, port: int) -> bool:

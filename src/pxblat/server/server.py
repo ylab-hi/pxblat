@@ -171,7 +171,7 @@ class Server:
     def wait_ready(self, timeout: int = 60, restart: bool = False):
         if not self._is_ready:
             try:
-                wait_server_ready(self.host, self.port, timeout)
+                wait_server_ready(self.host, self.port, timeout, self.option)
             except RuntimeError as e:
                 # NOTE: handle false address use message <05-15-23, Yangyang Li>
                 if restart and self.use_others:

@@ -52,25 +52,11 @@ def client_option(port):
     )
 
 
-from pxblat.server import stop_server
-
-close = True
-
-
 @pytest.fixture
-def start_server(server_option, port, two_bit, caplog):
-    global close
-    if close:
-        close = False
-
-        try:
-            stop_server("localhost", port)
-        except Exception:
-            pass
-
+def start_server(server_option, port, two_bit):
     server = Server("localhost", port, two_bit, server_option, use_others=True)
     server.start()
     print(f"{server}")
-    server.wait_ready(timeout=10, restart=True)
+    server.wait_ready(timeout=10, restart=False)
     yield server
     # server.stop()
