@@ -1,3 +1,5 @@
+import typing as t
+from pathlib import Path
 from typing import Optional
 
 from Bio.SearchIO.BlatIO import BlatPslParser
@@ -91,3 +93,16 @@ def read(content: str, format=None, **kwargs):
         pass
 
     return query_result
+
+
+def _psl2sam(psl: str, samfile: Path):
+    raise NotImplementedError
+
+
+def psl2sam(psl: t.Union[str, Path], samfile: Path):
+    if isinstance(psl, Path):
+        psl = psl.read_text()
+    elif Path(psl).exists():
+        psl = Path(psl).read_text()
+
+    _psl2sam(psl, samfile)

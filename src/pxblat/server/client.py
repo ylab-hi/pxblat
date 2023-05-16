@@ -14,6 +14,19 @@ def create_client_option():
     return gfClientOption()
 
 
+def _resolve_host_port(
+    client_option: gfClientOption, host: Optional[str], port: Optional[int]
+):
+    if host is not None:
+        client_option.hostName = host
+
+    if port is not None:
+        client_option.portName = str(port)
+
+    if not client_option.hostName and not client_option.portName:
+        raise ValueError("host and port are both empty")
+
+
 def query_server(
     option: gfClientOption,
     host: Optional[str] = None,
@@ -21,11 +34,7 @@ def query_server(
     seqname: Optional[str] = None,
     parse: bool = True,
 ):
-    if host is not None:
-        option.hostName = host
-
-    if port is not None:
-        option.portName = str(port)
+    _resolve_host_port(option, host, port)
 
     fafile = None
     if not option.inName and not option.inSeq:
@@ -58,7 +67,6 @@ def query_server(
     return ret_decode
 
 
-# TODO: test for client <05-15-23, Yangyang Li>
 class Client(Thread):
     def __init__(
         self,
@@ -66,20 +74,31 @@ class Client(Thread):
         host: Optional[str] = None,
         port: Optional[int] = None,
         wait_ready: bool = False,
+        wait_timeout: int = 60,
+        server_option: Optional[gfClientOption] = None,
+        daemon: bool = True,
     ):
-        super().__init__()
+        super().__init__(daemon=daemon)
         self.option = option
         self._host = host
         self._port = port
+        self._resolve_host_port()
+
+        self._wait_ready = wait_ready
+        self._wait_timeout = wait_timeout
+        self._server_option = server_option
         self.result = None
-        self.wait_ready = wait_ready
-        self.check_host_port()
 
     def run(self):
-        if self.wait_ready:
-            wait_server_ready(self.host, self.port)
+        if self._wait_ready:
+            wait_server_ready(
+                self.host,
+                self.port,
+                timeout=self._wait_timeout,
+                gfserver_option=self._server_option,
+            )
 
-        ret = query_server(self.option, self.host, self.port)
+        ret = query_server(self.option)
         parsed_ret = read(ret, "psl")  # type: ignore
         self.result = parsed_ret
 
@@ -113,6 +132,5 @@ class Client(Thread):
     def create_option(cls):
         return create_client_option()
 
-    def check_host_port(self):
-        if not self.host and self.port == 0:
-            raise ValueError("host and port are both empty")
+    def _resolve_host_port(self):
+        _resolve_host_port(self.option, self._host, self._port)

@@ -176,6 +176,10 @@ class Server:
         Args:
             timeout: Timeout for wait server ready.
             restart: If timeout, restart server and wait again.
+
+        Raises:
+            RuntimeError: If server is not opened by gfServer or the server takes longer time to be ready, the `wait_server_ready` may be timeout.
+            If `restart` is True, the server will be restarted and wait again.
         """
         if not self._is_ready:
             try:

@@ -56,7 +56,7 @@ def test_server_start_class(server_option, port, two_bit):
     "parse",
     [True, False],
 )
-def test_client_for_mem_fa(start_server, port, fa_seq1, seqname, parse):
+def test_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)
@@ -81,7 +81,7 @@ def test_client_for_mem_fa(start_server, port, fa_seq1, seqname, parse):
     "parse",
     [True, False],
 )
-def test_client_for_mem_fa_excep(start_server, port, fa_seq2, seqname, parse):
+def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)
@@ -109,7 +109,7 @@ def test_client_for_mem_fa_excep(start_server, port, fa_seq2, seqname, parse):
     "parse",
     [True, False],
 )
-def test_client_for_fa_file(start_server, port, fa_file1, seqname, parse):
+def test_client_for_fa_file(start_server, fa_file1, seqname, parse):
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)

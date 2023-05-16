@@ -20,6 +20,14 @@ from .utils import logger
 DEFAULT_PORT = 65000
 
 
+def check_host_port(host: str, port: int):
+    if not isinstance(host, str):
+        raise RuntimeError("host must be str")
+
+    if not isinstance(port, int):
+        raise RuntimeError("port must be number")
+
+
 def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3):
     res = []
     for _ in range(tries):
