@@ -599,6 +599,46 @@ return overlapAdjustment + ssGapCost(dq, dt, data);
 }
 
 
+
+void print_boxlist(struct cBlock *boxList){
+  struct cBlock *boxi = NULL;
+
+  for(boxi = boxList; boxi != NULL; boxi = boxi->next){
+    printf("   ssFindBestBig: print_boxlist: box tStart %d tEnd %d qStart %d qEnd %d score %d\n", boxi->tStart, boxi->tEnd, boxi->qStart, boxi->qEnd, boxi->score);
+  }
+}
+
+void print_chain(struct chain *chainList){
+  struct chain *chain = NULL;
+
+    // struct cBlock *blockList;      /* List of blocks. */
+    // double score;	  	  /* Total score for chain. */
+    // char *tName;		  /* target name, allocated here. */
+    // int tSize;			  /* Overall size of target. */
+    // /* tStrand always + */
+    // int tStart,tEnd;		  /* Range covered in target. */
+    // char *qName;		  /* query name, allocated here. */
+    // int qSize;			  /* Overall size of query. */
+    // char qStrand;		  /* Query strand. */
+    // int qStart,qEnd;		  /* Range covered in query. */
+    // int id;
+  for(chain = chainList; chain != NULL; chain = chain->next){
+    printf("ssFindBestBig: chainList tName %s, tSize %d, tStart %d tEnd %d; qName %s, qSize %d, qStart %d qEnd %d score %f\n",
+           chain->tName,
+           chain->tSize,
+           chain->tStart,
+           chain->tEnd,
+           chain->qName,
+           chain->qSize,
+           chain->qStart,
+           chain->qEnd,
+           chain->score);
+    print_boxlist(chain->blockList);
+  }
+}
+
+
+
 static void ssFindBestBig(struct ffAli *ffList, bioSeq *qSeq, bioSeq *tSeq,
 	enum ffStringency stringency, boolean isProt, struct trans3 *t3List,
 	struct ffAli **retBestAli, int *retScore, struct ffAli **retLeftovers)
@@ -645,10 +685,17 @@ for (box = boxList; box != NULL; box = box->next)
     }
 tMax -= tMin;
 
+// print_boxlist(boxList);
+
 ssStringency = stringency;
 ssIsProt = isProt;
+
+// printf("ssFindBestBig: call chainBlocks with args qname %s, qsize %d, tmax %d \n", qSeq->name, qSeq->size, tMax);
 chainList = chainBlocks(qSeq->name, qSeq->size, '+', "tSeq", tMax, &boxList,
 	ssConnectCost, ssGapCost, NULL, NULL);
+
+// printf("ssFindBestBig print chainlist\n");
+// print_chain(chainList);
 
 /* Fixup crossovers on best (first) chain. */
 bestChain = chainList;
@@ -753,6 +800,18 @@ if (cutFf != NULL)
 return ffList;
 }
 
+void print_ffAli(struct ffAli *ffList)
+{
+  struct ffAli *ff;
+
+    for (ff = ffList; ff != NULL; ff = ff->right)
+    {
+    // int startGood, endGood; /* Number that match perfectly on ends. */
+      printf("ssStitch: ffAli: startGood %d endGood %d\n", ff->startGood, ff->endGood);
+    }
+
+}
+
 void ssStitch(struct ssBundle *bundle, enum ffStringency stringency,
 	int minScore, int maxToReturn)
 /* Glue together mrnas in bundle as much as possible. Returns number of
@@ -788,9 +847,13 @@ ffList = ffMergeClose(ffList, qSeq->dna, genoSeq->dna);
 while (ffList != NULL)
     {
 
+    // printf("ssStitch: before ssFindBest\n");
+    // print_ffAli(ffList);
     ssFindBest(ffList, qSeq, genoSeq, stringency,
     	bundle->isProt, bundle->t3List,
     	&bestPath, &score, &ffList);
+    // printf("ssStitch: after ssFindBest\n");
+    // print_ffAli(ffList);
 
 
     bestPath = ffMergeNeedleAlis(bestPath, TRUE);

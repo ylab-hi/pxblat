@@ -209,8 +209,77 @@ static int dlNodeCmp(const void *elem1, const void *elem2)
 {
 struct dlSorter *a = (struct dlSorter *)elem1;
 struct dlSorter *b = (struct dlSorter *)elem2;
-return compareFunc(&a->node->val, &b->node->val);
+
+int ret = compareFunc(&a->node->val, &b->node->val);
+// printf("dlNodeCmp: ret %d\n", ret);
+// return compareFunc(&a->node->val, &b->node->val);
+return ret;
 }
+
+
+struct cBlock2
+/* A gapless part of a chain. */
+    {
+    struct cBlock2 *next;	/* Next in list. */
+    int tStart,tEnd;		/* Range covered in target. */
+    int qStart,qEnd;		/* Range covered in query. */
+    int score;	 	 	/* Score of block. */
+    void *data;			/* Some associated data pointer. */
+    };
+
+
+struct kdLeaf2
+/* A leaf in our kdTree. */
+    {
+    struct kdLeaf2 *next;	/* Next in list. */
+    struct cBlock2 *cb;	        /* Start position and score from user. */
+    struct kdBranch *bestPred;	/* Best predecessor. */
+    double totalScore;		/* Total score of chain up to here. */
+    bool hit;			/* This hit? Used by system internally. */
+    };
+
+
+
+void print_dlist2(struct dlList *list)
+{
+
+struct dlNode *node = list->head;
+struct kdLeaf2 *leaf = NULL;
+
+for (; !dlEnd(node); node = node->next)
+    {
+    leaf = node->val;
+    printf("leaf->cb->qStart %d, leaf->cb->tStart %d, leaf->cb->qEnd %d, leaf->cb->tEnd %d, leaf->totalScore %f\n",
+           leaf->cb->qStart, leaf->cb->tStart, leaf->cb->qEnd, leaf->cb->tEnd, leaf->totalScore);
+
+
+    }
+}
+
+void print_dlnode(struct dlNode *node)
+{
+
+  struct kdLeaf2 *leaf = NULL;
+  leaf = node->val;
+
+  // HACK: fix bugs in cpp binding indeed I do not know why <05-20-23>
+  char buf[1024];
+  sprintf(buf, "leaf->cb->qStart %d, leaf->cb->tStart %d, leaf->cb->qEnd %d, leaf->cb->tEnd %d, leaf->totalScore %f\n",
+          leaf->cb->qStart, leaf->cb->tStart, leaf->cb->qEnd, leaf->cb->tEnd, leaf->totalScore);
+
+}
+
+void print_sorter(struct dlSorter *sorter, int len)
+{
+
+  for (int i = 0; i < len; i++)
+    {
+      printf("sorter[%d] \n", i);
+      print_dlnode(sorter[i].node);
+    }
+
+}
+
 
 // BLAT compiled on the mac Clang version 11.0.0 build 33.17 (gcc version 4.2.1)
 // failed unless compiler optimization is set to level 1 when compiling dlSort().
@@ -239,12 +308,28 @@ if (len > 1)
 	{
 	s = &sorter[i];
 	s->node = node;
+  // print_dlnode(node);
 	}
+
+    // printf("before sort\n");
+    // print_sorter(sorter, len);
+
     compareFunc = compare;
     qsort(sorter, len, sizeof(sorter[0]), dlNodeCmp);
+
+    // printf("after sort\n");
+    // print_sorter(sorter, len);
+
     dlListInit(list);
-    for (i=0; i<len; ++i)
-	dlAddTail(list, sorter[i].node);
+
+    for (i=0; i<len; ++i){
+      // printf("\ncurrent list\n");
+        // print_dlist2(list);
+      // printf("add node\n");
+      print_dlnode(sorter[i].node);
+	    dlAddTail(list, sorter[i].node);
+    }
+
     freeMem(sorter);
     }
 }

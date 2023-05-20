@@ -133,6 +133,9 @@ void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, str
   gfClumpFreeList(&clumpList);
   lmCleanup(&lm);
   logDebug("%lu %d clumps, %d hits", clock1000(), clumpCount, hitCount);
+
+  dbg(clumpCount);
+  dbg(hitCount);
 }
 
 void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, gfServerOption const &options,

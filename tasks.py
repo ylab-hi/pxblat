@@ -2,6 +2,7 @@ import asyncio
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Process
 from pathlib import Path
 
 import pxblat
@@ -19,7 +20,7 @@ PORT = 65000
 
 def option_stat():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
 
     client_option = (
@@ -297,24 +298,24 @@ def ls(c):
     print(f"{ret=}")
 
 
-@task
-def cp(c):
-    folder = Path("./test_server")
-    files = []
+# @task
+# def cp(c):
+#     folder = Path("./test_server")
+#     files = []
 
-    for i in folder.iterdir():
-        if i.is_file and i.suffix == ".cpp":
-            files.append(i)
+#     for i in folder.iterdir():
+#         if i.is_file and i.suffix == ".cpp":
+#             files.append(i)
 
-    for executor in files:
-        temp = executor.parent / executor.stem
-        if temp.exists():
-            temp.unlink()
+#     for executor in files:
+#         temp = executor.parent / executor.stem
+#         if temp.exists():
+#             temp.unlink()
 
-    complie_cmd = "g++ -I/home/ylk4626/miniconda3/envs/pxblat/include -L/home/ylk4626/miniconda3/envs/pxblat/lib -o test_server/{}  {} -luv".format
+#     complie_cmd = "g++ -I/home/ylk4626/miniconda3/envs/pxblat/include -L/home/ylk4626/miniconda3/envs/pxblat/lib -o test_server/{}  {} -luv".format
 
-    for file in files:
-        c.run(complie_cmd(file.stem, file.as_posix()))
+#     for file in files:
+#         c.run(complie_cmd(file.stem, file.as_posix()))
 
 
 @task
@@ -429,11 +430,13 @@ def runp2(c):
 
     # fa1 = list(fas())[0]
     # fa1 = "tests/data/test_case1.fa"
-    fa1 = "benchmark/fas/chr20_2828159_2830288.fa"
+    # fa1 = "benchmark/fas/chr20_2828159_2830288.fa"
+    fa1 = "./t1.fa"
+
     print(f"{fa1=}")
 
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
-
+    # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)
@@ -445,11 +448,77 @@ def runp2(c):
         .build()
     )
 
-    client = Client(client_option, server_option=server_option)
+    parse = True
+    client = Client(client_option, server_option=server_option, parse=parse)
     client.start()
 
     ret = client.get()
-    print(ret)
+    if not parse:
+        with open("testt1p.psl", "w") as f:
+            f.write(ret)
+    else:
+        print(f"python: {ret}")
+
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} testt1c.psl"
+    )
+
+    if parse:
+        from Bio import SearchIO
+
+        f = SearchIO.read("testt1.psl", "blat-psl")
+        print(f"c {f}")
+
+
+@task
+def runcp(c):
+    server_option, _, stat = option_stat()
+    # two_bit = Path("tests/data/test_ref.2bit")
+    two_bit = Path("benchmark/data/chr20.2bit")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    print(server.status())
+    print(server.files())
+
+    # fa1 = list(fas())[0]
+    # fa1 = "tests/data/test_case1.fa"
+    # fa1 = "benchmark/fas/chr20_2828159_2830288.fa"
+    fa1 = "./t1.fa"
+
+    print(f"{fa1=}")
+
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+    # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(server.port))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .build()
+    )
+    parse = False
+
+    client = Client(client_option, server_option=server_option, parse=parse)
+    client.start()
+
+    if not parse:
+        ret = client.get()
+        with open("testt1p.psl", "w") as f:
+            f.write(ret)
+    else:
+        print(f"python: {ret}")
+
+
+@task
+def runcs(c):
+    c.run(
+        f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog"
+    )
 
 
 @task
@@ -457,16 +526,17 @@ def runc2(c):
     server_option, _, stat = option_stat()
     # # two_bit = Path("tests/data/test_ref.2bit")
     two_bit = Path("benchmark/data/chr20.2bit")
-    server = Server("localhost", PORT, two_bit, server_option)
-    server.start()
-    server.wait_ready()
+    # server = Server("localhost", PORT, two_bit, server_option)
+    # server.start()
+    # server.wait_ready()
 
     # print(server.status())
     # print(server.files())
 
     # # fa1 = list(fas())[0]
     # # fa1 = "tests/data/test_case1.fa"
-    fa1 = Path("benchmark/fas/chr20_2828159_2830288.fa")
+    # fa1 = Path("benchmark/fas/chr20_2828159_2830288.fa")
+    fa1 = Path("./t1.fa")
     print(f"{fa1=}")
 
     # # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
@@ -489,9 +559,444 @@ def runc2(c):
     # ret = client.get()
     # print(ret)
     c.run(
-        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} testc2.psl"
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} testt1.psl"
     )
 
+    from Bio import SearchIO
+
+    f = SearchIO.read("testt1.psl", "blat-psl")
+    print(f)
     #     c.run(
     #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} tests/data/ tests/data/test_case2.fa testc2.psl"
     # )
+
+
+@task
+def read(c):
+    from Bio import SearchIO
+
+    f = SearchIO.read("testc2.psl", "blat-psl")
+    print(f)
+
+
+@task
+def cc(c):
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    fa1 = Path("./t1.fa")
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} testt1cc.psl"
+    )
+
+
+@task
+def cp(c):
+    fa1 = "./t1.fa"
+
+    print(f"{fa1=}")
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+    # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName("testt1cp.psl")
+        .build()
+    )
+    parse = False
+    client = Client(client_option, parse=parse)
+    client.start()
+
+    client.get()
+
+
+@task
+def cp2(c):
+    fa1 = "./t1.fa"
+
+    print(f"{fa1=}")
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+    # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+    # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName("testt1cp2.psl")
+        .build()
+    )
+
+    import pxblat._extc as ct
+
+    ct.cppbinding.pygfClient2(client_option)
+
+    # client = Client(client_option, parse=parse)
+    # client.start()
+
+    # ret = client.get()
+
+    # with open("testt1cp.psl", "w") as f:
+    #     f.write(ret)
+
+
+def compare_hsp(hsp1, hsp2):
+    return (
+        hsp1.query_start_all == hsp2.query_start_all
+        and hsp1.query_end_all == hsp2.query_end_all
+        and hsp1.hit_start_all == hsp2.hit_start_all
+        and hsp1.hit_end_all == hsp2.hit_end_all
+    )
+
+
+def get_key_hsp(hsp):
+    key = ""
+
+    for i in sorted(hsp.query_start_all):
+        key += str(i)
+
+    for i in sorted(hsp.query_end_all):
+        key += str(i)
+
+    for i in sorted(hsp.hit_start_all):
+        key += str(i)
+
+    for i in sorted(hsp.hit_end_all):
+        key += str(i)
+
+    return key
+
+
+def get_overlap(hsps1, hsps2):
+    set1 = {get_key_hsp(i) for i in hsps1}
+    set2 = {get_key_hsp(i) for i in hsps2}
+
+    print(f"{len(set1)=} {len(set2)=}")
+
+    overlap = set1 & set2
+
+    print(f"overlap {len(overlap)=}")
+
+    print(f"set1 - set2 {len(set1 - set2)=}")
+    print(f"set2 - set1 {len(set2 - set1)=}")
+
+    return set1 - set2, set2 - set1, set1 & set2
+
+
+def _cpsl(file1, file2):
+    # cc_psl = "./testt1cc.psl"
+    # cp_psl = "./testt1cp2.psl"
+
+    cc_psl = file1
+    cp_psl = file2
+
+    from Bio import SearchIO
+
+    cc_res = SearchIO.read(cc_psl, "blat-psl")
+    cp_res = SearchIO.read(cp_psl, "blat-psl")
+
+    cc_hsps = cc_res.hsps
+    cp_hsps = cp_res.hsps
+
+    cc_hsps.sort(key=lambda x: x.score, reverse=True)
+    cp_hsps.sort(key=lambda x: x.score, reverse=True)
+
+    for i in range(5):
+        print(f"id {i} CC:")
+        print(cc_hsps[i])
+        print(f"id {i} CP:")
+        print(cp_hsps[i])
+        print(f"compare same:  {compare_hsp(cc_hsps[i], cp_hsps[i])}")
+        print("\n")
+
+    get_overlap(cc_hsps, cp_hsps)
+
+
+@task
+def cpsl(c, file1: str, file2: str):
+    _cpsl(file1, file2)
+
+
+def cmd(cmd):
+    subprocess.run(cmd, shell=True)
+
+
+@task
+def bench(c, fa1: str):
+    fa1_path = Path(fa1)
+
+    cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+    cp_res = fa1_path.parent / f"{fa1_path.stem}_cp.psl"
+    cp2_res = fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    print("open c server")
+
+    # c.run(
+    #     f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog"
+    # )
+
+    p = Process(
+        target=cmd,
+        args=(
+            f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+        ),
+    )
+    p.start()
+
+    time.sleep(8)
+
+    print(f"run c client save to file {cc_res}")
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {cc_res}"
+    )
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(cp_res.as_posix())
+        .build()
+    )
+    parse = False
+    client = Client(client_option, parse=parse)
+    client.start()
+
+    client.get()
+
+    import pxblat._extc as ct
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(cp2_res.as_posix())
+        .build()
+    )
+
+    print(f"run python client save to file {cp2_res}")
+    ct.cppbinding.pygfClient2(client_option)
+
+    print("stop c server")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
+    p.terminate()
+
+    time.sleep(3)
+
+    ## python server
+
+    pc_res = fa1_path.parent / f"{fa1_path.stem}_pc.psl"
+    pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
+    pp2_res = fa1_path.parent / f"{fa1_path.stem}_pp2.psl"
+
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+    )
+
+    print("open python server")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    print(f"run python client save to file {pc_res}")
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {pc_res}"
+    )
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(pp_res.as_posix())
+        .build()
+    )
+    print(f"run python client save to file {pp_res}")
+    parse = False
+    client = Client(client_option, parse=parse)
+    client.start()
+
+    client.get()
+
+    import pxblat._extc as ct
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(pp2_res.as_posix())
+        .build()
+    )
+
+    print(f"run python client save to file {pp2_res}")
+    ct.cppbinding.pygfClient2(client_option)
+
+
+@task
+def debug(c, fa1: str):
+    fa1_path = Path(fa1)
+
+    cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+    cp_res = fa1_path.parent / f"{fa1_path.stem}_cp.psl"
+    cp2_res = fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    # print(f"open c server")
+
+    # p = Process(
+    #     target=cmd,
+    #     args=(
+    #         f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+    #     ),
+    # )
+    # p.start()
+
+    # time.sleep(8)
+
+    print(f"run c client save to file {cc_res}")
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {cc_res}"
+    )
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(cp_res.as_posix())
+        .build()
+    )
+
+    from pxblat.extc import pygfClient
+
+    print(f"\n\n\nrun python client save to file {cp_res}")
+    pygfClient(client_option)
+
+    # parse = False
+    # client = Client(client_option, parse=parse)
+    # client.start()
+    # ret = client.get()
+
+    import pxblat._extc as ct
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(cp2_res.as_posix())
+        .build()
+    )
+
+    print(f"\n\n\nrun python client save to file {cp2_res}")
+    ct.cppbinding.pygfClient2(client_option)
+
+    print("\n\n\nstop c server")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
+    # p.terminate()
+
+
+@task
+def debugcc(c, fa1: str):
+    fa1_path = Path(fa1)
+
+    cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+    fa1_path.parent / f"{fa1_path.stem}_cp.psl"
+    fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    # print(f"open c server")
+
+    # p = Process(
+    #     target=cmd,
+    #     args=(
+    #         f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+    #     ),
+    # )
+    # p.start()
+
+    # time.sleep(8)
+
+    print(f"run c client save to file {cc_res}")
+    c.run(
+        f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {cc_res}"
+    )
+
+
+@task
+def debugcp(c, fa1: str):
+    fa1_path = Path(fa1)
+
+    fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+    cp_res = fa1_path.parent / f"{fa1_path.stem}_cp.psl"
+    fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
+
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    # print(f"open c server")
+
+    # p = Process(
+    #     target=cmd,
+    #     args=(
+    #         f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+    #     ),
+    # )
+    # p.start()
+
+    # time.sleep(8)
+
+    # print(f"run c client save to file {cc_res}")
+    # c.run(
+    #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {cc_res}"
+    # )
+
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1)
+        .withOutName(cp_res.as_posix())
+        .build()
+    )
+
+    from pxblat.extc import pygfClient
+
+    print(f"\n\n\nrun python client save to file {cp_res}")
+    pygfClient(client_option)

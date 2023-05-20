@@ -16,6 +16,7 @@
 #include "supStitch.h"
 #include "trans3.h"
 #include "twoBit.h"
+#include <stdio.h>
 
 #ifdef BLAT
 struct gfConnection *gfMayConnect(char *hostName, char *portName, char *genome, char *genomeDataDir)
@@ -179,8 +180,12 @@ static void startSeqQuery(struct gfConnection *conn, bioSeq *seq, char *type)
 {
   char buf[1024];  // room for error message if we need it.
   safef(buf, sizeof(buf), "%s%s", gfSignature(), type);
+
+  // printf("DEBUGPRINT[4]: gfBlatLib.c:183: buf=%s\n", buf);
+
   if (conn->genomeDataDir != NULL) safefcat(buf, sizeof(buf), " %s %s", conn->genome, conn->genomeDataDir);
   safefcat(buf, sizeof(buf), " %d", seq->size);
+
   mustWriteFd(conn->fd, buf, strlen(buf));
   if (read(conn->fd, buf, 1) < 0) errAbort("startSeqQuery: read failed: %s", strerror(errno));
   if (buf[0] != 'Y') {
@@ -189,6 +194,8 @@ static void startSeqQuery(struct gfConnection *conn, bioSeq *seq, char *type)
     if (n >= 0) buf[n + 1] = '\0';
     errAbort("Expecting 'Y' from server, got %s", buf);
   }
+
+  // printf("dna=%s\n", seq->dna);
   mustWriteFd(conn->fd, seq->dna, seq->size);
 }
 
@@ -208,6 +215,8 @@ static struct gfRange *gfQuerySeq(struct gfConnection *conn, struct dnaSeq *seq)
   gfBeginRequest(conn);
   startSeqQuery(conn, seq, "query");
 
+  int i =0;
+
   /* Read results line by line and save in list, and return. */
   for (;;) {
     netRecieveString(conn->fd, buf);
@@ -217,6 +226,7 @@ static struct gfRange *gfQuerySeq(struct gfConnection *conn, struct dnaSeq *seq)
       gfServerWarn(seq, buf);
       break;
     } else {
+      i++;
       rowSize = chopLine(buf, row);
       if (rowSize < 6) errAbort("Expecting 6 words from server got %d", rowSize);
       range = gfRangeLoad(row);
@@ -225,6 +235,9 @@ static struct gfRange *gfQuerySeq(struct gfConnection *conn, struct dnaSeq *seq)
   }
   slReverse(&rangeList);
   gfEndRequest(conn);
+
+  // printf("DEBUGPRINT[4]: gfQuerySeq.c:242: range list len: =%d\n", i);
+
   return rangeList;
 }
 
@@ -445,7 +458,12 @@ static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun, e
   int extra = 250;
   boolean gotAny = FALSE;
 
+  // printf("alignComponents stringency %d range %d %d\n",stringency, combined->qStart, combined->qEnd);
+
   for (range = combined->components; range != NULL; range = range->next) {
+
+    // printf("alignComponents range in for %d %d\n", combined->qStart, combined->qEnd);
+
     /* Expand to include some extra sequence around range. */
     qStart = range->qStart - extra;
     tStart = range->tStart - extra;
@@ -463,6 +481,11 @@ static boolean alignComponents(struct gfRange *combined, struct ssBundle *bun, e
     if (tStart < combined->tStart) tStart = combined->tStart;
     if (qEnd > combined->qEnd) qEnd = combined->qEnd;
     if (tEnd > combined->tEnd) tEnd = combined->tEnd;
+
+    // printf("alignComponents range in for %d %d before ffFind arg: qStart %d qEnd %d tStart %d tEnd %d \n", combined->qStart, combined->qEnd,
+    //        qStart, qEnd, tStart, tEnd
+    //        );
+
     ali = ffFind(qSeq->dna + qStart, qSeq->dna + qEnd, tSeq->dna + tStart - combined->tStart,
                  tSeq->dna + tEnd - combined->tStart, stringency);
     if (ali != NULL) {
@@ -505,6 +528,12 @@ static void saveAlignments(char *chromName, int chromSize, int chromOffset, stru
                            struct gfOutput *out)
 /* Save significant alignments to file in .psl format. */
 {
+
+  // printf("chromName = %s, chromSize = %d, chromOffset = %d, qIsRc = %d, tIsRc = %d, minMatch = %d\n", chromName
+  //       , chromSize, chromOffset, qIsRc, tIsRc, minMatch
+  //       );
+
+
   struct dnaSeq *tSeq = bun->genoSeq, *qSeq = bun->qSeq;
   struct ssFfItem *ffi;
   for (ffi = bun->ffList; ffi != NULL; ffi = ffi->next) {
@@ -517,6 +546,7 @@ static void saveAlignments(char *chromName, int chromSize, int chromOffset, stru
       out->out(chromName, chromSize, chromOffset, ff, tSeq, t3Hash, qSeq, qIsRc, tIsRc, stringency, minMatch, out);
     }
   }
+
 }
 
 struct hash *gfFileCacheNew()
@@ -561,6 +591,26 @@ static void getTargetName(char *tSpec, boolean includeFile, char *targetName)
     gfiGetSeqName(tSpec, targetName, NULL);
 }
 
+int count_range_list(struct gfRange *rangeList)
+{
+  int count = 0;
+  struct gfRange *range;
+  for (range = rangeList; range != NULL; range = range->next) {
+    count++;
+  }
+  return count;
+}
+
+int count_bund_fflist(struct ssBundle *bun)
+{
+  int count = 0;
+  struct ssFfItem *ffi = NULL;
+  for (ffi = bun->ffList; ffi != NULL; ffi = ffi->next) {
+    count++;
+  }
+  return count;
+}
+
 void gfAlignStrand(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *seq, boolean isRc, int minMatch,
                    struct hash *tFileCache, struct gfOutput *out)
 /* Search genome on server with one strand of other sequence to find homology.
@@ -572,24 +622,37 @@ void gfAlignStrand(struct gfConnection *conn, char *tSeqDir, struct dnaSeq *seq,
   struct dnaSeq *targetSeq;
   char targetName[PATH_LEN];
 
+  // printf("DEBUG: ffIntromax %d ssAliCount %d usualExpansion %d\n", ffIntronMax, ssAliCount, usualExpansion);
+
   rangeList = gfQuerySeq(conn, seq);
   close(conn->fd);
   conn->fd = -1;
+
+  // printf("DEBUG: rangeList count before sort %d\n", count_range_list(rangeList));
   slSort(&rangeList, gfRangeCmpTarget);
+  // printf("DEBUG: rangeList count after sort %d\n", count_range_list(rangeList));
+
   rangeList = gfRangesBundle(rangeList, ffIntronMax);
+
+  // printf("DEBUG: rangeList count after range bundle %d\n", count_range_list(rangeList));
+
   for (range = rangeList; range != NULL; range = range->next) {
     getTargetName(range->tName, out->includeTargetFile, targetName);
     targetSeq =
         gfiExpandAndLoadCached(range, tFileCache, tSeqDir, seq->size, &range->tTotalSize, FALSE, FALSE, usualExpansion);
     AllocVar(bun);
+    // printf("\nDEBUG: range target name: %s, qstart-end %d-%d range->tTotalSize %d range->tStart %d\n",range->tName, range->qStart,range->qEnd,  range->tTotalSize, range->tStart);
     bun->qSeq = seq;
     bun->genoSeq = targetSeq;
     alignComponents(range, bun, ffCdna);
+    // printf("DEBUG: ffList count after alignComponents %d\n", count_bund_fflist(bun));
     ssStitch(bun, ffCdna, minMatch, ssAliCount);
+    // printf("DEBUG: ffList count after ssStitch %d\n", count_bund_fflist(bun));
     saveAlignments(targetName, range->tTotalSize, range->tStart, bun, NULL, isRc, FALSE, ffCdna, minMatch, out);
     ssBundleFree(&bun);
     freeDnaSeq(&targetSeq);
   }
+
   gfRangeFreeList(&rangeList);
 }
 

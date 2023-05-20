@@ -45,3 +45,4 @@ stubs
 *.psl
 binder/
 test_server/
+bugs/

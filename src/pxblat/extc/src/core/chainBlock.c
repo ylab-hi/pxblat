@@ -71,10 +71,26 @@ else if (diff > 0) return 1;
 else return 0;
 }
 
+void print_dlist(struct dlList *list)
+{
+
+struct dlNode *node = list->head;
+struct kdLeaf *leaf = NULL;
+
+for (; !dlEnd(node); node = node->next)
+    {
+    leaf = node->val;
+    printf("leaf->cb->qStart %d, leaf->cb->tStart %d, leaf->cb->qEnd %d, leaf->cb->tEnd %d, leaf->totalScore %f\n",
+           leaf->cb->qStart, leaf->cb->tStart, leaf->cb->qEnd, leaf->cb->tEnd, leaf->totalScore);
+    }
+}
+
 static int medianVal(struct dlList *list, int medianIx, int dim)
 /* Return value of median block in list on given dimension
  * Mark blocks up to median as hit. */
 {
+// print_dlist(list);
+
 struct dlNode *node = list->head;
 struct kdLeaf *leaf = NULL;
 int i;
@@ -85,6 +101,8 @@ for (i=0; i<medianIx; ++i)
     leaf->hit = TRUE;
     node = node->next;
     }
+
+
 return (dim == 0 ? leaf->cb->qStart : leaf->cb->tStart);
 }
 
@@ -125,6 +143,7 @@ static struct kdBranch *kdBuild(int nodeCount, struct dlList *lists[2], int dim,
 	struct lm *lm)
 /* Build up kd-tree recursively. */
 {
+
 struct kdBranch *branch;
 lmAllocVar(lm, branch);
 if (nodeCount == 1)
@@ -147,6 +166,7 @@ else
     clearHits(lists[0]);
     branch->cutCoord = medianVal(lists[dim], nodeCount/2, dim);
     newCount = splitList(lists[0], newLists[0]);
+
     splitList(lists[1], newLists[1]);
 
     /* Recurse on each side. */
@@ -181,14 +201,29 @@ for (i=0 , leaf=leafList; leaf != NULL; leaf = leaf->next, ++i)
     dlAddTail(&qList, &qNodes[i]);
     dlAddTail(&tList, &tNodes[i]);
     }
+
+// printf("kdTreeMake: before sort\n");
+// printf("kdTreeMake: qList\n");
+// print_dlist(&qList);
+// printf("kdTreeMake: tList\n");
+// print_dlist(&tList);
+
 /* Just sort qList since tList is sorted because it was
  * constructed from sorted leafList. */
 dlSort(&qList, kdLeafCmpQ);
+
+// printf("kdTreeMake: after sort\n");
+// printf("kdTreeMake: qList\n");
+// print_dlist(&qList);
+// printf("kdTreeMake: tList\n");
+// print_dlist(&tList);
+
 lists[0] = &qList;
 lists[1] = &tList;
 
 /* Allocate master data structure and call recursive builder. */
 lmAllocVar(lm, tree);
+
 tree->root = kdBuild(nodeCount, lists, 0, lm);
 
 /* Clean up and go home. */
@@ -389,6 +424,76 @@ slReverse(&chainList);
 return chainList;
 }
 
+
+
+void print_boxlist2(struct cBlock *boxList){
+  struct cBlock *boxi = NULL;
+
+  for(boxi = boxList; boxi != NULL; boxi = boxi->next){
+    printf("   ssFindBestBig: print_boxlist: box tStart %d tEnd %d qStart %d qEnd %d score %d\n", boxi->tStart, boxi->tEnd, boxi->qStart, boxi->qEnd, boxi->score);
+  }
+}
+
+void print_chain2(struct chain *chainList){
+  struct chain *chain = NULL;
+
+    // struct cBlock *blockList;      /* List of blocks. */
+    // double score;	  	  /* Total score for chain. */
+    // char *tName;		  /* target name, allocated here. */
+    // int tSize;			  /* Overall size of target. */
+    // /* tStrand always + */
+    // int tStart,tEnd;		  /* Range covered in target. */
+    // char *qName;		  /* query name, allocated here. */
+    // int qSize;			  /* Overall size of query. */
+    // char qStrand;		  /* Query strand. */
+    // int qStart,qEnd;		  /* Range covered in query. */
+    // int id;
+  for(chain = chainList; chain != NULL; chain = chain->next){
+    printf("ssFindBestBig: chainList tName %s, tSize %d, tStart %d tEnd %d; qName %s, qSize %d, qStart %d qEnd %d score %f\n",
+           chain->tName,
+           chain->tSize,
+           chain->tStart,
+           chain->tEnd,
+           chain->qName,
+           chain->qSize,
+           chain->qStart,
+           chain->qEnd,
+           chain->score);
+    print_boxlist2(chain->blockList);
+  }
+}
+
+void print_kdbranch(struct kdBranch *branch){
+// int cutCoord;	      /* Coordinate (in some dimension) to cut on */
+//     double maxScore;	      /* Max score of any leaf below us. */
+//     int maxQ;		      /* Maximum qEnd of any leaf below us. */
+//     int maxT;
+
+  if (branch != NULL){
+    printf("kdbranch: cutCoord %d, maxScore %f, maxQ %d, maxT %d\n", branch->cutCoord, branch->maxScore, branch->maxQ, branch->maxT);
+  }
+
+}
+
+void print_kdleaf(struct kdLeaf *leafList){
+
+// struct kdLeaf *next;	/* Next in list. */
+//     struct cBlock *cb;	        /* Start position and score from user. */
+//     struct kdBranch *bestPred;	/* Best predecessor. */
+//     double totalScore;		/* Total score of chain up to here. */
+//     bool hit;			/*
+  struct kdLeaf *leaf = NULL;
+  for(leaf = leafList; leaf != NULL; leaf = leaf->next){
+    printf("lefList: totalScore %f, hit %d\n", leaf->totalScore, leaf->hit);
+    printf("debug: cb: \n");
+    print_boxlist2(leaf->cb);
+    printf("debug: best pred: \n");
+    print_kdbranch(leaf->bestPred);
+  }
+
+}
+
+
 struct chain *chainBlocks(
 	char *qName, int qSize, char qStrand,	/* Info on query sequence */
 	char *tName, int tSize, 		/* Info on target. */
@@ -433,10 +538,28 @@ for (block = *pBlockList; block != NULL; block = block->next)
     slAddHead(&leafList, leaf);
     }
 
+// printf("before sort leafList\n");
+// print_kdleaf(leafList);
+
 /* Figure out chains. */
 slSort(&leafList, kdLeafCmpT);
+
+// printf("after sort leafList\n");
+// print_kdleaf(leafList);
+
+// printf("\nbegin to build tree\n");
+// print_kdleaf(leafList);
+
 tree = kdTreeMake(leafList, lm);
+
+// printf("\nafter builing tree\n");
+// print_kdleaf(leafList);
+
 findBestPredecessors(tree, leafList, connectCost, gapCost, gapData);
+
+// printf("\nafter find predecessors\n");
+// print_kdleaf(leafList);
+
 slSort(&leafList, kdLeafCmpTotal);
 chainList = peelChains(qName, qSize, qStrand, tName, tSize, leafList, details);
 

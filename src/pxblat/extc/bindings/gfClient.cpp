@@ -25,7 +25,8 @@ std::string read_inmem_file(FILE *file) {
 
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 std::string pygfClient(gfClientOption &option) {
-  int enterMainTime = 0;
+  setFfIntronMax(option.maxIntron);
+  long enterMainTime = clock1000();
 
   auto hostName = option.hostName.data();
   auto portName = option.portName.data();
@@ -47,16 +48,26 @@ std::string pygfClient(gfClientOption &option) {
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
-  int buffsize = 65536;
-  char buffer[buffsize];
-  FILE *out = fmemopen(buffer, buffsize, "w+");
+  if (genome != NULL) {
+    printf("genome %s\n", genome);
+  }
+
+  if (genomeDataDir != NULL) {
+    printf("genomeDataDir %s\n", genomeDataDir);
+  }
+
+  // int buffsize = 65536;
+  // char buffer[buffsize];
+  // FILE *out = fmemopen(buffer, buffsize, "w+");
+  FILE *out = mustOpen(option.outName.data(), "w");
+  // FILE *out = mustOpen("stdout", "w");
 
   if (out == NULL) {
     // errAbort("Can't open in memory file %s", outName);
     throw std::runtime_error("cient Can't open in memory file");
   }
 
-  dbg(option);
+  dbg(option, ffIntronMax, enterMainTime);
 
   struct gfOutput *gvo;
 
@@ -127,16 +138,17 @@ std::string pygfClient(gfClientOption &option) {
         errAbort("the dynamic server at %s:%s is returning an error at this time,\ntry again later", hostName,
                  portName);
     } else
-      throw std::runtime_error("gfClient error exit");
-    // errAbort("gfClient error exit");
+      // throw std::runtime_error("gfClient error exit");
+      errAbort("gfClient error exit");
   }
   errCatchFree(&errCatch);
 
   // if (out != stdout) printf("Output is in %s\n", outName);
   gfFileCacheFree(&tFileCache);
 
-  dbg("returning read_inmem_file");
-  return read_inmem_file(out);
+  // dbg("returning read_inmem_file");
+  // return read_inmem_file(out);
+  return "";
 }
 
 gfClientOption &gfClientOption::build() {

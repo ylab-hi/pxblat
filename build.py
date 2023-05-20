@@ -158,6 +158,7 @@ def get_extra_options():
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
         "-DMACHTYPE_$(MACHTYPE)",
+        # "-DDEBUG",
         # "-DDBG_MACRO_DISABLE",
     ]
 
@@ -168,6 +169,7 @@ SOURCES = (
         "src/pxblat/extc/bindings/gfServer.cpp",
         "src/pxblat/extc/bindings/pygfServer.cpp",
         "src/pxblat/extc/bindings/gfClient.cpp",
+        "src/pxblat/extc/bindings/gfClient2.cpp",
     ]
     + list(filter_files(get_files("src/pxblat/extc/bindings/binder", [".cpp"])))
     + list(filter_files(get_files("src/pxblat/extc/src/core", [".c"])))

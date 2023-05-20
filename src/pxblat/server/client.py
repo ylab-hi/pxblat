@@ -55,9 +55,9 @@ def query_server(
     ret = pygfClient(option)
 
     try:
-        ret_decode = ret.decode().rsplit("\n", 1)[0]  # type: ignore
+        ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
     except UnicodeDecodeError:
-        ret_decode = ret.decode("latin-1").rsplit("\n", 1)[0]  # type: ignore
+        ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
 
     if fafile is not None:
         Path(fafile.name).unlink()

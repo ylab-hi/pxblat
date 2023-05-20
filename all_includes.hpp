@@ -4,6 +4,7 @@
 #include <ctime>
 #include <faToTwoBit.hpp>
 #include <gfClient.hpp>
+#include <gfClient2.hpp>
 #include <gfServer.hpp>
 #include <iomanip>
 #include <ios>

@@ -98,8 +98,16 @@ void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char 
               char *qTypeName)
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
 {
-  printf("hostName %s portName %s tSeqDir %s, inName %s, outName %s, tType %s qtype %s ", hostName, portName, tSeqDir,
-         inName, outName, tTypeName, qTypeName);
+  //   int dots = 0;
+  // int minScore = 30;
+  // double minIdentity = 90;
+  // char *outputFormat = "psl";
+  // char *qType = "dna";
+  // char *tType = "dna";
+  // char *genome = NULL;
+  // char *genomeDataDir = NULL;
+  // boolean isDynamic = FALSE;
+  // long enterMainTime = 0;
 
   struct lineFile *lf = lineFileOpen(inName, TRUE);
   static bioSeq seq;
@@ -110,6 +118,15 @@ void gfClient(char *hostName, char *portName, char *tSeqDir, char *inName, char 
   char databaseName[256];
   struct hash *tFileCache = gfFileCacheNew();
   boolean gotConnection = FALSE;
+
+  printf("hostName %s portName %s tSeqDir %s, inName %s, outName %s, tType %s qtype %s \n", hostName, portName, tSeqDir,
+         inName, outName, tTypeName, qTypeName);
+
+  // ffIntronMax enterMainTime
+  printf(
+      "dots %d minScore %d minIdentity %f outputFormat %s genome %s genomeDataDir %s isDynamic %d ffIntronMax%d "
+      "enterMainTime %ld\n",
+      dots, minScore, minIdentity, outputFormat, genome, genomeDataDir, isDynamic, ffIntronMax, enterMainTime);
 
   snprintf(databaseName, sizeof(databaseName), "%s:%s", hostName, portName);
 

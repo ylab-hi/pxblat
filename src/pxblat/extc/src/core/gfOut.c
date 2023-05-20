@@ -13,6 +13,7 @@
 #include "maf.h"
 #include "psl.h"
 #include "trans3.h"
+#include <stdio.h>
 
 struct pslxData
 /* This is the data structure put in gfOutput.data for psl/pslx output. */
@@ -39,6 +40,7 @@ static void savePslx(char *chromName, int chromSize, int chromOffset, struct ffA
 /* Analyse one alignment and if it looks good enough write it out to file in
  * psl format (or pslX format - if saveSeq is TRUE).  */
 {
+  // printf("call savePslx chromName %s, chromSize %d, chromOffset %d \n", chromName, chromSize, chromOffset );
   /* This function was stolen from psLayout and slightly extensively to cope
    * with protein as well as DNA aligments. */
   struct ffAli *ff, *nextFf;
@@ -109,13 +111,20 @@ static void savePslx(char *chromName, int chromSize, int chromOffset, struct ffA
     }
   }
 
+
   /* See if it looks good enough to output, and output. */
   /* if (score >= minMatch) Moved to higher level */
   {
     int gaps = nInsertCount + (stringency == ffCdna ? 0 : hInsertCount);
     if ((matchCount + repMatch + mismatchCount) > 0) {
       int id = roundingScale(1000, matchCount + repMatch - 2 * gaps, matchCount + repMatch + mismatchCount);
+
       if (id >= minIdentity) {
+
+        // printf("SAVE: id %d qSeq name %s, qseq size %d, nStart %d %d chromname %s, chromsize %d, hstart-end %d %d  \n", id, qSeq->name,
+        //         qSeq->size, nStart, nEnd, chromName, chromSize, hStart, hEnd);
+
+
         if (isRc) {
           int temp;
           int oSize = qSeq->size;
@@ -156,9 +165,11 @@ static void savePslx(char *chromName, int chromSize, int chromOffset, struct ffA
         }
         fprintf(f, "\n");
         if (ferror(f)) {
-          perror("");
+           perror("");
           errAbort("Write error to .psl");
         }
+
+
       }
     }
   }

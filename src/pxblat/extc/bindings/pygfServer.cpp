@@ -169,6 +169,8 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
               warn("Didn't sockRecieveString all %d bytes of query sequence", seq.size);
               ++stats.warnCount;
             } else {
+              dbg("query", seq.dna);
+
               int maxSize = (doTrans ? maxAaSize : maxNtSize);
 
               seq.dna[seq.size] = 0;
