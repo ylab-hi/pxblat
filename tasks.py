@@ -737,7 +737,7 @@ def bench(c, fa1: str):
 
     cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
     cp_res = fa1_path.parent / f"{fa1_path.stem}_cp.psl"
-    cp2_res = fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
+    fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
 
     two_bit = Path("benchmark/data/chr20.2bit")
 
@@ -779,22 +779,21 @@ def bench(c, fa1: str):
 
     client.get()
 
-    import pxblat._extc as ct
+    # import pxblat._extc as ct
+    # client_option = (
+    #     extc.gfClientOption()
+    #     .withMinScore(20)
+    #     .withMinIdentity(90)
+    #     .withHost("localhost")
+    #     .withPort(str(PORT))
+    #     .withSeqDir(two_bit.parent.as_posix())
+    #     .withInName(fa1)
+    #     .withOutName(cp2_res.as_posix())
+    #     .build()
+    # )
 
-    client_option = (
-        extc.gfClientOption()
-        .withMinScore(20)
-        .withMinIdentity(90)
-        .withHost("localhost")
-        .withPort(str(PORT))
-        .withSeqDir(two_bit.parent.as_posix())
-        .withInName(fa1)
-        .withOutName(cp2_res.as_posix())
-        .build()
-    )
-
-    print(f"run python client save to file {cp2_res}")
-    ct.cppbinding.pygfClient2(client_option)
+    # print(f"run python client save to file {cp2_res}")
+    # ct.cppbinding.pygfClient2(client_option)
 
     print("stop c server")
     c.run(f"./bin/gfServer stop localhost {PORT}")
@@ -806,7 +805,7 @@ def bench(c, fa1: str):
 
     pc_res = fa1_path.parent / f"{fa1_path.stem}_pc.psl"
     pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
-    pp2_res = fa1_path.parent / f"{fa1_path.stem}_pp2.psl"
+    fa1_path.parent / f"{fa1_path.stem}_pp2.psl"
 
     server_option = (
         extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
@@ -840,22 +839,22 @@ def bench(c, fa1: str):
 
     client.get()
 
-    import pxblat._extc as ct
+    # import pxblat._extc as ct
 
-    client_option = (
-        extc.gfClientOption()
-        .withMinScore(20)
-        .withMinIdentity(90)
-        .withHost("localhost")
-        .withPort(str(PORT))
-        .withSeqDir(two_bit.parent.as_posix())
-        .withInName(fa1)
-        .withOutName(pp2_res.as_posix())
-        .build()
-    )
+    # client_option = (
+    #     extc.gfClientOption()
+    #     .withMinScore(20)
+    #     .withMinIdentity(90)
+    #     .withHost("localhost")
+    #     .withPort(str(PORT))
+    #     .withSeqDir(two_bit.parent.as_posix())
+    #     .withInName(fa1)
+    #     .withOutName(pp2_res.as_posix())
+    #     .build()
+    # )
 
-    print(f"run python client save to file {pp2_res}")
-    ct.cppbinding.pygfClient2(client_option)
+    # print(f"run python client save to file {pp2_res}")
+    # ct.cppbinding.pygfClient2(client_option)
 
 
 @task
@@ -934,22 +933,8 @@ def debugcc(c, fa1: str):
     fa1_path = Path(fa1)
 
     cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
-    fa1_path.parent / f"{fa1_path.stem}_cp.psl"
-    fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
 
     two_bit = Path("benchmark/data/chr20.2bit")
-
-    # print(f"open c server")
-
-    # p = Process(
-    #     target=cmd,
-    #     args=(
-    #         f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
-    #     ),
-    # )
-    # p.start()
-
-    # time.sleep(8)
 
     print(f"run c client save to file {cc_res}")
     c.run(
@@ -961,29 +946,9 @@ def debugcc(c, fa1: str):
 def debugcp(c, fa1: str):
     fa1_path = Path(fa1)
 
-    fa1_path.parent / f"{fa1_path.stem}_cc.psl"
     cp_res = fa1_path.parent / f"{fa1_path.stem}_cp.psl"
-    fa1_path.parent / f"{fa1_path.stem}_cp2.psl"
 
     two_bit = Path("benchmark/data/chr20.2bit")
-
-    # print(f"open c server")
-
-    # p = Process(
-    #     target=cmd,
-    #     args=(
-    #         f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
-    #     ),
-    # )
-    # p.start()
-
-    # time.sleep(8)
-
-    # print(f"run c client save to file {cc_res}")
-    # c.run(
-    #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1} {cc_res}"
-    # )
-
     client_option = (
         extc.gfClientOption()
         .withMinScore(20)
