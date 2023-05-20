@@ -4,4 +4,4 @@ import multiprocessing
 
 logger = multiprocessing.log_to_stderr()
 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)

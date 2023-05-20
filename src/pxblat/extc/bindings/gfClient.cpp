@@ -56,10 +56,16 @@ std::string pygfClient(gfClientOption &option) {
     printf("genomeDataDir %s\n", genomeDataDir);
   }
 
-  // int buffsize = 65536;
-  // char buffer[buffsize];
-  // FILE *out = fmemopen(buffer, buffsize, "w+");
-  FILE *out = mustOpen(option.outName.data(), "w");
+  FILE *out{NULL};
+  if (option.outName.empty()) {
+    int buffsize = 65536;
+    char buffer[buffsize];
+    out = fmemopen(buffer, buffsize, "w+");
+    dbg("outName is empty, output to memory");
+  } else {
+    dbg("outName is not empty, output to file");
+    out = mustOpen(option.outName.data(), "w");
+  }
   // FILE *out = mustOpen("stdout", "w");
 
   if (out == NULL) {
@@ -146,8 +152,9 @@ std::string pygfClient(gfClientOption &option) {
   // if (out != stdout) printf("Output is in %s\n", outName);
   gfFileCacheFree(&tFileCache);
 
-  // dbg("returning read_inmem_file");
-  // return read_inmem_file(out);
+  if (option.outName.empty()) {
+    return read_inmem_file(out);
+  }
   return "";
 }
 
