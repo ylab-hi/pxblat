@@ -79,6 +79,8 @@ ipdb = "^0.13.13"
 pysam = "^0.21.0"
 pytest-ordering = "^0.6"
 pytest-xdist = "^3.3.1"
+scienceplots = "^2.0.1"
+tikzplotlib = "^0.10.1"
 
 [tool.poetry.build]
 script = "build.py"
