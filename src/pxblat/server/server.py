@@ -1,4 +1,5 @@
-import typing
+import typing as t
+from contextlib import ContextDecorator
 from multiprocessing import Process
 from pathlib import Path
 from typing import Union
@@ -15,13 +16,14 @@ from .basic import server_query
 from .basic import status_server
 from .basic import stop_server
 from .basic import wait_server_ready
+from .status import Status
 
 
 def create_server_option():
     return gfServerOption()
 
 
-class Server:
+class Server(ContextDecorator):
     def __init__(
         self,
         host: str,
@@ -155,8 +157,8 @@ class Server:
         if self._is_open:
             stop_server(self.host, self.port)
 
-    def status(self) -> typing.Dict[str, str]:
-        return status_server(self.host, self.port, self.option)
+    def status(self, instance=False) -> t.Union[t.Dict[str, str], Status]:
+        return status_server(self.host, self.port, self.option, instance=instance)
 
     def files(self) -> list[str]:
         return files(self.host, self.port)
@@ -202,3 +204,12 @@ class Server:
 
     def __str__(self):
         return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()} {self.option})"
+
+    def __enter__(self):
+        print("start server")
+        self.start()
+        return self
+
+    def __exit__(self, *exc):
+        print("stop server")
+        self.stop()

@@ -1,7 +1,7 @@
 import errno
 import socket
 import time
-import typing
+import typing as t
 import warnings
 from collections import Counter
 from multiprocessing import Process
@@ -15,6 +15,7 @@ from pxblat.extc import pystartServer
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
 
+from .status import Status
 from .utils import logger
 
 DEFAULT_PORT = 65000
@@ -182,7 +183,7 @@ def gfSignature() -> str:
 
 
 def fa_to_two_bit(
-    inFiles: typing.List[str],
+    inFiles: t.List[str],
     outFile: str,
     noMask: bool = False,
     stripVersion: bool = False,
@@ -192,7 +193,9 @@ def fa_to_two_bit(
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)
 
 
-def status_server(host: str, port: int, options: gfServerOption):
+def status_server(
+    host: str, port: int, options: gfServerOption, instance=False
+) -> t.Union[Status, t.Dict[str, str]]:
     if not options.genome:
         message = f"{gfSignature()}status".encode()
     else:
@@ -233,6 +236,10 @@ def status_server(host: str, port: int, options: gfServerOption):
         " ".join(line.split()[:-1]): line.split()[-1]
         for line in data.decode("utf-8").strip().split("\n")
     }
+
+    if instance:
+        return Status.from_dict(data)
+
     return data
 
 

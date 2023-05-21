@@ -158,8 +158,7 @@ def get_extra_options():
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
         "-DMACHTYPE_$(MACHTYPE)",
-        # "-DDEBUG",
-        # "-DDBG_MACRO_DISABLE",
+        "-DDBG_MACRO_DISABLE",
     ]
 
 

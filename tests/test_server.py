@@ -30,8 +30,6 @@ def test_server_start_free_func(server_option, port):
     wait_server_ready("localhost", port)
 
     status = status_server("localhost", port, server_option)
-
-    print(status)
     assert status
 
 
@@ -45,8 +43,7 @@ def test_server_start_class(server_option, port, two_bit):
     assert server.is_ready()
 
     status = server.status()
-
-    print(status)
+    assert status
 
 
 @pytest.mark.parametrize(
@@ -165,3 +162,12 @@ def test_server_stop(server_option, port):
     stop_server("localhost", port)
     time.sleep(1)
     assert not check_port_open("localhost", port)
+
+
+def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
+    expected_status_instance.port = port + 1
+    with Server("localhost", port + 1, two_bit, server_option) as server:
+        server.wait_ready()
+        assert server.is_ready()
+        status = server.status(True)
+        assert status == expected_status_instance

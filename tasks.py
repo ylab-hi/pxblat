@@ -1,6 +1,7 @@
 import asyncio
 import subprocess
 import time
+from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 from pathlib import Path
@@ -874,3 +875,289 @@ def cleanbench(c):
     fas_path = Path("benchmark/fas")
     for psl in fas_path.glob("*psl"):
         psl.unlink(missing_ok=True)
+
+
+@task
+def benchtimec(c, concurrent: int = 4, max_files: int = 4):
+    fas_path = Path("benchmark/fas")
+    Path("benchmark/data/chr20.2bit")
+
+    print("open c server")
+    p = Process(
+        target=cmd,
+        args=(
+            f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+        ),
+    )
+    p.start()
+    time.sleep(8)
+
+    pool = ProcessPoolExecutor
+
+    result = []
+    start_time = time.perf_counter()
+    with pool(concurrent) as executor:
+        for idc, fa1_path in enumerate(fas_path.glob("*.fa")):
+            if idc >= max_files:
+                break
+
+            # fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+            # run_cmd = f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            run_cmd = f"./bin/gfServer status localhost {PORT}"
+            result.append(
+                executor.submit(
+                    cmd,
+                    run_cmd,
+                )
+            )
+            print(f"submit {fa1_path}")
+
+        for ret in result:
+            ret.result()
+            # c.run(
+            #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            # )
+
+    dura_c = time.perf_counter() - start_time
+    print(f"run c tool in {concurrent} parallel, time: {dura_c:.4}s")
+
+    print("stop c server")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
+    p.terminate()
+
+    time.sleep(3)
+
+
+@task
+def benchtimep(c, concurrent: int = 4, max_files: int = 4):
+    fas_path = Path("benchmark/fas")
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    ## python server
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+    )
+
+    print("open python server")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    pool = ProcessPoolExecutor
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+    )
+    result = []
+    start_time = time.perf_counter()
+
+    from pxblat.extc import pystatusServer
+
+    with pool(concurrent) as executor:
+        for idp, fa1_path in enumerate(fas_path.glob("*.fa")):
+            # fa1_path.parent / f"{fa1_path.stem}_pp.psl"
+            if idp >= max_files:
+                break
+            # client_option = (
+            #     extc.gfClientOption()
+            #     .withMinScore(20)
+            #     .withMinIdentity(90)
+            #     .withHost("localhost")
+            #     .withPort(str(PORT))
+            #     .withSeqDir(two_bit.parent.as_posix())
+            #     .withInName(fa1_path.as_posix())
+            #     .withOutName(pp_res.as_posix())
+            #     .build()
+            # )
+            # result.append(executor.submit(query_server, client_option))
+            result.append(
+                # executor.submit(status_server, "localhost", PORT, server_option)
+                executor.submit(pystatusServer, "localhost", str(PORT), server_option)
+            )
+            print(f"submit {fa1_path}")
+
+        # for ret in result:
+        # ret.done()
+
+    dura_py = time.perf_counter() - start_time
+    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+
+    server.stop()
+
+
+def status_server_c():
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+    )
+    return extc.pystatusServer("localhost", str(PORT), server_option)
+
+
+@task
+def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
+    fas_path = Path("benchmark/fas")
+    two_bit = Path("benchmark/data/chr20.2bit")
+
+    ## python server
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+    )
+
+    print("open python server")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    pool = ProcessPoolExecutor
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+    )
+    result = []
+    start_time = time.perf_counter()
+
+    with pool(concurrent) as executor:
+        for idp, fa1_path in enumerate(fas_path.glob("*.fa")):
+            # fa1_path.parent / f"{fa1_path.stem}_pp.psl"
+            if idp >= max_files:
+                break
+
+            # client_option = (
+            #     extc.gfClientOption()
+            #     .withMinScore(20)
+            #     .withMinIdentity(90)
+            #     .withHost("localhost")
+            #     .withPort(str(PORT))
+            #     .withSeqDir(two_bit.parent.as_posix())
+            #     .withInName(fa1_path.as_posix())
+            #     .withOutName(pp_res.as_posix())
+            #     .build()
+            # )
+            # result.append(executor.submit(query_server, client_option))
+            result.append(
+                # executor.submit(status_server, "localhost", PORT, server_option)
+                executor.submit(status_server_c)
+            )
+            print(f"submit {fa1_path}")
+
+        for ret in result:
+            ret.result()
+
+    dura_py = time.perf_counter() - start_time
+    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+
+    time.sleep(1)
+
+    pool = ThreadPoolExecutor
+
+    result = []
+    start_time = time.perf_counter()
+    with pool(concurrent) as executor:
+        for idc, fa1_path in enumerate(fas_path.glob("*.fa")):
+            if idc >= max_files:
+                break
+
+            # fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+            # run_cmd = f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            run_cmd = f"./bin/gfServer status localhost {PORT}"
+            result.append(
+                executor.submit(
+                    cmd,
+                    run_cmd,
+                )
+            )
+            print(f"submit {fa1_path}")
+
+        for ret in result:
+            ret.result()
+            # c.run(
+            #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            # )
+
+    dura_c = time.perf_counter() - start_time
+    print(f"run c tool in {concurrent} parallel, time: {dura_c:.4}s")
+
+    server.stop()
+
+
+@task
+def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
+    fas_path = Path("benchmark/fas")
+    Path("benchmark/data/chr20.2bit")
+
+    print("open c server")
+    p = Process(
+        target=cmd,
+        args=(
+            f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+        ),
+    )
+    p.start()
+    time.sleep(8)
+
+    pool = ThreadPoolExecutor
+    (extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build())
+    result = []
+    start_time = time.perf_counter()
+
+    with pool(concurrent) as executor:
+        for idp, fa1_path in enumerate(fas_path.glob("*.fa")):
+            # fa1_path.parent / f"{fa1_path.stem}_pp.psl"
+            if idp >= max_files:
+                break
+
+            # client_option = (
+            #     extc.gfClientOption()
+            #     .withMinScore(20)
+            #     .withMinIdentity(90)
+            #     .withHost("localhost")
+            #     .withPort(str(PORT))
+            #     .withSeqDir(two_bit.parent.as_posix())
+            #     .withInName(fa1_path.as_posix())
+            #     .withOutName(pp_res.as_posix())
+            #     .build()
+            # )
+            # result.append(executor.submit(query_server, client_option))
+            result.append(
+                # executor.submit(status_server, "localhost", PORT, server_option)
+                executor.submit(status_server_c)
+            )
+            print(f"submit {fa1_path}")
+
+        for ret in result:
+            ret.result()
+
+    dura_py = time.perf_counter() - start_time
+    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+
+    time.sleep(1)
+
+    pool = ThreadPoolExecutor
+
+    result = []
+    start_time = time.perf_counter()
+    with pool(concurrent) as executor:
+        for idc, fa1_path in enumerate(fas_path.glob("*.fa")):
+            if idc >= max_files:
+                break
+
+            # fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+            # run_cmd = f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            run_cmd = f"./bin/gfServer status localhost {PORT}"
+            result.append(
+                executor.submit(
+                    cmd,
+                    run_cmd,
+                )
+            )
+            print(f"submit {fa1_path}")
+
+        for ret in result:
+            ret.result()
+            # c.run(
+            #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            # )
+
+    dura_c = time.perf_counter() - start_time
+    print(f"run c tool in {concurrent} parallel, time: {dura_c:.4}s")
+
+    print("stop c server")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
+    p.terminate()

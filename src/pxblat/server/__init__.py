@@ -16,6 +16,7 @@ from .client import create_client_option
 from .client import query_server
 from .server import create_server_option
 from .server import Server
+from .status import Status
 
 
 __all__ = [
@@ -37,4 +38,5 @@ __all__ = [
     "find_free_port",
     "check_port_in_use",
     "DEFAULT_PORT",
+    "Status",
 ]
