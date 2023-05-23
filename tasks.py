@@ -1,5 +1,6 @@
 import asyncio
 import subprocess
+import threading
 import time
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
@@ -10,13 +11,25 @@ import pxblat
 import simdjson
 from invoke import task
 from pxblat import extc
+from pxblat.extc import pygfClient
 from pxblat.server import Client
 from pxblat.server import Server
 from pxblat.server import start_server_mt_nb
+from pxblat.server import status_server
 from pxblat.server import wait_server_ready
 from rich import print
 
 PORT = 65000
+
+
+def worker():
+    return threading.current_thread().ident
+
+
+def dummy_work(num):
+    for i in range(num):
+        print(f"{worker()} working for {i}")
+        time.sleep(1)
 
 
 def option_stat():
@@ -572,7 +585,9 @@ def cpsl(c, file1: str, file2: str):
 
 
 def cmd(cmd):
-    subprocess.run(cmd, shell=True)
+    print(f"worker {worker()}")
+    # return subprocess.run(cmd, shell=True)
+    return subprocess.check_output(cmd, shell=True)
 
 
 @task
@@ -771,9 +786,9 @@ def debugcp(c, fa1: str):
 
 
 @task
-def benchs(c):
+def benchsccp(c):
     two_bit = Path("benchmark/data/chr20.2bit")
-    fas_path = Path("benchmark/fas")
+    fas_path = Path("benchmark/test_fas")
 
     print("open c server")
     p = Process(
@@ -815,7 +830,11 @@ def benchs(c):
     c.run(f"./bin/gfServer stop localhost {PORT}")
     p.terminate()
 
-    time.sleep(3)
+
+@task
+def benchspcp(c):
+    two_bit = Path("benchmark/data/chr20.2bit")
+    fas_path = Path("benchmark/test_fas")
 
     ## python server
     server_option = (
@@ -851,23 +870,27 @@ def benchs(c):
         parse = False
         client = Client(client_option, parse=parse)
         client.start()
-
         client.get()
 
     server.stop()
 
 
 @task
-def cmpbench(c):
-    fas_path = Path("benchmark/fas")
+def cmpbench(c, fas_path: str):
+    fas_path = Path(fas_path)
+
+    num_files = 0
 
     for fa in fas_path.glob("*fa"):
+        num_files += 1
         cc_res = fa.parent / f"{fa.stem}_cc.psl"
         pp_res = fa.parent / f"{fa.stem}_pp.psl"
         print(f"compare {cc_res} and {pp_res}")
         a, b, _ = _cpsl(cc_res, pp_res, False)
         assert len(a) == 0
         assert len(b) == 0
+
+    print(f"compare {num_files} files")
 
 
 @task
@@ -1006,10 +1029,8 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
     server.start()
     server.wait_ready()
 
-    pool = ProcessPoolExecutor
-    server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
-    )
+    pool = ThreadPoolExecutor
+
     result = []
     start_time = time.perf_counter()
 
@@ -1032,10 +1053,11 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
             # )
             # result.append(executor.submit(query_server, client_option))
             result.append(
-                # executor.submit(status_server, "localhost", PORT, server_option)
-                executor.submit(status_server_c)
+                executor.submit(status_server, "localhost", PORT, server_option)
+                # executor.submit(status_server_c)
             )
             print(f"submit {fa1_path}")
+            dummy_work(10)
 
         for ret in result:
             ret.result()
@@ -1064,6 +1086,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
                 )
             )
             print(f"submit {fa1_path}")
+            dummy_work(10)
 
         for ret in result:
             ret.result()
@@ -1092,8 +1115,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
     p.start()
     time.sleep(8)
 
-    pool = ThreadPoolExecutor
-    (extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build())
+    pool = ProcessPoolExecutor
     result = []
     start_time = time.perf_counter()
 
@@ -1120,6 +1142,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
                 executor.submit(status_server_c)
             )
             print(f"submit {fa1_path}")
+            dummy_work(10)
 
         for ret in result:
             ret.result()
@@ -1129,7 +1152,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
 
     time.sleep(1)
 
-    pool = ThreadPoolExecutor
+    pool = ProcessPoolExecutor
 
     result = []
     start_time = time.perf_counter()
@@ -1148,6 +1171,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
                 )
             )
             print(f"submit {fa1_path}")
+            dummy_work(10)
 
         for ret in result:
             ret.result()
@@ -1161,3 +1185,114 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
     print("stop c server")
     c.run(f"./bin/gfServer stop localhost {PORT}")
     p.terminate()
+
+
+@task
+def benchscc(c, fas_path: str, concurrent: int = 4):
+    two_bit = Path("benchmark/data/chr20.2bit")
+    fas_path = Path(fas_path)
+
+    print("open c server")
+    p = Process(
+        target=cmd,
+        args=(
+            f"./bin/gfServer start localhost {PORT} benchmark/data/chr20.2bit -canStop -stepSize=5 -debugLog",
+        ),
+    )
+    p.start()
+    time.sleep(8)
+
+    pool = ThreadPoolExecutor
+
+    result = []
+    start_time = time.perf_counter()
+    with pool(concurrent) as executor:
+        for fa1_path in fas_path.glob("*.fa"):
+            print(f"process {fa1_path}")
+            cc_res = fa1_path.parent / f"{fa1_path.stem}_cc.psl"
+
+            # c.run(
+            #     f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+            # )
+            run_cmd = f"./bin/gfClient -minScore=20 -minIdentity=90 localhost {PORT} {two_bit.parent.as_posix()} {fa1_path.as_posix()} {cc_res}"
+
+            result.append(
+                executor.submit(
+                    cmd,
+                    run_cmd,
+                )
+            )
+
+        for ret in result:
+            ret.result()
+
+    dura_c = time.perf_counter() - start_time
+    print(f"run c gfserver and gfclient time: {dura_c:.4}s")
+
+    print("stop c server")
+    c.run(f"./bin/gfServer stop localhost {PORT}")
+    p.terminate()
+
+
+def query_server2(two_bit, fa1_path, pp_res):
+    client_option = (
+        extc.gfClientOption()
+        .withMinScore(20)
+        .withMinIdentity(90)
+        .withHost("localhost")
+        .withPort(str(PORT))
+        .withSeqDir(two_bit.parent.as_posix())
+        .withInName(fa1_path.as_posix())
+        .withOutName(pp_res.as_posix())
+        .build()
+    )
+
+    ret = pygfClient(client_option)
+    # ret = query_server(client_option, parse=False)
+    print(f"worker {worker()} ")
+    return ret
+
+
+@task
+def benchspp(c, fas_path: str, concurrent: int = 4):
+    two_bit = Path("benchmark/data/chr20.2bit")
+    fas_path = Path(fas_path)
+
+    ## python server
+    server_option = (
+        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+    )
+
+    print("open python server")
+    server = Server("localhost", PORT, two_bit, server_option)
+    server.start()
+    server.wait_ready()
+
+    pool = ThreadPoolExecutor
+
+    result = []
+    start_time = time.perf_counter()
+    with pool(concurrent) as executor:
+        for fa1_path in fas_path.glob("*.fa"):
+            pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
+
+            executor.submit(
+                query_server2,
+                two_bit,
+                fa1_path,
+                pp_res,
+            )
+            print(f"run python client save to file {pp_res}")
+
+        for res in result:
+            res.result()
+
+        # print(f"run python client save to file {pp_res}")
+        # parse = False
+        # client = Client(client_option, parse=parse)
+        # client.start()
+        # client.get()
+
+    dura_py = time.perf_counter() - start_time
+    print(f"run python server and client time: {dura_py:.4}s")
+    server.stop()

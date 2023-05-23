@@ -187,7 +187,9 @@ static void startSeqQuery(struct gfConnection *conn, bioSeq *seq, char *type)
   safefcat(buf, sizeof(buf), " %d", seq->size);
 
   mustWriteFd(conn->fd, buf, strlen(buf));
+
   if (read(conn->fd, buf, 1) < 0) errAbort("startSeqQuery: read failed: %s", strerror(errno));
+
   if (buf[0] != 'Y') {
     // try to get read of message, might be an a useful error
     int n = read(conn->fd, buf + 1, sizeof(buf) - 2);

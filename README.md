@@ -35,8 +35,6 @@ pxblat
 
 ---
 
-
-
 ## 🔮 Feautres
 
 - no intermidiate files, all in memory
@@ -45,7 +43,6 @@ pxblat
 - no need to worry about file format
 - no other dependency
 - higher proformance and Ergonomics (compare with current blat endpoint)
-
 
 ## TODO
 

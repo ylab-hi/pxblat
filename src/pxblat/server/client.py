@@ -35,6 +35,7 @@ def query_server(
     seqname: Optional[str] = None,
     parse: bool = True,
 ):
+    print("query_server")
     _resolve_host_port(option, host, port)
 
     fafile = None

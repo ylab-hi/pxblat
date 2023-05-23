@@ -5,6 +5,10 @@
 
 namespace cppbinding {
 
+void pyerrorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
+                      int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                      UsageStats &stats, boolean &sendOk);
+
 boolean pynetSendString(int sd, char *s);
 
 void pyerrSendString(int sd, char *s, boolean &sendOk);

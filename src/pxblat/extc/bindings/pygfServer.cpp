@@ -8,6 +8,29 @@
 
 namespace cppbinding {
 
+void pyerrorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
+                      int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                      UsageStats &stats, boolean &sendOk)
+/* Wrap error handling code around index query. */
+{
+  // status = setjmp(gfRecover);
+  // if (status == 0) /* Always true except after long jump. */
+  // {
+  if (doTrans) {
+    if (queryIsProt)
+      transQuery(gfIdx->transGf, seq, connectionHandle, options, stats, sendOk);
+    else
+      transTransQuery(gfIdx->transGf, seq, connectionHandle, options, stats, sendOk);
+  } else
+    dnaQuery(gfIdx->untransGf, seq, connectionHandle, perSeqMaxHash, options, stats, sendOk);
+  // errorSafeCleanup();
+  // }
+  // else /* They long jumped here because of an error. */
+  // {
+  // errorSafeCleanupMess(connectionHandle, "Error: gfServer out of memory. Try reducing size of query.", sendOk);
+  // }
+}
+
 boolean pynetSendString(int sd, char *s)
 /* Send a string down a socket - length byte first. */
 {
