@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import typer
 
-
-# plt.style.use(["science", "ieee"])
+app = typer.Typer()
 
 
 def model(x, p):
@@ -23,6 +23,19 @@ x = np.linspace(0.75, 1.25, 201)
 #     fig.savefig("figures/fig1.pdf")
 #     fig.savefig("figures/fig1.jpg", dpi=300)
 
+# with plt.style.context(["science", "ieee"]):
+#     fig, ax = plt.subplots()
+#     for p in [10, 20, 40, 100]:
+#         ax.plot(x, model(x, p), label=p)
+#     ax.legend(title="Order")
+#     ax.autoscale(tight=True)
+#     ax.set(**pparam)
+#     # Note: $\mu$ doesn't work with Times font (used by ieee style)
+#     ax.set_ylabel(r"Current (\textmu A)")
+#     fig.savefig("figures/fig2a.pdf")
+#     fig.savefig("figures/fig2a.jpg", dpi=300)
+
+
 with plt.style.context(["science", "ieee"]):
     fig, ax = plt.subplots()
     for p in [10, 20, 40, 100]:
@@ -32,5 +45,8 @@ with plt.style.context(["science", "ieee"]):
     ax.set(**pparam)
     # Note: $\mu$ doesn't work with Times font (used by ieee style)
     ax.set_ylabel(r"Current (\textmu A)")
-    fig.savefig("figures/fig2a.pdf")
-    fig.savefig("figures/fig2a.jpg", dpi=300)
+    import tikzplotlib
+
+    tikzplotlib.save("test.tex")
+    # fig.savefig("figures/fig2a.pdf")
+    # fig.savefig("figures/fig2a.jpg", dpi=300)
