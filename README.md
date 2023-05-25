@@ -51,7 +51,7 @@ pxblat
 - [x] multi-connection server
 - [ ] benchmarking multi connection and original version
 - [x] test result with original version
-- [ ] fix build.py to build ssl, hts, maybe libuv when install with pip
+- [x] fix build.py to build ssl, hts, maybe libuv when install with pip
 - [ ] add tool to conda channel
 - [ ] add too to dokerhub
 - [ ] add tool to pip
