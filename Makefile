@@ -15,10 +15,10 @@ CORESRC=$(wildcard src/pxblat/extc/src/core/*.c)
 NETSRC=$(wildcard src/pxblat/extc/src/net/*.c)
 
 # compile dynamic lib
-# LIBLDFLAGS:=${LDFLAGS} -shared -lm -pthread -lhts -lssl -lcrypto
+LIBLDFLAGS:=${LDFLAGS} -shared -lm -pthread -lhts -lssl -lcrypto -lz
 
 # compile static lib
-LIBLDFLAGS:=${LDFLAGS}  -lm -pthread -lhts -lssl -lcrypto -lz
+# LIBLDFLAGS:=${LDFLAGS}  -lm -pthread -lhts -lssl -lcrypto -lz
 OBJS=$(AUXSRC:.c=.o) $(CORESRC:.c=.o) $(NETSRC:.c=.o)
 
 # Target library name
@@ -29,8 +29,8 @@ AR=ar
 
 # Rule to compile source files into object files
 %.o: %.c
-	$(CC) $(COPTS) $(CFLAGS)  -c $< -o $@
-	# $(CC) $(COPTS) $(CFLAGS) -fPIC  -c $< -o $@
+	# $(CC) $(COPTS) $(CFLAGS)  -c $< -o $@
+	$(CC) $(COPTS) $(CFLAGS) -fPIC  -c $< -o $@
 
 # Rule to link object files into a shared library
 $(LIBRARY): $(OBJS)
