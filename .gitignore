@@ -43,6 +43,5 @@ compile_commands.json
 *.a
 stubs
 *.psl
-binder/
 test_server/
 bugs/
