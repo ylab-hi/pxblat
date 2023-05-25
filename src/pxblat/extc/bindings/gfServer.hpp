@@ -108,7 +108,7 @@ struct gfServerOption {
   std::string genome{};         // no need to get
   std::string genomeDataDir{};  // no need to get
 
-  int threads{2};
+  int threads{1};
   bool allowOneMismatch{false};
 
   gfServerOption() = default;

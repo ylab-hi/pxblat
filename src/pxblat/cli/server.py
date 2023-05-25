@@ -200,7 +200,7 @@ def start(
     canStop: bool = canStop,
     indexFile: Path = indexFile,
     timeout: int = timeout,
-    threads: int = threads,
+    _threads: int = threads,
 ):
     """To set up a server
 
@@ -223,7 +223,6 @@ def start(
         .withMaxNtSize(maxNtSize)
         .withCanStop(canStop)
         .withTimeout(timeout)
-        .withThreads(threads)
     )
 
     if log is not None:

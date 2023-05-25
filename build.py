@@ -154,11 +154,12 @@ def filter_files(files, exclude=None):
 
 def get_extra_options():
     return [
+        "-g",
         "-D_FILE_OFFSET_BITS=64",
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
         "-DMACHTYPE_$(MACHTYPE)",
-        "-DDBG_MACRO_DISABLE",
+        # "-DDBG_MACRO_DISABLE",
     ]
 
 

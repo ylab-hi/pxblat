@@ -5,8 +5,9 @@ help:  ## Show help
 
 # MACHTYPE only needs to be specified for `pcc` and `alpha`
 # MACHTYPE=pcc
+PYBIND11:=$(shell python3 -m pybind11 --includes)
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MACHTYPE)
-COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(HG_DEFS)  -Wunused-variable
+COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(PYBIND11) $(HG_DEFS)  -Wunused-variable
 
 AUXSRC=$(filter-out src/pxblat/extc/src/aux/netlib.c, $(wildcard src/pxblat/extc/src/aux/*.c))
 

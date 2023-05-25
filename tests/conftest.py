@@ -31,9 +31,7 @@ def fa_file1():
 
 @pytest.fixture
 def server_option():
-    return (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(2).build()
-    )
+    return extc.gfServerOption().withCanStop(True).withStepSize(5).build()
 
 
 @pytest.fixture

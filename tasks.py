@@ -1248,6 +1248,7 @@ def query_server2(two_bit, fa1_path, pp_res):
     )
 
     ret = pygfClient(client_option)
+    # ret = pygfClient_no_gil(client_option)
     # ret = query_server(client_option, parse=False)
     print(f"worker {worker()} ")
     return ret
@@ -1262,13 +1263,13 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
     server_option = (
         extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
-
     print("open python server")
     server = Server("localhost", PORT, two_bit, server_option)
     server.start()
     server.wait_ready()
 
     pool = ThreadPoolExecutor
+    # pool = ProcessPoolExecutor
 
     result = []
     start_time = time.perf_counter()
@@ -1276,12 +1277,26 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
         for fa1_path in fas_path.glob("*.fa"):
             pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
 
+            (
+                extc.gfClientOption()
+                .withMinScore(20)
+                .withMinIdentity(90)
+                .withHost("localhost")
+                .withPort(str(PORT))
+                .withSeqDir(two_bit.parent.as_posix())
+                .withInName(fa1_path.as_posix())
+                .withOutName(pp_res.as_posix())
+                .build()
+            )
+
             executor.submit(
                 query_server2,
                 two_bit,
                 fa1_path,
                 pp_res,
             )
+
+            # executor.submit(pygfClient_no_gil, client_option)
             print(f"run python client save to file {pp_res}")
 
         for res in result:
@@ -1295,4 +1310,4 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
 
     dura_py = time.perf_counter() - start_time
     print(f"run python server and client time: {dura_py:.4}s")
-    server.stop()
+    # server.stop()

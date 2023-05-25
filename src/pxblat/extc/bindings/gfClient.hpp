@@ -115,6 +115,7 @@ struct gfClientOption {
   friend std::ostream &operator<<(std::ostream &os, const gfClientOption &option);
 };
 
+std::string pygfClient_no_gil(gfClientOption option);
 std::string pygfClient(gfClientOption &option);
 std::string read_inmem_file(FILE *file);
 }  // namespace cppbinding
