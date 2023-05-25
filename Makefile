@@ -11,14 +11,13 @@ HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MA
 COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(PYBIND11) $(LDFLAGS) $(HG_DEFS)  -Wunused-variable
 
 AUXSRC=$(filter-out src/pxblat/extc/src/aux/netlib.c, $(wildcard src/pxblat/extc/src/aux/*.c))
-
 CORESRC=$(wildcard src/pxblat/extc/src/core/*.c)
 NETSRC=$(wildcard src/pxblat/extc/src/net/*.c)
 
+
+
 LIBLDFLAGS:=${LDFLAGS} -shared
-
 OBJS=$(AUXSRC:.c=.o) $(CORESRC:.c=.o) $(NETSRC:.c=.o)
-
 # Target library name
 LIBRARY=libblat.so
 
@@ -29,7 +28,6 @@ LIBRARY=libblat.so
 # Rule to link object files into a shared library
 $(LIBRARY): $(OBJS)
 	$(CC) $(LIBLDFLAGS) -o $@ $^
-
 
 
 
