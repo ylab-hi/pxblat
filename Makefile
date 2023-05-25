@@ -14,20 +14,31 @@ AUXSRC=$(filter-out src/pxblat/extc/src/aux/netlib.c, $(wildcard src/pxblat/extc
 CORESRC=$(wildcard src/pxblat/extc/src/core/*.c)
 NETSRC=$(wildcard src/pxblat/extc/src/net/*.c)
 
+# compile dynamic lib
+# LIBLDFLAGS:=${LDFLAGS} -shared -lm -pthread -lhts -lssl -lcrypto
 
-
-LIBLDFLAGS:=${LDFLAGS} -shared
+# compile static lib
+LIBLDFLAGS:=${LDFLAGS}  -lm -pthread -lhts -lssl -lcrypto -lz
 OBJS=$(AUXSRC:.c=.o) $(CORESRC:.c=.o) $(NETSRC:.c=.o)
+
 # Target library name
 LIBRARY=libblat.so
+SLIBRARY=libblat.a
+# Archiver
+AR=ar
 
 # Rule to compile source files into object files
 %.o: %.c
-	$(CC) $(COPTS) $(CFLAGS) -fPIC  -c $< -o $@
+	$(CC) $(COPTS) $(CFLAGS)  -c $< -o $@
+	# $(CC) $(COPTS) $(CFLAGS) -fPIC  -c $< -o $@
 
 # Rule to link object files into a shared library
 $(LIBRARY): $(OBJS)
 	$(CC) $(LIBLDFLAGS) -o $@ $^
+
+$(SLIBRARY): $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
 
 
 
