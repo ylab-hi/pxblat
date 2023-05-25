@@ -3,6 +3,8 @@
 
 #include <ostream>
 #include <string>
+using std::max;
+using std::min;
 
 #include "aliType.h"
 #include "common.h"

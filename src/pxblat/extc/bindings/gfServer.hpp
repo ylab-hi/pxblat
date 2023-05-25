@@ -16,6 +16,9 @@
 #include <string>
 #include <vector>
 
+using std::max;
+using std::min;
+
 #include "common.h"
 #include "dnaseq.h"
 #include "dnautil.h"

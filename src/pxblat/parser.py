@@ -2,7 +2,7 @@ import typing as t
 from pathlib import Path
 from typing import Optional
 
-from Bio.SearchIO.BlatIO import BlatPslParser
+from Bio.SearchIO.BlatIO import BlatPslParser  # type: ignore
 
 
 class PslOutput:
