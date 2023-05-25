@@ -51,17 +51,11 @@ pxblat
 - [x] multi-connection server
 - [ ] benchmarking multi connection and original version
 - [x] test result with original version
-- [ ] fix build.py to build ssl, hts, maybe libuv when install with pip
+- [x] fix build.py to build ssl, hts, maybe libuv when install with pip
 - [ ] add tool to conda channel
 - [ ] add too to dokerhub
 - [ ] add tool to pip
 - [ ] change abort to throw exceptions
-
----
-
-<img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-github-open.svg" width="80" />
-
-## ⚙️ Project Structure
 
 ---
 
@@ -92,19 +86,19 @@ cd pxblat
 3. Install the dependencies:
 
 ```sh
-poetry install .
+poetry install
 ```
 
 ### 🤖 Using pxblat
 
 ```sh
-./myapp
+pxblat
 ```
 
 ### 🧪 Running Tests
 
 ```sh
-#run tests
+pytest
 ```
 
 <hr />
