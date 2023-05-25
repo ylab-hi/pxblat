@@ -6,8 +6,9 @@ help:  ## Show help
 # MACHTYPE only needs to be specified for `pcc` and `alpha`
 # MACHTYPE=pcc
 PYBIND11:=$(shell python3 -m pybind11 --includes)
+LDFLAGS:=${LDFLAGS}
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MACHTYPE)
-COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(PYBIND11) $(HG_DEFS)  -Wunused-variable
+COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(PYBIND11) $(LDFLAGS) $(HG_DEFS)  -Wunused-variable
 
 AUXSRC=$(filter-out src/pxblat/extc/src/aux/netlib.c, $(wildcard src/pxblat/extc/src/aux/*.c))
 
@@ -26,7 +27,7 @@ faToTwoBit2: bin ## Build faToTwoBit
 	$(CXX) $(COPTS) $(CFLAGS) src/pxblat/extc/bindings/faToTwoBit.cpp src/pxblat/extc/src/core/*.c src/pxblat/extc/src/aux/*.c src/pxblat/extc/src/net/*.c  -o bin/faToTwoBit -lm -pthread -lhts -lssl -lcrypto
 
 gfClient: bin ## Build gfClient
-	$(CC) $(COPTS) $(CFLAGS) src/pxblat/extc/gfClient.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/gfClient -lm -pthread -lhts -lssl -lcrypto
+	$(CC) $(COPTS) $(CFLAGS)  src/pxblat/extc/gfClient.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/gfClient -lm -pthread -lhts -lssl -lcrypto
 
 gfServer: bin ## Build gfServer
 	$(CC) $(COPTS) $(CFLAGS) src/pxblat/extc/gfServer.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/gfServer -lm -pthread -lhts -lssl -lcrypto
