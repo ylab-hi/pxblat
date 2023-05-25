@@ -8,7 +8,22 @@ from functools import wraps
 from pathlib import Path
 
 from pybind11.setup_helpers import build_ext
+from pybind11.setup_helpers import ParallelCompile
 from pybind11.setup_helpers import Pybind11Extension
+
+
+# Optional multithreaded build
+def get_thread_count():
+    try:
+        import multiprocessing
+
+        return multiprocessing.cpu_count()
+    except (ImportError, NotImplementedError):
+        pass
+    return 1
+
+
+ParallelCompile(f"{get_thread_count()}").install()
 
 
 header_path = []
@@ -204,6 +219,7 @@ def build(setup_kwargs):
             extra_compile_args=get_extra_options(),
         )
     ]
+
     setup_kwargs.update(
         {
             "ext_modules": ext_modules,
