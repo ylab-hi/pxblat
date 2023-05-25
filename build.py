@@ -28,7 +28,9 @@ external_htslib_libraries = ["z", "hts", "ssl", "crypto", "m"]
 
 
 for lb in external_htslib_libraries:
-    find_available_library(lb)
+    lb_lib_path, lb_header_path = find_available_library(lb)
+    lib_path.append(lb_lib_path.as_posix())
+    header_path.append(lb_header_path.as_posix())
 
 
 def remove_env(key: str):
@@ -47,7 +49,6 @@ def find_lib_path_in_conda(lib_name: str):
 
     conda_path = Path(os.environ["CONDA_PREFIX"])
     lib_dir = conda_path / "lib"
-    conda_path / "include"
 
     lib_path_linux = lib_dir / f"lib{lib_name}.so"
     lib_path_macos = lib_dir / f"lib{lib_name}.dylib"
@@ -154,7 +155,6 @@ def filter_files(files, exclude=None):
 
 def get_extra_options():
     return [
-        "-g",
         "-D_FILE_OFFSET_BITS=64",
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
