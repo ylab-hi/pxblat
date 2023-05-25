@@ -1,5 +1,5 @@
 sphinx-material
 sphinx==7.0.1
-sphinx-click==4.3.0
+sphinx-click==4.4.0
 myst_parser==0.18.1
 linkify-it-py == 2.0.2
