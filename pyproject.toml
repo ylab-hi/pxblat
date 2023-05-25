@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pxblat"
-version = "0.1.0"
+version = "0.1.1"
 description = "A native python binding for blat suit"
 authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
 license = "MIT"
