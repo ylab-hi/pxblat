@@ -59,12 +59,6 @@ pxblat
 
 ---
 
-<img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-github-open.svg" width="80" />
-
-## ⚙️ Project Structure
-
----
-
 <img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-src-open.svg" width="80" />
 
 ## 🚀 Getting Started
@@ -92,19 +86,19 @@ cd pxblat
 3. Install the dependencies:
 
 ```sh
-poetry install .
+poetry install
 ```
 
 ### 🤖 Using pxblat
 
 ```sh
-./myapp
+pxblat
 ```
 
 ### 🧪 Running Tests
 
 ```sh
-#run tests
+pytest
 ```
 
 <hr />
