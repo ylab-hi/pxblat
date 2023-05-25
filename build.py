@@ -8,6 +8,7 @@ from functools import wraps
 from pathlib import Path
 
 from pybind11.setup_helpers import build_ext
+from pybind11.setup_helpers import ParallelCompile
 from pybind11.setup_helpers import Pybind11Extension
 
 
@@ -22,7 +23,7 @@ def get_thread_count():
     return 1
 
 
-# ParallelCompile(f"{get_thread_count()}").install()
+ParallelCompile(f"{get_thread_count()}").install()
 
 
 header_path = []
