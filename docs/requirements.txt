@@ -1,5 +1,5 @@
 sphinx-immaterial[json,clang-format,keys,cpp]
-sphinx==7.0.1
+sphinx
 sphinx-click==4.3.0
 myst_parser==1.0.0
 linkify-it-py == 2.0.2
