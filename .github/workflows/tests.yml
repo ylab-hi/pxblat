@@ -71,7 +71,8 @@ jobs:
       - name: debug
         if: matrix.os == 'macos-latest'
         run: |
-          poetry build -vvv
+          which python
+          # poetry build -vvv
 
       - name: Install Nox
         run: |
