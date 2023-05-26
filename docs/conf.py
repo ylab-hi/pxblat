@@ -13,7 +13,7 @@ extensions = [
 source_suffix = [".rst", ".md"]
 autodoc_typehints = "description"
 html_theme = "sphinx_material"
-html_logo = "_static/logo.png"
+# html_logo = "_static/logo.png"
 
 myst_heading_anchors = 3
 myst_enable_extensions = [

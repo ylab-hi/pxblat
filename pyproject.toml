@@ -83,6 +83,34 @@ scienceplots = "^2.0.1"
 tikzplotlib = "^0.10.1"
 nox = "^2023.4.22"
 nox-poetry = "^1.0.2"
+codecov = "^2.1.13"
+linkify-it-py = "^2.0.2"
+
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+tests = ["tests", "*/tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pxblat", "tests"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 40
+
+
+[tool.mypy]
+strict = false
+warn_unreachable = true
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+ignore_missing_imports = true
+
+
+
 
 [tool.poetry.build]
 script = "build.py"
