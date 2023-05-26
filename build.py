@@ -1,5 +1,4 @@
 import os
-import platform
 import shlex
 import typing
 from contextlib import contextmanager
@@ -170,11 +169,7 @@ def filter_files(files, exclude=None):
 
 
 def get_extra_options():
-    result = []
-    if platform.system() == "Darwin":
-        result.append("-undefined dynamic_lookup")
-
-    return result + [
+    return [
         "-D_FILE_OFFSET_BITS=64",
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",

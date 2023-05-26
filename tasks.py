@@ -1310,4 +1310,4 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
 
     dura_py = time.perf_counter() - start_time
     print(f"run python server and client time: {dura_py:.4}s")
-    # server.stop()
+    server.stop()
