@@ -19,17 +19,15 @@
 ## 📚 Table of Contents
 
 - [📚 Table of Contents](#-table-of-contents)
-- [📍Overview](#-introdcution)
 - [🔮 Features](#-features)
 - [🏎💨 Getting Started](#-getting-started)
 - [🤝 Contributing](#-contributing)
 - [🪪 License](#-license)
-- [📫 Contact](#-contact)
 - [🙏 Acknowledgments](#-acknowledgments)
 
 ---
 
-## 🔮 Feautres
+## 🔮 Features
 
 - no intermidiate files, all in memory
 - no system call
@@ -145,3 +143,5 @@ This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See th
 [📌 INSERT-DESCRIPTION]
 
 ---
+
+<!-- github-only -->

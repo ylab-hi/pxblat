@@ -18,5 +18,5 @@ reference
 contributing
 Code of Conduct <codeofconduct>
 License <license>
-Changelog <https://github.com/cauliyang/pybox/releases>
+Changelog <https://github.com/cauliyang/pxblat/releases>
 ```

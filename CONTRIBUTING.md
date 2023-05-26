@@ -12,9 +12,9 @@ Here is a list of important resources for contributors:
 - [Code of Conduct]
 
 [mit license]: https://opensource.org/licenses/MIT
-[source code]: https://github.com/cauliyang/pybox
-[documentation]: https://pyboxes.readthedocs.io/
-[issue tracker]: https://github.com/cauliyang/pybox/issues
+[source code]: https://github.com/cauliyang/pxblat
+[documentation]: https://pxblat.readthedocs.io/
+[issue tracker]: https://github.com/cauliyang/pxblat/issues
 
 ## How to report a bug
 
@@ -54,7 +54,7 @@ or the command-line interface:
 
 ```console
 $ poetry run python
-$ poetry run pybox
+$ poetry run pxblat
 ```
 
 [poetry]: https://python-poetry.org/
@@ -108,7 +108,7 @@ $ nox --session=pre-commit -- install
 It is recommended to open an issue before starting work on anything.
 This will allow a chance to talk it over with the owners and validate your approach.
 
-[pull request]: https://github.com/cauliyang/pybox/pulls
+[pull request]: https://github.com/cauliyang/pxblat/pulls
 
 <!-- github-only -->
 

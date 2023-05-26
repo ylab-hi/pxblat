@@ -1,9 +1,9 @@
 # Reference
 
-## pybox
+## PxBLAT
 
 ```{eval-rst}
 
-.. automodule:: pyboxes
+.. automodule:: pxblat
    :members:
 ```
