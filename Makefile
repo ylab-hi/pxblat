@@ -87,6 +87,9 @@ commit: format ## Commit changes
 	aicommits
 
 
+chang:
+	git cliff --output CHANGELOG.md
+
 clangd: ## Generate clangd index
 	bear -- make all_bin
 
