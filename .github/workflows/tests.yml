@@ -68,6 +68,11 @@ jobs:
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
 
+      - name: debug
+        if: matrix.os == 'macos-latest'
+        run: |
+          poetry build -vvv
+
       - name: Install Nox
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
