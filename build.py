@@ -1,51 +1,44 @@
 import os
 import shlex
+import sys
 import typing
 from contextlib import contextmanager
 from ctypes.util import find_library
 from functools import wraps
 from pathlib import Path
 
-from pybind11.setup_helpers import build_ext
+import distutils
+import setuptools
+from pybind11.setup_helpers import auto_cpp_level
 from pybind11.setup_helpers import ParallelCompile
-from pybind11.setup_helpers import Pybind11Extension
+from setuptools import Distribution
+from setuptools import Extension
+from setuptools.command.build_ext import build_ext as _build_ext
 
 
-# Optional multithreaded build
-def get_thread_count():
-    try:
-        import multiprocessing
+class PxblatExtensionBuilder(_build_ext):
+    def build_extension(self, extension: setuptools.extension.Extension) -> None:  # type: ignore
+        extension.library_dirs.append(self.build_lib)  # type: ignore
+        super().build_extension(extension)
 
-        return multiprocessing.cpu_count()
-    except (ImportError, NotImplementedError):
-        pass
-    return 1
+    def build_extensions(self) -> None:
+        """
+        Build extensions, injecting C++ std for Pybind11Extension if needed.
+        """
 
+        for ext in self.extensions:
+            if hasattr(ext, "_cxx_level") and ext._cxx_level == 0:
+                ext.cxx_std = auto_cpp_level(self.compiler)
 
-ParallelCompile(f"{get_thread_count()}").install()
-
-
-header_path = []
-lib_path = []
-
-
-def find_available_library(lib_name: str):
-    lib_path = find_library(lib_name)
-    if not lib_path:
-        raise RuntimeError(f"Cannot find {lib_name} library.")
-
-    header_path = Path(lib_path).parent.parent / "include"
-
-    return Path(lib_path), header_path
+        super().build_extensions()
 
 
-external_htslib_libraries = ["z", "hts", "ssl", "crypto", "m"]
-
-
-for lb in external_htslib_libraries:
-    lb_lib_path, lb_header_path = find_available_library(lb)
-    lib_path.append(lb_lib_path.as_posix())
-    header_path.append(lb_header_path.as_posix())
+def _get_pxblat_libname():
+    builder = setuptools.command.build_ext.build_ext(Distribution())  # type: ignore
+    full_name = builder.get_ext_filename("libpxblat")
+    without_lib = full_name.split("lib", 1)[-1]
+    without_so = without_lib.rsplit(".so", 1)[0]
+    return without_so
 
 
 def remove_env(key: str):
@@ -57,64 +50,6 @@ def remove_env(key: str):
     for flag in flags:
         if flag.startswith(key):
             raise RuntimeError(f"Please remove {key} from CFLAGS and CPPFLAGS.")
-
-
-def find_lib_path_in_conda(lib_name: str):
-    check_conda_env()
-
-    conda_path = Path(os.environ["CONDA_PREFIX"])
-    lib_dir = conda_path / "lib"
-
-    lib_path_linux = lib_dir / f"lib{lib_name}.so"
-    lib_path_macos = lib_dir / f"lib{lib_name}.dylib"
-    lib_path_static = lib_dir / f"lib{lib_name}.a"
-
-    if lib_path_linux.exists():
-        return lib_path_linux
-    elif lib_path_macos.exists():
-        return lib_path_macos
-    elif lib_path_static.exists():
-        return lib_path_static
-
-    return None
-
-
-def check_conda_env() -> None:
-    """Check if conda env is activated."""
-    if "CONDA_PREFIX" not in os.environ:
-        raise RuntimeError("Please activate conda env first.")
-
-
-def check_hts_path(hts_lib_path: Path, hts_include_path: Path) -> None:
-    """Check if htslib path is valid."""
-    header_path = hts_include_path / "htslib"
-    if not header_path.exists():
-        raise RuntimeError("Please install htslib first.")
-
-    lib_path_linux = hts_lib_path / "libhts.so"
-    lib_path_macos = hts_lib_path / "libhts.dylib"
-    lib_path_static = hts_lib_path / "libhts.a"
-
-    if (
-        not lib_path_linux.exists()
-        and not lib_path_static.exists()
-        and not lib_path_macos.exists()
-    ):
-        raise RuntimeError("Please install htslib first.")
-
-
-def get_hts_lib_path() -> tuple[Path, Path]:
-    """Get htslib path."""
-    remove_env("-g")
-    check_conda_env()
-    conda_path = Path(os.environ["CONDA_PREFIX"])
-
-    htslib_library_dir = conda_path / "lib"
-    htslib_include_dir = conda_path / "include"
-
-    check_hts_path(htslib_library_dir, htslib_include_dir)
-
-    return htslib_library_dir, htslib_include_dir
 
 
 @contextmanager
@@ -144,7 +79,7 @@ def change_env(key: str, value: str):
     return decorator
 
 
-def get_files(
+def get_files_by_suffix(
     path: typing.Union[Path, str], suffix: typing.List[str]
 ) -> typing.Iterator[str]:
     """Get bindings."""
@@ -153,7 +88,7 @@ def get_files(
 
     for file in path.iterdir():
         if file.is_dir():
-            yield from get_files(file, suffix)
+            yield from get_files_by_suffix(file, suffix)
         if file.suffix in suffix:
             yield file.as_posix()
 
@@ -168,57 +103,177 @@ def filter_files(files, exclude=None):
             yield file
 
 
-def get_extra_options():
+# Optional multithreaded build
+def get_thread_count():
+    try:
+        import multiprocessing
+
+        return multiprocessing.cpu_count()
+    except (ImportError, NotImplementedError):
+        pass
+    return 1
+
+
+def _get_cxx_compiler():
+    cc = distutils.ccompiler.new_compiler()  # type: ignore
+    distutils.sysconfig.customize_compiler(cc)  # type: ignore
+    return cc.compiler_cxx[0]  # type: ignore
+
+
+def find_available_library(lib_name: str):
+    lib_path = find_library(lib_name)
+    if not lib_path:
+        raise RuntimeError(f"Cannot find {lib_name} library.")
+
+    header_path = Path(lib_path).parent.parent / "include"
+
+    return Path(lib_path).parent, header_path
+
+
+def _extra_compile_args_for_libpxblat():
     return [
         "-D_FILE_OFFSET_BITS=64",
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
         "-DMACHTYPE_$(MACHTYPE)",
+    ]
+
+
+def _include_dirs_for_libpxblat():
+    return [
+        "src/pxblat/extc/include/core",
+        "src/pxblat/extc/include/aux",
+        "src/pxblat/extc/include/net",
+    ]
+
+
+def _include_dirs_for_pxblat():
+    return [
+        "src/pxblat/extc/bindings",
+    ]
+
+
+def _extra_compile_args_for_pxblat():
+    return [
+        "--std=c++17",
         "-DDBG_MACRO_DISABLE",
     ]
 
 
-SOURCES = (
-    [
+ParallelCompile(f"{get_thread_count()}").install()
+
+extra_compile_args = ["-pthread"]
+hidden_visibility_args = []
+include_dirs: list[str] = []
+library_dirs: list[str] = []
+python_module_link_args = []
+base_library_link_args: list[str] = []
+external_libraries = [
+    "z",
+    "hts",
+    "ssl",
+    "crypto",
+    "m",
+]
+
+for lib in external_libraries:
+    lib_library_dir, lib_include_dir = find_available_library(lib)
+    library_dirs.append(lib_library_dir.as_posix())
+    include_dirs.append(lib_include_dir.as_posix())
+
+if sys.platform == "win32":
+    raise RuntimeError("Windows is not supported.")
+elif sys.platform == "darwin":
+    # See https://conda-forge.org/docs/maintainer/knowledge_base.html#newer-c-features-with-old-sdk
+    extra_compile_args.append("-D_LIBCPP_DISABLE_AVAILABILITY")
+    hidden_visibility_args.append("-fvisibility=hidden")
+    include_dirs.append(os.getenv("UNIXODBC_INCLUDE_DIR", "/usr/local/include/"))
+    library_dirs.append(os.getenv("UNIXODBC_LIBRARY_DIR", "/usr/local/lib/"))
+
+    config_vars = distutils.sysconfig.get_config_vars()  # type: ignore
+    config_vars["LDSHARED"] = config_vars["LDSHARED"].replace("-bundle", "")  # type: ignore
+    python_module_link_args.append("-bundle")
+    builder = setuptools.command.build_ext.build_ext(Distribution())  # type: ignore
+    full_name = builder.get_ext_filename("libpxblat")
+    base_library_link_args.append(f"-Wl,-dylib_install_name,@loader_path/{full_name}")
+    base_library_link_args.append("-dynamiclib")
+else:
+    # extra_compile_args.append("--std=c++17")
+    hidden_visibility_args.append("-fvisibility=hidden")
+    python_module_link_args.append("-Wl,-rpath,$ORIGIN/..")
+
+
+def get_extension_modules():
+    extension_modules = []
+
+    """
+    Extension module which is actually a plain C++ library without Python bindings
+    """
+    libpxblat_sources = (
+        list(filter_files(get_files_by_suffix("src/pxblat/extc/src/core", [".c"])))
+        + list(
+            filter_files(
+                get_files_by_suffix("src/pxblat/extc/src/aux", [".c"]),
+                exclude=["net.c"],
+            )
+        )
+        + list(filter_files(get_files_by_suffix("src/pxblat/extc/src/net", [".c"])))
+    )
+
+    pxblat_library = Extension(
+        "libpxblat",
+        language="c",
+        sources=libpxblat_sources,
+        include_dirs=include_dirs + _include_dirs_for_libpxblat(),
+        extra_compile_args=_extra_compile_args_for_libpxblat() + extra_compile_args,
+        extra_link_args=base_library_link_args,
+        libraries=external_libraries,
+        library_dirs=library_dirs,
+    )
+
+    pxblat_libs = [_get_pxblat_libname()]
+    extension_modules.append(pxblat_library)
+
+    """
+    An extension module which contains the main Python bindings for turbodbc
+    """
+    pxblat_python_sources = [
         "src/pxblat/extc/bindings/faToTwoBit.cpp",
         "src/pxblat/extc/bindings/gfServer.cpp",
         "src/pxblat/extc/bindings/pygfServer.cpp",
         "src/pxblat/extc/bindings/gfClient.cpp",
         "src/pxblat/extc/bindings/gfClient2.cpp",
-    ]
-    + list(filter_files(get_files("src/pxblat/extc/bindings/binder", [".cpp"])))
-    + list(filter_files(get_files("src/pxblat/extc/src/core", [".c"])))
-    + list(
-        filter_files(get_files("src/pxblat/extc/src/aux", [".c"]), exclude=["net.c"])
+    ] + list(
+        filter_files(get_files_by_suffix("src/pxblat/extc/bindings/binder", [".cpp"]))
     )
-    + list(filter_files(get_files("src/pxblat/extc/src/net", [".c"])))
-)
+
+    pxblat_python = Extension(
+        "pxblat._extc",
+        language="c++",
+        sources=pxblat_python_sources,
+        include_dirs=include_dirs
+        + _include_dirs_for_libpxblat()
+        + _include_dirs_for_pxblat(),
+        extra_compile_args=extra_compile_args
+        + hidden_visibility_args
+        + _extra_compile_args_for_pxblat(),
+        libraries=external_libraries + pxblat_libs,
+        extra_link_args=python_module_link_args,
+        library_dirs=library_dirs,
+    )
+
+    extension_modules.append(pxblat_python)
+    return extension_modules
 
 
 def build(setup_kwargs):
     """Build cpp extension."""
-    ext_modules = [
-        Pybind11Extension(
-            "pxblat._extc",
-            language="c++",
-            sources=SOURCES,
-            include_dirs=header_path
-            + [
-                "src/pxblat/extc/include/core",
-                "src/pxblat/extc/include/aux",
-                "src/pxblat/extc/include/net",
-                "src/pxblat/extc/bindings",
-            ],
-            library_dirs=lib_path,
-            libraries=external_htslib_libraries,
-            extra_compile_args=get_extra_options(),
-        )
-    ]
-
+    ext_modules = get_extension_modules()
     setup_kwargs.update(
         {
             "ext_modules": ext_modules,
-            "cmdclass": {"build_ext": build_ext},
+            "cmdclass": {"build_ext": PxblatExtensionBuilder},
             "zip_safe": False,
+            "package_data": {"pxblat": ["py.typed", "*so"]},
         }
     )

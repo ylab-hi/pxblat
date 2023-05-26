@@ -14,3 +14,6 @@ app.command()(client)
 
 
 app.add_typer(server_app, name="server")
+
+if __name__ == "__main__":
+    app()
