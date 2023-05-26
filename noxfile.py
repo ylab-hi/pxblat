@@ -27,8 +27,6 @@ nox.options.sessions = (
     "safety",
     "mypy",
     "tests",
-    "typeguard",
-    "xdoctest",
     "docs-build",
 )
 
@@ -112,7 +110,7 @@ def safety(session: Session) -> None:
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.install(".")
+    session.run("poetry", "install", external=True)
     session.install("mypy", "pytest")
     session.run("mypy", *args)
     if not session.posargs:
@@ -122,7 +120,7 @@ def mypy(session: Session) -> None:
 @session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
-    session.install(".")
+    session.run("poetry", "install", external=True)
     session.install("coverage[toml]", "pytest", "pygments")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
@@ -151,7 +149,7 @@ def docs_build(session: Session) -> None:
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    session.install(".")
+    session.run("poetry", "install", external=True)
     session.install("sphinx", "sphinx-click", "furo", "myst_parser", "pyyaml")
 
     build_dir = Path("docs", "_build")
@@ -165,7 +163,7 @@ def docs_build(session: Session) -> None:
 def docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.install(".")
+    session.run("poetry", "install", external=True)
     session.install(
         "sphinx", "sphinx-autobuild", "sphinx-click", "furo", "myst_parser", "pyyaml"
     )

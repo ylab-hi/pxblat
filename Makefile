@@ -16,7 +16,6 @@ NETSRC=$(wildcard src/pxblat/extc/src/net/*.c)
 
 # compile dynamic lib
 LIBLDFLAGS:=${LDFLAGS} -shared -lm -pthread -lhts -lssl -lcrypto -lz
-
 # compile static lib
 # LIBLDFLAGS:=${LDFLAGS}  -lm -pthread -lhts -lssl -lcrypto -lz
 OBJS=$(AUXSRC:.c=.o) $(CORESRC:.c=.o) $(NETSRC:.c=.o)
