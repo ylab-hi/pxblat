@@ -47,6 +47,8 @@
 - [ ] add tool to conda channel
 - [x] add tool to pip
 - [ ] change abort to throw exceptions
+- [ ] implement psl2sam
+- [ ] implement twobit2fa
 
 ---
 
