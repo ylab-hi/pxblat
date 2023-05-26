@@ -41,18 +41,24 @@
 
 - [x] parser gfclient result
 - [x] parse gfserver query result
-- [x] multi-connection server
-- [ ] benchmarking multi connection and original version
+- [x] benchmarking multi connection and original version
 - [x] test result with original version
 - [x] fix build.py to build ssl, hts, maybe libuv when install with pip
 - [ ] add tool to conda channel
-- [ ] add too to dokerhub
-- [ ] add tool to pip
+- [x] add tool to pip
 - [ ] change abort to throw exceptions
 
 ---
 
 ## 🚀 Getting Started
+
+```sh
+pip install pxblat
+```
+
+```sh
+conda install pxblat
+```
 
 ### ✅ Prerequisites
 
@@ -91,14 +97,6 @@ pxblat
 ```sh
 pytest
 ```
-
-<hr />
-
-## 🛠 Future Development
-
-- [x] [📌 COMPLETED-TASK]
-- [ ] [📌 INSERT-TASK]
-- [ ] [📌 INSERT-TASK]
 
 ---
 
