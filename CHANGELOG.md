@@ -48,7 +48,7 @@ All notable changes to this project will be documented in this file.
 - Implement cpp gfserver
 - Refactor gfserver binding
 - Create static lib
-- Fix c code error from cxx  compiler
+- Fix c code error from cxx compiler
 - Add start sever in cpp
 - Add test for python
 - Use invoke
@@ -66,7 +66,7 @@ All notable changes to this project will be documented in this file.
 - Add docker for binder
 - Use binder
 - Update binding
-- Add Signal class to __init__.pyi
+- Add Signal class to **init**.pyi
 - Use thread pool for every client
 - Rename macro round to cround
 - Splite handle client func

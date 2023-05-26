@@ -21,6 +21,7 @@ jobs:
           - { python: "3.10", os: "ubuntu-latest", session: "tests" }
           - { python: "3.9", os: "ubuntu-latest", session: "tests" }
           - { python: "3.10", os: "macos-latest", session: "tests" }
+          - { python: "3.9", os: "macos-latest", session: "tests" }
           - { python: "3.10", os: "ubuntu-latest", session: "docs-build" }
 
     env:
@@ -52,9 +53,15 @@ jobs:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
 
       - name: Install Dependencies
+        if: matrix.os == "ubuntu-latest"
         run: |
           sudo apt-get update
           sudo apt-get install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev
+
+      - name: Install Dependencies
+        if: matrix.os == "macos-latest"
+        run: |
+          brew install htslib openssl@3
 
       - name: Install Poetry
         run: |
