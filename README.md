@@ -38,7 +38,7 @@
 - no other dependency
 - higher proformance and Ergonomics (compare with current blat endpoint)
 
-## TODO
+## To-do
 
 - [x] parser gfclient result
 - [x] parse gfserver query result
@@ -52,8 +52,6 @@
 - [ ] change abort to throw exceptions
 
 ---
-
-<img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-src-open.svg" width="80" />
 
 ## 🚀 Getting Started
 
