@@ -1,4 +1,4 @@
-import platform
+import sys
 import time
 
 import pytest
@@ -34,7 +34,7 @@ def test_server_start_free_func(server_option, port):
     assert status
 
 
-@pytest.mark.skipif(platform.system() == "darwin", reason="skip on mac")
+@pytest.mark.skipif(sys.platform == "darwin", reason="skip on mac")
 def test_server_start_class(server_option, port, two_bit):
     port += 11
     server = Server("localhost", port, two_bit, server_option)
@@ -167,7 +167,7 @@ def test_server_stop(server_option, port):
     assert not check_port_open("localhost", port)
 
 
-@pytest.mark.skipif(platform.system() == "darwin", reason="skip on mac")
+@pytest.mark.skipif(sys.platform == "darwin", reason="skip on mac")
 def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
     expected_status_instance.port = port + 1
     with Server("localhost", port + 1, two_bit, server_option) as server:
