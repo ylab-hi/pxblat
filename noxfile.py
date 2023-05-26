@@ -150,8 +150,14 @@ def docs_build(session: Session) -> None:
         args.insert(0, "--color")
 
     session.run("poetry", "install", external=True)
+
     session.install(
-        "sphinx", "sphinx-click", "sphinx-imaterial", "myst_parser", "pyyaml"
+        "sphinx",
+        "sphinx-immaterial",
+        "sphinx-autobuild",
+        "sphinx-click",
+        "myst_parser",
+        "pyyaml",
     )
 
     build_dir = Path("docs", "_build")
