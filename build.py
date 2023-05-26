@@ -11,6 +11,7 @@ import distutils
 import setuptools
 from pybind11.setup_helpers import auto_cpp_level
 from pybind11.setup_helpers import ParallelCompile
+from pybind11.setup_helpers import Pybind11Extension
 from setuptools import Distribution
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext as _build_ext
@@ -120,8 +121,31 @@ def _get_cxx_compiler():
     return cc.compiler_cxx[0]  # type: ignore
 
 
+def find_lib_in_conda(lib_name: str):
+    conda_prefix = os.environ.get("CONDA_PREFIX", None)
+    if conda_prefix is not None:
+        conda_lib_dir = Path(conda_prefix) / "lib"
+
+        if (conda_lib_dir / f"lib{lib_name}.a").exists():
+            return conda_lib_dir
+
+        if (conda_lib_dir / f"lib{lib_name}.so").exists():
+            return conda_lib_dir
+
+        if (conda_lib_dir / f"lib{lib_name}.dylib").exists():
+            return conda_lib_dir
+
+    return None
+
+
 def find_available_library(lib_name: str):
     lib_path = find_library(lib_name)
+
+    if lib_path is None:
+        lib_path = find_lib_in_conda(lib_name)
+
+    print(f"{lib_name} lib_path: {lib_path}")
+
     if not lib_path:
         raise RuntimeError(f"Cannot find {lib_name} library.")
 
@@ -155,7 +179,6 @@ def _include_dirs_for_pxblat():
 
 def _extra_compile_args_for_pxblat():
     return [
-        "--std=c++17",
         "-DDBG_MACRO_DISABLE",
     ]
 
@@ -187,18 +210,17 @@ elif sys.platform == "darwin":
     # See https://conda-forge.org/docs/maintainer/knowledge_base.html#newer-c-features-with-old-sdk
     extra_compile_args.append("-D_LIBCPP_DISABLE_AVAILABILITY")
     hidden_visibility_args.append("-fvisibility=hidden")
-    include_dirs.append(os.getenv("UNIXODBC_INCLUDE_DIR", "/usr/local/include/"))
-    library_dirs.append(os.getenv("UNIXODBC_LIBRARY_DIR", "/usr/local/lib/"))
-
     config_vars = distutils.sysconfig.get_config_vars()  # type: ignore
     config_vars["LDSHARED"] = config_vars["LDSHARED"].replace("-bundle", "")  # type: ignore
     python_module_link_args.append("-bundle")
     builder = setuptools.command.build_ext.build_ext(Distribution())  # type: ignore
     full_name = builder.get_ext_filename("libpxblat")
-    base_library_link_args.append(f"-Wl,-dylib_install_name,@loader_path/{full_name}")
+    print(f"full_name: {full_name}")
+    base_library_link_args.append(
+        f"-Wl,-dylib_install_name,@loader_path/../{full_name}"
+    )
     base_library_link_args.append("-dynamiclib")
 else:
-    # extra_compile_args.append("--std=c++17")
     hidden_visibility_args.append("-fvisibility=hidden")
     python_module_link_args.append("-Wl,-rpath,$ORIGIN/..")
 
@@ -247,7 +269,7 @@ def get_extension_modules():
         filter_files(get_files_by_suffix("src/pxblat/extc/bindings/binder", [".cpp"]))
     )
 
-    pxblat_python = Extension(
+    pxblat_python = Pybind11Extension(
         "pxblat._extc",
         language="c++",
         sources=pxblat_python_sources,

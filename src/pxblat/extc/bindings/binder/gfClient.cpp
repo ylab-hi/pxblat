@@ -67,6 +67,36 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
 
 		cl.def("__str__", [](cppbinding::gfClientOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 
+        cl.def(pybind11::pickle([](const cppbinding::gfClientOption& p){
+               return pybind11::make_tuple(p.hostName, p.portName,p.tType, p.qType, p.dots,
+                                           p.nohead, p.minScore, p.minIdentity,
+                                           p.outputFormat, p.maxIntron, p.genome,
+                                           p.genomeDataDir, p.isDynamic, p.SeqDir,
+                                           p.inName, p.outName, p.inSeq); },
+                                [](pybind11::tuple t){
+                                if (t.size() != 17)
+                                    throw std::runtime_error("Invalid state!");
+
+                                cppbinding::gfClientOption p{};
+                                p.hostName = t[0].cast<std::string>();
+                                p.portName = t[1].cast<std::string>();
+                                p.tType = t[2].cast<std::string>();
+                                p.qType = t[3].cast<std::string>();
+                                p.dots = t[4].cast<bool>();
+                                p.nohead = t[5].cast<bool>();
+                                p.minScore = t[6].cast<long>();
+                                p.minIdentity = t[7].cast<long>();
+                                p.outputFormat = t[8].cast<std::string>();
+                                p.maxIntron = t[9].cast<long>();
+                                p.genome = t[10].cast<std::string>();
+                                p.genomeDataDir = t[11].cast<std::string>();
+                                p.isDynamic = t[12].cast<bool>();
+                                p.SeqDir = t[13].cast<std::string>();
+                                p.inName = t[14].cast<std::string>();
+                                p.outName = t[15].cast<std::string>();
+                                p.inSeq = t[16].cast<std::string>();
+                                return p;}));
+
 
 	}
 	// cppbinding::pygfClient(struct cppbinding::gfClientOption &) file:gfClient.hpp line:118

@@ -44,6 +44,27 @@ void bind_gfServer(std::function< pybind11::module &(std::string const &namespac
 		cl.def_readwrite("trimCount", &cppbinding::UsageStats::trimCount);
 
 		cl.def("__str__", [](cppbinding::UsageStats const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
+
+        cl.def(pybind11::pickle([](const cppbinding::UsageStats &p) { // __getstate__
+            return pybind11::make_tuple(p.baseCount, p.blatCount, p.aaCount, p.pcrCount, p.warnCount
+                                                            , p.noSigCount, p.missCount, p.trimCount);
+
+             },
+            [](pybind11::tuple t) { // __setstate__
+                    if (t.size() != 8)
+                        throw std::runtime_error("Invalid state!");
+
+                    cppbinding::UsageStats p{};
+                    p.baseCount = t[0].cast<int>();
+                    p.blatCount = t[1].cast<int>();
+                    p.aaCount = t[2].cast<int>();
+                    p.pcrCount = t[3].cast<int>();
+                    p.warnCount = t[4].cast<int>();
+                    p.noSigCount = t[5].cast<int>();
+                    p.missCount = t[6].cast<int>();
+                    p.trimCount = t[7].cast<int>();
+                    return p;
+                }));
 	}
 	{ // cppbinding::gfServerOption file:gfServer.hpp line:74
 		pybind11::class_<cppbinding::gfServerOption, std::shared_ptr<cppbinding::gfServerOption>> cl(M("cppbinding"), "gfServerOption", "");
@@ -102,6 +123,50 @@ void bind_gfServer(std::function< pybind11::module &(std::string const &namespac
 		cl.def("withThreads", (struct cppbinding::gfServerOption & (cppbinding::gfServerOption::*)(int)) &cppbinding::gfServerOption::withThreads, "C++: cppbinding::gfServerOption::withThreads(int) --> struct cppbinding::gfServerOption &", pybind11::return_value_policy::automatic, pybind11::arg("threads_"));
 
 		cl.def("__str__", [](cppbinding::gfServerOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
+
+        cl.def(pybind11::pickle(
+            [](const cppbinding::gfServerOption &p) { // __getstate__
+
+                return pybind11::make_tuple(p.canStop,p.log,p.logFacility, p.mask, p.maxAaSize, p.maxDnaHits,
+                                            p.maxGap, p.maxNtSize, p.maxTransHits, p.minMatch, p.repMatch,
+                                            p.seqLog, p.ipLog, p.debugLog, p.tileSize, p.stepSize,p.trans,
+                                            p.syslog, p.perSeqMax, p.noSimpRepMask, p.indexFile, p.timeout,
+                                            p.genome, p.genomeDataDir,p.threads,p.allowOneMismatch);
+
+                 },
+                [](pybind11::tuple t) { // __setstate__
+                  if (t.size() != 26)
+                      throw std::runtime_error("Invalid state!");
+                    cppbinding::gfServerOption p{};
+                    p.withCanStop(t[0].cast<bool>());
+                    p.withLog(t[1].cast<std::string>());
+                    p.withLogFacility(t[2].cast<std::string>());
+                    p.withMask(t[3].cast<bool>());
+                    p.withMaxAaSize(t[4].cast<int>());
+                    p.withMaxDnaHits(t[5].cast<int>());
+                    p.withMaxGap(t[6].cast<int>());
+                    p.withMaxNtSize(t[7].cast<int>());
+                    p.withMaxTransHits(t[8].cast<int>());
+                    p.withMinMatch(t[9].cast<int>());
+                    p.withRepMatch(t[10].cast<int>());
+                    p.withSeqLog(t[11].cast<bool>());
+                    p.withIpLog(t[12].cast<bool>());
+                    p.withDebugLog(t[13].cast<bool>());
+                    p.withTileSize(t[14].cast<int>());
+                    p.withStepSize(t[15].cast<int>());
+                    p.withTrans(t[16].cast<bool>());
+                    p.withSyslog(t[17].cast<bool>());
+                    p.withPerSeqMax(t[18].cast<std::string>());
+                    p.withNoSimpRepMask(t[19].cast<bool>());
+                    p.withIndexFile(t[20].cast<std::string>());
+                    p.withTimeout(t[21].cast<int>());
+
+                    p.genome = t[22].cast<std::string>();
+                    p.genomeDataDir = t[23].cast<std::string>();
+                    p.withThreads(t[24].cast<int>());
+                    p.allowOneMismatch = t[25].cast<bool>();
+                    return p;
+            }));
 	}
 	// cppbinding::gfServer(struct cppbinding::gfServerOption &) file:gfServer.hpp line:146
 	M("cppbinding").def("gfServer", (void (*)(struct cppbinding::gfServerOption &)) &cppbinding::gfServer, "C++: cppbinding::gfServer(struct cppbinding::gfServerOption &) --> void", pybind11::arg("options"));
