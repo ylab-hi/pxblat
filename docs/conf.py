@@ -1,9 +1,8 @@
 """Sphinx configuration."""
 from datetime import datetime
 
-from recommonmark.transform import AutoStructify
 
-project = "pxblat"
+project = "PxBLAT"
 author = "Yangyang Li"
 copyright = f"{datetime.now().year}, {author}"
 extensions = [
@@ -18,10 +17,12 @@ extensions = [
     "sphinx_click",
     "myst_parser",
     "sphinx_togglebutton",
-    # "sphinxcontrib_bibtex",
+    "sphinx_immaterial",
+    "sphinxcontrib.bibtex",
+    # "autoapi.extension",
 ]
 
-
+bibtex_bibfiles = ["refs.bib"]
 # autosummary_generate = True
 # autoclass_content = "class"
 
@@ -36,9 +37,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The name of the Pygments (syntax highlighting) style to use.
 # pygments_style = "monokailight"
 
-source_suffix = [".rst", ".md"]
-autodoc_typehints = "description"
-html_theme = "sphinx_material"
+source_suffix = [".md"]
+# autodoc_typehints = "description"
+html_theme = "sphinx_immaterial"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named 'default.css' will overwrite the builtin 'default.css'.
@@ -69,50 +70,84 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
 }
 
-
-# Material theme options (see theme.conf for more information)
+# https://jbms.github.io/sphinx-immaterial/customization.html
+# https://bylr.info/articles/2022/05/10/api-doc-with-sphinx-autoapi/
+# material theme options (see theme.conf for more information)
 html_theme_options = {
-    # Set the name of the project to appear in the navigation.
-    "nav_title": "PxBLAT",
-    # Set you GA account ID to enable tracking
-    "google_analytics_account": "UA-XXXXX",
-    # Specify a base_url used to generate sitemap.xml. If not
-    # specified, then no sitemap will be built.
-    "base_url": "https://github.com/cauliyang/pxblat",
-    # Set the color and the accent color
-    "color_primary": "purple",
-    "color_accent": "light-blue",
-    # Set the repo location to get a badge with stats
+    "icon": {
+        "repo": "fontawesome/brands/github",
+        "edit": "material/file-edit-outline",
+    },
+    "site_url": "https://github.com/cauliyang/pxblat",
     "repo_url": "https://github.com/cauliyang/pxblat",
     "repo_name": "PxBLAT",
-    # Visible levels of the global TOC; -1 means unlimited
-    "globaltoc_depth": 3,
-    # If False, expand all TOC entries
-    "globaltoc_collapse": False,
-    # If True, show hidden TOC entries
-    "globaltoc_includehidden": False,
-    "html_prettify": True,
-    "css_minify": True,
+    "edit_uri": "blob/main/docs",
+    "globaltoc_collapse": True,
+    "features": [
+        "navigation.expand",
+        "navigation.tabs",
+        # "toc.integrate",
+        "navigation.sections",
+        # "navigation.instant",
+        # "header.autohide",
+        "navigation.top",
+        # "navigation.tracking",
+        # "search.highlight",
+        "search.share",
+        "toc.follow",
+        "toc.sticky",
+        "content.tabs.link",
+        "announce.dismiss",
+    ],
+    "palette": [
+        {
+            "media": "(prefers-color-scheme: light)",
+            "scheme": "default",
+            "primary": "light-green",
+            "accent": "light-blue",
+            "toggle": {
+                "icon": "material/lightbulb-outline",
+                "name": "Switch to dark mode",
+            },
+        },
+        {
+            "media": "(prefers-color-scheme: dark)",
+            "scheme": "slate",
+            "primary": "deep-purple",
+            "accent": "lime",
+            "toggle": {
+                "icon": "material/lightbulb",
+                "name": "Switch to light mode",
+            },
+        },
+    ],
+    # BEGIN: version_dropdown
+    "version_dropdown": False,
+    "version_info": [
+        {
+            "version": "https://sphinx-immaterial.rtfd.io",
+            "title": "ReadTheDocs",
+            "aliases": [],
+        },
+        {
+            "version": "https://jbms.github.io/sphinx-immaterial",
+            "title": "Github Pages",
+            "aliases": [],
+        },
+    ],
+    # END: version_dropdown
+    "toc_title_is_page_title": True,
+    # BEGIN: social icons
+    "social": [
+        {
+            "icon": "fontawesome/brands/github",
+            "link": "https://github.com/cauliyang/pxblat",
+            "name": "Source on github.com",
+        },
+        {
+            "icon": "fontawesome/brands/python",
+            "link": "https://pypi.org/project/pxblat/",
+        },
+    ],
+    # END: social icons
 }
-
-html_sidebars = {
-    "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
-}
-
-html_show_sourcelink = True
-
-
-def setup(app):
-    # app.add_css_file(app, "css/main.css")
-    app.add_config_value(
-        "recommonmark_config",
-        {"enable_math": True, "enable_inline_math": True, "enable_eval_rst": True},
-        True,
-    )
-    app.add_transform(AutoStructify)
-    app.add_object_type(
-        "confval",
-        "confval",
-        objname="configuration value",
-        indextemplate="pair: %s; configuration value",
-    )

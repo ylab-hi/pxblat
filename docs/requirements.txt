@@ -1,4 +1,4 @@
-sphinx-material==0.0.35
+sphinx-immaterial[json,clang-format,keys,cpp]
 sphinx==7.0.1
 sphinx-click==4.3.0
 myst_parser==1.0.0
