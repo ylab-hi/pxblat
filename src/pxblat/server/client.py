@@ -12,12 +12,26 @@ from .server import gfServerOption
 
 
 def create_client_option():
+    """
+    Creates a new gfClientOption object with default values.
+
+    Return:
+        gfClientOption object
+
+    """
     return gfClientOption()
 
 
 def _resolve_host_port(
     client_option: gfClientOption, host: Optional[str], port: Optional[int]
 ):
+    """Resolves the host and port for the client option.
+
+    Args:
+        client_option: gfClientOption object
+        host: Optional[str]
+        port: Optional[int]
+    """
     if host is not None:
         client_option.hostName = host
 
@@ -35,7 +49,20 @@ def query_server(
     seqname: Optional[str] = None,
     parse: bool = True,
 ):
-    print("query_server")
+    """
+    Sends a query to the server and returns the result.
+
+    Args:
+        option: gfClientOption object
+        host: Optional[str]
+        port: Optional[int]
+        seqname: Optional[str]
+        parse: bool
+
+    Returns:
+        str or bytes: The result of the query.
+
+    """
     _resolve_host_port(option, host, port)
 
     fafile = None
@@ -82,6 +109,23 @@ class Client(Thread):
         parse: bool = True,
         daemon: bool = True,
     ):
+        """A class for querying a gfServer using a separate thread.
+
+        Args:
+            option: gfClientOption object
+            host: Optional[str]
+            port: Optional[int]
+            wait_ready: bool
+            wait_timeout: int
+            server_option: Optional[gfServerOption]
+            seqname: Optional[str]
+            parse: bool
+            daemon: bool
+
+        Attributes:
+            result: The result of the query.
+
+        """
         super().__init__(daemon=daemon)
         self.option = option
         self._host = host
@@ -137,6 +181,13 @@ class Client(Thread):
 
     @classmethod
     def create_option(cls):
+        """
+        Creates a new gfClientOption object with default values.
+
+        Return:
+            gfClientOption object
+
+        """
         return create_client_option()
 
     def _resolve_host_port(self):

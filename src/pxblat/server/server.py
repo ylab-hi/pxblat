@@ -19,7 +19,13 @@ from .basic import wait_server_ready
 from .status import Status
 
 
-def create_server_option():
+def create_server_option() -> gfServerOption:
+    """
+    Creates a new gfServerOption object with default values.
+
+    Returns:
+        gfServerOption: A new gfServerOption object with default values.
+    """
     return gfServerOption()
 
 
@@ -35,6 +41,26 @@ class Server(ContextDecorator):
         timeout: int = 60,
         block: bool = False,
     ):
+        """Initializes a gfServer object with the given parameters.
+
+        Args:
+            host (str): The hostname or IP address to bind the server to.
+            port (int): The port number to bind the server to.
+            two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
+            option (gfServerOption): The options to use when starting the server.
+            daemon (bool, optional): Whether to run the server as a daemon process. Defaults to True.
+            use_others (bool, optional): Whether to allow other users to access the server. Defaults to False.
+            timeout (int, optional): The number of seconds to wait for the server to start. Defaults to 60.
+            block (bool, optional): Whether to block until the server is ready. Defaults to False.
+
+        Raises:
+            ValueError: If the given two_bit file or URL is invalid.
+            OSError: If there is an error starting the server process.
+
+        Returns:
+            None
+
+        """
         self._host = host
         self._port = port
 
@@ -148,28 +174,78 @@ class Server(ContextDecorator):
                 self._process.start()
 
     def start(self):
+        """
+        Starts the gfServer instance in either blocking or non-blocking mode.
+
+        If the server is set to non-blocking mode, it will start the server in a separate process.
+        If the server is set to blocking mode, it will start the server in the current process.
+        """
         if not self._block:
             self._start_nb()
         else:
             self._start_b()
 
     def stop(self):
+        """
+        Stops the gfServer instance if it is running.
+
+        This method sends a stop signal to the server process, causing it to terminate gracefully.
+        """
         if self._is_open:
             stop_server(self.host, self.port)
 
     def status(self, instance=False) -> t.Union[t.Dict[str, str], Status]:
+        """
+        Retrieves the status of the gfServer instance.
+
+        Args:
+            instance (bool, optional): If True, returns a Status object. If False, returns a dictionary with status information. Defaults to False.
+
+        Returns:
+            t.Union[t.Dict[str, str], Status]: The status of the gfServer instance, either as a dictionary or a Status object.
+        """
         return status_server(self.host, self.port, self.option, instance=instance)
 
     def files(self) -> list[str]:
+        """
+        Retrieves the list of files served by the gfServer instance.
+
+        Returns:
+            list[str]: A list of file names served by the gfServer instance.
+        """
         return files(self.host, self.port)
 
-    def query(self, intype: str, faName: str, isComplex: bool, isProt: bool):
+    def query(self, intype: str, faName: str, isComplex: bool, isProt: bool) -> str:
+        """
+        Queries the gfServer instance with the given parameters.
+
+        Args:
+            intype (str): The type of input sequence. Must be one of "dna", "rna", or "protein".
+            faName (str): The name of the input sequence.
+            isComplex (bool): Whether the input sequence is complex.
+            isProt (bool): Whether the input sequence is a protein sequence.
+
+        Returns:
+            str: The result of the query as a string.
+        """
         return server_query(intype, self.host, self.port, faName, isComplex, isProt)
 
     def is_ready(self) -> bool:
+        """
+        Returns True if the server is ready to accept queries, False otherwise.
+
+        Returns:
+            bool: True if the server is ready to accept queries, False otherwise.
+        """
         return self._is_ready
 
     def is_open(self) -> bool:
+        """
+        Returns True if the server is open, False otherwise.
+
+        Returns:
+            bool: True if the server is open, False otherwise.
+        """
         return self._is_open
 
     def wait_ready(self, timeout: int = 60, restart: bool = False):
@@ -200,6 +276,12 @@ class Server(ContextDecorator):
 
     @classmethod
     def create_option(cls):
+        """
+        Creates a dictionary of options for the gfServer instance.
+
+        Returns:
+            dict: A dictionary of options for the gfServer instance.
+        """
         return create_server_option()
 
     def __str__(self):

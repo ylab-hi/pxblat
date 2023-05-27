@@ -242,12 +242,47 @@ def fa_to_two_bit(
     ignoreDups: bool = False,
     useLong: bool = False,
 ):
+    """Convert one or more FASTA files to two-bit format.
+
+    Args:
+        inFiles (List[str]): A list of paths to the input FASTA files.
+        outFile (str): The path to the output two-bit file.
+        noMask (bool, optional): If True, do not mask the output sequence. Defaults to False.
+        stripVersion (bool, optional): If True, strip the version number from the sequence IDs. Defaults to False.
+        ignoreDups (bool, optional): If True, ignore duplicate sequences in the input files. Defaults to False.
+        useLong (bool, optional): If True, use the long format for the two-bit file. Defaults to False.
+
+    Returns:
+        None
+
+    This function converts one or more input FASTA files to two-bit format and saves the result to the specified output file.
+    The function takes several optional arguments that control the behavior of the conversion process, such as whether to mask
+    the output sequence or strip the version number from the sequence IDs. The function returns None.
+
+    Example:
+        >>> fa_to_two_bit(['input.fasta'], 'output.2bit')
+    """
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)
 
 
 def status_server(
     host: str, port: int, options: gfServerOption, instance=False
 ) -> t.Union[Status, t.Dict[str, str]]:
+    """Get the status of a running server.
+
+    Args:
+        host (str): The hostname or IP address of the server to check.
+        port (int): The port number to use when attempting to connect to the server.
+        options (gfServerOption): The gfserver option to use when attempting to connect to the server.
+        instance (bool, optional): If True, return a Status object instead of a dictionary. Defaults to False.
+
+    Returns:
+        Union[Status, Dict[str, str]]: A dictionary or Status object containing the status information for the server.
+
+    Example:
+        >>> status_server('localhost', 8080, gfServerOption, instance=True)
+        Status(uptime='0', queries='0', sequences='0', bytes='0', memory='0', threads='0', connections='0')
+    """
     if not options.genome:
         message = f"{gfSignature()}status".encode()
     else:
@@ -296,6 +331,22 @@ def status_server(
 
 
 def stop_server(host: str, port: int):
+    """Stop a running server.
+
+    Args:
+        host (str): The hostname or IP address of the server to stop.
+        port (int): The port number to use when attempting to connect to the server.
+
+    Returns:
+        None
+
+    This function stops a running server by sending a "quit" message to the server. The function takes the hostname and port number
+    of the server as arguments. The function returns None.
+
+    Example:
+        >>> stop_server('localhost', 8080)
+    """
+
     message = f"{gfSignature()}quit".encode()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
@@ -303,6 +354,23 @@ def stop_server(host: str, port: int):
 
 
 def files(host: str, port: int) -> list[str]:
+    """Get a list of files available on the server.
+
+    Args:
+        host (str): The hostname or IP address of the server to check.
+        port (int): The port number to use when attempting to connect to the server.
+
+    Returns:
+        List[str]: A list of file names available on the server.
+
+    This function retrieves a list of files available on the server by sending a "files" message to the server. The function takes
+    the hostname and port number of the server as arguments. The function returns a list of file names available on the server.
+
+    Example:
+        >>> files('localhost', 8080)
+        ['file1', 'file2', 'file3']
+    """
+
     ret_str = pygetFileList(host, str(port))
     assert ret_str, "ret_str cannot be empty"
     return [file for file in ret_str.split("\n") if file]
@@ -311,6 +379,27 @@ def files(host: str, port: int) -> list[str]:
 def server_query(
     intype: str, host: str, port: int, faName: str, isComplex: bool, isProt: bool
 ):
+    """Query a running server with a sequence.
+
+    Args:
+        intype (str): The type of input sequence. Must be one of 'dna', 'rna', or 'protein'.
+        host (str): The hostname or IP address of the server to query.
+        port (int): The port number to use when attempting to connect to the server.
+        faName (str): The name of the input sequence.
+        isComplex (bool): Whether the input sequence is complex.
+        isProt (bool): Whether the input sequence is a protein sequence.
+
+    Returns:
+        str: The result of the query.
+
+    This function queries a running server with a sequence by sending a "query" message to the server. The function takes the
+    type of input sequence, hostname, port number, sequence name, and whether the sequence is complex or a protein sequence as
+    arguments. The function returns the result of the query as a string.
+
+    Example:
+        >>> server_query('dna', 'localhost', 8080, 'sequence1', False, False)
+        'result1'
+    """
     re_str = pyqueryServer(intype, host, str(port), faName, isComplex, isProt)
     return re_str
 
@@ -322,6 +411,24 @@ def start_server(
     option: gfServerOption,
     stat: UsageStats,
 ):
+    """Start a server in blocking mode.
+
+    Args:
+        host (str): The hostname or IP address to bind the server to.
+        port (int): The port number to bind the server to.
+        two_bit_file (str): The path to the 2bit file to use for the server.
+        option (gfServerOption): The options to use for the server.
+        stat (UsageStats): The usage statistics for the server.
+
+    Returns:
+        None
+
+    This function starts a server in blocking mode by calling the pystartServer function with the given arguments. The function
+    takes the hostname, port number, 2bit file path, server options, and usage statistics as arguments. The function returns None.
+
+    Example:
+        >>> start_server('localhost', 8080, '/path/to/2bit/file', gfServerOption, UsageStats())
+    """
     return startServer(host, str(port), 1, [two_bit_file], option, stat)
 
 
