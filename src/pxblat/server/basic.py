@@ -21,7 +21,26 @@ from .utils import logger
 DEFAULT_PORT = 65000
 
 
-def check_host_port(host: str, port: int):
+def check_host_port(host: str, port: int) -> None:
+    """Check if the given host and port are valid.
+
+    Args:
+        host (str): The host to check.
+        port (int): The port to check.
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError: If the host is not a string or the port is not an integer.
+
+    This function checks if the given host and port are valid. The host must be a string and the port must be an integer.
+    If either of these conditions are not met, a RuntimeError is raised with an appropriate error message.
+
+    Example:
+        >>> check_host_port("localhost", 8080)
+        None
+    """
     if not isinstance(host, str):
         raise RuntimeError("host must be str")
 
@@ -29,19 +48,36 @@ def check_host_port(host: str, port: int):
         raise RuntimeError("port must be number")
 
 
-def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3):
-    res = []
-    for _ in range(tries):
-        res.append(_check_port_in_use_by_connect(host, port))
+def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bool:
+    """Check if a given port on a host is in use.
 
+    Args:
+        host (str): The hostname or IP address of the host to check.
+        port (int, optional): The port number to check. Defaults to DEFAULT_PORT.
+        tries (int, optional): The number of times to attempt the check. Defaults to 3.
+
+    Returns:
+        bool: True if the port is in use, False otherwise.
+
+    Raises:
+        TypeError: If the host argument is not a string.
+        ValueError: If the port argument is not a valid port number.
+
+    This function attempts to connect to the specified host and port using the socket library. It will attempt the connection
+    a number of times specified by the tries argument. If the connection is successful, it will return True, indicating that
+    the port is in use. If the connection fails, it will return False.
+
+    If the host argument is not a string, a TypeError will be raised. If the port argument is not a valid port number, a
+    ValueError will be raised.
+
+    Example usage:
+    >>> check_port_in_use('localhost', 8080)
+    True
+    """
+    res = [_check_port_in_use_by_connect(host, port) for _ in range(tries)]
     counter = Counter(res)
-
     logger.debug(f"{res}")
-
-    if counter[True] > counter[False]:
-        return True
-    else:
-        return False
+    return counter[True] > counter[False]
 
 
 def _check_port_in_use_by_status(
@@ -118,8 +154,7 @@ def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
 def wait_server_ready(
     host: str, port: int, timeout: int = 60, gfserver_option=None
 ) -> None:
-    """
-    Wait for a server to become ready by checking if a given port is open or if a specific server status is reached.
+    """Wait for a server to become ready by checking if a given port is open or if a specific server status is reached.
 
     Args:
         host (str): The hostname or IP address of the server to check.
@@ -156,6 +191,23 @@ def check_server_status(
     port: int,
     gfserver_option: gfServerOption,
 ) -> bool:
+    """Check the status of a server by attempting to connect to it using the specified host, port, and gfserver_option.
+
+    Args:
+        host (str): The hostname or IP address of the server to check.
+        port (int): The port number to use when attempting to connect to the server.
+        gfserver_option (gfServerOption): The gfserver option to use when attempting to connect to the server.
+
+    Returns:
+        bool: True if the server is running and accepting connections, False otherwise.
+
+    Raises:
+        ConnectionRefusedError: If the server is not running or is not accepting connections.
+
+    Example:
+        >>> check_server_status('localhost', 8080, gfServerOption)
+        True
+    """
     try:
         status_server(host, port, gfserver_option)
     except ConnectionRefusedError:
