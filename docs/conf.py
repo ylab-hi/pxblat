@@ -35,6 +35,7 @@ html_static_path = ["_static"]
 templates_path = ["_templates"]
 html_css_files = ["extra_css.css", "custom_font_example.css"]
 html_title = "PxBLAT"
+html_logo = "_static/logo.png"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.

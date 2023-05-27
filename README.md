@@ -1,4 +1,6 @@
-# PxBLAT: An Efficient and Ergonomics Python Binding Library for BLAT
+# <img src="https://raw.githubusercontent.com/cauliyang/pxblat/main/docs/_static/logo.png" alt="logo" height=100> PxBLAT
+
+_An Efficient and Ergonomics Python Binding Library for BLAT_
 
 [![python](https://img.shields.io/badge/Python-3776AB.svg?style=for-the-badge&logo=Python&logoColor=white)](https://www.python.org/)
 [![c++](https://img.shields.io/badge/C++-00599C.svg?style=for-the-badge&logo=C++&logoColor=white)](https://en.cppreference.com/w/)
