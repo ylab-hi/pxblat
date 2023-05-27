@@ -29,6 +29,14 @@ nox.options.sessions = (
     "tests",
     "docs-build",
 )
+DEBUG = True
+
+
+def poetry_install():
+    if DEBUG:
+        return ["poetry", "install", "-vvv"]
+    else:
+        return ["poetry", "install"]
 
 
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
@@ -110,7 +118,7 @@ def safety(session: Session) -> None:
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.run("poetry", "install", external=True)
+    session.run(*poetry_install(), external=True)
     session.install("mypy", "pytest")
     session.run("mypy", *args)
     if not session.posargs:
@@ -120,7 +128,7 @@ def mypy(session: Session) -> None:
 @session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
-    session.run("poetry", "install", external=True)
+    session.run(*poetry_install(), external=True)
     session.install("coverage[toml]", "pytest", "pygments")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
@@ -149,7 +157,7 @@ def docs_build(session: Session) -> None:
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    session.run("poetry", "install", external=True)
+    session.run(*poetry_install(), external=True)
 
     session.install(
         "sphinx",
@@ -171,7 +179,7 @@ def docs_build(session: Session) -> None:
 def docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.run("poetry", "install", external=True)
+    session.run(*poetry_install(), external=True)
     session.install(
         "sphinx",
         "sphinx-immaterial",
