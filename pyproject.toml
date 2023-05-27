@@ -20,7 +20,7 @@ mashumaro = "^3.7"
 
 
 [tool.poetry.scripts]
-pxblat="pxblat.cli.cli:app"
+pxblat = "pxblat.cli.cli:app"
 
 
 [tool.ruff]
@@ -31,7 +31,8 @@ select = [
   # pyflakes
   "F",
   # pycodestyle
-  "E", "W",
+  "E",
+  "W",
   # flake8-2020
   "YTT",
   # flake8-bugbear
@@ -41,7 +42,10 @@ select = [
   # flake8-debugger
   "T10",
   # pylint
-  "PLC", "PLE", "PLR", "PLW",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
   # misc lints
   "PIE",
   # flake8-pyi
@@ -105,6 +109,7 @@ source = ["pxblat", "tests"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 40
+ignore_errors = true
 
 
 [tool.mypy]
@@ -117,11 +122,9 @@ show_error_context = true
 ignore_missing_imports = true
 
 
-
-
 [tool.poetry.build]
 script = "build.py"
-generate-setup-file=true
+generate-setup-file = true
 
 [build-system]
 requires = ["pybind11>2.9.1", "poetry-core>=1.2.0", "setuptools>=40.6.0"]

@@ -69,9 +69,6 @@ jobs:
           ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
           ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
-          # ls -l /usr/local/include/openssl
-          # ls -l /usr/local/opt/openssl/
-          # echo openssl $(brew --prefix openssl)
 
       - name: Install Poetry
         run: |
@@ -166,7 +163,7 @@ jobs:
 
       - name: Combine coverage data and display human readable report
         run: |
-          nox --force-color --session=coverage
+          nox --force-color --session=coverage -v
 
       - name: Create coverage report
         run: |
