@@ -58,10 +58,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev
 
+      - name: Configure Homebrew
+        if: matrix.os == 'macos-latest'
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Install Dependencies
         if: matrix.os == 'macos-latest'
         run: |
           brew install htslib openssl@3
+          ls -l /usr/local/opt/openssl/
 
       - name: Install Poetry
         run: |
