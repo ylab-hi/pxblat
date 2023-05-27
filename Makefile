@@ -84,7 +84,7 @@ format: ## Run pre-commit hooks
 
 commit: format ## Commit changes
 	git add .
-	aicommits
+	aicommits --type conventional
 
 
 chang:
