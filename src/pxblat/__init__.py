@@ -1,4 +1,3 @@
-from . import server
 from .parser import read
 from .server import check_port_in_use
 from .server import check_port_open
@@ -41,4 +40,5 @@ __all__ = [
     "check_port_in_use",
     "DEFAULT_PORT",
     "Status",
+    "read",
 ]

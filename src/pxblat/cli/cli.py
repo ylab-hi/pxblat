@@ -1,3 +1,5 @@
+import sys
+
 import typer
 
 from .client import client
@@ -14,6 +16,12 @@ app.command()(client)
 
 
 app.add_typer(server_app, name="server")
+
+
+if "sphinx" in sys.modules and __name__ != "__main__":
+    # Create the typer click object to generate docs with sphinx-click
+    typer_click_object = typer.main.get_command(app)
+
 
 if __name__ == "__main__":
     app()

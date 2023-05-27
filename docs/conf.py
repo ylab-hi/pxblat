@@ -1,5 +1,9 @@
 """Sphinx configuration."""
+import os
+import sys
 from datetime import datetime
+
+sys.path.insert(0, os.path.abspath(".."))
 
 
 project = "PxBLAT"
@@ -27,8 +31,10 @@ bibtex_bibfiles = ["refs.bib"]
 # autoclass_content = "class"
 
 # Add any paths that contain templates here, relative to this directory.
+html_static_path = ["_static"]
 templates_path = ["_templates"]
-
+html_css_files = ["extra_css.css", "custom_font_example.css"]
+html_title = "PxBLAT"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
@@ -84,26 +90,28 @@ html_theme_options = {
     "edit_uri": "blob/main/docs",
     "globaltoc_collapse": True,
     "features": [
-        "navigation.expand",
+        "content.code.annotate",
+        "content.tabs.link",
+        # "navigation.expand",
         "navigation.tabs",
-        # "toc.integrate",
-        "navigation.sections",
-        # "navigation.instant",
+        "navigation.tabs.sticky",
+        "toc.integrate",
+        # "navigation.sections",
+        "navigation.instant",
         # "header.autohide",
         "navigation.top",
-        # "navigation.tracking",
-        # "search.highlight",
+        "navigation.tracking",
+        "search.highlight",
         "search.share",
         "toc.follow",
         "toc.sticky",
-        "content.tabs.link",
         "announce.dismiss",
     ],
     "palette": [
         {
             "media": "(prefers-color-scheme: light)",
             "scheme": "default",
-            "primary": "light-green",
+            "primary": "deep-purple",
             "accent": "light-blue",
             "toggle": {
                 "icon": "material/lightbulb-outline",
@@ -125,7 +133,7 @@ html_theme_options = {
     "version_dropdown": False,
     "version_info": [
         {
-            "version": "https://sphinx-immaterial.rtfd.io",
+            "version": "https://pxblat.readthedocs.io/en/latest",
             "title": "ReadTheDocs",
             "aliases": [],
         },

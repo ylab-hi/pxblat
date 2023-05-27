@@ -29,7 +29,7 @@ nox.options.sessions = (
     "tests",
     "docs-build",
 )
-DEBUG = True
+DEBUG = False
 
 
 def poetry_install():

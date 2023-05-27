@@ -144,11 +144,3 @@ def client(
     )
 
     pygfClient(client_option)
-
-    # try:
-    #     ret_decode = ret.decode().rsplit("\n", 1)[0]  # type: ignore
-    # except UnicodeDecodeError:
-    #     ret_decode = ret.decode("latin-1").rsplit("\n", 1)[0]  # type: ignore
-
-    # with outpsl.open("w") as f:
-    #     f.write(ret_decode)  # type: ignore
