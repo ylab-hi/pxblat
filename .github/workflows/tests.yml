@@ -78,13 +78,12 @@ jobs:
           poetry --version
           echo $LD_LIBRARY_PATH
           echo $CPATH
-          ehco $PKG_CONFIG_PATH
+          echo $PKG_CONFIG_PATH
 
       - name: debug
         if: matrix.os == 'macos-latest'
         run: |
           which python
-          # poetry build -vvv
 
       - name: Install Nox
         run: |
