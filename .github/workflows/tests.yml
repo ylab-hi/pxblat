@@ -67,8 +67,9 @@ jobs:
         run: |
           brew install htslib openssl@3
           ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-          ln -s  $(brew --prefix openssl)/lib /usr/local/lib/openssl
-          ls -l /usr/local/include/openssl
+          ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
+          ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
+          # ls -l /usr/local/include/openssl
           # ls -l /usr/local/opt/openssl/
           # echo openssl $(brew --prefix openssl)
 
