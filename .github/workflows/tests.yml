@@ -66,12 +66,19 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew install htslib openssl@3
-          ls -l /usr/local/opt/openssl/
+          # ls -l /usr/local/opt/openssl/
+          LD_LIBRARY_PATH=/usr/local/opt/openssl/lib:"${LD_LIBRARY_PATH}"
+          CPATH=/usr/local/opt/openssl/include:"${CPATH}"
+          PKG_CONFIG_PATH=/usr/local/opt/openssl/lib/pkgconfig:"${PKG_CONFIG_PATH}"
+          export LD_LIBRARY_PATH CPATH PKG_CONFIG_PATH
 
       - name: Install Poetry
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
+          echo $LD_LIBRARY_PATH
+          echo $CPATH
+          ehco $PKG_CONFIG_PATH
 
       - name: debug
         if: matrix.os == 'macos-latest'
