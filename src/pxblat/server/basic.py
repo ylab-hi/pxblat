@@ -265,6 +265,10 @@ def fa_to_two_bit(
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)
 
 
+def two_bit_to_fa():
+    raise NotImplementedError
+
+
 def status_server(
     host: str, port: int, options: gfServerOption, instance=False
 ) -> t.Union[Status, t.Dict[str, str]]:

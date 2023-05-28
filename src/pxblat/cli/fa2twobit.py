@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import typer
-from pxblat.server import fa_to_two_bit
+from pxblat import fa_to_two_bit
 
 from .log import logger
 
@@ -15,7 +15,6 @@ from .log import logger
 #    -stripVersion  Strip off version number after '.' for GenBank accessions.
 #    -ignoreDups    Convert first sequence only if there are duplicate sequence
 #                   names.  Use 'twoBitDup' to find duplicate sequences.
-#
 
 
 def faToTwoBit(

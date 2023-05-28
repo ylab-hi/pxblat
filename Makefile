@@ -10,6 +10,10 @@ LDFLAGS:=${LDFLAGS}
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MACHTYPE)
 COPTS=-O2 -Isrc/pxblat/extc/include/core -Isrc/pxblat/extc/include/aux -Isrc/pxblat/extc/include/net -Isrc/pxblat/extc/bindings $(PYBIND11) $(LDFLAGS) $(HG_DEFS)  -Wunused-variable
 
+ifeq ($(shell uname), Darwin)
+    COPTS += -undefined dynamic_lookup
+endif
+
 AUXSRC=$(filter-out src/pxblat/extc/src/aux/netlib.c, $(wildcard src/pxblat/extc/src/aux/*.c))
 CORESRC=$(wildcard src/pxblat/extc/src/core/*.c)
 NETSRC=$(wildcard src/pxblat/extc/src/net/*.c)
@@ -39,9 +43,6 @@ $(SLIBRARY): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 
-
-
-
 all_bin: faToTwoBit gfClient gfServer
 
 bin: ## Create bin folder
@@ -53,8 +54,8 @@ blat: bin ## Build blat
 faToTwoBit: bin ## Build faToTwoBit
 	$(CC) $(COPTS) $(CFLAGS) src/pxblat/extc/faToTwoBit.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/faToTwoBit -lm -pthread -lhts -lssl -lcrypto
 
-faToTwoBit2: bin ## Build faToTwoBit
-	$(CXX) $(COPTS) $(CFLAGS) src/pxblat/extc/bindings/faToTwoBit.cpp src/pxblat/extc/src/core/*.c src/pxblat/extc/src/aux/*.c src/pxblat/extc/src/net/*.c  -o bin/faToTwoBit -lm -pthread -lhts -lssl -lcrypto
+twoBitToFa: bin ## Build twoBitToFa
+	$(CC) $(COPTS) $(CFLAGS)  src/pxblat/extc/twoBitToFa.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/twoBitToFa -lm -pthread -lhts -lssl -lcrypto
 
 gfClient: bin ## Build gfClient
 	$(CC) $(COPTS) $(CFLAGS)  src/pxblat/extc/gfClient.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/gfClient -lm -pthread -lhts -lssl -lcrypto

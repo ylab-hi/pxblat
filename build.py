@@ -209,6 +209,7 @@ if sys.platform == "win32":
 elif sys.platform == "darwin":
     # See https://conda-forge.org/docs/maintainer/knowledge_base.html#newer-c-features-with-old-sdk
     extra_compile_args.append("-D_LIBCPP_DISABLE_AVAILABILITY")
+    extra_compile_args.append("-undefined dynamic_lookup")
     hidden_visibility_args.append("-fvisibility=hidden")
     config_vars = distutils.sysconfig.get_config_vars()  # type: ignore
     config_vars["LDSHARED"] = config_vars["LDSHARED"].replace("-bundle", "")  # type: ignore
