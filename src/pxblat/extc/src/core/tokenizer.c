@@ -3,7 +3,7 @@
  * white-space or punctuated-separated words, with punctuation in
  * a separate token.  This is used by autoSql. */
 
-/* Copyright (C) 2011 The Regents of the University of California 
+/* Copyright (C) 2011 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
 #include "common.h"
@@ -211,7 +211,7 @@ void tokenizerErrAbort(struct tokenizer *tkz, char *format, ...)
 va_list args;
 va_start(args, format);
 vaWarn(format, args);
-errAbort("line %d of %s:\n%s", 
+errAbort("line %d of %s:\n%s",
 	tokenizerLineCount(tkz), tokenizerFileName(tkz), tkz->curLine);
 }
 
@@ -240,4 +240,3 @@ if (sameWord(tkz->string, string))
 else
     tokenizerErrAbort(tkz, "Expecting %s got %s", string, tkz->string);
 }
-

@@ -1,6 +1,6 @@
 /* HTML colors */
 
-/* Copyright (C) 2017 The Regents of the University of California 
+/* Copyright (C) 2017 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
 #ifndef HTMLCOLOR_H
@@ -31,4 +31,3 @@ void htmlColorFromRGB(unsigned *value, int r, int g, int b);
 /* Convert separate R, G, and B components into a single unsigned RGB value */
 
 #endif
-

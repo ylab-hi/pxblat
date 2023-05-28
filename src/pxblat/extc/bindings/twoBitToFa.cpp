@@ -1,35 +1,9 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "twoBitToFa.hpp"
-/* twoBitToFa - Convert all or part of twoBit file to fasta. */
 
+/* twoBitToFa - Convert all or part of twoBit file to fasta. */
 /* Copyright (C) 2013 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
-// void usage()
-// /* Explain usage and exit. */
-// {
-//   errAbort(
-//       "twoBitToFa - Convert all or part of .2bit file to fasta\n"
-//       "usage:\n"
-//       "   twoBitToFa input.2bit output.fa\n"
-//       "options:\n"
-//       "   -seq=name       Restrict this to just one sequence.\n"
-//       "   -start=X        Start at given position in sequence (zero-based).\n"
-//       "   -end=X          End at given position in sequence (non-inclusive).\n"
-//       "   -seqList=file   File containing list of the desired sequence names \n"
-//       "                   in the format seqSpec[:start-end], e.g. chr1 or chr1:0-189\n"
-//       "                   where coordinates are half-open zero-based, i.e. [start,end).\n"
-//       "   -noMask         Convert sequence to all upper case.\n"
-//       "   -bpt=index.bpt  Use bpt index instead of built-in one.\n"
-//       "   -bed=input.bed  Grab sequences specified by input.bed. Will exclude introns.\n"
-//       "   -bedPos         With -bed, use chrom:start-end as the fasta ID in output.fa.\n"
-//       "   -udcDir=/dir/to/cache  Place to put cache for remote bigBed/bigWigs.\n"
-//       "\n"
-//       "Sequence and range may also be specified as part of the input\n"
-//       "file name using the syntax:\n"
-//       "      /path/input.2bit:name\n"
-//       "   or\n"
-//       "      /path/input.2bit:name:start-end\n");
-// }
 
 namespace cppbinding {
 
@@ -50,7 +24,7 @@ namespace cppbinding {
 //     {"udcDir", OPTION_STRING},  {NULL, 0},
 // };
 
-void outputOne(struct twoBitFile *tbf, char *seqSpec, FILE *f, int start, int end)
+void outputOne(struct twoBitFile *tbf, char *seqSpec, FILE *f, int start, int end, bool noMask)
 /* Output sequence. */
 {
   struct dnaSeq *seq = twoBitReadSeqFrag(tbf, seqSpec, start, end);
@@ -59,18 +33,18 @@ void outputOne(struct twoBitFile *tbf, char *seqSpec, FILE *f, int start, int en
   dnaSeqFree(&seq);
 }
 
-static void processAllSeqs(struct twoBitFile *tbf, FILE *outFile)
+static void processAllSeqs(struct twoBitFile *tbf, FILE *outFile, bool noMask)
 /* get all sequences in a file */
 {
   struct twoBitIndex *index;
-  for (index = tbf->indexList; index != NULL; index = index->next) outputOne(tbf, index->name, outFile, 0, 0);
+  for (index = tbf->indexList; index != NULL; index = index->next) outputOne(tbf, index->name, outFile, 0, 0, noMask);
 }
 
-static void processSeqSpecs(struct twoBitFile *tbf, struct twoBitSeqSpec *tbss, FILE *outFile)
+static void processSeqSpecs(struct twoBitFile *tbf, struct twoBitSeqSpec *tbss, FILE *outFile, bool noMask)
 /* process list of twoBitSeqSpec objects */
 {
   struct twoBitSeqSpec *s;
-  for (s = tbss; s != NULL; s = s->next) outputOne(tbf, s->name, outFile, s->start, s->end);
+  for (s = tbss; s != NULL; s = s->next) outputOne(tbf, s->name, outFile, s->start, s->end, noMask);
 }
 
 struct dnaSeq *twoBitAndBedToSeq(struct twoBitFile *tbf, struct bed *bed)
@@ -104,7 +78,7 @@ struct dnaSeq *twoBitAndBedToSeq(struct twoBitFile *tbf, struct bed *bed)
   return seq;
 }
 
-static void processSeqsFromBed(struct twoBitFile *tbf, char *bedFileName, FILE *outFile)
+static void processSeqsFromBed(struct twoBitFile *tbf, char *bedFileName, FILE *outFile, bool clBedPos, bool noMask)
 /* Get sequences defined by beds.  Exclude introns. */
 {
   struct bed *bed, *bedList = bedLoadAll(bedFileName);
@@ -123,11 +97,44 @@ static void processSeqsFromBed(struct twoBitFile *tbf, char *bedFileName, FILE *
   }
 }
 
-void twoBitToFa(std::string cppinName, std::string cppoutName)
+void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption option)
 /* twoBitToFa - Convert all or part of twoBit file to fasta. */
+
 {
+  dnaUtilOpen();
+
   auto inName = cppinName.data();
   auto outName = cppoutName.data();
+  auto clSeq = option.seq.data();
+  auto clStart = option.start;
+  auto clEnd = option.end;
+  auto clSeqList = option.seqList.data();
+  auto noMask = option.noMask;
+  auto clBpt = option.bpt.data();
+  auto clBed = option.bed.data();
+  auto clBedPos = option.bedPos;
+
+  if (clBedPos && !clBed)
+    // errAbort("the -bedPos option requires the -bed option");
+    throw std::runtime_error("the -bedPos option requires the -bed option");
+
+  if (!option.bed.empty()) {
+    if (!option.seqList.empty()) throw std::runtime_error("Can only have seqList or bed options, not both");
+    if (!option.seq.empty()) throw std::runtime_error("Can only have seq or bed options, not both");
+  }
+
+  if (clStart > clEnd && option.seq.empty()) throw std::runtime_error("must sepcify -seq with -start and -end");
+  if (!option.seq.empty() && !option.seq.empty())
+    throw std::runtime_error("Can only have seq or bed options, not both");
+
+  // udcSetDefaultDir(optionVal("udcDir", udcDefaultDir()));
+  //   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
+  //   if (clBed != NULL) {
+  //     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
+  //     if (clSeq != NULL) errAbort("Can only have seq or bed options, not both.");
+  //   }
+  //   if ((clStart > clEnd) && (clSeq == NULL)) errAbort("must specify -seq with -start and -end");
+  //   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
 
   struct twoBitFile *tbf;
   FILE *outFile = mustOpen(outName, "w");
@@ -152,43 +159,16 @@ void twoBitToFa(std::string cppinName, std::string cppoutName)
   else
     tbf = twoBitOpen(tbs->fileName);
   if (clBed != NULL) {
-    processSeqsFromBed(tbf, clBed, outFile);
+    processSeqsFromBed(tbf, clBed, outFile, clBedPos, noMask);
   } else {
     if (tbs->seqs == NULL)
-      processAllSeqs(tbf, outFile);
+      processAllSeqs(tbf, outFile, noMask);
     else
-      processSeqSpecs(tbf, tbs->seqs, outFile);
+      processSeqSpecs(tbf, tbs->seqs, outFile, noMask);
   }
   twoBitSpecFree(&tbs);
   carefulClose(&outFile);
   twoBitClose(&tbf);
 }
 
-// int main(int argc, char *argv[])
-// /* Process command line. */
-// {
-//   optionInit(&argc, argv, options);
-//   if (argc != 3) usage();
-//   clSeq = optionVal("seq", clSeq);
-//   clStart = optionInt("start", clStart);
-//   clEnd = optionInt("end", clEnd);
-//   clSeqList = optionVal("seqList", clSeqList);
-//   clBpt = optionVal("bpt", clBpt);
-//   clBed = optionVal("bed", clBed);
-//   clBedPos = optionExists("bedPos");
-//   noMask = optionExists("noMask");
-//   udcSetDefaultDir(optionVal("udcDir", udcDefaultDir()));
-
-//   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
-//   if (clBed != NULL) {
-//     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
-//     if (clSeq != NULL) errAbort("Can only have seq or bed options, not both.");
-//   }
-//   if ((clStart > clEnd) && (clSeq == NULL)) errAbort("must specify -seq with -start and -end");
-//   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
-
-//   dnaUtilOpen();
-//   twoBitToFa(argv[1], argv[2]);
-//   return 0;
-// }
 }  // namespace cppbinding

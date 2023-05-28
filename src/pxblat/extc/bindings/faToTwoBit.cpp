@@ -27,6 +27,8 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
 /* Convert inFiles in fasta format to outfile in 2 bit
  * format. */
 {
+  dnaUtilOpen();
+
   struct twoBit *twoBitList = NULL, *twoBit;
   // int i;
   struct hash *uniqHash = newHash(18);
@@ -52,7 +54,9 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
       if (hashLookup(uniqHash, seq.name)) {
         if (!ignoreDups)
           // errAbort("Duplicate sequence name %s", seq.name);
-          return -1;
+          throw std::runtime_error("Duplicate sequence name " + std::string(seq.name));
+        // return -1;
+
         else
           continue;
       }

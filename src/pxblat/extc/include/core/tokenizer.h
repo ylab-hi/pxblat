@@ -69,4 +69,3 @@ void tokenizerMustMatch(struct tokenizer *tkz, char *string);
  * if it does, otherwise abort. */
 
 #endif /* TOKENIZER_H */
-

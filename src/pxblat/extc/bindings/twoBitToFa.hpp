@@ -15,6 +15,19 @@
 
 namespace cppbinding {
 
+// -seq=name       Restrict this to just one sequence.\n"
+//       "   -start=X        Start at given position in sequence (zero-based).\n"
+//       "   -end=X          End at given position in sequence (non-inclusive).\n"
+//       "   -seqList=file   File containing list of the desired sequence names \n"
+//       "                   in the format seqSpec[:start-end], e.g. chr1 or chr1:0-189\n"
+//       "                   where coordinates are half-open zero-based, i.e. [start,end).\n"
+//       "   -noMask         Convert sequence to all upper case.\n"
+//       "   -bpt=index.bpt  Use bpt index instead of built-in one.\n"
+//       "   -bed=input.bed  Grab sequences specified by input.bed. Will exclude introns.\n"
+//       "   -bedPos         With -bed, use chrom:start-end as the fasta ID in output.fa.\n"
+//       "   -udcDir=/dir/to/cache  Place to put cache for remote bigBed/bigWigs.\n"
+//       "\n"
+
 // char *clSeq = NULL;     /* Command line sequence. */
 // int clStart = 0;        /* Start from command line. */
 // int clEnd = 0;          /* End from command line. */
@@ -25,15 +38,15 @@ namespace cppbinding {
 // bool clBedPos = FALSE;
 
 struct TwoBitToFaOption {
-  std::string seq{};
-  int start{};
-  int end{};
-  std::string seqList{};
-  bool noMask{};
-  std::string clBpt{};
-  std::string clBed{};
-  bool clBedPos{};
-  std::string udcDir{};
+  std::string seq{};      //        Restrict this to just one sequence.\n"
+  int start{};            //        Start at given position in sequence (zero-based).\n"
+  int end{};              //        End at given position in sequence (non-inclusive).\n"
+  std::string seqList{};  //        File containing list of the desired sequence names \n"
+  bool noMask{};          //        Convert sequence to all upper case.\n"
+  std::string bpt{};      //        -bpt=index.bpt  Use bpt index instead of built-in one.\n"
+  std::string bed{};      //        -bed=input.bed  Grab sequences specified by input.bed. Will exclude introns.\n"
+  bool bedPos{};          //        With -bed, use chrom:start-end as the fasta ID in output.fa.\n"
+  std::string udcDir{udcDefaultDir()};  //        Place to put cache for remote bigBed/bigWigs.\n"
 };
 
 void twoBitToFa(std::string cppinName, std::string cppoutName);
