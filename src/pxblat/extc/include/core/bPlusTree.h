@@ -48,6 +48,7 @@
 #ifndef BPLUSTREE_H
 #define BPLUSTREE_H
 
+#include "common.h"
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus

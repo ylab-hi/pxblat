@@ -10,6 +10,7 @@ from .basic import start_server_mt
 from .basic import start_server_mt_nb
 from .basic import status_server
 from .basic import stop_server
+from .basic import two_bit_to_fa
 from .basic import wait_server_ready
 from .client import Client
 from .client import create_client_option
@@ -31,6 +32,7 @@ __all__ = [
     "create_client_option",
     "query_server",
     "fa_to_two_bit",
+    "two_bit_to_fa",
     "create_server_option",
     "check_port_open",
     "start_server_mt_nb",
