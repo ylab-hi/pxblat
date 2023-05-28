@@ -13,6 +13,7 @@ hidden:
 maxdepth: 1
 ---
 
+installation
 usage
 reference
 contributing

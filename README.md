@@ -71,7 +71,7 @@ conda install pxblat
 
 Before you begin, ensure that you have the following prerequisites installed:
 
-> `[📌  INSERT-PROJECT-PREREQUISITES]`
+> You need to install `openssl` and `htslib` first.
 
 ### 💻 Installation
 

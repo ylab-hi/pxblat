@@ -2,3 +2,26 @@
   --md-text-font: "Cascadia Code";
   --md-code-font: "Cascadia Mono";
 }
+
+/* **************************** custom-task-list style rules *************************** */
+
+/* style for the unchecked checkboxes */
+.custom-task-list-style > ul > li > label .task-list-indicator::before {
+  -webkit-mask-image: var(--md-admonition-icon--failure);
+  mask-image: var(--md-admonition-icon--failure);
+  background-color: hsl(0, 72%, 55%);
+}
+
+/* style for the checked checkboxes */
+.custom-task-list-style
+  > ul
+  > li
+  > .task-list-control
+  > [type="checkbox"]:checked
+  + .task-list-indicator::before {
+  -webkit-mask-image: var(--md-admonition-icon--success);
+  mask-image: var(--md-admonition-icon--success);
+  background-color: hsl(122, 84%, 45%);
+}
+
+/* *************************** custom admonition style rules *************************** */
