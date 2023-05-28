@@ -7,6 +7,14 @@
 }
 
 @font-face {
+  font-family: "Cascadia Code";
+  font-style: bold;
+  font-display: swap;
+  font-weight: 400;
+  src: url("./CascadiaCode-2111/woff2/CascadiaCode-Bold.woff2") format("woff2");
+}
+
+@font-face {
   font-family: "Cascadia Mono";
   font-style: normal;
   font-display: swap;

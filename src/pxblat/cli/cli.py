@@ -7,7 +7,7 @@ from .fa2twobit import faToTwoBit
 from .server import server_app
 
 app = typer.Typer(
-    epilog="YangyangLi 2023 please cite me",
+    epilog="YangyangLi 2023 yangyang.li@northwstern.edu",
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
