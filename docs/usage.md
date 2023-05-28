@@ -1,10 +1,12 @@
 # CLI Usage
 
-## CLI List
+## Available CLIs
 
-- [server](#server)
-- [client](#client)
-- [fatotwobit](#fatotwobit)
+| CLI                       |                               Usage                                |
+| :------------------------ | :----------------------------------------------------------------: |
+| [server](#server)         |      Make a server to quickly find where DNA occurs in genome      |
+| [client](#client)         | A client for the genomic finding program that produces a .psl file |
+| [fatotwobit](#fatotwobit) |               Convert DNA from fasta to 2bit format                |
 
 ```{code-block} console
 
