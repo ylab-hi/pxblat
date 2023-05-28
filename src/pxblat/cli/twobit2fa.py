@@ -1,8 +1,3 @@
-from pathlib import Path
-
-import typer
-from pxblat import two_bit_to_fa
-
 # twoBitToFa - Convert all or part of .2bit file to fasta
 # usage:
 #    twoBitToFa input.2bit output.fa
@@ -18,9 +13,12 @@ from pxblat import two_bit_to_fa
 #    -bed=input.bed  Grab sequences specified by input.bed. Will exclude introns.
 #    -bedPos         With -bed, use chrom:start-end as the fasta ID in output.fa.
 #    -udcDir=/dir/to/cache  Place to put cache for remote bigBed/bigWigs.
-
 # Sequence and range may also be specified as part of the input
 # file name using the syntax:
 #       /path/input.2bit:name
 #    or
 #       /path/input.2bit:name:start-end
+
+
+def twoBitToFa():
+    raise NotImplementedError

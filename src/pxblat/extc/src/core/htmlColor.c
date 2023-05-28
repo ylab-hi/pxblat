@@ -1,6 +1,6 @@
 /* HTML colors */
 
-/* Copyright (C) 2017 The Regents of the University of California 
+/* Copyright (C) 2017 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
 
 #include "common.h"
@@ -72,7 +72,7 @@ boolean htmlColorForCode(char *code, unsigned *value)
 {
 if (*code == '\\')
     code++;
-if (*code != '#' || strlen(code) != 7) 
+if (*code != '#' || strlen(code) != 7)
     return FALSE;
 char *end;
 unsigned ret = (unsigned)strtol(&code[1], &end, 16);
