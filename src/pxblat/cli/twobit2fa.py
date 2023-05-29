@@ -1,3 +1,7 @@
+from pathlib import Path
+
+import typer
+
 # twoBitToFa - Convert all or part of .2bit file to fasta
 # usage:
 #    twoBitToFa input.2bit output.fa
@@ -20,5 +24,23 @@
 #       /path/input.2bit:name:start-end
 
 
-def twoBitToFa():
+def twoBitToFa(
+    input2bit: Path = typer.Argument(
+        ...,
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        metavar="input.2bit",
+        help="The input 2bit file",
+    ),
+    outputfa: Path = typer.Argument(
+        ...,
+        dir_okay=False,
+        writable=True,
+        show_default=False,
+        metavar="out.fa",
+        help="The output fasta file",
+    ),
+    # seq: str = typer.Option(),
+):
     raise NotImplementedError
