@@ -113,7 +113,9 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
   auto clBpt = option.bpt.data();
   auto clBed = option.bed.data();
   auto clBedPos = option.bedPos;
+  auto udcDir = option.udcDir.data();
 
+  udcSetDefaultDir(udcDir);
   if (clBedPos && !clBed)
     // errAbort("the -bedPos option requires the -bed option");
     throw std::runtime_error("the -bedPos option requires the -bed option");
@@ -127,7 +129,6 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
   if (!option.seq.empty() && !option.seq.empty())
     throw std::runtime_error("Can only have seq or bed options, not both");
 
-  // udcSetDefaultDir(optionVal("udcDir", udcDefaultDir()));
   //   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
   //   if (clBed != NULL) {
   //     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
