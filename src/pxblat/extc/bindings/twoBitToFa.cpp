@@ -1,6 +1,7 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "twoBitToFa.hpp"
 
+#include <sstream>
 /* twoBitToFa - Convert all or part of twoBit file to fasta. */
 /* Copyright (C) 2013 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
@@ -113,33 +114,10 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
   auto clBpt = option.bpt.data();
   auto clBed = option.bed.data();
   auto clBedPos = option.bedPos;
-  auto udcDir = option.udcDir.data();
 
-  udcSetDefaultDir(udcDir);
-  if (clBedPos && !clBed)
-    // errAbort("the -bedPos option requires the -bed option");
-    throw std::runtime_error("the -bedPos option requires the -bed option");
-
-  if (!option.bed.empty()) {
-    if (!option.seqList.empty()) throw std::runtime_error("Can only have seqList or bed options, not both");
-    if (!option.seq.empty()) throw std::runtime_error("Can only have seq or bed options, not both");
-  }
-
-  if (clStart > clEnd && option.seq.empty()) throw std::runtime_error("must sepcify -seq with -start and -end");
-  if (!option.seq.empty() && !option.seq.empty())
-    throw std::runtime_error("Can only have seq or bed options, not both");
-
-  //   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
-  //   if (clBed != NULL) {
-  //     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
-  //     if (clSeq != NULL) errAbort("Can only have seq or bed options, not both.");
-  //   }
-  //   if ((clStart > clEnd) && (clSeq == NULL)) errAbort("must specify -seq with -start and -end");
-  //   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
-
-  struct twoBitFile *tbf;
+  struct twoBitFile *tbf{};
   FILE *outFile = mustOpen(outName, "w");
-  struct twoBitSpec *tbs;
+  struct twoBitSpec *tbs{};
 
   if (clSeq != NULL) {
     char seqSpec[2 * PATH_LEN];
@@ -170,6 +148,101 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
   twoBitSpecFree(&tbs);
   carefulClose(&outFile);
   twoBitClose(&tbf);
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withSeq(std::string const &seq_) {
+  seq = seq_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withStart(int start_) {
+  start = start_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withEnd(int end_) {
+  end = end_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withSeqList(std::string const &seqList_) {
+  seqList = seqList_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withNoMask(bool noMask_) {
+  noMask = noMask_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withBpt(std::string const &bpt_) {
+  bpt = bpt_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withBed(std::string const &bed_) {
+  bed = bed_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withBedPos(bool bedPos_) {
+  bedPos = bedPos_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::withUdcDir(std::string const &udcDir_) {
+  udcDir = udcDir_;
+  return *this;
+}
+
+TwoBitToFaOption &TwoBitToFaOption::build() {
+  //   if (argc != 3) usage();
+
+  //   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
+  //   if (clBed != NULL) {
+  //     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
+  //     if (clSeq != NULL) errAbort("Can only have seq or bed options, not both.");
+  //   }
+  //   if ((clStart > clEnd) && (clSeq == NULL)) errAbort("must specify -seq with -start and -end");
+  //   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
+
+  udcSetDefaultDir(udcDir.data());
+
+  if (bedPos && bed.empty())
+    // errAbort("the -bedPos option requires the -bed option");
+    throw std::runtime_error("the -bedPos option requires the -bed option");
+
+  if (!bed.empty()) {
+    if (!seqList.empty()) throw std::runtime_error("Can only have seqList or bed options, not both");
+    if (!seq.empty()) throw std::runtime_error("Can only have seq or bed options, not both");
+  }
+
+  if (start > end && seq.empty()) throw std::runtime_error("must sepcify -seq with -start and -end");
+  if (!seq.empty() && !seqList.empty()) throw std::runtime_error("Can only have seq or bed options, not both");
+
+  return *this;
+}
+
+std::string TwoBitToFaOption::to_string() const {
+  std::ostringstream ret{};
+  ret << "TwoBitToFaOption(";
+  ret << "seq: " << seq << ", ";
+  ret << "start: " << start << ", ";
+  ret << "end: " << end << ", ";
+  ret << "seqList: " << seqList << ", ";
+  ret << "noMask: " << noMask << ", ";
+  ret << "bpt: " << bpt << ", ";
+  ret << "bed: " << bed << ", ";
+  ret << "bedPos: " << bedPos << ", ";
+  ret << "udcDir: " << udcDir << ", ";
+  ret << ")";
+
+  return ret.str();
+}
+
+std::ostream &operator<<(std::ostream &os, TwoBitToFaOption const &option) {
+  os << option.to_string();
+  return os;
 }
 
 }  // namespace cppbinding
