@@ -175,6 +175,27 @@ def docs_build(session: Session) -> None:
     session.run("sphinx-build", *args)
 
 
+@nox.session
+def linkcheck(session: Session) -> None:
+    """Build the documentation."""
+    args = session.posargs or [
+        "-b",
+        "linkcheck",
+        "-W",
+        "--keep-going",
+        "source",
+        "source/_build",
+    ]
+
+    builddir = Path("docs", "_build")
+    if builddir.exists():
+        shutil.rmtree(builddir)
+
+    session.install("-r", "source/requirements.txt")
+
+    session.run("sphinx-build", *args)
+
+
 @session(python="3.10")
 def docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
