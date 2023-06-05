@@ -288,8 +288,6 @@ int pystartServer(std::string &hostName, std::string &portName, int fileCount, s
     throw std::runtime_error("Fatal Error: Unable to open listening socket on port " + portName + ".");
   // errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
-  // signal.isReady = true;
-
   int connectFailCount = 0;
   for (;;) {
     ZeroVar(&fromAddr);
