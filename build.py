@@ -17,6 +17,9 @@ from setuptools import Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
 
+DEBUG = False
+
+
 class PxblatExtensionBuilder(_build_ext):
     def build_extension(self, extension: setuptools.extension.Extension) -> None:  # type: ignore
         extension.library_dirs.append(self.build_lib)  # type: ignore
@@ -179,9 +182,10 @@ def _include_dirs_for_pxblat():
 
 
 def _extra_compile_args_for_pxblat():
-    return [
-        # "-DDBG_MACRO_DISABLE",
-    ]
+    flag = []
+    if DEBUG:
+        flag.append("-DDBG_MACRO_DISABLE")
+    return flag
 
 
 ParallelCompile(f"{get_thread_count()}").install()

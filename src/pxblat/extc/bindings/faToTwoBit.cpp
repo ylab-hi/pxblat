@@ -2,6 +2,8 @@
 
 #include "faToTwoBit.hpp"
 
+#include <stdexcept>
+
 namespace cppbinding {
 
 void unknownToN(char *s, int size)
