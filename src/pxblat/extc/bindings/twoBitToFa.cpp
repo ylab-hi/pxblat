@@ -2,6 +2,7 @@
 #include "twoBitToFa.hpp"
 
 #include <sstream>
+#include <stdexcept>
 
 #include "dbg.h"
 /* twoBitToFa - Convert all or part of twoBit file to fasta. */
