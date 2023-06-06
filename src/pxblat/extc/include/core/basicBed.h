@@ -284,6 +284,8 @@ unsigned int bedParseColor(char *colorSpec);
  * or a 6-digit hex string  preceded by #.
  * O/w return unsigned integer value.  Return -1 on error */
 
+#ifndef PXBLATLIB
+
 struct rgbColor bedColorToRgb(unsigned int color);
 /* Convert from the bed concept of a color uint, where the rgb bits
  * are always in the same order, to a memgfx color structure. */
@@ -294,8 +296,11 @@ Color bedColorToGfxColor(unsigned int color);
  * the bit order depends on architecture. Assumes that a bed color
  * will never have 0 alpha. */
 
+
 void bedOutputRgb(FILE *f, unsigned int color);
 /*      Output a string: "r,g,b" for 24 bit number */
+
+#endif /* PXBLATLIB */
 
 long long bedTotalSize(struct bed *bedList);
 /* Add together sizes of all beds in list. */

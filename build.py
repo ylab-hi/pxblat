@@ -160,6 +160,7 @@ def _extra_compile_args_for_libpxblat():
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
         "-DMACHTYPE_$(MACHTYPE)",
+        "-DPXBLATLIB",
     ]
 
 

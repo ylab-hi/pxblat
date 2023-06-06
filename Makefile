@@ -55,7 +55,7 @@ faToTwoBit: bin ## Build faToTwoBit
 	$(CC) $(COPTS) $(CFLAGS) src/pxblat/extc/faToTwoBit.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/faToTwoBit -lm -pthread -lhts -lssl -lcrypto
 
 twoBitToFa: bin ## Build twoBitToFa
-	$(CC) $(COPTS) $(CFLAGS)  src/pxblat/extc/twoBitToFa.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/twoBitToFa -lm -pthread -lhts -lssl -lcrypto
+	$(CC) $(COPTS) $(CFLAGS) -DPXBLATLIB src/pxblat/extc/twoBitToFa.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/twoBitToFa -lm -pthread -lhts -lssl -lcrypto
 
 gfClient: bin ## Build gfClient
 	$(CC) $(COPTS) $(CFLAGS)  src/pxblat/extc/gfClient.c src/pxblat/extc/src/core/*.c $(AUXSRC) src/pxblat/extc/src/net/*.c  -o bin/gfClient -lm -pthread -lhts -lssl -lcrypto
