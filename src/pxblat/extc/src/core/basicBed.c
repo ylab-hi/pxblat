@@ -1026,6 +1026,8 @@ lineFileClose(&lf);
 return hash;
 }
 
+#ifndef PXBLATLIB
+
 struct rgbColor bedColorToRgb(unsigned int color)
 /* Convert from the bed concept of a color uint, where the rgb bits
  * are always in the same order, to a memgfx color structure. */
@@ -1050,6 +1052,7 @@ Color bedColorToGfxColor(unsigned int color)
     return MAKECOLOR_32_A(r,g,b,a);
 }
 
+
 void bedOutputRgb(FILE *f, unsigned int color)
 /*      Output a string: "r,g,b" for 24 bit number.  Note
  *      that this ignores any associated alpha value. */
@@ -1057,6 +1060,8 @@ void bedOutputRgb(FILE *f, unsigned int color)
 struct rgbColor rgb = bedColorToRgb(color);
 fprintf(f, "%d,%d,%d", rgb.r, rgb.g, rgb.b);
 }
+
+#endif /* PXBLATLIB */
 
 unsigned int bedParseRgb(char *itemRgb)
 /*      parse a string: "r,g,b" with optional ",a" into three or four unsigned
