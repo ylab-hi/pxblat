@@ -2,6 +2,8 @@
 #include "twoBitToFa.hpp"
 
 #include <sstream>
+
+#include "dbg.h"
 /* twoBitToFa - Convert all or part of twoBit file to fasta. */
 /* Copyright (C) 2013 The Regents of the University of California
  * See kent/LICENSE or http://genome.ucsc.edu/license/ for licensing information. */
@@ -59,9 +61,11 @@ struct dnaSeq *twoBitAndBedToSeq(struct twoBitFile *tbf, struct bed *bed)
   } else {
     int totalBlockSize = bedTotalBlockSize(bed);
     // AllocVar(seq);
+    dbg(sizeof(*seq));
     seq = (dnaSeq *)needMem(sizeof(*seq));
 
     seq->name = cloneString(bed->name);
+    dbg(totalBlockSize + 1);
     seq->dna = (DNA *)needMem(totalBlockSize + 1);
     seq->size = totalBlockSize;
     int i;
@@ -102,18 +106,27 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
 /* twoBitToFa - Convert all or part of twoBit file to fasta. */
 
 {
-  dnaUtilOpen();
+  // char *clSeq = NULL;     /* Command line sequence. */
+  // int clStart = 0;        /* Start from command line. */
+  // int clEnd = 0;          /* End from command line. */
+  // char *clSeqList = NULL; /* file containing list of seq names */
+  // bool noMask = FALSE;    /* convert seq to upper case */
+  // char *clBpt = NULL;     /* External index file. */
+  // char *clBed = NULL;     /* Bed file that specifies bounds of sequences. */
+  // bool clBedPos = FALSE;
 
   auto inName = cppinName.data();
   auto outName = cppoutName.data();
-  auto clSeq = option.seq.data();
+  char *clSeq = option.seq.empty() ? NULL : option.seq.data();
   auto clStart = option.start;
   auto clEnd = option.end;
-  auto clSeqList = option.seqList.data();
+  char *clSeqList = option.seqList.empty() ? NULL : option.seqList.data();
   auto noMask = option.noMask;
-  auto clBpt = option.bpt.data();
-  auto clBed = option.bed.data();
+  char *clBpt = option.bpt.empty() ? NULL : option.bpt.data();
+  char *clBed = option.bed.empty() ? NULL : option.bed.data();
   auto clBedPos = option.bedPos;
+
+  dnaUtilOpen();
 
   struct twoBitFile *tbf{};
   FILE *outFile = mustOpen(outName, "w");
