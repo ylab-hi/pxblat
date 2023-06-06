@@ -27,7 +27,6 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [close-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed
 [opull]: https://github.com/cauliyang/pxblat/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc
 
-
 ---
 
 ## 📚 Table of Contents
