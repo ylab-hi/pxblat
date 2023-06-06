@@ -9,6 +9,7 @@
 
 typedef std::function< pybind11::module & (std::string const &) > ModuleGetter;
 
+void bind_twoBitToFa(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_faToTwoBit(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_gfClient(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_gfServer(std::function< pybind11::module &(std::string const &namespace_) > &M);
@@ -44,6 +45,7 @@ PYBIND11_MODULE(_extc, root_module) {
 
 	//pybind11::class_<std::shared_ptr<void>>(M(""), "_encapsulated_data_");
 
+    bind_twoBitToFa(M);
 	bind_faToTwoBit(M);
 	bind_gfClient(M);
 	bind_gfServer(M);

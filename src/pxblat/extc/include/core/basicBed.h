@@ -10,9 +10,14 @@
 #ifndef BASICBED_H
 #define BASICBED_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+
 #include "psl.h"
 #include "asParse.h"
-#include "memgfx.h"
+// #include "memgfx.h"
 
 struct bed
 /* Browser extensible data */
@@ -342,5 +347,11 @@ int itemRgbColumn(char *column9);
 /* Convert color specification to internal format. */
 
 #define BAD_BLOCKS "BED blocks must span chromStart to chromEnd.  (chromStart + blockStarts[last] + blockSizes[last]) must equal chromEnd."
+
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 
 #endif /* BASICBED_H */
