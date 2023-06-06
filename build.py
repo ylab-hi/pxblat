@@ -262,6 +262,7 @@ def get_extension_modules():
     """
     pxblat_python_sources = [
         "src/pxblat/extc/bindings/faToTwoBit.cpp",
+        "src/pxblat/extc/bindings/twoBitToFa.cpp",
         "src/pxblat/extc/bindings/gfServer.cpp",
         "src/pxblat/extc/bindings/pygfServer.cpp",
         "src/pxblat/extc/bindings/gfClient.cpp",
