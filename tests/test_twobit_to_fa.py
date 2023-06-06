@@ -5,8 +5,8 @@ from pxblat import TwoBitToFaOption
 
 
 def test_create_two_bit_to_fa_option():
-    option = TwoBitToFaOption()
-    print(option)
+    option = TwoBitToFaOption().build()
+    assert option
 
 
 def read_fa_seq(file):
@@ -23,8 +23,6 @@ def read_fa_seq(file):
 def compare_two_fas(file1, file2):
     file1_seq = read_fa_seq(file1)
     file2_seq = read_fa_seq(file2)
-    print(file1_seq)
-    print(file2_seq)
     assert file1_seq == file2_seq
 
 
@@ -36,7 +34,7 @@ def test_bit2fa(
     if output_file.exists():
         output_file.unlink()
 
-    option = TwoBitToFaOption()
+    option = TwoBitToFaOption().build()
 
     two_bit_to_fa(
         two_bit,

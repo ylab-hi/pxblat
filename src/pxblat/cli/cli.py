@@ -5,6 +5,7 @@ import typer
 from .client import client
 from .fa2twobit import faToTwoBit
 from .server import server_app
+from .twobit2fa import twoBitToFa
 
 app = typer.Typer(
     epilog="YangyangLi 2023 yangyang.li@northwstern.edu",
@@ -13,6 +14,7 @@ app = typer.Typer(
 
 app.command()(faToTwoBit)
 app.command()(client)
+app.command()(twoBitToFa)
 
 
 app.add_typer(server_app, name="server")
