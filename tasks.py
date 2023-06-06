@@ -2,6 +2,7 @@ import asyncio
 import subprocess
 import threading
 import time
+import typing
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
@@ -20,6 +21,20 @@ from pxblat.server import wait_server_ready
 from rich import print
 
 PORT = 65000
+
+
+def get_files_by_suffix(
+    path: typing.Union[Path, str], suffix: typing.List[str]
+) -> typing.Iterator[Path]:
+    """Get bindings."""
+    if isinstance(path, str):
+        path = Path(path)
+
+    for file in path.iterdir():
+        if file.is_dir():
+            yield from get_files_by_suffix(file, suffix)
+        if file.suffix in suffix:
+            yield file
 
 
 def worker():
@@ -1311,3 +1326,102 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
     dura_py = time.perf_counter() - start_time
     print(f"run python server and client time: {dura_py:.4}s")
     server.stop()
+
+
+changes = [
+    "src/hg/altSplice/altSplice/genePredToPsl.c",
+    "src/hg/cgilib/cartJson.c",
+    "src/hg/cgilib/pcrResult.c",
+    "src/hg/hgGene/domains.c",
+    "src/hg/hgHubConnect/hgHubConnect.c",
+    "src/hg/hgPhyloPlace/hgPhyloPlace.c",
+    "src/hg/hgPhyloPlace/phyloPlace.c",
+    "src/hg/hgPhyloPlace/phyloPlaceMain.c",
+    "src/hg/hgPhyloPlace/treeToAuspiceJson.c",
+    "src/hg/hgPhyloPlace/vcfFromFasta.c",
+    "src/hg/hgSearch/hgSearch.c",
+    "src/hg/hgSession/hgSession.c",
+    "src/hg/hgTables/mainPage.c",
+    "src/hg/hgTracks/bigWigTrack.c",
+    "src/hg/hgTracks/hgTracks.c",
+    "src/hg/hgTracks/simpleTracks.c",
+    "src/hg/hgTracks/wigCommon.h",
+    "src/hg/hgTracks/wigTrack.c",
+    "src/hg/hgc/hgc.c",
+    "src/hg/hubApi/list.c",
+    "src/hg/inc/botDelay.h",
+    "src/hg/inc/cartJson.h",
+    "src/hg/inc/hgMaf.h",
+    "src/hg/inc/versionInfo.h",
+    "src/hg/lib/bigBedFind.c",
+    "src/hg/lib/botDelay.c",
+    "src/hg/lib/cart.c",
+    "src/hg/lib/dupTrack.c",
+    "src/hg/lib/hgMaf.c",
+    "src/hg/lib/hubConnect.c",
+    "src/hg/lib/trackHub.c",
+    "src/hg/lib/web.c",
+    "src/hg/mouseStuff/axtChain/axtChain.c",
+    "src/inc/net.h",
+    "src/inc/srcVersion.h",
+    "src/lib/https.c",
+    "src/lib/net.c",
+    "src/lib/pslTransMap.c",
+    "src/lib/udc.c",
+    "src/hg/altSplice/altSplice/genePredToPsl.c",
+    "src/hg/cgilib/cartJson.c",
+    "src/hg/cgilib/pcrResult.c",
+    "src/hg/hgGene/domains.c",
+    "src/hg/hgHubConnect/hgHubConnect.c",
+    "src/hg/hgPhyloPlace/hgPhyloPlace.c",
+    "src/hg/hgPhyloPlace/phyloPlace.c",
+    "src/hg/hgPhyloPlace/phyloPlaceMain.c",
+    "src/hg/hgPhyloPlace/treeToAuspiceJson.c",
+    "src/hg/hgPhyloPlace/vcfFromFasta.c",
+    "src/hg/hgSearch/hgSearch.c",
+    "src/hg/hgSession/hgSession.c",
+    "src/hg/hgTables/mainPage.c",
+    "src/hg/hgTracks/bigWigTrack.c",
+    "src/hg/hgTracks/hgTracks.c",
+    "src/hg/hgTracks/simpleTracks.c",
+    "src/hg/hgTracks/wigCommon.h",
+    "src/hg/hgTracks/wigTrack.c",
+    "src/hg/hgc/hgc.c",
+    "src/hg/hubApi/list.c",
+    "src/hg/inc/botDelay.h",
+    "src/hg/inc/cartJson.h",
+    "src/hg/inc/hgMaf.h",
+    "src/hg/inc/versionInfo.h",
+    "src/hg/lib/bigBedFind.c",
+    "src/hg/lib/botDelay.c",
+    "src/hg/lib/cart.c",
+    "src/hg/lib/dupTrack.c",
+    "src/hg/lib/hgMaf.c",
+    "src/hg/lib/hubConnect.c",
+    "src/hg/lib/trackHub.c",
+    "src/hg/lib/web.c",
+    "src/hg/mouseStuff/axtChain/axtChain.c",
+    "src/inc/net.h",
+    "src/inc/srcVersion.h",
+    "src/lib/https.c",
+    "src/lib/net.c",
+    "src/lib/pslTransMap.c",
+    "src/lib/udc.c",
+]
+
+
+@task
+def search_source(c):
+    sources = list(get_files_by_suffix("src/pxblat/extc/src", [".c"]))
+    headers = list(get_files_by_suffix("src/pxblat/extc/include", [".h"]))
+    sources.extend(headers)
+
+    print(sources)
+
+    change_files = [Path(file) for file in changes]
+
+    for file in change_files:
+        for souce in sources:
+            if souce.name == file.name:
+                print(f"{file} is in sources {souce}")
+                break
