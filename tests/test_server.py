@@ -144,7 +144,7 @@ def test_client_for_fa_file(start_server, fa_file1, seqname, parse):
         .withHost("localhost")
         .withPort(str(start_server.port))
         .withSeqDir("tests/data/")
-        .withInName(fa_file1)
+        .withInName(fa_file1.as_posix())
         .build()
     )
 
