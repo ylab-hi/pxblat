@@ -3,7 +3,7 @@
 #include <string>
 
 #include "bPlusTree.h"
-// #include "basicBed.h"
+#include "basicBed.h"
 #include "common.h"
 #include "dnaseq.h"
 #include "fa.h"
