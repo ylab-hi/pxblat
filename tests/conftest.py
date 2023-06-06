@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from pxblat import extc
 from pxblat.server import Server
@@ -10,8 +12,13 @@ def port():
 
 
 @pytest.fixture
+def reference():
+    return Path("tests/data/test_ref.fa")
+
+
+@pytest.fixture
 def two_bit():
-    return "tests/data/test_ref.2bit"
+    return Path("tests/data/test_ref.2bit")
 
 
 @pytest.fixture
@@ -26,7 +33,7 @@ def fa_seq2():
 
 @pytest.fixture
 def fa_file1():
-    return "tests/data/test_case1.fa"
+    return Path("tests/data/test_case1.fa")
 
 
 @pytest.fixture

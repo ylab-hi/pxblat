@@ -1,10 +1,12 @@
 """Bindings for ::cppbinding namespace"""
 from __future__ import annotations
-import pxblat._extc.cppbinding  # type: ignore
+import pxblat._extc.cppbinding
 import typing
 
 __all__ = [
+    "IntStruct",
     "Signal",
+    "TwoBitToFaOption",
     "UsageStats",
     "buildIndex",
     "faToTwoBit",
@@ -18,18 +20,29 @@ __all__ = [
     "pcrServer",
     "pygetFileList",
     "pygfClient",
+    "pygfClient2",
+    "pygfClient_no_gil",
     "pyqueryServer",
     "pystartServer",
+    "pystartServer_no_gil",
     "pystatusServer",
     "queryServer",
     "startServer",
     "statusServer",
     "stopServer",
+    "test",
     "test_add",
     "test_exception",
+    "test_no_gil",
     "test_stat",
     "test_stdout",
+    "test_with_gil",
+    "twoBitToFa",
 ]
+
+class IntStruct:
+    def __init__(self, arg0: int) -> None: ...
+    pass
 
 class Signal:
     def __init__(self) -> None: ...
@@ -44,8 +57,136 @@ class Signal:
         pass
     pass
 
-class UsageStats:
+class TwoBitToFaOption:
+    def __getstate__(self) -> tuple: ...
+    @typing.overload
     def __init__(self) -> None: ...
+    @typing.overload
+    def __init__(self, arg0: TwoBitToFaOption) -> None: ...
+    def __setstate__(self, arg0: tuple) -> None: ...
+    def __str__(self) -> str: ...
+    def build(self) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::build() --> struct cppbinding::TwoBitToFaOption &
+        """
+    def to_string(self) -> str:
+        """
+        C++: cppbinding::TwoBitToFaOption::to_string() --> std::string
+        """
+    def withBed(self, bed: str) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withBed(std::string const &) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withBedPos(self, bedPos: bool) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withBedPos(bool) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withBpt(self, bpt: str) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withBpt(std::string const &) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withEnd(self, end: int) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withEnd(int) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withNoMask(self, noMask: bool) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withNoMask(bool) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withSeq(self, seq: str) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withSeq(std::string const &) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withSeqList(self, seqList: str) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withSeqList(std::string const &) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withStart(self, start: int) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withStart(int) --> struct cppbinding::TwoBitToFaOption &
+        """
+    def withUdcDir(self, udcDir: str) -> TwoBitToFaOption:
+        """
+        C++: cppbinding::TwoBitToFaOption::withUdcDir(std::string const &) --> struct cppbinding::TwoBitToFaOption &
+        """
+    @property
+    def bed(self) -> str:
+        """
+        :type: str
+        """
+    @bed.setter
+    def bed(self, arg0: str) -> None:
+        pass
+    @property
+    def bedPos(self) -> bool:
+        """
+        :type: bool
+        """
+    @bedPos.setter
+    def bedPos(self, arg0: bool) -> None:
+        pass
+    @property
+    def bpt(self) -> str:
+        """
+        :type: str
+        """
+    @bpt.setter
+    def bpt(self, arg0: str) -> None:
+        pass
+    @property
+    def end(self) -> int:
+        """
+        :type: int
+        """
+    @end.setter
+    def end(self, arg0: int) -> None:
+        pass
+    @property
+    def noMask(self) -> bool:
+        """
+        :type: bool
+        """
+    @noMask.setter
+    def noMask(self, arg0: bool) -> None:
+        pass
+    @property
+    def seq(self) -> str:
+        """
+        :type: str
+        """
+    @seq.setter
+    def seq(self, arg0: str) -> None:
+        pass
+    @property
+    def seqList(self) -> str:
+        """
+        :type: str
+        """
+    @seqList.setter
+    def seqList(self, arg0: str) -> None:
+        pass
+    @property
+    def start(self) -> int:
+        """
+        :type: int
+        """
+    @start.setter
+    def start(self, arg0: int) -> None:
+        pass
+    @property
+    def udcDir(self) -> str:
+        """
+        :type: str
+        """
+    @udcDir.setter
+    def udcDir(self, arg0: str) -> None:
+        pass
+    pass
+
+class UsageStats:
+    def __getstate__(self) -> tuple: ...
+    def __init__(self) -> None: ...
+    def __setstate__(self, arg0: tuple) -> None: ...
     def __str__(self) -> str: ...
     @property
     def aaCount(self) -> int:
@@ -114,10 +255,12 @@ class UsageStats:
     pass
 
 class gfClientOption:
+    def __getstate__(self) -> tuple: ...
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
     def __init__(self, arg0: gfClientOption) -> None: ...
+    def __setstate__(self, arg0: tuple) -> None: ...
     def __str__(self) -> str: ...
     def build(self) -> gfClientOption:
         """
@@ -334,10 +477,12 @@ class gfClientOption:
     pass
 
 class gfServerOption:
+    def __getstate__(self) -> tuple: ...
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
     def __init__(self, arg0: gfServerOption) -> None: ...
+    def __setstate__(self, arg0: tuple) -> None: ...
     def __str__(self) -> str: ...
     def build(self) -> gfServerOption:
         """
@@ -738,7 +883,15 @@ def pygetFileList(hostName: str, portName: str) -> str:
     C++: cppbinding::pygetFileList(std::string &, std::string &) --> std::string
     """
 
-def pygfClient(option: gfClientOption) -> str:
+def pygfClient(option: gfClientOption) -> bytes:
+    """
+    C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string
+    """
+
+def pygfClient2(arg0: gfClientOption) -> str:
+    pass
+
+def pygfClient_no_gil(option: gfClientOption) -> None:
     """
     C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string
     """
@@ -751,6 +904,18 @@ def pyqueryServer(
     """
 
 def pystartServer(
+    hostName: str,
+    portName: str,
+    fileCount: int,
+    seqFiles: typing.List[str],
+    options: gfServerOption,
+    stats: UsageStats,
+) -> int:
+    """
+    C++: cppbinding::pystartServer(std::string &, std::string &, int, class std::vector<std::string > &, struct cppbinding::gfServerOption &, struct cppbinding::UsageStats &) --> int
+    """
+
+def pystartServer_no_gil(
     hostName: str,
     portName: str,
     fileCount: int,
@@ -796,6 +961,9 @@ def stopServer(hostName: str, portName: str) -> None:
     C++: cppbinding::stopServer(std::string &, std::string &) --> void
     """
 
+def test(arg0: int, arg1: IntStruct) -> None:
+    pass
+
 def test_add(a: int) -> None:
     """
     C++: cppbinding::test_add(int &) --> void
@@ -806,6 +974,9 @@ def test_exception() -> None:
     C++: cppbinding::test_exception() --> void
     """
 
+def test_no_gil(arg0: int, arg1: IntStruct) -> None:
+    pass
+
 def test_stat(stats: UsageStats) -> None:
     """
     C++: cppbinding::test_stat(struct cppbinding::UsageStats &) --> void
@@ -814,4 +985,12 @@ def test_stat(stats: UsageStats) -> None:
 def test_stdout() -> None:
     """
     C++: cppbinding::test_stdout() --> void
+    """
+
+def test_with_gil(arg0: int, arg1: IntStruct) -> None:
+    pass
+
+def twoBitToFa(inName: str, outName: str, option: TwoBitToFaOption) -> None:
+    """
+    C++ cppbinding::twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption option)
     """

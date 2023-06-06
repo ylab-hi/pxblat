@@ -180,7 +180,7 @@ def _include_dirs_for_pxblat():
 
 def _extra_compile_args_for_pxblat():
     return [
-        "-DDBG_MACRO_DISABLE",
+        # "-DDBG_MACRO_DISABLE",
     ]
 
 

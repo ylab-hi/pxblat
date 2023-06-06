@@ -1,3 +1,4 @@
+from .extc import TwoBitToFaOption
 from .parser import read
 from .server import check_port_in_use
 from .server import check_port_open
@@ -5,7 +6,6 @@ from .server import Client
 from .server import create_client_option
 from .server import create_server_option
 from .server import DEFAULT_PORT
-from .server import fa_to_two_bit
 from .server import files
 from .server import find_free_port
 from .server import query_server
@@ -17,9 +17,9 @@ from .server import start_server_mt_nb
 from .server import Status
 from .server import status_server
 from .server import stop_server
-from .server import two_bit_to_fa
 from .server import wait_server_ready
-
+from .toolkit import fa_to_two_bit
+from .toolkit import two_bit_to_fa
 
 __all__ = [
     "Server",
@@ -43,4 +43,5 @@ __all__ = [
     "DEFAULT_PORT",
     "Status",
     "read",
+    "TwoBitToFaOption",
 ]

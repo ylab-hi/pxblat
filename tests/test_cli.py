@@ -44,7 +44,7 @@ def test_query_server_cli(start_server2, port, fa_file1, tmp_path):
             "localhost",
             str(port + 1),
             "tests/data/",
-            fa_file1,
+            fa_file1.as_posix(),
             out.as_posix(),
             "--minScore",
             "20",

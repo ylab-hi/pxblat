@@ -166,6 +166,15 @@ void twoBitToFa(char *inName, char *outName)
   twoBitClose(&tbf);
 }
 
+// char *clSeq = NULL;     /* Command line sequence. */
+// int clStart = 0;        /* Start from command line. */
+// int clEnd = 0;          /* End from command line. */
+// char *clSeqList = NULL; /* file containing list of seq names */
+// bool noMask = FALSE;    /* convert seq to upper case */
+// char *clBpt = NULL;     /* External index file. */
+// char *clBed = NULL;     /* Bed file that specifies bounds of sequences. */
+// bool clBedPos = FALSE;
+
 int main(int argc, char *argv[])
 /* Process command line. */
 {
@@ -190,6 +199,8 @@ int main(int argc, char *argv[])
   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
 
   dnaUtilOpen();
+  printf("clSeq: %s , clStart %d, clEnd %d, clSeqList %s, noMask %d, clBpt %s, clBed %s, clBedPos %d\n", clSeq, clStart,
+         clEnd, clSeqList, noMask, clBpt, clBed, clBedPos);
   twoBitToFa(argv[1], argv[2]);
   return 0;
 }
