@@ -77,7 +77,7 @@ exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py"]
 pytest = "^7.3.1"
 pytest-sugar = "^0.9.7"
 black = "^23.3.0"
-ruff = ">=0.0.270,<0.0.272"
+ruff = ">=0.0.270,<0.0.273"
 ipython = "^8.13.1"
 pybind11-stubgen = ">=0.13,<0.16"
 invoke = "^2.1.2"
