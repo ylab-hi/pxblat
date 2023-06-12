@@ -891,8 +891,8 @@ def benchspcp(c):
 
 
 @task
-def cmpbench(c, fas_path: str):
-    fas_path = Path(fas_path)
+def cmpbench(c, fa_path: str):
+    fas_path = Path(fa_path)
 
     num_files = 0
 
@@ -1203,9 +1203,9 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
 
 
 @task
-def benchscc(c, fas_path: str, concurrent: int = 4):
+def benchscc(c, fa_path: str, concurrent: int = 4):
     two_bit = Path("benchmark/data/chr20.2bit")
-    fas_path = Path(fas_path)
+    fas_path = Path(fa_path)
 
     print("open c server")
     p = Process(
@@ -1270,9 +1270,9 @@ def query_server2(two_bit, fa1_path, pp_res):
 
 
 @task
-def benchspp(c, fas_path: str, concurrent: int = 4):
+def benchspp(c, fa_path: str, concurrent: int = 4):
     two_bit = Path("benchmark/data/chr20.2bit")
-    fas_path = Path(fas_path)
+    fas_path = Path(fa_path)
 
     ## python server
     server_option = (
@@ -1316,12 +1316,6 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
 
         for res in result:
             res.result()
-
-        # print(f"run python client save to file {pp_res}")
-        # parse = False
-        # client = Client(client_option, parse=parse)
-        # client.start()
-        # client.get()
 
     dura_py = time.perf_counter() - start_time
     print(f"run python server and client time: {dura_py:.4}s")
