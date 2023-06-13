@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pxblat
 import simdjson
-from invoke import task
+from invoke.tasks import task
 from pxblat import extc
 from pxblat.extc import pygfClient
 from pxblat.server import Client
@@ -1275,9 +1275,7 @@ def benchspp(c, fa_path: str, concurrent: int = 4):
     fas_path = Path(fa_path)
 
     ## python server
-    server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
-    )
+    server_option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
     print("open python server")
     server = Server("localhost", PORT, two_bit, server_option)
     server.start()
@@ -1419,3 +1417,14 @@ def search_source(c):
             if souce.name == file.name:
                 print(f"{file} is in sources {souce}")
                 break
+
+
+@task
+def tpickle(c):
+    import pickle
+
+    c = pxblat.gfClientOption()
+    c.withHost("localhost2").build()
+    cdata = pickle.dumps(c)
+    cn = pickle.loads(cdata)
+    print(cn)

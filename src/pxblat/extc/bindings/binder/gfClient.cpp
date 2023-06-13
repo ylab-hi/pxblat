@@ -26,6 +26,7 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
 {
 	{ // cppbinding::gfClientOption file:gfClient.hpp line:69
 		pybind11::class_<cppbinding::gfClientOption, std::shared_ptr<cppbinding::gfClientOption>> cl(M("cppbinding"), "gfClientOption", "");
+
 		cl.def( pybind11::init( [](){ return new cppbinding::gfClientOption(); } ) );
 		cl.def( pybind11::init( [](cppbinding::gfClientOption const &o){ return new cppbinding::gfClientOption(o); } ) );
 		cl.def_readwrite("hostName", &cppbinding::gfClientOption::hostName);
@@ -73,10 +74,10 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
                                            p.outputFormat, p.maxIntron, p.genome,
                                            p.genomeDataDir, p.isDynamic, p.SeqDir,
                                            p.inName, p.outName, p.inSeq); },
+
                                 [](pybind11::tuple t){
                                 if (t.size() != 17)
                                     throw std::runtime_error("Invalid state!");
-
                                 cppbinding::gfClientOption p{};
                                 p.hostName = t[0].cast<std::string>();
                                 p.portName = t[1].cast<std::string>();
@@ -95,10 +96,11 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
                                 p.inName = t[14].cast<std::string>();
                                 p.outName = t[15].cast<std::string>();
                                 p.inSeq = t[16].cast<std::string>();
-                                return p;}));
-
+                                return p;})
+               );
 
 	}
+
 	// cppbinding::pygfClient(struct cppbinding::gfClientOption &) file:gfClient.hpp line:118
   M("cppbinding").def("pygfClient", [](cppbinding::gfClientOption&o) {
     auto ret = cppbinding::pygfClient(o);

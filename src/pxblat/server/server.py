@@ -19,6 +19,16 @@ from .basic import wait_server_ready
 from .status import Status
 
 
+def _pystartServer(
+    hostName: str,
+    portName: str,
+    seqFiles: t.List[str],
+    options: gfServerOption,
+    stats: UsageStats,
+):
+    pystartServer(hostName, portName, len(seqFiles), seqFiles, options, stats)
+
+
 def create_server_option() -> gfServerOption:
     """
     Creates a new gfServerOption object with default values.
@@ -139,27 +149,29 @@ class Server(ContextDecorator):
                     self._is_open = True
                     new_port = find_free_port(self._host, start=self.port + 1)
                     self.port = new_port
+                    host = self.host
+                    port = self.port
+
                     self._process = Process(
-                        target=pystartServer,
+                        target=_pystartServer,
                         args=(
-                            self.host,
-                            str(self.port),
-                            1,
+                            host,
+                            str(port),
                             [two_bit_file],
                             self.option,
                             self.stat,
                         ),
                         daemon=self.daemon,
                     )
+
             else:
                 self._is_open = True
                 logger.debug(f"{self.port} port not in use")
                 self._process = Process(
-                    target=pystartServer,
+                    target=_pystartServer,
                     args=(
                         self.host,
                         str(self.port),
-                        1,
                         [two_bit_file],
                         self.option,
                         self.stat,
@@ -193,6 +205,9 @@ class Server(ContextDecorator):
         """
         if self._is_open:
             stop_server(self.host, self.port)
+
+        if self._process is not None:
+            self._process.terminate()
 
     def status(self, instance=False) -> t.Union[t.Dict[str, str], Status]:
         """
