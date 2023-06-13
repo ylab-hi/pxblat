@@ -42,12 +42,12 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 🔮 Features
 
-- no intermidiate files, all in memory
-- no system call
-- no need to bother with log files to get status of tool
-- no need to worry about file format
-- no other dependency
-- higher proformance and Ergonomics (compare with current blat endpoint)
+**In-Memory Processing**: `PxBlAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.
+**Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.
+**Self-Monitoring**: No need to trawl through log files; `PxBlAT` monitors its status internally and keeps you updated.
+**Format-Agnostic:** `PxBlAT` doesn't require you to worry about file formats.
+**No External Dependencies**: `PxBlAT` operates independently without any external dependencies.
+**Ergonomics**: With an ergonomic design, `PxBlAT` aims for a seamless user experience.
 
 ## To-do
 
@@ -66,11 +66,11 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 🚀 Getting Started
 
-```sh
+```bash
 pip install pxblat
 ```
 
-```sh
+```bash
 conda install pxblat
 ```
 
