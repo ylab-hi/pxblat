@@ -68,8 +68,8 @@ jobs:
       - name: Install Dependencies
         if: matrix.os == 'macos-latest'
         run: |
-          rm '/usr/local/bin/2to3-3.11'  '/usr/local/bin/2to3'  '/usr/local/bin/idle3'  "/usr/local/bin/idle3.11"
-          brew install htslib openssl@3
+          # rm '/usr/local/bin/2to3-3.11'  '/usr/local/bin/2to3'  '/usr/local/bin/idle3'  "/usr/local/bin/idle3.11"
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install htslib openssl@3
           ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
           ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
