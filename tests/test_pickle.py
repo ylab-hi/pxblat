@@ -1,4 +1,5 @@
-from pxblat.extc import ClientOption, set_state
+from pxblat.extc import ClientOption
+from pxblat.extc import set_state
 
 
 def test_set_state_for_client():

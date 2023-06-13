@@ -40,13 +40,13 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 🔮 **Features**
 
-**Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.<br>
-**Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.<br>
-**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
-**Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally.<br>
-**Robust Validation**: Extensively tested to ensure reliable performance and superior stability as BLAT.<br>
-**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
-**In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.<br>
+- **Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.<br>
+- **Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.<br>
+- **No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
+- **Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally.<br>
+- **Robust Validation**: Extensively tested to ensure reliable performance and superior stability as BLAT.<br>
+- **Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
+- **In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.<br>
 
 ## 📎 **Citation**
 
