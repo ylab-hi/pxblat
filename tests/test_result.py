@@ -81,7 +81,7 @@ def run_cblat(result_dir: Path, port: int, fa_data: Path):
 def run_pxblat(result_dir: Path, port: int, fa_data: Path):
     cport = port + 20
     two_bit = Path("benchmark/data/chr20.2bit")
-    server_option = pxblat.gfServerOption().withCanStop(True).withStepSize(5).build()
+    server_option = pxblat.ServerOption().withCanStop(True).withStepSize(5).build()
 
     print("open python server")
     server = pxblat.Server("localhost", cport, two_bit, server_option)

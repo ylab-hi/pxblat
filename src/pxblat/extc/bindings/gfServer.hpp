@@ -74,8 +74,8 @@ struct UsageStats {
 // {self.gfserver} -canStop -log={self.log_file_path} -stepSize=5 start "
 //             f"localhost {self.port} {os.path.basename(self.ref_2bit)}"
 
-struct gfServerOption {
-  using self = gfServerOption;
+struct ServerOption {
+  using self = ServerOption;
   bool canStop{false};        //-canStop      If set, a quit message will actually take down the server.
   std::string log{};          //-log=logFile  Keep a log file that records server requests.
   std::string logFacility{};  //-logFacility=facility  Log to the specified syslog facility default local0
@@ -114,39 +114,39 @@ struct gfServerOption {
   int threads{1};
   bool allowOneMismatch{false};
 
-  gfServerOption() = default;
+  ServerOption() = default;
   self &build();
 
   std::string to_string() const;
 
-  gfServerOption &withCanStop(bool canStop_);
-  gfServerOption &withLogFacility(std::string logFacility_);
-  gfServerOption &withLog(std::string log_);
-  gfServerOption &withMask(bool mask_);
-  gfServerOption &withMaxAaSize(int maxAaSize_);
-  gfServerOption &withMaxDnaHits(int maxDnaHits_);
-  gfServerOption &withMaxGap(int maxGap_);
-  gfServerOption &withMaxNtSize(int maxNtSize_);
-  gfServerOption &withMaxTransHits(int maxTransHits_);
-  gfServerOption &withMinMatch(int minMatch_);
-  gfServerOption &withRepMatch(int repMatch_);
-  gfServerOption &withSeqLog(bool seqLog_);
-  gfServerOption &withIpLog(bool ipLog_);
-  gfServerOption &withDebugLog(bool debugLog_);
-  gfServerOption &withTileSize(int tileSize_);
-  gfServerOption &withStepSize(int stepSize_);
-  gfServerOption &withTrans(bool trans_);
-  gfServerOption &withSyslog(bool syslog_);
-  gfServerOption &withPerSeqMax(std::string perSeqMax_);
-  gfServerOption &withNoSimpRepMask(bool noSimpRepMask_);
-  gfServerOption &withIndexFile(std::string indexFile_);
-  gfServerOption &withTimeout(int timeout_);
-  gfServerOption &withThreads(int threads_);
+  ServerOption &withCanStop(bool canStop_);
+  ServerOption &withLogFacility(std::string logFacility_);
+  ServerOption &withLog(std::string log_);
+  ServerOption &withMask(bool mask_);
+  ServerOption &withMaxAaSize(int maxAaSize_);
+  ServerOption &withMaxDnaHits(int maxDnaHits_);
+  ServerOption &withMaxGap(int maxGap_);
+  ServerOption &withMaxNtSize(int maxNtSize_);
+  ServerOption &withMaxTransHits(int maxTransHits_);
+  ServerOption &withMinMatch(int minMatch_);
+  ServerOption &withRepMatch(int repMatch_);
+  ServerOption &withSeqLog(bool seqLog_);
+  ServerOption &withIpLog(bool ipLog_);
+  ServerOption &withDebugLog(bool debugLog_);
+  ServerOption &withTileSize(int tileSize_);
+  ServerOption &withStepSize(int stepSize_);
+  ServerOption &withTrans(bool trans_);
+  ServerOption &withSyslog(bool syslog_);
+  ServerOption &withPerSeqMax(std::string perSeqMax_);
+  ServerOption &withNoSimpRepMask(bool noSimpRepMask_);
+  ServerOption &withIndexFile(std::string indexFile_);
+  ServerOption &withTimeout(int timeout_);
+  ServerOption &withThreads(int threads_);
 
   friend std::ostream &operator<<(std::ostream &os, const self &option);
 };
 
-void gfServer(gfServerOption &options);
+void gfServer(ServerOption &options);
 bool boolean2bool(boolean b);
 
 boolean bool2boolean(bool b);
@@ -159,16 +159,16 @@ void logGenoFindIndex(struct genoFindIndex *gfIdx);
 
 // void genoFindDirect(char *probeName, int fileCount, char *seqFiles[]);
 void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::string> &seqFiles,
-                    gfServerOption const &options);
+                    ServerOption const &options);
 
 // void genoPcrDirect(char *fPrimer, char *rPrimer, int fileCount, char *seqFiles[]);
 void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, std::vector<std::string> &seqFiles,
-                   gfServerOption const &options);
+                   ServerOption const &options);
 
 /* Load up index and hang out in RAM. */
 // void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[]);
 void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                 gfServerOption &options, UsageStats &stats);
+                 ServerOption &options, UsageStats &stats);
 
 // void stopServer(char *hostName, char *portName);
 void stopServer(std::string &hostName, std::string &portName);
@@ -182,52 +182,52 @@ void queryServer(std::string &type, std::string &hostName, std::string &portName
 void pcrServer(std::string &hostName, std::string &portName, std::string &fPrimer, std::string &rPrimer, int maxSize);
 
 // int statusServer(char *hostName, char *portName);
-int statusServer(std::string &hostName, std::string &portName, gfServerOption &options);
+int statusServer(std::string &hostName, std::string &portName, ServerOption &options);
 
 // void getFileList(char *hostName, char *portName);
 void getFileList(std::string &hostName, std::string &portName);
 
 // build pre-computed index for seqFiles and write to
 // void buildIndex(char *gfxFile, int fileCount, char *seqFiles[]);
-void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, gfServerOption const &options);
+void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, ServerOption const &options);
 
 int getPortIx(char *portName);
 
 /* Handle a query for DNA/DNA match. */
 // void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, struct hash *perSeqMaxHash);
 void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, struct hash *perSeqMaxHash,
-              gfServerOption const &options, UsageStats &stats, boolean &sendOk);
+              ServerOption const &options, UsageStats &stats, boolean &sendOk);
 
 // void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle);
-void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, gfServerOption const &options,
+void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, ServerOption const &options,
                 UsageStats &stats, boolean &sendOk);
 
 // void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int connectionHandle);
 void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int connectionHandle,
-                     gfServerOption const &options, UsageStats &stats, boolean &sendOk);
+                     ServerOption const &options, UsageStats &stats, boolean &sendOk);
 
 void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
-                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, ServerOption const &options,
                     UsageStats &stats, boolean &sendOk);
 
-void checkIndexFileName(char *gfxFile, char *seqFile, gfServerOption const &options);
+void checkIndexFileName(char *gfxFile, char *seqFile, ServerOption const &options);
 
-struct genoFindIndex *loadGfIndex(char *gfIdxFile, boolean isTrans, gfServerOption &options);
+struct genoFindIndex *loadGfIndex(char *gfIdxFile, boolean isTrans, ServerOption &options);
 void dynSessionInit(struct dynSession *dynSession, char *rootDir, char *genome, char *genomeDataDir, boolean isTrans,
-                    gfServerOption &options);
-int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, gfServerOption &options);
+                    ServerOption &options);
+int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, ServerOption &options);
 
 /* NOTE: will change options' value <05-03-23, Yangyang Li yangyang.li@northwestern.edu> */
-bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options, UsageStats &stats,
+bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, ServerOption &options, UsageStats &stats,
                           boolean &sendOk);
-void dynamicServer(std::string &rootDir, gfServerOption &options, UsageStats &stats, boolean &sendOk);
+void dynamicServer(std::string &rootDir, ServerOption &options, UsageStats &stats, boolean &sendOk);
 
-struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, gfServerOption const &options);
+struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, ServerOption const &options);
 
-void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options,
+void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, ServerOption const &options,
                         UsageStats &stats, boolean &sendOk);
 
-struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], gfServerOption &options);
+struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], ServerOption &options);
 boolean badPcrPrimerSeq(char *s);
 
 void setSocketTimeout(int sockfd, int delayInSeconds);
@@ -236,9 +236,9 @@ void errorSafePcr(struct genoFind *gf, char *fPrimer, char *rPrimer, int maxDist
                   boolean &sendOk);
 
 genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName, int fileCount, char *seqFiles[],
-                                   hash *perSeqMaxHash, gfServerOption &option);
+                                   hash *perSeqMaxHash, ServerOption &option);
 
-std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options);
+std::string pystatusServer(std::string &hostName, std::string &portName, ServerOption &options);
 std::string pygetFileList(std::string &hostName, std::string &portName);
 std::string pyqueryServer(std::string &type, std::string &hostName, std::string &portName, std::string &faName,
                           bool complex, bool isProt);

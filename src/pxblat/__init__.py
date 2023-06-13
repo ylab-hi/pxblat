@@ -1,5 +1,5 @@
 from .extc import ClientOption
-from .extc import gfServerOption
+from .extc import ServerOption
 from .extc import TwoBitToFaOption
 from .extc import UsageStats
 from .parser import read
@@ -48,6 +48,6 @@ __all__ = [
     "read",
     "TwoBitToFaOption",
     "ClientOption",
-    "gfServerOption",
+    "ServerOption",
     "UsageStats",
 ]

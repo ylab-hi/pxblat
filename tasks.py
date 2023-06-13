@@ -49,7 +49,7 @@ def dummy_work(num):
 
 def option_stat():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
 
     client_option = (
@@ -100,7 +100,7 @@ def test_server_status():
 
 
 def test_query_server():
-    extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    extc.ServerOption().withCanStop(True).withStepSize(5).build()
     extc.queryServer(
         "query", "localhost", str(PORT), "tests/data/test_query.fa", False, False
     )
@@ -247,7 +247,7 @@ def pquery_server(c):
 
 @task
 def server(c):
-    option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    option = extc.ServerOption().withCanStop(True).withStepSize(5).build()
     two_bit_file = Path("tests/data/test_ref.2bit")
 
     server = pxblat.server.Server("localhost", PORT, two_bit_file, option)
@@ -301,7 +301,7 @@ def asc(c):
 @task
 def sc(c):
     options = (
-        extc.gfServerOption()
+        extc.ServerOption()
         .withCanStop(True)
         .withDebugLog(True)
         .withSyslog(True)
@@ -658,7 +658,7 @@ def bench(c, fa1: str):
     pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
 
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
 
     print("open python server")
@@ -853,7 +853,7 @@ def benchspcp(c):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -973,7 +973,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -983,7 +983,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
     pool = ProcessPoolExecutor
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
     result = []
     start_time = time.perf_counter()
@@ -1024,7 +1024,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
 def status_server_c():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
     return extc.pystatusServer("localhost", str(PORT), server_option)
 
@@ -1036,7 +1036,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -1275,7 +1275,7 @@ def benchspp(c, fa_path: str, concurrent: int = 4):
     fas_path = Path(fa_path)
 
     ## python server
-    server_option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    server_option = extc.ServerOption().withCanStop(True).withStepSize(5).build()
     print("open python server")
     server = Server("localhost", PORT, two_bit, server_option)
     server.start()

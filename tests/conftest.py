@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import pytest
-from pxblat import extc
+from pxblat import ClientOption
+from pxblat import ServerOption
 from pxblat.server import Server
 from pxblat.server import Status
 
@@ -38,13 +39,13 @@ def fa_file1():
 
 @pytest.fixture
 def server_option():
-    return extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    return ServerOption().withCanStop(True).withStepSize(5).build()
 
 
 @pytest.fixture
 def client_option(port):
     return (
-        extc.ClientOption()
+        ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
