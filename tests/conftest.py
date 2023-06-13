@@ -44,7 +44,7 @@ def server_option():
 @pytest.fixture
 def client_option(port):
     return (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")

@@ -1,4 +1,4 @@
-from .extc import gfClientOption
+from .extc import ClientOption
 from .extc import gfServerOption
 from .extc import TwoBitToFaOption
 from .extc import UsageStats
@@ -47,7 +47,7 @@ __all__ = [
     "Status",
     "read",
     "TwoBitToFaOption",
-    "gfClientOption",
+    "ClientOption",
     "gfServerOption",
     "UsageStats",
 ]

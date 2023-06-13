@@ -68,7 +68,7 @@ namespace cppbinding {
 // boolean isDynamic = FALSE;
 // long enterMainTime = 0;
 
-struct gfClientOption {
+struct ClientOption {
   std::string hostName{};
   std::string portName{};
 
@@ -90,35 +90,35 @@ struct gfClientOption {
 
   std::string inSeq{};
 
-  gfClientOption() = default;
+  ClientOption() = default;
 
-  gfClientOption &build();
+  ClientOption &build();
 
-  gfClientOption &withHost(const std::string &hostName_);
-  gfClientOption &withPort(const std::string &portName_);
+  ClientOption &withHost(const std::string &hostName_);
+  ClientOption &withPort(const std::string &portName_);
 
-  gfClientOption &withTType(const std::string &tType_);
-  gfClientOption &withQType(const std::string &qType_);
-  gfClientOption &withDots(int dots_);
-  gfClientOption &withNohead(bool nohead_);
-  gfClientOption &withMinScore(int minScore_);
-  gfClientOption &withMinIdentity(double minIdentity_);
-  gfClientOption &withOutputFormat(const std::string &outputFormat_);
-  gfClientOption &withMaxIntron(long maxIntron_);
-  gfClientOption &withGenome(const std::string &genome_);
-  gfClientOption &withGenomeDataDir(const std::string &genomeDataDir_);
-  gfClientOption &withIsDynamic(bool isDynamic_);
-  gfClientOption &withSeqDir(const std::string &SeqDir_);
-  gfClientOption &withInName(const std::string &inName_);
-  gfClientOption &withOutName(const std::string &outName_);
-  gfClientOption &withInSeq(const std::string &inseq_);
+  ClientOption &withTType(const std::string &tType_);
+  ClientOption &withQType(const std::string &qType_);
+  ClientOption &withDots(int dots_);
+  ClientOption &withNohead(bool nohead_);
+  ClientOption &withMinScore(int minScore_);
+  ClientOption &withMinIdentity(double minIdentity_);
+  ClientOption &withOutputFormat(const std::string &outputFormat_);
+  ClientOption &withMaxIntron(long maxIntron_);
+  ClientOption &withGenome(const std::string &genome_);
+  ClientOption &withGenomeDataDir(const std::string &genomeDataDir_);
+  ClientOption &withIsDynamic(bool isDynamic_);
+  ClientOption &withSeqDir(const std::string &SeqDir_);
+  ClientOption &withInName(const std::string &inName_);
+  ClientOption &withOutName(const std::string &outName_);
+  ClientOption &withInSeq(const std::string &inseq_);
 
   std::string to_string() const;
-  friend std::ostream &operator<<(std::ostream &os, const gfClientOption &option);
+  friend std::ostream &operator<<(std::ostream &os, const ClientOption &option);
 };
 
-std::string pygfClient_no_gil(gfClientOption option);
-std::string pygfClient(gfClientOption &option);
+std::string pygfClient_no_gil(ClientOption option);
+std::string pygfClient(ClientOption &option);
 std::string read_inmem_file(FILE *file);
 }  // namespace cppbinding
 

@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from pxblat import gfClientOption
+from pxblat import ClientOption
 from pxblat import UsageStats
 from pxblat.server import check_port_open
 from pxblat.server import Client
@@ -58,7 +58,7 @@ def test_server_start_class(server_option, port, two_bit):
 )
 def test_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
     client_option = (
-        gfClientOption()
+        ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -83,7 +83,7 @@ def test_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
 )
 def test_thread_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
     client_option = (
-        gfClientOption()
+        ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -109,7 +109,7 @@ def test_thread_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
 )
 def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
     client_option = (
-        gfClientOption()
+        ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -137,7 +137,7 @@ def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
 )
 def test_client_for_fa_file(start_server, fa_file1, seqname, parse):
     client_option = (
-        gfClientOption()
+        ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")

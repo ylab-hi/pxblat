@@ -14,7 +14,7 @@ __all__ = [
     "genoPcrDirect",
     "getFileList",
     "getPortIx",
-    "gfClientOption",
+    "ClientOption",
     "gfServer",
     "gfServerOption",
     "pcrServer",
@@ -254,89 +254,89 @@ class UsageStats:
         pass
     pass
 
-class gfClientOption:
+class ClientOption:
     def __getstate__(self) -> tuple: ...
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
-    def __init__(self, arg0: gfClientOption) -> None: ...
+    def __init__(self, arg0: ClientOption) -> None: ...
     def __setstate__(self, arg0: tuple) -> None: ...
     def __str__(self) -> str: ...
-    def build(self) -> gfClientOption:
+    def build(self) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::build() --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::build() --> struct cppbinding::ClientOption &
         """
     def to_string(self) -> str:
         """
-        C++: cppbinding::gfClientOption::to_string() const --> std::string
+        C++: cppbinding::ClientOption::to_string() const --> std::string
         """
-    def withDots(self, dots_: int) -> gfClientOption:
+    def withDots(self, dots_: int) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withDots(int) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withDots(int) --> struct cppbinding::ClientOption &
         """
-    def withGenome(self, genome_: str) -> gfClientOption:
+    def withGenome(self, genome_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withGenome(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withGenome(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withGenomeDataDir(self, genomeDataDir_: str) -> gfClientOption:
+    def withGenomeDataDir(self, genomeDataDir_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withGenomeDataDir(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withGenomeDataDir(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withHost(self, hostName_: str) -> gfClientOption:
+    def withHost(self, hostName_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withHost(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withHost(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withInName(self, inName_: str) -> gfClientOption:
+    def withInName(self, inName_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withInName(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withInName(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withInSeq(self, inseq_: str) -> gfClientOption:
+    def withInSeq(self, inseq_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withInSeq(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withInSeq(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withIsDynamic(self, isDynamic_: bool) -> gfClientOption:
+    def withIsDynamic(self, isDynamic_: bool) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withIsDynamic(bool) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withIsDynamic(bool) --> struct cppbinding::ClientOption &
         """
-    def withMaxIntron(self, maxIntron_: int) -> gfClientOption:
+    def withMaxIntron(self, maxIntron_: int) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withMaxIntron(long) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withMaxIntron(long) --> struct cppbinding::ClientOption &
         """
-    def withMinIdentity(self, minIdentity_: float) -> gfClientOption:
+    def withMinIdentity(self, minIdentity_: float) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withMinIdentity(double) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withMinIdentity(double) --> struct cppbinding::ClientOption &
         """
-    def withMinScore(self, minScore_: int) -> gfClientOption:
+    def withMinScore(self, minScore_: int) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withMinScore(int) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withMinScore(int) --> struct cppbinding::ClientOption &
         """
-    def withNohead(self, nohead_: bool) -> gfClientOption:
+    def withNohead(self, nohead_: bool) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withNohead(bool) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withNohead(bool) --> struct cppbinding::ClientOption &
         """
-    def withOutName(self, outName_: str) -> gfClientOption:
+    def withOutName(self, outName_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withOutName(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withOutName(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withOutputFormat(self, outputFormat_: str) -> gfClientOption:
+    def withOutputFormat(self, outputFormat_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withOutputFormat(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withOutputFormat(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withPort(self, portName_: str) -> gfClientOption:
+    def withPort(self, portName_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withPort(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withPort(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withQType(self, qType_: str) -> gfClientOption:
+    def withQType(self, qType_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withQType(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withQType(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withSeqDir(self, SeqDir_: str) -> gfClientOption:
+    def withSeqDir(self, SeqDir_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withSeqDir(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withSeqDir(const std::string &) --> struct cppbinding::ClientOption &
         """
-    def withTType(self, tType_: str) -> gfClientOption:
+    def withTType(self, tType_: str) -> ClientOption:
         """
-        C++: cppbinding::gfClientOption::withTType(const std::string &) --> struct cppbinding::gfClientOption &
+        C++: cppbinding::ClientOption::withTType(const std::string &) --> struct cppbinding::ClientOption &
         """
     @property
     def SeqDir(self) -> str:
@@ -883,17 +883,17 @@ def pygetFileList(hostName: str, portName: str) -> str:
     C++: cppbinding::pygetFileList(std::string &, std::string &) --> std::string
     """
 
-def pygfClient(option: gfClientOption) -> bytes:
+def pygfClient(option: ClientOption) -> bytes:
     """
-    C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string
+    C++: cppbinding::pygfClient(struct cppbinding::ClientOption &) --> std::string
     """
 
-def pygfClient2(arg0: gfClientOption) -> str:
+def pygfClient2(arg0: ClientOption) -> str:
     pass
 
-def pygfClient_no_gil(option: gfClientOption) -> None:
+def pygfClient_no_gil(option: ClientOption) -> None:
     """
-    C++: cppbinding::pygfClient(struct cppbinding::gfClientOption &) --> std::string
+    C++: cppbinding::pygfClient(struct cppbinding::ClientOption &) --> std::string
     """
 
 def pyqueryServer(

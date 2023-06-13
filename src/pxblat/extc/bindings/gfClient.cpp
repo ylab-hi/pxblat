@@ -25,7 +25,7 @@ std::string read_inmem_file(FILE *file) {
   return ret_str.str();
 }
 
-std::string pygfClient_no_gil(gfClientOption option) {
+std::string pygfClient_no_gil(ClientOption option) {
   // setFfIntronMax(option.maxIntron);
   pybind11::gil_scoped_release release;
 
@@ -164,7 +164,7 @@ std::string pygfClient_no_gil(gfClientOption option) {
 }
 
 /* gfClient - A client for the genomic finding program that produces a .psl file. */
-std::string pygfClient(gfClientOption &option) {
+std::string pygfClient(ClientOption &option) {
   setFfIntronMax(option.maxIntron);
   long enterMainTime = clock1000();
 
@@ -299,7 +299,7 @@ std::string pygfClient(gfClientOption &option) {
   return "";
 }
 
-gfClientOption &gfClientOption::build() {
+ClientOption &ClientOption::build() {
   // char *hostName, char *portName, char *tSeqDir, char *inName, char *outName, char *tTypeName, char *qTypeName
   if (tType == "prot" || tType == "dnax" || tType == "rnax") minIdentity = 25;
 
@@ -313,95 +313,95 @@ gfClientOption &gfClientOption::build() {
   return *this;
 }
 
-gfClientOption &gfClientOption::withHost(const std::string &hostName_) {
+ClientOption &ClientOption::withHost(const std::string &hostName_) {
   hostName = hostName_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withPort(const std::string &portName_) {
+ClientOption &ClientOption::withPort(const std::string &portName_) {
   portName = portName_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withTType(const std::string &tType_) {
+ClientOption &ClientOption::withTType(const std::string &tType_) {
   tType = tType_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withQType(const std::string &qType_) {
+ClientOption &ClientOption::withQType(const std::string &qType_) {
   qType = qType_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withDots(int dots_) {
+ClientOption &ClientOption::withDots(int dots_) {
   dots = dots_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withNohead(bool nohead_) {
+ClientOption &ClientOption::withNohead(bool nohead_) {
   nohead = nohead_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withMinScore(int minScore_) {
+ClientOption &ClientOption::withMinScore(int minScore_) {
   minScore = minScore_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withMinIdentity(double minIdentity_) {
+ClientOption &ClientOption::withMinIdentity(double minIdentity_) {
   minIdentity = minIdentity_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withOutputFormat(const std::string &outputFormat_) {
+ClientOption &ClientOption::withOutputFormat(const std::string &outputFormat_) {
   outputFormat = outputFormat_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withMaxIntron(long maxIntron_) {
+ClientOption &ClientOption::withMaxIntron(long maxIntron_) {
   maxIntron = maxIntron_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withGenome(const std::string &genome_) {
+ClientOption &ClientOption::withGenome(const std::string &genome_) {
   genome = genome_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withGenomeDataDir(const std::string &genomeDataDir_) {
+ClientOption &ClientOption::withGenomeDataDir(const std::string &genomeDataDir_) {
   genomeDataDir = genomeDataDir_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withIsDynamic(bool isDynamic_) {
+ClientOption &ClientOption::withIsDynamic(bool isDynamic_) {
   isDynamic = isDynamic_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withSeqDir(const std::string &SeqDir_) {
+ClientOption &ClientOption::withSeqDir(const std::string &SeqDir_) {
   SeqDir = SeqDir_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withInName(const std::string &inName_) {
+ClientOption &ClientOption::withInName(const std::string &inName_) {
   inName = inName_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withOutName(const std::string &outName_) {
+ClientOption &ClientOption::withOutName(const std::string &outName_) {
   outName = outName_;
   return *this;
 }
 
-gfClientOption &gfClientOption::withInSeq(const std::string &inseq_) {
+ClientOption &ClientOption::withInSeq(const std::string &inseq_) {
   inSeq = inseq_;
   return *this;
 }
 
-std::string gfClientOption::to_string() const {
+std::string ClientOption::to_string() const {
   std::ostringstream ret{};
 
-  ret << "gfClientOption(";
+  ret << "ClientOption(";
   ret << "hostName=" << hostName;
   ret << ", portName=" << portName;
   ret << ", tType=" << tType;
@@ -423,7 +423,7 @@ std::string gfClientOption::to_string() const {
   return ret.str();
 }
 
-std::ostream &operator<<(std::ostream &os, const gfClientOption &option) {
+std::ostream &operator<<(std::ostream &os, const ClientOption &option) {
   os << option.to_string();
   return os;
 }

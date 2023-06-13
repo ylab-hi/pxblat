@@ -1,12 +1,12 @@
-import pxblat
-from pathlib import Path
-import sys
-
 import subprocess
+import sys
 import time
+from multiprocessing import Process
+from pathlib import Path
+
+import pxblat
 import pytest
 from rich import print
-from multiprocessing import Process
 
 
 @pytest.fixture
@@ -91,7 +91,7 @@ def run_pxblat(result_dir: Path, port: int, fa_data: Path):
 
     for _, fa in enumerate(fa_data.glob("*.fa")):
         client_option = (
-            pxblat.gfClientOption()
+            pxblat.ClientOption()
             .withMinScore(20)
             .withMinIdentity(90)
             .withHost("localhost")
@@ -151,7 +151,7 @@ def _cpsl(file1, file2, isprint=True):
 
     cc_res = SearchIO.read(cc_psl, "blat-psl")
 
-    if isinstance(cp_psl, str) or isinstance(cp_psl, Path):
+    if isinstance(cp_psl, (Path, str)):
         cp_res = SearchIO.read(cp_psl, "blat-psl")
     else:
         cp_res = cp_psl
