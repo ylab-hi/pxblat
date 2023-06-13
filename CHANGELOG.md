@@ -2,7 +2,112 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.0] - 2023-06-13
+
+### Bug Fixes
+
+- Update urllib3 version to 1.26.9
+
+### Documentation
+
+- Add logo
+- Update contact information in epilog
+- Add installation guide for prerequisites
+- Add tutorial and CLI usage to docs
+- Update README.md [skip ci]
+- Create .all-contributorsrc [skip ci]
+- Update FAQ heading in installation.md
+
+### Features
+
+- Add twoBitToFa module
+- Add support for twobittofa command
+- Add PXBLATLIB macro to escape unused code
+- Add linkcheck to build docs
+
+### Miscellaneous Tasks
+
+- Update aicommits to use conventional type
+- Bump deprecated from 1.2.13 to 1.2.14
+- Bump urllib3 from 1.26.9 to 2.0.2
+- Bump pybind11-stubgen from 0.14.0 to 0.15.0 (#15)
+- Bump poetry from 1.5.0 to 1.5.1 in /.github/workflows
+- Bump scienceplots from 2.0.1 to 2.1.0
+- Bump rich from 13.3.5 to 13.4.1
+- Bump sphinx-immaterial from 0.11.3 to 0.11.4
+- Bump ipython from 8.13.2 to 8.14.0
+- Update pull_request configuration and remove empty line
+- Add search_source to Makefile commands
+- Bump urllib3 from 1.26.9 to 2.0.2
+- Bump ruff from 0.0.270 to 0.0.271 (#32)
+- Bump ruff from 0.0.271 to 0.0.272
+- Bump urllib3 from 2.0.2 to 2.0.3 (#34)
+- Remove 2to3 binary on macOS build workflow
+- Rename directories and update tasks
+- Remove unnecessary file for macos-latest build
+- Remove unnecessary file in Install Dependencies script
+- Remove unused code and update comments
+- Remove unused Python IDLE3 binary
+- Update installation.md and tests.yml files
+- Update tests.yml and README.md
+- Bump pybind11-stubgen from 0.15.0 to 0.15.1 (#38)
+- Bump pytest from 7.3.1 to 7.3.2 (#37)
+- Bump sphinx-autoapi from 2.1.0 to 2.1.1 (#36)
+- Remove urllib3 dependency
+
+### Refactor
+
+- Add udcDir option to twoBitToFa() function
+- Rename gfClientOption to ClientOption
+- Rename gfServerOption to ServerOption
+- Throw exceptions instead of aborting
+- Remove unnecessary horizontal lines and update installation instructions in README.md
+
+### Styling
+
+- Remove commented code in twoBitToFa.hpp
+- Update file path in test_server.py
+- Remove commented code in twoBitToFa.hpp
+- Update file path in test_server.py
+- Remove blank line in README.md
+- Fix capitalization of executable names
+- Remove comments and emphasize headings in installation.md
+- Remove unnecessary commented lines and update dependencies in tests.yml, fix a typo in tutorial.md
+- Update macOS dependencies installation command and update README features section
+- Update font weights in CSS file
+
+### Testing
+
+- Add test for twobit2fa
+- Add blat suit as benchmark
+- Test correct result with blat suit
+
+### Ci
+
+- Fix peotry
+
+## [0.1.6] - 2023-05-27
+
+### Bug Fixes
+
+- Add path
+
+### Documentation
+
+- Customiza document
+
+## [0.1.5] - 2023-05-26
+
+### Documentation
+
+- Add doc draft
+
+### Miscellaneous Tasks
+
+- Bump sphinx-click from 4.3.0 to 4.4.0 in /docs
+- Bump pybind11-stubgen from 0.13.0 to 0.14.0
+
+## [0.1.4] - 2023-05-26
 
 ### Features
 
@@ -20,6 +125,7 @@ All notable changes to this project will be documented in this file.
 - Bump setuptools from 67.7.2 to 67.8.0 (#4)
 - Bump actions/checkout from 2 to 3
 - Bump docker/build-push-action from 3 to 4
+- Update changelog, bump version to 0.1.4 in pyproject.toml
 
 ### Build
 
