@@ -2,14 +2,14 @@
   font-family: "Cascadia Code";
   src: url("CascadiaCode/woff2/static/CascadiaCode-Regular.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Cascadia Code";
   src: url("CascadiaCode/woff2/static/CascadiaCode-Bold.woff2") format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -17,7 +17,7 @@
   font-family: "Cascadia Code";
   src: url("CascadiaCode/woff2/static/CascadiaCode-Italic.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: italic;
 }
 
@@ -25,7 +25,7 @@
   font-family: "Cascadia Code";
   src: url("CascadiaCode/woff2/static/CascadiaCode-BoldItalic.woff2")
     format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: italic;
 }
 
@@ -96,7 +96,7 @@
   font-family: "Cascadia Code PL";
   src: url("CascadiaCode/woff2/static/CascadiaCodePL-Regular.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -104,7 +104,7 @@
   font-family: "Cascadia Code PL";
   src: url("CascadiaCode/woff2/static/CascadiaCodePL-Bold.woff2")
     format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -112,7 +112,7 @@
   font-family: "Cascadia Code PL";
   src: url("CascadiaCode/woff2/static/CascadiaCodePL-Italic.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: italic;
 }
 
@@ -120,7 +120,7 @@
   font-family: "Cascadia Code PL";
   src: url("CascadiaCode/woff2/static/CascadiaCodePL-BoldItalic.woff2")
     format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: italic;
 }
 
@@ -128,14 +128,14 @@
   font-family: "Cascadia Mono";
   src: url("CascadiaCode/woff2/static/CascadiaMono-Regular.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Cascadia Mono";
   src: url("CascadiaCode/woff2/static/CascadiaMono-Bold.woff2") format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -143,7 +143,7 @@
   font-family: "Cascadia Mono";
   src: url("CascadiaCode/woff2/static/CascadiaMono-Italic.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: italic;
 }
 
@@ -151,7 +151,7 @@
   font-family: "Cascadia Mono";
   src: url("CascadiaCode/woff2/static/CascadiaMono-BoldItalic.woff2")
     format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: italic;
 }
 
@@ -222,7 +222,7 @@
   font-family: "Cascadia Mono PL";
   src: url("CascadiaCode/woff2/static/CascadiaMonoPL-Regular.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -230,7 +230,7 @@
   font-family: "Cascadia Mono PL";
   src: url("CascadiaCode/woff2/static/CascadiaMonoPL-Bold.woff2")
     format("woff2");
-  font-weight: bold;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -238,6 +238,6 @@
   font-family: "Cascadia Mono PL";
   src: url("CascadiaCode/woff2/static/CascadiaMonoPL-Italic.woff2")
     format("woff2");
-  font-weight: normal;
+  font-weight: 400;
   font-style: italic;
 }

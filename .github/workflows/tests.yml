@@ -67,8 +67,14 @@ jobs:
 
       - name: Install Dependencies
         if: matrix.os == 'macos-latest'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
+
         run: |
-          brew install htslib openssl@3
+          brew install htslib
+          brew install openssl@3
           ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
           ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/

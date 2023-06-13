@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pxblat
 import simdjson
-from invoke import task
+from invoke.tasks import task
 from pxblat import extc
 from pxblat.extc import pygfClient
 from pxblat.server import Client
@@ -49,11 +49,11 @@ def dummy_work(num):
 
 def option_stat():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -100,7 +100,7 @@ def test_server_status():
 
 
 def test_query_server():
-    extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    extc.ServerOption().withCanStop(True).withStepSize(5).build()
     extc.queryServer(
         "query", "localhost", str(PORT), "tests/data/test_query.fa", False, False
     )
@@ -247,7 +247,7 @@ def pquery_server(c):
 
 @task
 def server(c):
-    option = extc.gfServerOption().withCanStop(True).withStepSize(5).build()
+    option = extc.ServerOption().withCanStop(True).withStepSize(5).build()
     two_bit_file = Path("tests/data/test_ref.2bit")
 
     server = pxblat.server.Server("localhost", PORT, two_bit_file, option)
@@ -301,7 +301,7 @@ def asc(c):
 @task
 def sc(c):
     options = (
-        extc.gfServerOption()
+        extc.ServerOption()
         .withCanStop(True)
         .withDebugLog(True)
         .withSyslog(True)
@@ -321,7 +321,7 @@ def ls(c):
 @task
 def pc(c):
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -350,7 +350,7 @@ def test2(c):
 
     # .withInName("tests/data/test_case1.fa")
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -391,7 +391,7 @@ def runp(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -430,7 +430,7 @@ def runp2(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
     # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -484,7 +484,7 @@ def runcp(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
     # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -631,7 +631,7 @@ def bench(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -658,7 +658,7 @@ def bench(c, fa1: str):
     pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
 
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
 
     print("open python server")
@@ -672,7 +672,7 @@ def bench(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -718,7 +718,7 @@ def debug(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -742,7 +742,7 @@ def debug(c, fa1: str):
     import pxblat._extc as ct
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -783,7 +783,7 @@ def debugcp(c, fa1: str):
 
     two_bit = Path("benchmark/data/chr20.2bit")
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -826,7 +826,7 @@ def benchsccp(c):
         )
 
         client_option = (
-            extc.gfClientOption()
+            extc.ClientOption()
             .withMinScore(20)
             .withMinIdentity(90)
             .withHost("localhost")
@@ -853,7 +853,7 @@ def benchspcp(c):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -871,7 +871,7 @@ def benchspcp(c):
         )
 
         client_option = (
-            extc.gfClientOption()
+            extc.ClientOption()
             .withMinScore(20)
             .withMinIdentity(90)
             .withHost("localhost")
@@ -891,8 +891,8 @@ def benchspcp(c):
 
 
 @task
-def cmpbench(c, fas_path: str):
-    fas_path = Path(fas_path)
+def cmpbench(c, fa_path: str):
+    fas_path = Path(fa_path)
 
     num_files = 0
 
@@ -973,7 +973,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -983,7 +983,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
     pool = ProcessPoolExecutor
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(1).build()
     )
     result = []
     start_time = time.perf_counter()
@@ -996,7 +996,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
             if idp >= max_files:
                 break
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1024,7 +1024,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
 
 def status_server_c():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
     return extc.pystatusServer("localhost", str(PORT), server_option)
 
@@ -1036,7 +1036,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
 
     ## python server
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
 
     print("open python server")
@@ -1056,7 +1056,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
                 break
 
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1141,7 +1141,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
                 break
 
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1203,9 +1203,9 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
 
 
 @task
-def benchscc(c, fas_path: str, concurrent: int = 4):
+def benchscc(c, fa_path: str, concurrent: int = 4):
     two_bit = Path("benchmark/data/chr20.2bit")
-    fas_path = Path(fas_path)
+    fas_path = Path(fa_path)
 
     print("open c server")
     p = Process(
@@ -1251,7 +1251,7 @@ def benchscc(c, fas_path: str, concurrent: int = 4):
 
 def query_server2(two_bit, fa1_path, pp_res):
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -1270,14 +1270,12 @@ def query_server2(two_bit, fa1_path, pp_res):
 
 
 @task
-def benchspp(c, fas_path: str, concurrent: int = 4):
+def benchspp(c, fa_path: str, concurrent: int = 4):
     two_bit = Path("benchmark/data/chr20.2bit")
-    fas_path = Path(fas_path)
+    fas_path = Path(fa_path)
 
     ## python server
-    server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
-    )
+    server_option = extc.ServerOption().withCanStop(True).withStepSize(5).build()
     print("open python server")
     server = Server("localhost", PORT, two_bit, server_option)
     server.start()
@@ -1293,7 +1291,7 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
             pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
 
             (
-                extc.gfClientOption()
+                extc.ClientOption()
                 .withMinScore(20)
                 .withMinIdentity(90)
                 .withHost("localhost")
@@ -1316,12 +1314,6 @@ def benchspp(c, fas_path: str, concurrent: int = 4):
 
         for res in result:
             res.result()
-
-        # print(f"run python client save to file {pp_res}")
-        # parse = False
-        # client = Client(client_option, parse=parse)
-        # client.start()
-        # client.get()
 
     dura_py = time.perf_counter() - start_time
     print(f"run python server and client time: {dura_py:.4}s")
@@ -1425,3 +1417,14 @@ def search_source(c):
             if souce.name == file.name:
                 print(f"{file} is in sources {souce}")
                 break
+
+
+@task
+def tpickle(c):
+    import pickle
+
+    c = pxblat.ClientOption()
+    c.withHost("localhost2").build()
+    cdata = pickle.dumps(c)
+    cn = pickle.loads(cdata)
+    print(cn)

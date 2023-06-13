@@ -27,29 +27,33 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [close-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed
 [opull]: https://github.com/cauliyang/pxblat/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc
 
----
-
-## 📚 Table of Contents
+## 📚 **Table of Contents**
 
 - [📚 Table of Contents](#-table-of-contents)
 - [🔮 Features](#-features)
+- [📎 Citation](#-citation)
+- [📆 To-do](#-to-do)
 - [🏎💨 Getting Started](#-getting-started)
 - [🤝 Contributing](#-contributing)
 - [🪪 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
 
----
+## 🔮 **Features**
 
-## 🔮 Features
+**Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.<br>
+**Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.<br>
+**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
+**Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally.<br>
+**Robust Validation**: Extensively tested to ensure reliable performance and superior stability as BLAT.<br>
+**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
+**In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.<br>
 
-- no intermidiate files, all in memory
-- no system call
-- no need to bother with log files to get status of tool
-- no need to worry about file format
-- no other dependency
-- higher proformance and Ergonomics (compare with current blat endpoint)
+## 📎 **Citation**
 
-## To-do
+PxBLAT is scientific software, with a published paper in the [Journal].
+Check the [published] to read the paper.
+
+## 📆 **To-do**
 
 - [x] parser gfclient result
 - [x] parse gfserver query result
@@ -58,63 +62,39 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [x] fix build.py to build ssl, hts, maybe libuv when install with pip
 - [ ] add tool to conda channel
 - [x] add tool to pip
-- [ ] change abort to throw exceptions
+- [x] change abort to throw exceptions
+- [x] implement twobit2fa
 - [ ] implement psl2sam
-- [ ] implement twobit2fa
 
----
+## 🚀 **Getting Started**
 
-## 🚀 Getting Started
+The very first step in starting your journey with `PxBLAT` is to install the tool.
+To do this, there are two options shown as below:
 
-```sh
+- PyPI
+
+```bash
 pip install pxblat
 ```
 
-```sh
+- CONDA
+
+```bash
 conda install pxblat
 ```
 
-### ✅ Prerequisites
+Congratulations! You've successfully installed `PxBLAT` on your local machine.
+If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
 
-Before you begin, ensure that you have the following prerequisites installed:
+### 🤖 **Using pxblat**
 
-> You need to install `openssl` and `htslib` first.
-
-### 💻 Installation
-
-1. Clone the pxblat repository:
-
-```sh
-git clone https://github.com/cauliyang/pxblat.git
+```bash
+pxblat -h
 ```
 
-2. Change to the project directory:
+Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details.
 
-```sh
-cd pxblat
-```
-
-3. Install the dependencies:
-
-```sh
-poetry install
-```
-
-### 🤖 Using pxblat
-
-```sh
-pxblat
-```
-
-### 🧪 Running Tests
-
-```sh
-pytest
-```
-
----
-
-## 🤝 Contributing
+## 🤝 **Contributing**
 
 Contributions are always welcome! Please follow these steps:
 
@@ -122,34 +102,45 @@ Contributions are always welcome! Please follow these steps:
 2. Clone the forked repository to your local machine using a Git client like Git or GitHub Desktop.
 3. Create a new branch with a descriptive name (e.g., `new-feature-branch` or `bugfix-issue-123`).
 
-```sh
+```bash
 git checkout -b new-feature-branch
 ```
 
-4. Make changes to the project's codebase.
-5. Commit your changes to your local branch with a clear commit message that explains the changes you've made.
+4. Take changes to the project's codebase.
+5. Install the latest package
 
-```sh
+```bash
+poetry install
+```
+
+6. Test your changes
+
+```bash
+pytest -vlsx test
+```
+
+7. Commit your changes to your local branch with a clear commit message that explains the changes you've made.
+
+```bash
 git commit -m 'Implemented new feature.'
 ```
 
-6. Push your changes to your forked repository on GitHub using the following command
+8. Push your changes to your forked repository on GitHub using the following command
 
-```sh
+```bash
 git push origin new-feature-branch
 ```
 
-7. Create a pull request to the original repository.
-   Open a new pull request to the original project repository. In the pull request, describe the changes you've made and why they're necessary.
-   The project maintainers will review your changes and provide feedback or merge them into the main branch.
+Create a pull request to the original repository.
+Open a new pull request to the original project repository. In the pull request, describe the changes you've made and why they're necessary.
+The project maintainers will review your changes and provide feedback or merge them into the main branch.
 
----
+## 🪪 **License**
 
-## 🪪 License
+This project is licensed under the [MIT](https://opensource.org/licenses/mit) License. See the [LICENSE](https://github.com/cauliyang/pxblat/blob/main/LICENSE) file for additional info.
+The license of [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) is [here](https://genome.ucsc.edu/license/).
 
-This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See the [LICENSE](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) file for additional info.
-
-## Contributors
+## **Contributors**
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -174,12 +165,9 @@ This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See th
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
----
+## 🙏 **Acknowledgments**
 
-## 🙏 Acknowledgments
-
-[📌 INSERT-DESCRIPTION]
-
----
+- [UCSC](https://github.com/ucscGenomeBrowser/kent)
+- [pybind11](https://github.com/pybind/pybind11/tree/stable)
 
 <!-- github-only -->

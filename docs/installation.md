@@ -1,6 +1,11 @@
 # Install
 
-## Prerequisites
+## **Prerequisites**
+
+Before you begin with the installation and use of `pxblat`, there are certain prerequisites that need to be met.
+The following sections detail the necessary software, hardware, and knowledge prerequisites that you should have before you start.
+`pxblat` has been tested and runs on the following operating systems **Linux** and **macOS**.
+Programming Languages and Libraries: You should have the following installed:
 
 `````{md-tab-set}
 
@@ -24,7 +29,7 @@ apt-get update && apt-get install libhts-dev libssl-dev
 
 `````
 
-## Get Started
+## **Get Started**
 
 `````{md-tab-set}
 
@@ -68,3 +73,5 @@ set -gs CFLAGS="test"
 `````
 
 ``````
+
+## **FAQ (Frequently Asked Questions)**

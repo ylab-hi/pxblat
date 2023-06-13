@@ -103,7 +103,7 @@ int getPortIx(char *portName)
 // int trimCount = 0;
 
 void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, struct hash *perSeqMaxHash,
-              gfServerOption const &options, UsageStats &stats, boolean &sendOk)
+              ServerOption const &options, UsageStats &stats, boolean &sendOk)
 /* Handle a query for DNA/DNA match. */
 {
   auto maxDnaHits = options.maxDnaHits;
@@ -138,7 +138,7 @@ void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, str
   dbg(hitCount);
 }
 
-void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, gfServerOption const &options,
+void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle, ServerOption const &options,
                 UsageStats &stats, boolean &sendOk)
 /* Handle a query for protein/translated DNA match. */
 {
@@ -185,7 +185,7 @@ void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle
 }
 
 void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int connectionHandle,
-                     gfServerOption const &options, UsageStats &stats, boolean &sendOk)
+                     ServerOption const &options, UsageStats &stats, boolean &sendOk)
 /* Handle a query for protein/translated DNA match. */
 {
   auto tileSize = options.tileSize;
@@ -301,7 +301,7 @@ void errorSafeCleanupMess(int connectionHandle, char *message, boolean &sendOk)
 }
 
 void errorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
-                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                    int connectionHandle, char *buf, struct hash *perSeqMaxHash, ServerOption const &options,
                     UsageStats &stats, boolean &sendOk)
 /* Wrap error handling code around index query. */
 {
@@ -385,7 +385,7 @@ struct hash *buildPerSeqMax(int fileCount, char *seqFiles[], char *perSeqMaxFile
   return perSeqMaxHash;
 }
 
-struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], gfServerOption &options)
+struct hash *maybePerSeqMax(int fileCount, char *seqFiles[], ServerOption &options)
 /* If options include -perSeqMax=file, then read the sequences named in the file
  * into a hash for testing membership in the set of sequences to exclude from
  * -maxDnaHits accounting. */
@@ -407,7 +407,7 @@ void hashZeroVals(struct hash *hash)
   while ((hel = hashNext(&cookie)) != NULL) hel->val = 0;
 }
 
-void checkIndexFileName(char *gfxFile, char *seqFile, gfServerOption const &options)
+void checkIndexFileName(char *gfxFile, char *seqFile, ServerOption const &options)
 /* validate that index matches conventions, as base name is stored in index */
 {
   boolean doTrans = bool2boolean(options.trans);
@@ -452,7 +452,7 @@ struct dynSession
   struct genoFindIndex *gfIdx;  // index
 };
 
-struct genoFindIndex *loadGfIndex(char *gfIdxFile, boolean isTrans, gfServerOption &options)
+struct genoFindIndex *loadGfIndex(char *gfIdxFile, boolean isTrans, ServerOption &options)
 /* load index and set globals from it */
 {
   struct genoFindIndex *gfIdx = genoFindIndexLoad(gfIdxFile, isTrans);
@@ -485,7 +485,7 @@ void dynWarnHandler(char *format, va_list args)
 }
 
 void dynSessionInit(struct dynSession *dynSession, char *rootDir, char *genome, char *genomeDataDir, boolean isTrans,
-                    gfServerOption &options)
+                    ServerOption &options)
 /* Initialize or reinitialize a dynSession object */
 {
   if ((!isSafeRelativePath(genome)) || (strchr(genome, '/') != NULL))
@@ -544,7 +544,7 @@ char *dynReadCommand(char *rootDir)
 
 // static const int DYN_CMD_MAX_ARGS = 8;  // more than needed to check for junk
 
-int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, gfServerOption &options)
+int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, ServerOption &options)
 /* Read query request from stdin and (re)initialize session to match
  * parameters.  Return number of arguments or zero on EOF
  *
@@ -571,7 +571,7 @@ int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, gf
   return numArgs;
 }
 
-struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, gfServerOption const &options)
+struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, ServerOption const &options)
 /* read the DNA sequence from the query, filtering junk  */
 {
   auto maxAaSize = options.maxAaSize;
@@ -601,7 +601,7 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
   return seq;
 }
 
-void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, gfServerOption const &options,
+void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args, ServerOption const &options,
                         UsageStats &stats, boolean &sendOk)
 /* handle search queries
  *
@@ -682,7 +682,7 @@ void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **args, b
   pcrQuery(gfIdx->untransGf, fPrimer, rPrimer, maxDistance, STDOUT_FILENO, sendOk);
 }
 
-bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServerOption &options, UsageStats &stats,
+bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, ServerOption &options, UsageStats &stats,
                           boolean &sendOk)
 /* Execute one command from stdin, (re)initializing session as needed */
 {
@@ -708,7 +708,7 @@ bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, gfServer
   return TRUE;
 }
 
-void gfServer(gfServerOption &options)
+void gfServer(ServerOption &options)
 /* Process command line. */
 {
   char *command;
@@ -810,7 +810,7 @@ void gfServer(gfServerOption &options)
 
 // cpp implementation
 void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::string> &seqFiles,
-                    gfServerOption const &options)
+                    ServerOption const &options)
 /* Don't set up server - just directly look for matches. */
 {
   auto minMatch = options.minMatch;
@@ -857,7 +857,7 @@ void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::stri
 }
 
 void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, std::vector<std::string> &seqFiles,
-                   gfServerOption const &options) {
+                   ServerOption const &options) {
   auto minMatch = options.minMatch;
   auto maxGap = options.maxGap;
   auto tileSize = options.tileSize;
@@ -914,7 +914,7 @@ void genoPcrDirect(std::string &fPrimer, std::string &rPrimer, int fileCount, st
 }
 
 genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName, int fileCount, char *seqFiles[],
-                                   hash *perSeqMaxHash, gfServerOption &option) {
+                                   hash *perSeqMaxHash, ServerOption &option) {
   auto indexFile = option.indexFile.empty() ? NULL : option.indexFile.data();
 
   // auto ipLog = option.ipLog;
@@ -966,7 +966,7 @@ genoFindIndex *pybuildIndex4Server(std::string &hostName, std::string &portName,
 }
 // void startServer(char *hostName, char *portName, int fileCount, char *seqFiles[])
 void startServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                 gfServerOption &options, UsageStats &stats)
+                 ServerOption &options, UsageStats &stats)
 /* Load up index and hang out in RAM. */
 {
   auto indexFile = options.indexFile.empty() ? NULL : options.indexFile.data();
@@ -1377,7 +1377,7 @@ void pcrServer(std::string &hostName, std::string &portName, std::string &fPrime
   close(sd);
 }
 
-std::string pystatusServer(std::string &hostName, std::string &portName, gfServerOption &options)
+std::string pystatusServer(std::string &hostName, std::string &portName, ServerOption &options)
 /* Send status message to server arnd report result. */
 {
   auto ret_str = std::ostringstream{};
@@ -1413,7 +1413,7 @@ std::string pystatusServer(std::string &hostName, std::string &portName, gfServe
   return ret_str.str();
 }
 
-int statusServer(std::string &hostName, std::string &portName, gfServerOption &options)
+int statusServer(std::string &hostName, std::string &portName, ServerOption &options)
 /* Send status message to server arnd report result. */
 {
   auto genome = options.genome.empty() ? NULL : options.genome.data();
@@ -1498,7 +1498,7 @@ void getFileList(std::string &hostName, std::string &portName)
   close(sd);
 }
 
-void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, gfServerOption const &options)
+void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> seqFiles, ServerOption const &options)
 /* build pre-computed index for seqFiles and write to gfxFile */
 {
   auto minMatch = options.minMatch;
@@ -1526,7 +1526,7 @@ void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> se
   genoFindIndexWrite(gfIdx, gfxFile.data());
 }
 
-void dynamicServer(std::string &rootDir, gfServerOption &options, UsageStats &stats, boolean &sendOk)
+void dynamicServer(std::string &rootDir, ServerOption &options, UsageStats &stats, boolean &sendOk)
 /* dynamic server for inetd. Read query from stdin, open index, query, respond,
  * exit. only one query at a time */
 {
@@ -1549,7 +1549,7 @@ void dynamicServer(std::string &rootDir, gfServerOption &options, UsageStats &st
   logDebug("dynamicServer disconnect");
 }
 
-gfServerOption &gfServerOption::build() {
+ServerOption &ServerOption::build() {
   if (trans) {
     tileSize = 4;
     stepSize = tileSize;
@@ -1566,124 +1566,124 @@ gfServerOption &gfServerOption::build() {
   return *this;
 }
 
-gfServerOption &gfServerOption::withCanStop(bool canStop_) {
+ServerOption &ServerOption::withCanStop(bool canStop_) {
   canStop = canStop_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withLog(std::string log_) {
+ServerOption &ServerOption::withLog(std::string log_) {
   log = std::move(log_);
   return *this;
 }
 
-gfServerOption &gfServerOption::withLogFacility(std::string logFacility_) {
+ServerOption &ServerOption::withLogFacility(std::string logFacility_) {
   logFacility = std::move(logFacility_);
   return *this;
 }
 
-gfServerOption &gfServerOption::withMask(bool mask_) {
+ServerOption &ServerOption::withMask(bool mask_) {
   mask = mask_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMaxAaSize(int maxAaSize_) {
+ServerOption &ServerOption::withMaxAaSize(int maxAaSize_) {
   maxAaSize = maxAaSize_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMaxDnaHits(int maxDnaHits_) {
+ServerOption &ServerOption::withMaxDnaHits(int maxDnaHits_) {
   maxDnaHits = maxDnaHits_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMaxGap(int maxGap_) {
+ServerOption &ServerOption::withMaxGap(int maxGap_) {
   maxGap = maxGap_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMaxNtSize(int maxNtSize_) {
+ServerOption &ServerOption::withMaxNtSize(int maxNtSize_) {
   maxNtSize = maxNtSize_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMaxTransHits(int maxTransHits_) {
+ServerOption &ServerOption::withMaxTransHits(int maxTransHits_) {
   maxTransHits = maxTransHits_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withMinMatch(int minMatch_) {
+ServerOption &ServerOption::withMinMatch(int minMatch_) {
   minMatch = minMatch_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withRepMatch(int repMatch_) {
+ServerOption &ServerOption::withRepMatch(int repMatch_) {
   repMatch = repMatch_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withSeqLog(bool seqLog_) {
+ServerOption &ServerOption::withSeqLog(bool seqLog_) {
   seqLog = seqLog_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withIpLog(bool ipLog_) {
+ServerOption &ServerOption::withIpLog(bool ipLog_) {
   ipLog = ipLog_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withDebugLog(bool debugLog_) {
+ServerOption &ServerOption::withDebugLog(bool debugLog_) {
   debugLog = debugLog_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withTileSize(int tileSize_) {
+ServerOption &ServerOption::withTileSize(int tileSize_) {
   tileSize = tileSize_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withStepSize(int stepSize_) {
+ServerOption &ServerOption::withStepSize(int stepSize_) {
   stepSize = stepSize_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withTrans(bool trans_) {
+ServerOption &ServerOption::withTrans(bool trans_) {
   trans = trans_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withSyslog(bool syslog_) {
+ServerOption &ServerOption::withSyslog(bool syslog_) {
   syslog = syslog_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withPerSeqMax(std::string perSeqMax_) {
+ServerOption &ServerOption::withPerSeqMax(std::string perSeqMax_) {
   perSeqMax = std::move(perSeqMax_);
   return *this;
 }
 
-gfServerOption &gfServerOption::withNoSimpRepMask(bool noSimpRepMask_) {
+ServerOption &ServerOption::withNoSimpRepMask(bool noSimpRepMask_) {
   noSimpRepMask = noSimpRepMask_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withIndexFile(std::string indexFile_) {
+ServerOption &ServerOption::withIndexFile(std::string indexFile_) {
   indexFile = std::move(indexFile_);
   return *this;
 }
 
-gfServerOption &gfServerOption::withTimeout(int timeout_) {
+ServerOption &ServerOption::withTimeout(int timeout_) {
   timeout = timeout_;
   return *this;
 }
 
-gfServerOption &gfServerOption::withThreads(int threads_) {
+ServerOption &ServerOption::withThreads(int threads_) {
   threads = threads_;
   return *this;
 }
 
-std::string gfServerOption::to_string() const {
+std::string ServerOption::to_string() const {
   std::stringstream s{};
-  s << "gfServerOption(";
+  s << "ServerOption(";
   s << "canStop: " << std::boolalpha << canStop;
   s << ", log: " << log;
   s << ", logFacility: " << logFacility;
@@ -1714,7 +1714,7 @@ std::string gfServerOption::to_string() const {
   return s.str();
 }
 
-std::ostream &operator<<(std::ostream &os, const gfServerOption &option) {
+std::ostream &operator<<(std::ostream &os, const ServerOption &option) {
   os << option.to_string();
   return os;
 }

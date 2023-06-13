@@ -4,8 +4,8 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Union
 
-from pxblat.extc import gfServerOption
 from pxblat.extc import pystartServer
+from pxblat.extc import ServerOption
 from pxblat.extc import UsageStats
 
 from .basic import check_port_in_use
@@ -19,14 +19,24 @@ from .basic import wait_server_ready
 from .status import Status
 
 
-def create_server_option() -> gfServerOption:
+def _pystartServer(
+    hostName: str,
+    portName: str,
+    seqFiles: t.List[str],
+    options: ServerOption,
+    stats: UsageStats,
+):
+    pystartServer(hostName, portName, len(seqFiles), seqFiles, options, stats)
+
+
+def create_server_option() -> ServerOption:
     """
-    Creates a new gfServerOption object with default values.
+    Creates a new ServerOption object with default values.
 
     Returns:
-        gfServerOption: A new gfServerOption object with default values.
+        ServerOption: A new ServerOption object with default values.
     """
-    return gfServerOption()
+    return ServerOption()
 
 
 class Server(ContextDecorator):
@@ -35,7 +45,7 @@ class Server(ContextDecorator):
         host: str,
         port: int,
         two_bit: Union[Path, str],
-        option: gfServerOption,
+        option: ServerOption,
         daemon=True,
         use_others: bool = False,
         timeout: int = 60,
@@ -47,7 +57,7 @@ class Server(ContextDecorator):
             host (str): The hostname or IP address to bind the server to.
             port (int): The port number to bind the server to.
             two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
-            option (gfServerOption): The options to use when starting the server.
+            option (ServerOption): The options to use when starting the server.
             daemon (bool, optional): Whether to run the server as a daemon process. Defaults to True.
             use_others (bool, optional): Whether to allow other users to access the server. Defaults to False.
             timeout (int, optional): The number of seconds to wait for the server to start. Defaults to 60.
@@ -139,27 +149,29 @@ class Server(ContextDecorator):
                     self._is_open = True
                     new_port = find_free_port(self._host, start=self.port + 1)
                     self.port = new_port
+                    host = self.host
+                    port = self.port
+
                     self._process = Process(
-                        target=pystartServer,
+                        target=_pystartServer,
                         args=(
-                            self.host,
-                            str(self.port),
-                            1,
+                            host,
+                            str(port),
                             [two_bit_file],
                             self.option,
                             self.stat,
                         ),
                         daemon=self.daemon,
                     )
+
             else:
                 self._is_open = True
                 logger.debug(f"{self.port} port not in use")
                 self._process = Process(
-                    target=pystartServer,
+                    target=_pystartServer,
                     args=(
                         self.host,
                         str(self.port),
-                        1,
                         [two_bit_file],
                         self.option,
                         self.stat,
@@ -193,6 +205,9 @@ class Server(ContextDecorator):
         """
         if self._is_open:
             stop_server(self.host, self.port)
+
+        if self._process is not None:
+            self._process.terminate()
 
     def status(self, instance=False) -> t.Union[t.Dict[str, str], Status]:
         """
