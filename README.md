@@ -27,8 +27,6 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [close-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed
 [opull]: https://github.com/cauliyang/pxblat/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc
 
----
-
 ## 📚 Table of Contents
 
 - [📚 Table of Contents](#-table-of-contents)
@@ -38,16 +36,14 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [🪪 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
 
----
-
 ## 🔮 Features
 
-**In-Memory Processing**: `PxBlAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.
+**In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.
 **Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.
-**Self-Monitoring**: No need to trawl through log files; `PxBlAT` monitors its status internally and keeps you updated.
-**Format-Agnostic:** `PxBlAT` doesn't require you to worry about file formats.
-**No External Dependencies**: `PxBlAT` operates independently without any external dependencies.
-**Ergonomics**: With an ergonomic design, `PxBlAT` aims for a seamless user experience.
+**Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally and keeps you updated.
+**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.
+**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.
+**Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.
 
 ## To-do
 
@@ -62,57 +58,32 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [x] implement twobit2fa
 - [ ] implement psl2sam
 
----
-
 ## 🚀 Getting Started
+
+The very first step in starting your journey with `PxBLAT` is to install the tool.
+To do this, there are two options shown as below:
+
+- PyPI
 
 ```bash
 pip install pxblat
 ```
 
+- CONDA
+
 ```bash
 conda install pxblat
 ```
 
-### ✅ Prerequisites
-
-Before you begin, ensure that you have the following prerequisites installed:
-
-> You need to install `openssl` and `htslib` first.
-
-### 💻 Installation
-
-1. Clone the pxblat repository:
-
-```sh
-git clone https://github.com/cauliyang/pxblat.git
-```
-
-2. Change to the project directory:
-
-```sh
-cd pxblat
-```
-
-3. Install the dependencies:
-
-```sh
-poetry install
-```
+Congratulations! You've successfully installed ToolXYZ on your local machine.
 
 ### 🤖 Using pxblat
 
-```sh
-pxblat
+```bash
+pxblat -h
 ```
 
-### 🧪 Running Tests
-
-```sh
-pytest
-```
-
----
+Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details.
 
 ## 🤝 Contributing
 
@@ -122,28 +93,38 @@ Contributions are always welcome! Please follow these steps:
 2. Clone the forked repository to your local machine using a Git client like Git or GitHub Desktop.
 3. Create a new branch with a descriptive name (e.g., `new-feature-branch` or `bugfix-issue-123`).
 
-```sh
+```bash
 git checkout -b new-feature-branch
 ```
 
-4. Make changes to the project's codebase.
-5. Commit your changes to your local branch with a clear commit message that explains the changes you've made.
+4. Take changes to the project's codebase.
+5. Install the latest package
 
-```sh
+```bash
+poetry install
+```
+
+6. Test your changes
+
+```bash
+pytest -vlsx test
+```
+
+7. Commit your changes to your local branch with a clear commit message that explains the changes you've made.
+
+```bash
 git commit -m 'Implemented new feature.'
 ```
 
-6. Push your changes to your forked repository on GitHub using the following command
+8. Push your changes to your forked repository on GitHub using the following command
 
 ```sh
 git push origin new-feature-branch
 ```
 
-7. Create a pull request to the original repository.
-   Open a new pull request to the original project repository. In the pull request, describe the changes you've made and why they're necessary.
-   The project maintainers will review your changes and provide feedback or merge them into the main branch.
-
----
+Create a pull request to the original repository.
+Open a new pull request to the original project repository. In the pull request, describe the changes you've made and why they're necessary.
+The project maintainers will review your changes and provide feedback or merge them into the main branch.
 
 ## 🪪 License
 
@@ -174,12 +155,9 @@ This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See th
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
----
-
 ## 🙏 Acknowledgments
 
-[📌 INSERT-DESCRIPTION]
-
----
+- [UCSC](https://github.com/ucscGenomeBrowser/kent)
+- [Pybind11](https://github.com/pybind/pybind11/tree/stable)
 
 <!-- github-only -->
