@@ -74,4 +74,4 @@ set -gs CFLAGS="test"
 
 ``````
 
-## **FAQ**
+## **FAQ (Frequently Asked Questions)**
