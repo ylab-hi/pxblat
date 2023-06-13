@@ -6,6 +6,11 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(".."))
 
 
+# reference:
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#paragraph-level-markup
+# https://jbms.github.io/sphinx-immaterial/code_annotations.html#custom-tooltip-width
+# https://myst-parser.readthedocs.io/en/latest/syntax/typography.html#syntax-core
+
 project = "PxBLAT"
 author = "Yangyang Li"
 copyright = f"{datetime.now().year}, {author}"
