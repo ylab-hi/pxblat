@@ -58,9 +58,9 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [x] fix build.py to build ssl, hts, maybe libuv when install with pip
 - [ ] add tool to conda channel
 - [x] add tool to pip
-- [ ] change abort to throw exceptions
+- [x] change abort to throw exceptions
+- [x] implement twobit2fa
 - [ ] implement psl2sam
-- [ ] implement twobit2fa
 
 ---
 
