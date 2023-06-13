@@ -1,5 +1,6 @@
-import pxblat
 import pickle
+
+import pxblat
 from rich import print
 
 
@@ -30,4 +31,4 @@ def test_pickle_server():
 def test_pickle_usestat():
     su = pxblat.UsageStats()
     su_data = pickle.dumps(su)
-    new_su = pickle.loads(su_data)
+    pickle.loads(su_data)

@@ -3,7 +3,7 @@ from pathlib import Path
 from threading import Thread
 from typing import Optional
 
-from pxblat.extc import gfClientOption
+from pxblat.extc import ClientOption
 from pxblat.extc import pygfClient
 from pxblat.parser import read
 
@@ -13,22 +13,22 @@ from .server import gfServerOption
 
 def create_client_option():
     """
-    Creates a new gfClientOption object with default values.
+    Creates a new ClientOption object with default values.
 
     Return:
-        gfClientOption object
+        ClientOption object
 
     """
-    return gfClientOption()
+    return ClientOption()
 
 
 def _resolve_host_port(
-    client_option: gfClientOption, host: Optional[str], port: Optional[int]
+    client_option: ClientOption, host: Optional[str], port: Optional[int]
 ):
     """Resolves the host and port for the client option.
 
     Args:
-        client_option: gfClientOption object
+        client_option: ClientOption object
         host: Optional[str]
         port: Optional[int]
     """
@@ -43,7 +43,7 @@ def _resolve_host_port(
 
 
 def query_server(
-    option: gfClientOption,
+    option: ClientOption,
     host: Optional[str] = None,
     port: Optional[int] = None,
     seqname: Optional[str] = None,
@@ -53,7 +53,7 @@ def query_server(
     Sends a query to the server and returns the result.
 
     Args:
-        option: gfClientOption object
+        option: ClientOption object
         host: Optional[str]
         port: Optional[int]
         seqname: Optional[str]
@@ -99,7 +99,7 @@ def query_server(
 class Client(Thread):
     def __init__(
         self,
-        option: gfClientOption,
+        option: ClientOption,
         host: Optional[str] = None,
         port: Optional[int] = None,
         wait_ready: bool = False,
@@ -112,7 +112,7 @@ class Client(Thread):
         """A class for querying a gfServer using a separate thread.
 
         Args:
-            option: gfClientOption object
+            option: ClientOption object
             host: Optional[str]
             port: Optional[int]
             wait_ready: bool
@@ -182,10 +182,10 @@ class Client(Thread):
     @classmethod
     def create_option(cls):
         """
-        Creates a new gfClientOption object with default values.
+        Creates a new ClientOption object with default values.
 
         Return:
-            gfClientOption object
+            ClientOption object
 
         """
         return create_client_option()

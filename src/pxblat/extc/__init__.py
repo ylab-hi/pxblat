@@ -21,4 +21,4 @@ def set_state(self, d):
     self.inSeq = d[16]
 
 
-gfClientOption.__setstate__ = set_state  # type: ignore
+ClientOption.__setstate__ = set_state  # type: ignore

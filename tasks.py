@@ -53,7 +53,7 @@ def option_stat():
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -321,7 +321,7 @@ def ls(c):
 @task
 def pc(c):
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -350,7 +350,7 @@ def test2(c):
 
     # .withInName("tests/data/test_case1.fa")
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -391,7 +391,7 @@ def runp(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -430,7 +430,7 @@ def runp2(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
     # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -484,7 +484,7 @@ def runcp(c):
     # seq = "TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
     # seq = "tgtaattccaactactcaggaggctgaggcaggagaatcgcttgagcccaggaggcggaggttgcagtgagccgagatcgcaccattgcactctagcctgggagacaagagcgaaactctgtctcaaaaaaaaaaaaagaaccaagttgaagga"
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -631,7 +631,7 @@ def bench(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -672,7 +672,7 @@ def bench(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -718,7 +718,7 @@ def debug(c, fa1: str):
     )
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -742,7 +742,7 @@ def debug(c, fa1: str):
     import pxblat._extc as ct
 
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -783,7 +783,7 @@ def debugcp(c, fa1: str):
 
     two_bit = Path("benchmark/data/chr20.2bit")
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -826,7 +826,7 @@ def benchsccp(c):
         )
 
         client_option = (
-            extc.gfClientOption()
+            extc.ClientOption()
             .withMinScore(20)
             .withMinIdentity(90)
             .withHost("localhost")
@@ -871,7 +871,7 @@ def benchspcp(c):
         )
 
         client_option = (
-            extc.gfClientOption()
+            extc.ClientOption()
             .withMinScore(20)
             .withMinIdentity(90)
             .withHost("localhost")
@@ -996,7 +996,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
             if idp >= max_files:
                 break
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1056,7 +1056,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
                 break
 
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1141,7 +1141,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
                 break
 
             # client_option = (
-            #     extc.gfClientOption()
+            #     extc.ClientOption()
             #     .withMinScore(20)
             #     .withMinIdentity(90)
             #     .withHost("localhost")
@@ -1251,7 +1251,7 @@ def benchscc(c, fa_path: str, concurrent: int = 4):
 
 def query_server2(two_bit, fa1_path, pp_res):
     client_option = (
-        extc.gfClientOption()
+        extc.ClientOption()
         .withMinScore(20)
         .withMinIdentity(90)
         .withHost("localhost")
@@ -1291,7 +1291,7 @@ def benchspp(c, fa_path: str, concurrent: int = 4):
             pp_res = fa1_path.parent / f"{fa1_path.stem}_pp.psl"
 
             (
-                extc.gfClientOption()
+                extc.ClientOption()
                 .withMinScore(20)
                 .withMinIdentity(90)
                 .withHost("localhost")
@@ -1423,7 +1423,7 @@ def search_source(c):
 def tpickle(c):
     import pickle
 
-    c = pxblat.gfClientOption()
+    c = pxblat.ClientOption()
     c.withHost("localhost2").build()
     cdata = pickle.dumps(c)
     cn = pickle.loads(cdata)
