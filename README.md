@@ -31,6 +31,7 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 - [📚 Table of Contents](#-table-of-contents)
 - [🔮 Features](#-features)
+- [📆 To-do](#-to-do)
 - [🏎💨 Getting Started](#-getting-started)
 - [🤝 Contributing](#-contributing)
 - [🪪 License](#-license)
@@ -38,14 +39,15 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 🔮 Features
 
-**In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.
-**Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.
-**Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally and keeps you updated.
-**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.
-**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.
-**Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.
+**Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.<br>
+**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
+**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
+**Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.<br>
+**Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally.<br>
+**Robust Validation**: Extensively tested to ensure reliable performance and superior stability as BLAT.<br>
+**In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.<br>
 
-## To-do
+## 📆 To-do
 
 - [x] parser gfclient result
 - [x] parse gfserver query result
@@ -75,7 +77,8 @@ pip install pxblat
 conda install pxblat
 ```
 
-Congratulations! You've successfully installed ToolXYZ on your local machine.
+Congratulations! You've successfully installed `PxBLAT` on your local machine.
+If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
 
 ### 🤖 Using pxblat
 
@@ -118,7 +121,7 @@ git commit -m 'Implemented new feature.'
 
 8. Push your changes to your forked repository on GitHub using the following command
 
-```sh
+```bash
 git push origin new-feature-branch
 ```
 
@@ -158,6 +161,6 @@ This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See th
 ## 🙏 Acknowledgments
 
 - [UCSC](https://github.com/ucscGenomeBrowser/kent)
-- [Pybind11](https://github.com/pybind/pybind11/tree/stable)
+- [pybind11](https://github.com/pybind/pybind11/tree/stable)
 
 <!-- github-only -->
