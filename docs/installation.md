@@ -2,10 +2,16 @@
 
 ## **Prerequisites**
 
-Before you begin with the installation and use of `pxblat`, there are certain prerequisites that need to be met.
+```{tip}
+I highly recommend to install `PxBLAT` via `CONDA` such that you do not need to
+install dependencies [goto ➡️](#get-started).
+```
+
+Before you begin with the installation and use of **PxBLAT**, there are certain prerequisites that need to be met.
 The following sections detail the necessary software, hardware, and knowledge prerequisites that you should have before you start.
-`pxblat` has been tested and runs on the following operating systems **Linux** and **macOS**.
-Programming Languages and Libraries: You should have the following installed:
+**PxBLAT** has been tested and runs on the following operating systems **Linux** and **MacOS**.
+Chosing approperiate dependencies manager according to the operating systems.
+You should have an active and stable internet connection for downloading and installing the software:
 
 `````{md-tab-set}
 
@@ -31,6 +37,10 @@ apt-get update && apt-get install libhts-dev libssl-dev
 
 ## **Get Started**
 
+Installing **PxBLAT** via `CONDA` **do not requres** the prerequisites.
+Installing **PxBLAT** via `PyPI` requires the prerequisites.
+Once you have confirmed the prerequisites, you can proceed with the software installation:
+
 `````{md-tab-set}
 
 ````{md-tab-item} Conda
@@ -47,27 +57,30 @@ pip install pxblat
 
 `````
 
-``````{tip}
+``````{warning}
 You meet the issue _*.h canot found_ or _undefined symbol **_ If you install `pxblat` by `pip`.
-The problem is caused by incorrect environment variable `CFLAGS`, `CXXFLAGS`,
+If you have installed the prerequisites, the problem is caused by incorrect environment variable `CFLAGS`, `CXXFLAGS`,
 and `LDFLAGS`, which direct compiler and linker find right location of
 dependencies so as to compile and link code properly.
-**The easy solution** is to install `pxblat` via `conda`.
+**The easy solution** is to install  **PxBLAT**  via `conda`.
 You can also set proper environment variable if `conda` is not accessible.
-
 
 
 `````{md-tab-set}
 
-````{md-tab-item} Bash
+````{md-tab-item} Bash/Zsh
 ```{code-block} bash
-export CFLAGS="test"
+export CFLAGS="-Idependencies"
+export CXXFLAGS="-Idependencies"
+...
 ```
 ````
 
 ````{md-tab-item} Fish
 ```{code-block} fish
-set -gs CFLAGS="test"
+set -gs CFLAGS="-Idependencies"
+set -gs CXXLAGS="-Idependencies"
+...
 ```
 ````
 `````
