@@ -90,7 +90,7 @@ def query_server(
     if fafile is not None:
         Path(fafile.name).unlink()
 
-    if parse:
+    if parse and ret_decode:
         return read(ret_decode, "psl")
 
     return ret_decode

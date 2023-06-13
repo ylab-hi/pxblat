@@ -1,4 +1,7 @@
+from .extc import gfClientOption
+from .extc import gfServerOption
 from .extc import TwoBitToFaOption
+from .extc import UsageStats
 from .parser import read
 from .server import check_port_in_use
 from .server import check_port_open
@@ -44,4 +47,7 @@ __all__ = [
     "Status",
     "read",
     "TwoBitToFaOption",
+    "gfClientOption",
+    "gfServerOption",
+    "UsageStats",
 ]
