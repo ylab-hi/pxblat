@@ -2,11 +2,6 @@
 
 Use {py:class}`pxblat.Server` in context mode
 
-```{eval-rst}
-.. python-apigen-group:: Classes
-
-```
-
 ```{code-block} python
 from pxblat import Server
 from pxblat import Client

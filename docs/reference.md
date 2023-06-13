@@ -1,10 +1,13 @@
 # Reference
 
-## PxBLAT
+## **Classes**
 
 ```{eval-rst}
+.. python-apigen-group:: Classes
+```
 
-.. automodule:: pxblat
-   :members:
+## **Free Functions**
 
+```{eval-rst}
+.. python-apigen-group:: Public members
 ```

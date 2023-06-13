@@ -9,9 +9,6 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "PxBLAT"
 author = "Yangyang Li"
 copyright = f"{datetime.now().year}, {author}"
-
-autodoc2_enable = False
-
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -33,19 +30,13 @@ python_apigen_modules = {
     "pxblat": "api/",
 }
 
-if autodoc2_enable:
-    extensions.append("autodoc2")
-    autodoc2_packages = [
-        "../src/pxblat",
-    ]
 
-    autodoc2_skip_module_regexes = []
-    autodoc2_hidden_objects = ["private"]
-    # autodoc2_render_plugin = "myst"
-    autodoc2_docstring_parser_regexes = [
-        # this will render all docstrings as Markdown
-        (r".*", "myst"),
-    ]
+python_apigen_default_groups = [
+    (".*", "Public members"),
+    ("class:.*", "Classes"),
+    (r".*\.__(init|new)__", "Constructors"),
+    (r".*\.__(str|repr)__", "String representation"),
+]
 
 bibtex_bibfiles = ["refs.bib"]
 
