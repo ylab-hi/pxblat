@@ -166,7 +166,7 @@ def test_server_stop(server_option, port):
     assert not check_port_open("localhost", port)
 
 
-# @pytest.mark.skipif(sys.platform == "darwin", reason="skip on mac")
+@pytest.mark.smoke
 def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
     expected_status_instance.port = port + 1
     with Server("localhost", port + 1, two_bit, server_option) as server:

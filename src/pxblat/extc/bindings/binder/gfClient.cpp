@@ -1,5 +1,4 @@
 #include <gfClient.hpp>
-#include <gfClient2.hpp>
 #include <ios>
 #include <iterator>
 #include <locale>
@@ -112,6 +111,4 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
     // return pybind11::bytes(ret);
   }, "C++: cppbinding::pygfClient(struct cppbinding::ClientOption &) --> std::string", pybind11::arg("option"));
 
-
-  M("cppbinding").def("pygfClient2", &cppbinding2::pygfClient2);
 }
