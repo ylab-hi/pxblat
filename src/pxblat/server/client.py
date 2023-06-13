@@ -12,10 +12,10 @@ from .server import ServerOption
 
 
 def create_client_option():
-    """
-    Creates a new ClientOption object with default values.
+    """Creates a new ClientOption object with default values.
 
     Return:
+    ------
         ClientOption object
 
     """
@@ -28,6 +28,7 @@ def _resolve_host_port(
     """Resolves the host and port for the client option.
 
     Args:
+    ----
         client_option: ClientOption object
         host: Optional[str]
         port: Optional[int]
@@ -49,10 +50,10 @@ def query_server(
     seqname: Optional[str] = None,
     parse: bool = True,
 ):
-    """
-    Sends a query to the server and returns the result.
+    """Sends a query to the server and returns the result.
 
     Args:
+    ----
         option: ClientOption object
         host: Optional[str]
         port: Optional[int]
@@ -60,6 +61,7 @@ def query_server(
         parse: bool
 
     Returns:
+    -------
         str or bytes: The result of the query.
 
     """
@@ -97,6 +99,25 @@ def query_server(
 
 
 class Client(Thread):
+    """A class for managing client connections to a server in a separate thread.
+
+    This class can be used to query a gfServer in a separate thread, and can optionally wait until the server is ready before
+    sending a query. It can also parse the result of the query.
+
+    Attributes:
+    ----------
+        option (ClientOption): Client options for the connection.
+        host (str, optional): The hostname or IP address of the server. Defaults to None.
+        port (int, optional): The port number of the server. Defaults to None.
+        wait_ready (bool, optional): Whether to wait until the server is ready before sending a query. Defaults to False.
+        wait_timeout (int, optional): The number of seconds to wait for the server to be ready. Defaults to 60.
+        server_option (ServerOption, optional): The server options to use if a server is not provided. Defaults to None.
+        seqname (str, optional): The sequence name to use for the query. Defaults to None.
+        parse (bool, optional): Whether to parse the result of the query. Defaults to True.
+        daemon (bool, optional): Whether to run the client as a daemon process. Defaults to True.
+        result: The result of the query, or None if the query has not yet been sent or the result has not yet been received.
+    """
+
     def __init__(
         self,
         option: ClientOption,
@@ -108,10 +129,11 @@ class Client(Thread):
         seqname: Optional[str] = None,
         parse: bool = True,
         daemon: bool = True,
-    ):
+    ) -> None:
         """A class for querying a gfServer using a separate thread.
 
         Args:
+        ----
             option: ClientOption object
             host: Optional[str]
             port: Optional[int]
@@ -123,6 +145,7 @@ class Client(Thread):
             daemon: bool
 
         Attributes:
+        ----------
             result: The result of the query.
 
         """
@@ -141,6 +164,7 @@ class Client(Thread):
         self.result = None
 
     def run(self):
+        """Runs the query in a separate thread."""
         if self._wait_ready:
             wait_server_ready(
                 self.host,
@@ -154,11 +178,13 @@ class Client(Thread):
         self.result = ret
 
     def get(self):
+        """Sends a query to the server and returns the result."""
         self.join()
         return self.result
 
     @property
     def host(self):
+        """The hostname or IP address of the server."""
         if self._host is None:
             return self.option.hostName
 
@@ -166,10 +192,12 @@ class Client(Thread):
 
     @host.setter
     def host(self, value: str):
+        """Sets the hostname or IP address of the server."""
         self._host = value
 
     @property
     def port(self):
+        """The port number of the server."""
         if self._port is None:
             return int(self.option.portName)
 
@@ -177,14 +205,15 @@ class Client(Thread):
 
     @port.setter
     def port(self, value: int):
+        """Sets the port number of the server."""
         self._port = value
 
     @classmethod
     def create_option(cls):
-        """
-        Creates a new ClientOption object with default values.
+        """Creates a new ClientOption object with default values.
 
         Return:
+        ------
             ClientOption object
 
         """

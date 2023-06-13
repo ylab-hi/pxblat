@@ -1,3 +1,4 @@
+"""Server module."""
 from .basic import check_port_in_use
 from .basic import check_port_open
 from .basic import DEFAULT_PORT

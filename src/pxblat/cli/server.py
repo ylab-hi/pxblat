@@ -202,13 +202,12 @@ def start(
     timeout: int = timeout,
     _threads: int = threads,
 ):
-    """To set up a server
+    """To set up a server.
 
     gfServer start host port file(s)
 
     where the files are .2bit or .nib format files specified relative to the current directory
     """
-
     server_option = (
         create_server_option()
         .withTileSize(tileSize)
@@ -245,7 +244,7 @@ def start(
 
 @server_app.command()
 def stop(host: str, port: int):
-    """To remove a server"""
+    """To remove a server."""
     stop_server(host, port)
 
 
@@ -255,7 +254,7 @@ def status(
     port: int,
     trans: bool = trans,
 ):
-    """To figure out if server is alive, on static instances get usage statics"""
+    """To figure out if server is alive, on static instances get usage statics."""
     server_option = create_server_option().withTrans(trans)
     server_option.build()
     ret = status_server(host, port, server_option)
@@ -264,6 +263,6 @@ def status(
 
 @server_app.command()
 def files(host: str, port: int):
-    """To get input file list"""
+    """To get input file list."""
     ret = server_files(host, port)
     print(ret)

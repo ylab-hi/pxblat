@@ -9,7 +9,7 @@ import pytest
 from rich import print
 
 
-@pytest.fixture
+@pytest.fixture()
 def fas():
     return Path("tests/data/fas")
 

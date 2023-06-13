@@ -74,8 +74,7 @@ def twoBitToFa(
         "", "--udcDir", help="Place to put cache for remote bigBed/bigWigs."
     ),
 ):
-    """Convert all or part of .2bit file to fasta"""
-
+    """Convert all or part of .2bit file to fasta."""
     if seqList:
         if not Path(seqList).exists():
             raise typer.BadParameter(f"{seqList} does not exist")

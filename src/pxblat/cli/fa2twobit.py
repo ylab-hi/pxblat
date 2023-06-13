@@ -54,7 +54,7 @@ def faToTwoBit(
         help="Convert first sequence only if there are duplicate sequence names. Use 'twoBitDup' to find duplicate sequences.",
     ),
 ):
-    """Convert DNA from fasta to 2bit format"""
+    """Convert DNA from fasta to 2bit format."""
     for file in infa:
         if not file.exists():
             logger.error(f"{file} not exists")

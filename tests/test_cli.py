@@ -50,16 +50,16 @@ def test_fa2twobit_cli(tmp_path, two_bit):
     assert filecmp.cmp(out.as_posix(), two_bit)
 
 
-@pytest.fixture
+@pytest.fixture()
 def start_server2(server_option, port, two_bit):
     server = Server("localhost", port + 1, two_bit, server_option, use_others=True)
     server.start()
 
     server.wait_ready()
-    yield server
+    return server
 
 
-@pytest.mark.skip
+@pytest.mark.skip()
 def test_query_server_cli(start_server2, port, fa_file1, tmp_path):
     out = tmp_path / "t.psl"
     result = runner.invoke(

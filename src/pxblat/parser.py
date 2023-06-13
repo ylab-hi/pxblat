@@ -5,12 +5,19 @@ from typing import Optional
 from Bio.SearchIO.BlatIO import BlatPslParser  # type: ignore
 
 
+# https://github.com/biopython/biopython/blob/master/Bio/SearchIO/BlatIO.py
+
+
 class PslOutput:
-    def __init__(self, content: str, save_mem: bool = False):
+    """A class for PSL output."""
+
+    def __init__(self, content: str, save_mem: bool = False) -> None:
+        """Initialize the class."""
         self._content: Optional[str] = None if save_mem else content
         self._iterable = iter(content.splitlines(keepends=True))
 
     def readline(self):
+        """Read a line from the file."""
         try:
             return next(self._iterable)
         except StopIteration:
@@ -25,10 +32,29 @@ _HANDLE_MAP = {
     "psl": PslOutput,
 }
 
-# https://github.com/biopython/biopython/blob/master/Bio/SearchIO/BlatIO.py
-
 
 def get_handle(format: str, mapping):
+    """Returns the handle associated with the given format from the mapping.
+
+    This function takes a format string and a mapping from format strings to handles, and returns the handle associated
+    with the given format. If the format is not in the mapping, it raises an error with a helpful message.
+
+    Args:
+    ----
+        format (str):
+            The format string for which to get the handle. This should be a lower case string.
+        mapping (dict):
+            The mapping from format strings to handles.
+
+    Raises:
+    ------
+        ValueError: If the format is None, not a lower case string, or not in the mapping.
+        TypeError: If the format is not a string.
+
+    Returns:
+    -------
+        The handle associated with the given format.
+    """
     try:
         handle = mapping[format]
     except KeyError:
@@ -50,6 +76,26 @@ def get_handle(format: str, mapping):
 
 
 def get_processor(format, mapping):
+    """Returns the information object associated with the given format from the mapping.
+
+    This function takes a format string and a mapping from format strings to information objects,
+    and returns the information object associated with the given format. If the format is not in the mapping,
+    it raises an error with a helpful message.
+
+    Args:
+    ----
+        format (str): The format string for which to get the information object. This should be a lower case string.
+        mapping (dict): The mapping from format strings to information objects.
+
+    Raises:
+    ------
+        ValueError: If the format is None, not a lower case string, or not in the mapping.
+        TypeError: If the format is not a string.
+
+    Returns:
+    -------
+        obj_info: The information object associated with the given format.
+    """
     try:
         obj_info = mapping[format]
     except KeyError:
@@ -71,6 +117,27 @@ def get_processor(format, mapping):
 
 
 def parse(content: str, format=None, **kwargs):
+    """Parses the given content according to the specified format.
+
+    This function takes a string content and a format string, gets the corresponding iterator and handle using the
+    format from the '_ITERATOR_MAP' and '_HANDLE_MAP' respectively, and then yields the parsed content using the
+    iterator.
+
+    Args:
+    ----
+        content (str): The string content to parse.
+        format (str, optional): The format string indicating how to parse the content. If not provided, 'psl' format will be used. Defaults to None.
+        **kwargs: Arbitrary keyword arguments to be passed to the iterator function.
+
+    Yields:
+    ------
+        The parsed content.
+
+    Raises:
+    ------
+        ValueError: If the format is None after defaulting, not a lower case string, or not in the mapping.
+        TypeError: If the format is not a string.
+    """
     if format is None:
         format = "psl"
 
@@ -80,6 +147,26 @@ def parse(content: str, format=None, **kwargs):
 
 
 def read(content: str, format=None, **kwargs):
+    """Reads and returns the first query result from the given content.
+
+    This function takes a string content and a format string, parses the content using the `parse` function,
+    and returns the first query result. If no results are found, or if more than one result is found, it raises an error.
+
+    Args:
+    ----
+        content (str): The string content to parse and read.
+        format (str, optional): The format string indicating how to parse the content. If not provided, 'psl' format will be used. Defaults to None.
+        **kwargs: Arbitrary keyword arguments to be passed to the `parse` function.
+
+    Returns:
+    -------
+        query_result: The first query result found in the content.
+
+    Raises:
+    ------
+        ValueError: If no query results are found in the content, or if more than one query result is found.
+        ValueError/TypeError: If there is an error in parsing the content. These exceptions are propagated from the `parse` function.
+    """
     query_results = parse(content, format, **kwargs)
     try:
         query_result = next(query_results)
@@ -100,6 +187,7 @@ def _psl2sam(psl: str, samfile: Path):
 
 
 def psl2sam(psl: t.Union[str, Path], samfile: Path):
+    """Converts a psl file to a sam file."""
     if isinstance(psl, Path):
         psl = psl.read_text()
     elif Path(psl).exists():

@@ -117,8 +117,7 @@ def client(
         default_option.genomeDataDir, "--genomeDataDir", help="dynamic"
     ),
 ):
-    """A client for the genomic finding program that produces a .psl file"""
-
+    """A client for the genomic finding program that produces a .psl file."""
     if prot:
         tType = "prot"
         qType = "prot"
