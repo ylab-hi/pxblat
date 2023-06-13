@@ -1,3 +1,4 @@
+"""Command line interface for pxblat."""
 import sys
 
 import typer

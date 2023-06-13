@@ -8,10 +8,24 @@ from mashumaro.mixins.json import DataClassJSONMixin  # type: ignore
 
 @dataclass
 class Status(DataClassJSONMixin, DataClassDictMixin):
-    """This class represents the status of a server.
-    It contains information about the server's version, type, host, port, tile size, step size, minimum match,
-    PCR requests, BLAT requests, number of bases, number of misses, number of no signals, number of trimmed reads,
-    and number of warnings.
+    """A data class representing the status of a server.
+
+    Attributes:
+        version (str): The version of the server.
+        serverType (str): The type of the server.
+        types (str): The type of the server, an alias for 'serverType'.
+        host (str): The hostname or IP address of the server.
+        port (int): The port number the server is listening on.
+        tileSize (int): The tile size used by the server.
+        stepSize (int): The step size used by the server.
+        minMatch (int): The minimum match used by the server.
+        pcr_requests (int): The number of PCR requests the server has handled, an alias for 'pcr requests'.
+        blat_requests (int): The number of BLAT requests the server has handled, an alias for 'blat requests'.
+        bases (int): The number of bases processed by the server.
+        misses (int): The number of misses by the server.
+        noSig (int): The number of 'noSig' (no signature) events by the server.
+        trimmed (int): The number of trimmed events by the server.
+        warnings (int): The number of warnings issued by the server.
     """
 
     version: str

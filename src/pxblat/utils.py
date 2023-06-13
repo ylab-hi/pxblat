@@ -1,3 +1,4 @@
+"""Utility functions for pxblat."""
 import functools
 import io
 import os
@@ -8,32 +9,37 @@ from contextlib import contextmanager
 
 
 class Result:
+    """A class to represent the result of a command."""
+
     def __init__(
         self,
         returncode: typing.Any,
         stdout: str,
         stderr: str,
-    ):
+    ) -> None:
+        """Initialize a Result object."""
         self.stdout = stdout
         self.stderr = stderr
         self.returncode = returncode
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return the representation of a Result object."""
         return f"Result(stdout={self.stdout}, stderr={self.stderr}, returncode={self.returncode})"
 
     def is_ok(self) -> bool:
+        """Return True if the returncode is 0."""
         assert isinstance(self.returncode, int)
         return self.returncode == 0
 
     def result(self):
+        """Return the returncode."""
         assert not isinstance(self.returncode, int)
         return self.returncode
 
 
 @contextmanager
 def stdout_redirected(to=os.devnull):
-    """
-    import os
+    """Import os.
 
     with stdout_redirected(to=filename):
         print("from Python")
@@ -64,8 +70,7 @@ def stdout_redirected(to=os.devnull):
 
 @contextmanager
 def stderr_redirected(to=os.devnull):
-    """
-    import os
+    """Import os.
 
     with stdout_redirected(to=filename):
         print("from Python")
@@ -95,6 +100,8 @@ def stderr_redirected(to=os.devnull):
 
 
 def redirected(func):
+    """Redirect stdout and stderr to a temporary file."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         stdout = ""
