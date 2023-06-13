@@ -69,7 +69,8 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           # rm '/usr/local/bin/2to3-3.11'  '/usr/local/bin/2to3'  '/usr/local/bin/idle3'
-          brew install htslib openssl@3 --only-dependencies
+          # brew link --overwrite --dry-run python@3.11
+          brew install --overwrite  htslib openssl@3
           ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
           ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
