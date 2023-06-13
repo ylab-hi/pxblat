@@ -45,3 +45,5 @@ stubs
 *.psl
 test_server/
 bugs/
+docs/apidocs/*
+docs/api/*

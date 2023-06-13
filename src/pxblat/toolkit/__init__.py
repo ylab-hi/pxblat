@@ -6,6 +6,9 @@ from pxblat.extc import twoBitToFa
 from pxblat.extc import TwoBitToFaOption
 
 
+__all__ = ["fa_to_two_bit", "two_bit_to_fa"]
+
+
 def fa_to_two_bit(
     inFiles: t.List[str],
     outFile: str,

@@ -2173,6 +2173,28 @@ dotnet = ["sphinxcontrib-dotnetdomain"]
 go = ["sphinxcontrib-golangdomain"]
 
 [[package]]
+name = "sphinx-autodoc2"
+version = "0.4.2"
+description = "Analyse a python project and create documentation for it."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "sphinx-autodoc2-0.4.2.tar.gz", hash = "sha256:06da226a25a4339e173b34bb0e590e0ba9b4570b414796140aee1939d09acb3a"},
+    {file = "sphinx_autodoc2-0.4.2-py3-none-any.whl", hash = "sha256:00835ba8c980b9c510ea794c3e2060e5a254a74c6c22badc9bfd3642dc1034b4"},
+]
+
+[package.dependencies]
+astroid = ">=2.7"
+tomli = {version = "*", markers = "python_version < \"3.11\""}
+typing-extensions = "*"
+
+[package.extras]
+cli = ["typer[all]"]
+docs = ["furo", "myst-parser", "sphinx (>=4.0.0)"]
+sphinx = ["sphinx (>=4.0.0)"]
+testing = ["pytest", "pytest-cov", "pytest-regressions", "sphinx (>=4.0.0)"]
+
+[[package]]
 name = "sphinx-copybutton"
 version = "0.5.2"
 description = "Add a copy button to each of your code cells."
@@ -2669,4 +2691,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "2494ac9f977fe13e3f3b3296df614e60818db106dd10a4d3a14d97a2b9487a32"
+content-hash = "8063a90326ddf878b2c8b8c9a5004a9ee2a9f6bf212636e17c305b53b24e0257"
