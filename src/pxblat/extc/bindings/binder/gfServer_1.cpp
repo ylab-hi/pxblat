@@ -18,8 +18,8 @@
 
 void bind_gfServer_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	// cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) file:gfServer.hpp line:238
-	M("cppbinding").def("pystatusServer", (std::string (*)(std::string &, std::string &, struct cppbinding::gfServerOption &)) &cppbinding::pystatusServer, "C++: cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::gfServerOption &) --> std::string", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("options"));
+	// cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::ServerOption &) file:gfServer.hpp line:238
+	M("cppbinding").def("pystatusServer", (std::string (*)(std::string &, std::string &, struct cppbinding::ServerOption &)) &cppbinding::pystatusServer, "C++: cppbinding::pystatusServer(std::string &, std::string &, struct cppbinding::ServerOption &) --> std::string", pybind11::arg("hostName"), pybind11::arg("portName"), pybind11::arg("options"));
 
 	// cppbinding::pygetFileList(std::string &, std::string &) file:gfServer.hpp line:239
 	M("cppbinding").def("pygetFileList", (std::string (*)(std::string &, std::string &)) &cppbinding::pygetFileList, "C++: cppbinding::pygetFileList(std::string &, std::string &) --> std::string", pybind11::arg("hostName"), pybind11::arg("portName"));

@@ -7,10 +7,10 @@ from collections import Counter
 from multiprocessing import Process
 
 from deprecated import deprecated  # type: ignore
-from pxblat.extc import gfServerOption
 from pxblat.extc import pygetFileList
 from pxblat.extc import pyqueryServer
 from pxblat.extc import pystartServer
+from pxblat.extc import ServerOption
 from pxblat.extc import startServer
 from pxblat.extc import UsageStats
 
@@ -80,7 +80,7 @@ def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bo
 
 
 def _check_port_in_use_by_status(
-    host: str, port: int, gfserver_option: gfServerOption
+    host: str, port: int, gfserver_option: ServerOption
 ) -> bool:
     """Check the port is in use by status_server
 
@@ -188,14 +188,14 @@ def wait_server_ready(
 def check_server_status(
     host: str,
     port: int,
-    gfserver_option: gfServerOption,
+    gfserver_option: ServerOption,
 ) -> bool:
     """Check the status of a server by attempting to connect to it using the specified host, port, and gfserver_option.
 
     Args:
         host (str): The hostname or IP address of the server to check.
         port (int): The port number to use when attempting to connect to the server.
-        gfserver_option (gfServerOption): The gfserver option to use when attempting to connect to the server.
+        gfserver_option (ServerOption): The gfserver option to use when attempting to connect to the server.
 
     Returns:
         bool: True if the server is running and accepting connections, False otherwise.
@@ -204,7 +204,7 @@ def check_server_status(
         ConnectionRefusedError: If the server is not running or is not accepting connections.
 
     Example:
-        >>> check_server_status('localhost', 8080, gfServerOption)
+        >>> check_server_status('localhost', 8080, ServerOption)
         True
     """
     try:
@@ -234,21 +234,21 @@ def gfSignature() -> str:
 
 
 def status_server(
-    host: str, port: int, options: gfServerOption, instance=False
+    host: str, port: int, options: ServerOption, instance=False
 ) -> t.Union[Status, t.Dict[str, str]]:
     """Get the status of a running server.
 
     Args:
         host (str): The hostname or IP address of the server to check.
         port (int): The port number to use when attempting to connect to the server.
-        options (gfServerOption): The gfserver option to use when attempting to connect to the server.
+        options (ServerOption): The gfserver option to use when attempting to connect to the server.
         instance (bool, optional): If True, return a Status object instead of a dictionary. Defaults to False.
 
     Returns:
         Union[Status, Dict[str, str]]: A dictionary or Status object containing the status information for the server.
 
     Example:
-        >>> status_server('localhost', 8080, gfServerOption, instance=True)
+        >>> status_server('localhost', 8080, ServerOption, instance=True)
         Status(uptime='0', queries='0', sequences='0', bytes='0', memory='0', threads='0', connections='0')
     """
     if not options.genome:
@@ -376,7 +376,7 @@ def start_server(
     host: str,
     port: int,
     two_bit_file: str,
-    option: gfServerOption,
+    option: ServerOption,
     stat: UsageStats,
 ):
     """Start a server in blocking mode.
@@ -385,7 +385,7 @@ def start_server(
         host (str): The hostname or IP address to bind the server to.
         port (int): The port number to bind the server to.
         two_bit_file (str): The path to the 2bit file to use for the server.
-        option (gfServerOption): The options to use for the server.
+        option (ServerOption): The options to use for the server.
         stat (UsageStats): The usage statistics for the server.
 
     Returns:
@@ -395,7 +395,7 @@ def start_server(
     takes the hostname, port number, 2bit file path, server options, and usage statistics as arguments. The function returns None.
 
     Example:
-        >>> start_server('localhost', 8080, '/path/to/2bit/file', gfServerOption, UsageStats())
+        >>> start_server('localhost', 8080, '/path/to/2bit/file', ServerOption, UsageStats())
     """
     return startServer(host, str(port), 1, [two_bit_file], option, stat)
 
@@ -404,7 +404,7 @@ def start_server_mt(
     host: str,
     port: int,
     two_bit_file: str,
-    option: gfServerOption,
+    option: ServerOption,
     stat: UsageStats,
     use_others: bool = False,
     timeout: int = 60,
@@ -440,7 +440,7 @@ def start_server_mt_nb(
     host: str,
     port: int,
     two_bit_file: str,
-    option: gfServerOption,
+    option: ServerOption,
     stat: UsageStats,
     use_others: bool = False,
     timeout: int = 60,

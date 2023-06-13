@@ -18,7 +18,7 @@ app = typer.Typer(
 
 def option_stat():
     server_option = (
-        extc.gfServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
+        extc.ServerOption().withCanStop(True).withStepSize(5).withThreads(4).build()
     )
     stat = extc.UsageStats()
 

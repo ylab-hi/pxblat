@@ -9,7 +9,7 @@
 namespace cppbinding {
 
 void pyerrorSafeQuery(boolean doTrans, boolean queryIsProt, struct dnaSeq *seq, struct genoFindIndex *gfIdx,
-                      int connectionHandle, char *buf, struct hash *perSeqMaxHash, gfServerOption const &options,
+                      int connectionHandle, char *buf, struct hash *perSeqMaxHash, ServerOption const &options,
                       UsageStats &stats, boolean &sendOk)
 /* Wrap error handling code around index query. */
 {
@@ -60,7 +60,7 @@ void pyerrSendString(int sd, char *s, boolean &sendOk)
 
 void handle_client(int connectionHandle, std::string hostName, std::string portName, int fileCount,
                    std::vector<std::string> const &seqFiles, hash *perSeqMaxHash, genoFindIndex *gfIdx,
-                   gfServerOption const &option) {
+                   ServerOption const &option) {
   // dbg("begin func ", connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, option);
 
   // print current thread id
@@ -264,7 +264,7 @@ void handle_client(int connectionHandle, std::string hostName, std::string portN
 }
 
 int pystartServer(std::string &hostName, std::string &portName, int fileCount, std::vector<std::string> &seqFiles,
-                  gfServerOption &option, UsageStats &stats) {
+                  ServerOption &option, UsageStats &stats) {
   BS::thread_pool pool(option.threads);
 
   std::vector<char *> cseqFiles{};

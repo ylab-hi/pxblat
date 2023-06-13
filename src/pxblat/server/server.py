@@ -4,8 +4,8 @@ from multiprocessing import Process
 from pathlib import Path
 from typing import Union
 
-from pxblat.extc import gfServerOption
 from pxblat.extc import pystartServer
+from pxblat.extc import ServerOption
 from pxblat.extc import UsageStats
 
 from .basic import check_port_in_use
@@ -23,20 +23,20 @@ def _pystartServer(
     hostName: str,
     portName: str,
     seqFiles: t.List[str],
-    options: gfServerOption,
+    options: ServerOption,
     stats: UsageStats,
 ):
     pystartServer(hostName, portName, len(seqFiles), seqFiles, options, stats)
 
 
-def create_server_option() -> gfServerOption:
+def create_server_option() -> ServerOption:
     """
-    Creates a new gfServerOption object with default values.
+    Creates a new ServerOption object with default values.
 
     Returns:
-        gfServerOption: A new gfServerOption object with default values.
+        ServerOption: A new ServerOption object with default values.
     """
-    return gfServerOption()
+    return ServerOption()
 
 
 class Server(ContextDecorator):
@@ -45,7 +45,7 @@ class Server(ContextDecorator):
         host: str,
         port: int,
         two_bit: Union[Path, str],
-        option: gfServerOption,
+        option: ServerOption,
         daemon=True,
         use_others: bool = False,
         timeout: int = 60,
@@ -57,7 +57,7 @@ class Server(ContextDecorator):
             host (str): The hostname or IP address to bind the server to.
             port (int): The port number to bind the server to.
             two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
-            option (gfServerOption): The options to use when starting the server.
+            option (ServerOption): The options to use when starting the server.
             daemon (bool, optional): Whether to run the server as a daemon process. Defaults to True.
             use_others (bool, optional): Whether to allow other users to access the server. Defaults to False.
             timeout (int, optional): The number of seconds to wait for the server to start. Defaults to 60.
