@@ -63,6 +63,7 @@ select = [
    "PT",
     # "ANN",
     "D",
+    "RUF",
 ]
 
 exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py", "tasks.py",
@@ -72,16 +73,15 @@ exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py", "tasks.py",
 allow-star-arg-any = true
 
 [tool.ruff.per-file-ignores]
-"src/pxblat/extc/__init__.py" = ["F405", "F403" , "D417", "D104", "D103"]
-"src/pxblat/server/basic.py" = ["PLR0913", "D417"]
-"src/pxblat/server/server.py" = ["PLR0913", "D417"]
-"src/pxblat/server/client.py" = ["PLR0913", "D417"]
+"src/pxblat/extc/__init__.py" = ["F405", "F403" , "D104", "D103"]
+"src/pxblat/server/basic.py" = ["PLR0913"]
+"src/pxblat/server/server.py" = ["PLR0913"]
+"src/pxblat/server/client.py" = ["PLR0913"]
 "src/pxblat/cli/server.py" = ["PLR0913"]
 "src/pxblat/cli/client.py" = ["B008", "PLR0913"]
 "src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913"]
 "src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913"]
-"src/pxblat/toolkit/__init__.py" = ["PLR0913", "D417"]
-"src/pxblat/parser.py" = ["D417"]
+"src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 
 
 [tool.ruff.pydocstyle]

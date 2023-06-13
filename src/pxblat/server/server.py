@@ -33,7 +33,6 @@ def create_server_option() -> ServerOption:
     """Creates a new ServerOption object with default values.
 
     Returns:
-    -------
         ServerOption: A new ServerOption object with default values.
     """
     return ServerOption()
@@ -46,7 +45,6 @@ class Server(ContextDecorator):
     options, and can run it as a daemon process or block until it is ready.
 
     Attributes:
-    ----------
         host (str): The hostname or IP address to bind the server to.
         port (int): The port number to bind the server to.
         two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
@@ -57,10 +55,11 @@ class Server(ContextDecorator):
         block (bool, optional): Whether to block until the server is ready. Defaults to False.
 
     Raises:
-    ------
         ValueError: If the given two_bit file or URL is invalid.
         OSError: If there is an error starting the server process.
 
+    Order:
+        -10
     """
 
     def __init__(
@@ -77,7 +76,6 @@ class Server(ContextDecorator):
         """Initializes a gfServer object with the given parameters.
 
         Args:
-        ----
             host (str): The hostname or IP address to bind the server to.
             port (int): The port number to bind the server to.
             two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
@@ -88,12 +86,10 @@ class Server(ContextDecorator):
             block (bool, optional): Whether to block until the server is ready. Defaults to False.
 
         Raises:
-        ------
             ValueError: If the given two_bit file or URL is invalid.
             OSError: If there is an error starting the server process.
 
         Returns:
-        -------
             None
 
         """
@@ -241,11 +237,9 @@ class Server(ContextDecorator):
         """Retrieves the status of the gfServer instance.
 
         Args:
-        ----
             instance (bool, optional): If True, returns a Status object. If False, returns a dictionary with status information. Defaults to False.
 
         Returns:
-        -------
             t.Union[t.Dict[str, str], Status]: The status of the gfServer instance, either as a dictionary or a Status object.
         """
         return status_server(self.host, self.port, self.option, instance=instance)
@@ -254,7 +248,6 @@ class Server(ContextDecorator):
         """Retrieves the list of files served by the gfServer instance.
 
         Returns:
-        -------
             list[str]: A list of file names served by the gfServer instance.
         """
         return files(self.host, self.port)
@@ -263,14 +256,12 @@ class Server(ContextDecorator):
         """Queries the gfServer instance with the given parameters.
 
         Args:
-        ----
             intype (str): The type of input sequence. Must be one of "dna", "rna", or "protein".
             faName (str): The name of the input sequence.
             isComplex (bool): Whether the input sequence is complex.
             isProt (bool): Whether the input sequence is a protein sequence.
 
         Returns:
-        -------
             str: The result of the query as a string.
         """
         return server_query(intype, self.host, self.port, faName, isComplex, isProt)
@@ -279,7 +270,6 @@ class Server(ContextDecorator):
         """Returns True if the server is ready to accept queries, False otherwise.
 
         Returns:
-        -------
             bool: True if the server is ready to accept queries, False otherwise.
         """
         return self._is_ready
@@ -288,7 +278,6 @@ class Server(ContextDecorator):
         """Returns True if the server is open, False otherwise.
 
         Returns:
-        -------
             bool: True if the server is open, False otherwise.
         """
         return self._is_open
@@ -297,12 +286,10 @@ class Server(ContextDecorator):
         """Wait server ready in block mode.
 
         Args:
-        ----
             timeout: Timeout for wait server ready.
             restart: If timeout, restart server and wait again.
 
         Raises:
-        ------
             RuntimeError: If server is not opened by gfServer or the server takes longer time to be ready, the `wait_server_ready` may be timeout.
             If `restart` is True, the server will be restarted and wait again.
         """
@@ -326,7 +313,6 @@ class Server(ContextDecorator):
         """Creates a dictionary of options for the gfServer instance.
 
         Returns:
-        -------
             dict: A dictionary of options for the gfServer instance.
         """
         return create_server_option()

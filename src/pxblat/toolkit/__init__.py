@@ -21,7 +21,6 @@ def fa_to_two_bit(
     """Convert one or more FASTA files to two-bit format.
 
     Args:
-    ----
         inFiles (List[str]): A list of paths to the input FASTA files.
         outFile (str): The path to the output two-bit file.
         noMask (bool, optional): If True, do not mask the output sequence. Defaults to False.
@@ -30,7 +29,6 @@ def fa_to_two_bit(
         useLong (bool, optional): If True, use the long format for the two-bit file. Defaults to False.
 
     Returns:
-    -------
         None
 
     This function converts one or more input FASTA files to two-bit format and saves the result to the specified output file.
@@ -38,7 +36,6 @@ def fa_to_two_bit(
     the output sequence or strip the version number from the sequence IDs. The function returns None.
 
     Example:
-    -------
         >>> fa_to_two_bit(['input.fasta'], 'output.2bit')
     """
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)

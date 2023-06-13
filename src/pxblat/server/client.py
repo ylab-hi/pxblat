@@ -15,9 +15,7 @@ def create_client_option():
     """Creates a new ClientOption object with default values.
 
     Return:
-    ------
         ClientOption object
-
     """
     return ClientOption()
 
@@ -28,7 +26,6 @@ def _resolve_host_port(
     """Resolves the host and port for the client option.
 
     Args:
-    ----
         client_option: ClientOption object
         host: Optional[str]
         port: Optional[int]
@@ -53,7 +50,6 @@ def query_server(
     """Sends a query to the server and returns the result.
 
     Args:
-    ----
         option: ClientOption object
         host: Optional[str]
         port: Optional[int]
@@ -61,7 +57,6 @@ def query_server(
         parse: bool
 
     Returns:
-    -------
         str or bytes: The result of the query.
 
     """
@@ -105,7 +100,6 @@ class Client(Thread):
     sending a query. It can also parse the result of the query.
 
     Attributes:
-    ----------
         option (ClientOption): Client options for the connection.
         host (str, optional): The hostname or IP address of the server. Defaults to None.
         port (int, optional): The port number of the server. Defaults to None.
@@ -116,6 +110,9 @@ class Client(Thread):
         parse (bool, optional): Whether to parse the result of the query. Defaults to True.
         daemon (bool, optional): Whether to run the client as a daemon process. Defaults to True.
         result: The result of the query, or None if the query has not yet been sent or the result has not yet been received.
+
+    Order:
+        -10
     """
 
     def __init__(
@@ -133,7 +130,6 @@ class Client(Thread):
         """A class for querying a gfServer using a separate thread.
 
         Args:
-        ----
             option: ClientOption object
             host: Optional[str]
             port: Optional[int]
@@ -145,7 +141,6 @@ class Client(Thread):
             daemon: bool
 
         Attributes:
-        ----------
             result: The result of the query.
 
         """
@@ -213,7 +208,6 @@ class Client(Thread):
         """Creates a new ClientOption object with default values.
 
         Return:
-        ------
             ClientOption object
 
         """
