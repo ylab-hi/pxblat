@@ -9,6 +9,9 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "PxBLAT"
 author = "Yangyang Li"
 copyright = f"{datetime.now().year}, {author}"
+
+autodoc2_enable = False
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -23,11 +26,26 @@ extensions = [
     "sphinx_togglebutton",
     "sphinx_immaterial",
     "sphinxcontrib.bibtex",
-    # "autoapi.extension",
+    "sphinx_immaterial.apidoc.python.apigen",
 ]
 
-copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
-copybutton_prompt_is_regexp = True
+python_apigen_modules = {
+    "pxblat": "api/",
+}
+
+if autodoc2_enable:
+    extensions.append("autodoc2")
+    autodoc2_packages = [
+        "../src/pxblat",
+    ]
+
+    autodoc2_skip_module_regexes = []
+    autodoc2_hidden_objects = ["private"]
+    # autodoc2_render_plugin = "myst"
+    autodoc2_docstring_parser_regexes = [
+        # this will render all docstrings as Markdown
+        (r".*", "myst"),
+    ]
 
 bibtex_bibfiles = ["refs.bib"]
 
@@ -45,7 +63,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The name of the Pygments (syntax highlighting) style to use.
 # pygments_style = "monokailight"
 
-source_suffix = [".md"]
+source_suffix = [".md", ".rst"]
 html_theme = "sphinx_immaterial"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
