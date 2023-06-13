@@ -167,6 +167,7 @@ The license of [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) is [
 
 ## 🙏 **Acknowledgments**
 
+- [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html)
 - [UCSC](https://github.com/ucscGenomeBrowser/kent)
 - [pybind11](https://github.com/pybind/pybind11/tree/stable)
 
