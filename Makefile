@@ -88,7 +88,7 @@ commit: format ## Commit changes
 	aicommits -a --type conventional
 
 
-chang:
+change:
 	git cliff --output CHANGELOG.md
 
 clangd: ## Generate clangd index
