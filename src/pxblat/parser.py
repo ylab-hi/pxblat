@@ -40,19 +40,14 @@ def get_handle(format: str, mapping):
     with the given format. If the format is not in the mapping, it raises an error with a helpful message.
 
     Args:
-    ----
-        format (str):
-            The format string for which to get the handle. This should be a lower case string.
-        mapping (dict):
-            The mapping from format strings to handles.
+        format (str): The format string for which to get the handle. This should be a lower case string.
+        mapping (dict): The mapping from format strings to handles.
 
     Raises:
-    ------
         ValueError: If the format is None, not a lower case string, or not in the mapping.
         TypeError: If the format is not a string.
 
     Returns:
-    -------
         The handle associated with the given format.
     """
     try:
@@ -83,17 +78,14 @@ def get_processor(format, mapping):
     it raises an error with a helpful message.
 
     Args:
-    ----
         format (str): The format string for which to get the information object. This should be a lower case string.
         mapping (dict): The mapping from format strings to information objects.
 
     Raises:
-    ------
         ValueError: If the format is None, not a lower case string, or not in the mapping.
         TypeError: If the format is not a string.
 
     Returns:
-    -------
         obj_info: The information object associated with the given format.
     """
     try:
@@ -124,17 +116,14 @@ def parse(content: str, format=None, **kwargs):
     iterator.
 
     Args:
-    ----
         content (str): The string content to parse.
         format (str, optional): The format string indicating how to parse the content. If not provided, 'psl' format will be used. Defaults to None.
         **kwargs: Arbitrary keyword arguments to be passed to the iterator function.
 
     Yields:
-    ------
         The parsed content.
 
     Raises:
-    ------
         ValueError: If the format is None after defaulting, not a lower case string, or not in the mapping.
         TypeError: If the format is not a string.
     """
@@ -153,17 +142,14 @@ def read(content: str, format=None, **kwargs):
     and returns the first query result. If no results are found, or if more than one result is found, it raises an error.
 
     Args:
-    ----
         content (str): The string content to parse and read.
         format (str, optional): The format string indicating how to parse the content. If not provided, 'psl' format will be used. Defaults to None.
         **kwargs: Arbitrary keyword arguments to be passed to the `parse` function.
 
     Returns:
-    -------
         query_result: The first query result found in the content.
 
     Raises:
-    ------
         ValueError: If no query results are found in the content, or if more than one query result is found.
         ValueError/TypeError: If there is an error in parsing the content. These exceptions are propagated from the `parse` function.
     """
