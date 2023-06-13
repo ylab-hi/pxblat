@@ -7,6 +7,37 @@ from pxblat.extc import twoBitToFa
 from pxblat.extc import TwoBitToFaOption
 
 
+# [
+#     "Args",
+#     "Arguments",
+#     "Attention",
+#     "Attributes",
+#     "Caution",
+#     "Danger",
+#     "Error",
+#     "Example",
+#     "Examples",
+#     "Hint",
+#     "Important",
+#     "Keyword Args",
+#     "Keyword Arguments",
+#     "Methods",
+#     "Note",
+#     "Notes",
+#     "Return",
+#     "Returns",
+#     "Raises",
+#     "References",
+#     "See Also",
+#     "Tip",
+#     "Todo",
+#     "Warning",
+#     "Warnings",
+#     "Warns",
+#     "Yield",
+#     "Yields",
+# ]
+
 __all__ = ["fa_to_two_bit", "two_bit_to_fa"]
 
 

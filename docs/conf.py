@@ -38,6 +38,22 @@ python_apigen_default_groups = [
     (r".*\.__(str|repr)__", "String representation"),
 ]
 
+
+rst_prolog = """
+.. role python(code)
+   :language: python
+   :class: highlight
+"""
+
+python_apigen_rst_prolog = """
+.. default-role:: py:obj
+
+.. default-literal-role:: python
+
+.. highlight:: python
+"""
+
+
 bibtex_bibfiles = ["refs.bib"]
 
 # Add any paths that contain templates here, relative to this directory.
