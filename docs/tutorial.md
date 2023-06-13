@@ -1,4 +1,4 @@
-# Tutorial
+# **Tutorial**
 
 Use :class: `Server` in context mode
 
