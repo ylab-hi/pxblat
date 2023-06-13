@@ -36,13 +36,13 @@ def find_base_path():
 
 
 def find_gfserver():
-    path = find_base_path() / "gfserver"
+    path = find_base_path() / "gfServer"
     path.chmod(0o755)
     return path
 
 
 def find_gfclient():
-    path = find_base_path() / "gfclient"
+    path = find_base_path() / "gfClient"
     path.chmod(0o755)
     return path
 
