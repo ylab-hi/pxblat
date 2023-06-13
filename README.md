@@ -27,27 +27,33 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [close-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+sort%3Aupdated-desc+is%3Aclosed
 [opull]: https://github.com/cauliyang/pxblat/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc
 
-## 📚 Table of Contents
+## 📚 **Table of Contents**
 
 - [📚 Table of Contents](#-table-of-contents)
 - [🔮 Features](#-features)
+- [📎 Citation](#-citation)
 - [📆 To-do](#-to-do)
 - [🏎💨 Getting Started](#-getting-started)
 - [🤝 Contributing](#-contributing)
 - [🪪 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
 
-## 🔮 Features
+## 🔮 **Features**
 
 **Zero System Calls**: Avoids system calls, leading to a smoother, quicker operation.<br>
-**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
-**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
 **Ergonomics**: With an ergonomic design, `PxBLAT` aims for a seamless user experience.<br>
+**No External Dependencies**: `PxBLAT` operates independently without any external dependencies.<br>
 **Self-Monitoring**: No need to trawl through log files; `PxBLAT` monitors its status internally.<br>
 **Robust Validation**: Extensively tested to ensure reliable performance and superior stability as BLAT.<br>
+**Format-Agnostic:** `PxBLAT` doesn't require you to worry about file formats.<br>
 **In-Memory Processing**: `PxBLAT` discards the need for intermediate files by doing all its operations in memory, ensuring speed and efficiency.<br>
 
-## 📆 To-do
+## 📎 **Citation**
+
+PxBLAT is scientific software, with a published paper in the [Journal].
+Check the [published] to read the paper.
+
+## 📆 **To-do**
 
 - [x] parser gfclient result
 - [x] parse gfserver query result
@@ -60,7 +66,7 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [x] implement twobit2fa
 - [ ] implement psl2sam
 
-## 🚀 Getting Started
+## 🚀 **Getting Started**
 
 The very first step in starting your journey with `PxBLAT` is to install the tool.
 To do this, there are two options shown as below:
@@ -80,7 +86,7 @@ conda install pxblat
 Congratulations! You've successfully installed `PxBLAT` on your local machine.
 If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
 
-### 🤖 Using pxblat
+### 🤖 **Using pxblat**
 
 ```bash
 pxblat -h
@@ -88,7 +94,7 @@ pxblat -h
 
 Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details.
 
-## 🤝 Contributing
+## 🤝 **Contributing**
 
 Contributions are always welcome! Please follow these steps:
 
@@ -129,11 +135,12 @@ Create a pull request to the original repository.
 Open a new pull request to the original project repository. In the pull request, describe the changes you've made and why they're necessary.
 The project maintainers will review your changes and provide feedback or merge them into the main branch.
 
-## 🪪 License
+## 🪪 **License**
 
-This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See the [LICENSE](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) file for additional info.
+This project is licensed under the [MIT](https://opensource.org/licenses/mit) License. See the [LICENSE](https://github.com/cauliyang/pxblat/blob/main/LICENSE) file for additional info.
+The license of [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) is [here](https://genome.ucsc.edu/license/).
 
-## Contributors
+## **Contributors**
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -158,7 +165,7 @@ This project is licensed under the `[📌  INSERT-LICENSE-TYPE]` License. See th
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## 🙏 Acknowledgments
+## 🙏 **Acknowledgments**
 
 - [UCSC](https://github.com/ucscGenomeBrowser/kent)
 - [pybind11](https://github.com/pybind/pybind11/tree/stable)
