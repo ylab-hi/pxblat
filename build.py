@@ -183,7 +183,7 @@ def _include_dirs_for_pxblat():
 
 def _extra_compile_args_for_pxblat():
     flag = []
-    if DEBUG:
+    if not DEBUG:
         flag.append("-DDBG_MACRO_DISABLE")
     return flag
 
