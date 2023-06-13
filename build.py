@@ -263,7 +263,7 @@ def get_extension_modules():
     extension_modules.append(pxblat_library)
 
     """
-    An extension module which contains the main Python bindings for turbodbc
+    An extension module which contains the main Python bindings for libblat
     """
     pxblat_python_sources = [
         "src/pxblat/extc/bindings/faToTwoBit.cpp",
@@ -271,7 +271,6 @@ def get_extension_modules():
         "src/pxblat/extc/bindings/gfServer.cpp",
         "src/pxblat/extc/bindings/pygfServer.cpp",
         "src/pxblat/extc/bindings/gfClient.cpp",
-        "src/pxblat/extc/bindings/gfClient2.cpp",
     ] + list(
         filter_files(get_files_by_suffix("src/pxblat/extc/bindings/binder", [".cpp"]))
     )
