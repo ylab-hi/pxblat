@@ -32,7 +32,6 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 - [📚 Table of Contents](#-table-of-contents)
 - [🔮 Features](#-features)
 - [📎 Citation](#-citation)
-- [📆 To-do](#-to-do)
 - [🏎💨 Getting Started](#-getting-started)
 - [🤝 Contributing](#-contributing)
 - [🪪 License](#-license)
@@ -52,19 +51,6 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 PxBLAT is scientific software, with a published paper in the [Journal].
 Check the [published] to read the paper.
-
-## 📆 **To-do**
-
-- [x] parser gfclient result
-- [x] parse gfserver query result
-- [x] benchmarking multi connection and original version
-- [x] test result with original version
-- [x] fix build.py to build ssl, hts, maybe libuv when install with pip
-- [ ] add tool to conda channel
-- [x] add tool to pip
-- [x] change abort to throw exceptions
-- [x] implement twobit2fa
-- [ ] implement psl2sam
 
 ## 🚀 **Getting Started**
 
