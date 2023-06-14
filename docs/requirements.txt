@@ -1,7 +1,7 @@
 sphinx-immaterial[json,clang-format,keys,cpp]
 sphinx
 sphinx-click==4.4.0
-myst_parser==1.0.0
+myst_parser==2.0.0
 linkify-it-py == 2.0.2
 sphinx-togglebutton
 sphinxcontrib-bibtex
