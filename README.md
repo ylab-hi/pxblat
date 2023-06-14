@@ -83,6 +83,22 @@ pip install pxblat
 conda install pxblat
 ```
 
+- Example
+
+```python
+from pxblat import Server
+from pxblat import Client
+
+server_option = Server.create_option().build()
+client_option = Client.create_option().build()
+
+with Server(server_option).start() as server:
+    work()  # do some other stuff that consuming time
+    server.wait_for_ready()
+    client = Client(client_option)
+    ret = client.query("TACAT")
+```
+
 Congratulations! You've successfully installed `PxBLAT` on your local machine.
 If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
 
