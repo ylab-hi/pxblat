@@ -180,8 +180,28 @@ def create_result(result_dir, port, fas):
     return results
 
 
-def test_result(tmpdir, port, fas):
-    pxblat_results = create_result(tmpdir, port, fas)
+def time_creat_result(result_dir, port, fas):
+    cstart = time.perf_counter()
+    run_cblat(result_dir, port, fas)
+    cend = time.perf_counter()
+    print(f"run_cblat time: {cend - cstart:.4f}")
+
+    pstart = time.perf_counter()
+    results = run_pxblat(result_dir, port, fas)
+    pend = time.perf_counter()
+    print(f"run_pxblat time: {pend - pstart:.4f}")
+
+    speedup = (cend - cstart) / (pend - pstart)
+    print(f"speed up: {speedup:.4f}x")
+
+    return results
+
+
+def test_result(tmpdir, port, fas, time=False):
+    if not time:
+        pxblat_results = create_result(tmpdir, port, fas)
+    else:
+        pxblat_results = time_creat_result(tmpdir, port, fas)
 
     for fa in fas.glob("*fa"):
         cc_res = tmpdir / f"{fa.stem}_cc.psl"
@@ -189,3 +209,13 @@ def test_result(tmpdir, port, fas):
         a, b, _ = _cpsl(cc_res, pp_res, False)
         assert len(a) == 0
         assert len(b) == 0
+
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    tmpdir = Path("tmp")
+    tmpdir.mkdir(exist_ok=True)
+    port = 65000
+    fa = Path("tests/data/fas/")
+    test_result(tmpdir, port, fa, True)
