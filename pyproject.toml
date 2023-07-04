@@ -27,53 +27,60 @@ pxblat = "pxblat.cli.cli:app"
 [tool.ruff]
 line-length = 120
 fix = true
-extend-ignore = ["E501", "D203",  "D100", "D401"]
+extend-ignore = ["E501", "D203", "D100", "D401"]
 select = [
-  # pyflakes
-  "F",
-  # pycodestyle
-  "E",
-  "W",
-  # flake8-2020
-  "YTT",
-  # flake8-bugbear
-  "B",
-  # flake8-quotes
-  "Q",
-  # flake8-debugger
-  "T10",
-  # pylint
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  # misc lints
-  "PIE",
-  # flake8-pyi
-  "PYI",
-  # tidy imports
-  "TID",
-  # implicit string concatenation
-  "ISC",
-  # type-checking imports
-  "TCH",
-  # comprehensions
-  "C4",
+    # pyflakes
+    "F",
+    # pycodestyle
+    "E",
+    "W",
+    # flake8-2020
+    "YTT",
+    # flake8-bugbear
+    "B",
+    # flake8-quotes
+    "Q",
+    # flake8-debugger
+    "T10",
+    # pylint
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    # misc lints
+    "PIE",
+    # flake8-pyi
+    "PYI",
+    # tidy imports
+    "TID",
+    # implicit string concatenation
+    "ISC",
+    # type-checking imports
+    "TCH",
+    # comprehensions
+    "C4",
     # flake8-pytest-style
-   "PT",
+    "PT",
     # "ANN",
     "D",
     "RUF",
 ]
 
-exclude = ["src/pxblat/extc/__init__.pyi", "src/pxblat/__init__.py", "tasks.py",
-"tests/*", "build.py", "scripts/*", "noxfile.py"]
+exclude = [
+    "src/pxblat/extc/__init__.pyi",
+    "src/pxblat/__init__.py",
+    "tasks.py",
+    "tests/*",
+    "build.py",
+    "scripts/*",
+    "noxfile.py",
+]
 
 [tool.ruff.flake8-annotations]
 allow-star-arg-any = true
 
 [tool.ruff.per-file-ignores]
-"src/pxblat/extc/__init__.py" = ["F405", "F403" , "D104", "D103"]
+"src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
 "src/pxblat/server/server.py" = ["PLR0913"]
 "src/pxblat/server/client.py" = ["PLR0913"]
@@ -139,9 +146,16 @@ show_error_context = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-markers = [
-    "smoke: a quick smoke test",
-]
+markers = ["smoke: a quick smoke test"]
+
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_type = "pep440"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
 
 [tool.poetry.build]
 script = "build.py"
