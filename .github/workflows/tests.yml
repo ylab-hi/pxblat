@@ -75,9 +75,9 @@ jobs:
         run: |
           brew install htslib
           brew install openssl@3
-          ln -s  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-          ln -s  $(brew --prefix openssl)/lib/*a /usr/local/lib/
-          ln -s  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
+          ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
+          ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
+          ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
 
       - name: Install Poetry
         run: |
