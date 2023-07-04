@@ -4,7 +4,6 @@ help:  ## Show help
 	@grep -E '^[.a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # MACHTYPE only needs to be specified for `pcc` and `alpha`
-# MACHTYPE=pcc
 PYBIND11:=$(shell python3 -m pybind11 --includes)
 LDFLAGS:=${LDFLAGS}
 HG_DEFS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE -DMACHTYPE_$(MACHTYPE)
