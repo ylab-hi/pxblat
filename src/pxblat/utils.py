@@ -47,9 +47,6 @@ def stdout_redirected(to=os.devnull):
     """
     fd = sys.stdout.fileno()
 
-    ##### assert that Python and C stdio write using the same file descriptor
-    ####assert libc.fileno(ctypes.c_void_p.in_dll(libc, "stdout")) == fd == 1
-
     def _redirect_stdout(to):
         sys.stdout.close()  # + implicit flush()
         os.dup2(to.fileno(), fd)  # fd writes to 'to' file
@@ -78,9 +75,6 @@ def stderr_redirected(to=os.devnull):
     """
     fd = sys.stderr.fileno()
 
-    ##### assert that Python and C stdio write using the same file descriptor
-    ####assert libc.fileno(ctypes.c_void_p.in_dll(libc, "stdout")) == fd == 1
-
     def _redirect_stdout(to):
         sys.stderr.close()  # + implicit flush()
         os.dup2(to.fileno(), fd)  # fd writes to 'to' file
@@ -96,7 +90,6 @@ def stderr_redirected(to=os.devnull):
             yield  # allow code to be run with the redirected stdout
         finally:
             _redirect_stdout(to=old_stdout)  # restore stdout.
-            # buffering and flags such as
 
 
 def redirected(func):
