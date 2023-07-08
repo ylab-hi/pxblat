@@ -2,6 +2,7 @@ import tempfile
 from pathlib import Path
 from threading import Thread
 from typing import Optional
+from typing import TypeVar
 
 from pxblat.extc import ClientOption
 from pxblat.extc import pygfClient
@@ -9,6 +10,8 @@ from pxblat.parser import read
 
 from .basic import wait_server_ready
 from .server import ServerOption
+
+INSEQ = TypeVar("INSEQ", str, Path)
 
 
 def create_client_option():
@@ -261,7 +264,6 @@ class Gclient:
         self,
         host: str,
         port: int,
-        # in_seq: str,
         *,
         ttype: str = "dna",
         qtype: str = "dna",
@@ -275,31 +277,76 @@ class Gclient:
         genome: Optional[str] = None,
         genome_data_dir: Optional[str] = None,
         seq_dir: Optional[str] = None,
-        # in_seq: str,
-        # in_name: Optional[str] = None,
-        # out_name: Optional[str] = None,
-        # seqname: Optional[str] = None,
         server_option: Optional[ServerOption] = None,
         wait_ready: bool = False,
         wait_timeout: int = 60,
         parse: bool = True,
     ) -> None:
         """A class for querying a gfServer using a separate thread."""
-        self._option = ClientOption().withHost(host).withPort(str(port)).build()
+        self._basic_option = (
+            ClientOption()
+            .withHost(host)
+            .withPort(str(port))
+            .withMinScore(min_score)
+            .withMinIdentity(min_identity)
+            .withTType(ttype)
+            .withQType(qtype)
+            .withDots(dots)
+            .withNohead(nohead)
+            .withMaxIntron(max_intron)
+            .withOutputFormat(output_format)
+            .withIsDynamic(is_dynamic)
+        )
+
+        if genome is not None:
+            self._basic_option.withGenome(genome)
+        if genome_data_dir is not None:
+            self._basic_option.withGenomeDataDir(genome_data_dir)
+        if seq_dir is not None:
+            self._basic_option.withSeqDir(seq_dir)
 
         self._wait_ready = wait_ready
         self._wait_timeout = wait_timeout
         self._server_option = server_option
-        self._option = None
-        self._seqname = seqname
         self._parse = parse
 
-        self.result = None
+    @property
+    def host(self):
+        """The hostname or IP address of the server."""
+        return self._basic_option.hostName
 
-        self._resolve_host_port()
+    @host.setter
+    def host(self, value: str):
+        """Sets the hostname or IP address of the server."""
+        self._basic_option.withHost(value)
 
-    def run(self):
-        """Runs the query in a separate thread."""
+    @property
+    def port(self):
+        """The port number of the server."""
+        return int(self._basic_option.portName)
+
+    @port.setter
+    def port(self, value: int):
+        """Sets the port number of the server."""
+        self._basic_option.withPort(str(value))
+
+    @staticmethod
+    def _verify_input(in_seqs: list[INSEQ]):
+        for item in in_seqs:
+            if isinstance(item, Path) and not item.exists():
+                raise FileNotFoundError(f"File {item} does not exist")
+
+    def _query(self, in_seq: INSEQ):
+        if isinstance(in_seq, str):
+            self._basic_option.withInSeq(in_seq).build()
+        else:
+            self._basic_option.withInName(str(in_seq)).build()
+
+        return query_server(self._basic_option, parse=self._parse)
+
+    def query(self, in_seqs: list[INSEQ]):
+        self._verify_input(in_seqs)
+
         if self._wait_ready:
             wait_server_ready(
                 self.host,
@@ -308,50 +355,8 @@ class Gclient:
                 gfserver_option=self._server_option,
             )
 
-        ret = query_server(self.option, seqname=self._seqname, parse=self._parse)
+        from gevent.pool import Pool
 
-        self.result = ret
+        group = Pool(len(in_seqs))
 
-    def get(self):
-        """Sends a query to the server and returns the result."""
-        self.join()
-        return self.result
-
-    @property
-    def host(self):
-        """The hostname or IP address of the server."""
-        if self._host is None:
-            return self.option.hostName
-
-        return self._host
-
-    @host.setter
-    def host(self, value: str):
-        """Sets the hostname or IP address of the server."""
-        self._host = value
-
-    @property
-    def port(self):
-        """The port number of the server."""
-        if self._port is None:
-            return int(self.option.portName)
-
-        return self._port
-
-    @port.setter
-    def port(self, value: int):
-        """Sets the port number of the server."""
-        self._port = value
-
-    @classmethod
-    def create_option(cls):
-        """Creates a new ClientOption object with default values.
-
-        Return:
-            ClientOption object
-
-        """
-        return create_client_option()
-
-    def _resolve_host_port(self):
-        _resolve_host_port(self.option, self._host, self._port)
+        yield from group.imap(self._query, in_seqs)
