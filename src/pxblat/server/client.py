@@ -51,6 +51,47 @@ def _resolve_host_port(
         raise ValueError("host and port are both empty")
 
 
+def query_server_by_file(
+    option: ClientOption,
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    parse: bool = True,
+):
+    """Sends a query to the server and returns the result.
+
+    Args:
+        option: ClientOption object
+        host: Optional[str]
+        port: Optional[int]
+        seqname: Optional[str]
+        parse: bool
+
+    Returns:
+        str or bytes: The result of the query.
+
+    """
+    _resolve_host_port(option, host, port)
+
+    # return bytes
+    ret = pygfClient(option)
+
+    try:
+        ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
+    except UnicodeDecodeError:
+        ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
+
+    if parse and ret_decode:
+        try:
+            ret = read(ret_decode, "psl")
+        except ValueError as e:
+            if "No query results" in str(e):
+                return None
+        else:
+            return ret
+
+    return ret_decode
+
+
 def query_server(
     option: ClientOption,
     host: Optional[str] = None,
@@ -79,12 +120,10 @@ def query_server(
 
     if option.inSeq:
         fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
-
         seqname = fafile.name if seqname is None else seqname
         fafile.write(f">{seqname}\n")
         fafile.write(option.inSeq)
         fafile.close()
-
         option.inName = fafile.name
 
     # return bytes
@@ -400,11 +439,8 @@ class Client:
                 raise FileNotFoundError(f"File {item} does not exist")
 
     def _query(self, in_seq: INSEQ):
-        if isinstance(in_seq, str):
-            self._basic_option.withInSeq(in_seq).build()
-        else:
-            self._basic_option.withInName(str(in_seq)).build()
-        return query_server(self._basic_option, parse=self._parse)
+        self._basic_option.withInName(str(in_seq)).build()
+        return query_server_by_file(self._basic_option, parse=self._parse)
 
     def query(self, in_seqs: list[INSEQ]):
         """Query the server with the specified sequences."""
@@ -418,11 +454,27 @@ class Client:
                 gfserver_option=self._server_option,
             )
 
+        in_seqs_file = []
+        temp_files = []
+        for in_seq in in_seqs:
+            if isinstance(in_seq, str):
+                fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+                fafile.write(">seq\n")
+                fafile.write(in_seq)
+                fafile.close()
+                temp_files.append(fafile)
+                in_seqs_file.append(fafile)
+            else:
+                in_seqs_file.append(in_seq)
+
         num_cpus = min(mp.cpu_count(), len(in_seqs))
         print(f"Using {num_cpus} CPUs")
         Pool(len(in_seqs))
 
-        for in_seq in in_seqs:
+        for in_seq in in_seqs_file:
             yield self._query(in_seq)
+
+        for temp_file in temp_files:
+            temp_file.unlink()
 
         # yield from group.imap(self._query, in_seqs)

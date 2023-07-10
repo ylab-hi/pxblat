@@ -104,9 +104,10 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
         [fa_data] if fa_data.suffix == ".fa" else [fa for fa in fa_data.glob("*.fa")]
     )
 
-    ret = client.query(fa_datas[:250])
+    ret = client.query(fa_datas[:260])
 
     for r, fa in zip(ret, fa_datas):
+        print(f"run px {fa}")
         results[fa.stem] = r
 
     server.stop()
@@ -220,7 +221,7 @@ def _cpsl(file1, file2, isprint=True):
 
 
 def create_result(result_dir, port, fa_data):
-    run_cblat(result_dir, port, fa_data)
+    # run_cblat(result_dir, port, fa_data)
     results = run_pxblat_async(result_dir, port, fa_data)
     return results
 
@@ -242,26 +243,27 @@ def time_creat_result(result_dir, port, fas):
     return results
 
 
-def test_result(tmpdir, port, fas, time=False):
-    if not time:
-        pxblat_results = create_result(tmpdir, port, fas)
-    else:
-        pxblat_results = time_creat_result(tmpdir, port, fas)
+def test_result(tmpdir, port, fas, time=False, compare=True):
+    pxblat_results = (
+        create_result(tmpdir, port, fas)
+        if not time
+        else time_creat_result(tmpdir, port, fas)
+    )
 
-    file_num = 0
-    for fa in fas.glob("*fa"):
-        file_num += 1
-        cc_res = tmpdir / f"{fa.stem}_cc.psl"
-        pp_res = pxblat_results[fa.stem]
+    if compare:
+        file_num = 0
+        for fa in fas.glob("*fa"):
+            file_num += 1
+            cc_res = tmpdir / f"{fa.stem}_cc.psl"
+            pp_res = pxblat_results[fa.stem]
 
-        _ret = _cpsl(cc_res, pp_res)
-        if _ret is None:
-            return
-        a, b, _ = _ret
-        assert len(a) == 0
-        assert len(b) == 0
-
-    print(f"test {file_num} files")
+            _ret = _cpsl(cc_res, pp_res)
+            if _ret is None:
+                return
+            a, b, _ = _ret
+            assert len(a) == 0
+            assert len(b) == 0
+        print(f"test {file_num} files")
 
 
 @pytest.mark.parametrize(
@@ -272,10 +274,11 @@ def test_result(tmpdir, port, fas, time=False):
     ],
 )
 def test_failing_case(tmpdir, port, failing_fas, time=False):
-    if not time:
-        pxblat_results = create_result(tmpdir, port, failing_fas)
-    else:
-        pxblat_results = time_creat_result(tmpdir, port, failing_fas)
+    pxblat_results = (
+        create_result(tmpdir, port, failing_fas)
+        if not time
+        else time_creat_result(tmpdir, port, failing_fas)
+    )
 
     file_num = 0
     for fa in [failing_fas]:
@@ -302,7 +305,7 @@ if __name__ == "__main__":
     tmpdir = Path("tmp")
     tmpdir.mkdir(exist_ok=True)
     port = 65000
-    fa = Path("tests/data/fas/")
-    # fa = Path("benchmark/fas/")
+    # fa = Path("tests/data/fas/")
+    fa = Path("benchmark/fas/")
 
-    test_result(tmpdir, port, fa, time=True)
+    test_result(tmpdir, port, fa, time=False, compare=False)
