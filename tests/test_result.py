@@ -104,7 +104,7 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
         [fa_data] if fa_data.suffix == ".fa" else [fa for fa in fa_data.glob("*.fa")]
     )
 
-    ret = client.query(fa_datas[:260])
+    ret = client.query(fa_datas)
 
     for r, fa in zip(ret, fa_datas):
         print(f"run px {fa}")
@@ -305,7 +305,6 @@ if __name__ == "__main__":
     tmpdir = Path("tmp")
     tmpdir.mkdir(exist_ok=True)
     port = 65000
-    # fa = Path("tests/data/fas/")
-    fa = Path("benchmark/fas/")
+    fa = Path("tests/data/fas/")
 
     test_result(tmpdir, port, fa, time=False, compare=False)

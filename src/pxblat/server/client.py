@@ -439,8 +439,12 @@ class Client:
                 raise FileNotFoundError(f"File {item} does not exist")
 
     def _query(self, in_seq: INSEQ):
-        self._basic_option.withInName(str(in_seq)).build()
-        return query_server_by_file(self._basic_option, parse=self._parse)
+        if isinstance(in_seq, Path):
+            self._basic_option.withInName(str(in_seq)).build()
+        else:
+            self._basic_option.withInSeq(str(in_seq)).build()
+
+        return query_server(self._basic_option, parse=self._parse)
 
     def query(self, in_seqs: list[INSEQ]):
         """Query the server with the specified sequences."""
@@ -454,27 +458,11 @@ class Client:
                 gfserver_option=self._server_option,
             )
 
-        in_seqs_file = []
-        temp_files = []
-        for in_seq in in_seqs:
-            if isinstance(in_seq, str):
-                fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
-                fafile.write(">seq\n")
-                fafile.write(in_seq)
-                fafile.close()
-                temp_files.append(fafile)
-                in_seqs_file.append(fafile)
-            else:
-                in_seqs_file.append(in_seq)
-
         num_cpus = min(mp.cpu_count(), len(in_seqs))
         print(f"Using {num_cpus} CPUs")
         Pool(len(in_seqs))
 
-        for in_seq in in_seqs_file:
+        for in_seq in in_seqs:
             yield self._query(in_seq)
-
-        for temp_file in temp_files:
-            temp_file.unlink()
 
         # yield from group.imap(self._query, in_seqs)
