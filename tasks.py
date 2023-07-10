@@ -13,7 +13,7 @@ import simdjson
 from invoke.tasks import task
 from pxblat import extc
 from pxblat.extc import pygfClient
-from pxblat.server import Client
+from pxblat.server import ClientThread
 from pxblat.server import Server
 from pxblat.server import start_server_mt_nb
 from pxblat.server import status_server
@@ -401,7 +401,7 @@ def runp(c):
         .build()
     )
 
-    client = Client(client_option, server_option=server_option)
+    client = ClientThread(client_option, server_option=server_option)
     client.start()
 
     ret = client.get()
@@ -441,7 +441,7 @@ def runp2(c):
     )
 
     parse = True
-    client = Client(client_option, server_option=server_option, parse=parse)
+    client = ClientThread(client_option, server_option=server_option, parse=parse)
     client.start()
 
     ret = client.get()
@@ -495,7 +495,7 @@ def runcp(c):
     )
     parse = False
 
-    client = Client(client_option, server_option=server_option, parse=parse)
+    client = ClientThread(client_option, server_option=server_option, parse=parse)
     client.start()
 
     if not parse:
@@ -642,7 +642,7 @@ def bench(c, fa1: str):
         .build()
     )
     parse = False
-    client = Client(client_option, parse=parse)
+    client = ClientThread(client_option, parse=parse)
     client.start()
     client.get()
 
@@ -684,7 +684,7 @@ def bench(c, fa1: str):
     )
     print(f"run python client save to file {pp_res}")
     parse = False
-    client = Client(client_option, parse=parse)
+    client = ClientThread(client_option, parse=parse)
     client.start()
 
     client.get()
@@ -837,7 +837,7 @@ def benchsccp(c):
             .build()
         )
         parse = False
-        client = Client(client_option, parse=parse)
+        client = ClientThread(client_option, parse=parse)
         client.start()
         client.get()
 
@@ -883,7 +883,7 @@ def benchspcp(c):
         )
         print(f"run python client save to file {pp_res}")
         parse = False
-        client = Client(client_option, parse=parse)
+        client = ClientThread(client_option, parse=parse)
         client.start()
         client.get()
 

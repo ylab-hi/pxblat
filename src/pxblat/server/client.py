@@ -1,15 +1,23 @@
+from __future__ import annotations
+
+import multiprocessing as mp
 import tempfile
 from pathlib import Path
 from threading import Thread
 from typing import Optional
+from typing import TYPE_CHECKING
 from typing import TypeVar
 
+from gevent.pool import Pool
 from pxblat.extc import ClientOption
 from pxblat.extc import pygfClient
 from pxblat.parser import read
 
 from .basic import wait_server_ready
-from .server import ServerOption
+
+
+if TYPE_CHECKING:
+    from .server import ServerOption
 
 INSEQ = TypeVar("INSEQ", str, Path)
 
@@ -91,12 +99,19 @@ def query_server(
         Path(fafile.name).unlink()
 
     if parse and ret_decode:
-        return read(ret_decode, "psl")
+        try:
+            ret = read(ret_decode, "psl")
+        except ValueError as e:
+            if "No query results" in str(e):
+                return None
+
+        else:
+            return ret
 
     return ret_decode
 
 
-class Client(Thread):
+class ClientThread(Thread):
     """A class for managing client connections to a server in a separate thread.
 
     This class can be used to query a gfServer in a separate thread, and can optionally wait until the server is ready before
@@ -220,7 +235,7 @@ class Client(Thread):
         _resolve_host_port(self.option, self._host, self._port)
 
 
-class Gclient:
+class Client:
     """A class for managing client connections to a server in a separate thread.
 
     This class can be used to query a gfServer in a separate thread, and can optionally wait until the server is ready before
@@ -242,28 +257,11 @@ class Gclient:
         -10
     """
 
-    # std::string hostName{};
-    # std::string portName{};
-    # std::string tType{"dna"};
-    # std::string qType{"dna"};
-    # int dots{0};
-    # bool nohead{false};
-    # int minScore{30};
-    # double minIdentity{90.0};
-    # std::string outputFormat{"psl"};
-    # long maxIntron{ffIntronMaxDefault};
-    # std::string genome{};
-    # std::string genomeDataDir{};
-    # bool isDynamic{false};
-    # std::string SeqDir{};
-    # std::string inName{};
-    # std::string outName{};
-    # std::string inSeq{};
-
     def __init__(
         self,
         host: str,
         port: int,
+        seq_dir: str | Path,
         *,
         ttype: str = "dna",
         qtype: str = "dna",
@@ -272,11 +270,10 @@ class Gclient:
         min_score: int = 30,
         min_identity: float = 90.0,
         output_format: str = "psl",
-        max_intron: int = 100000,
+        max_intron: int = 750000,
         is_dynamic: bool = False,
         genome: Optional[str] = None,
         genome_data_dir: Optional[str] = None,
-        seq_dir: Optional[str] = None,
         server_option: Optional[ServerOption] = None,
         wait_ready: bool = False,
         wait_timeout: int = 60,
@@ -303,32 +300,98 @@ class Gclient:
         if genome_data_dir is not None:
             self._basic_option.withGenomeDataDir(genome_data_dir)
         if seq_dir is not None:
-            self._basic_option.withSeqDir(seq_dir)
+            self._basic_option.withSeqDir(str(seq_dir))
 
         self._wait_ready = wait_ready
         self._wait_timeout = wait_timeout
         self._server_option = server_option
         self._parse = parse
 
+    # fmt: off
+    @property
+    def seq_dir(self):
+        """The directory containing the sequence files."""
+        return self._basic_option.SeqDir
+    @seq_dir.setter
+    def seq_dir(self, value: str | Path): self._basic_option.withSeqDir(str(value))
+
+    @property
+    def ttype(self):
+        """The type of the target sequence."""
+        return self._basic_option.tType
+    @ttype.setter
+    def ttype(self, value: str): self._basic_option.withTType(value)
+
+    @property
+    def qtype(self):
+        """The type of the query sequence."""
+        return self._basic_option.qType
+    @qtype.setter
+    def qtype(self, value: str): self._basic_option.withQType(value)
+
+    @property
+    def min_score(self):
+        """The minimum score for the alignment."""
+        return int(self._basic_option.minScore)
+    @min_score.setter
+    def min_score(self, value: int): self._basic_option.withMinScore(value)
+
+    @property
+    def min_identity(self):
+        """The minimum identity for the alignment."""
+        return self._basic_option.minIdentity
+    @min_identity.setter
+    def min_identity(self, value: float): self._basic_option.withMinIdentity(value)
+
     @property
     def host(self):
         """The hostname or IP address of the server."""
         return self._basic_option.hostName
-
     @host.setter
-    def host(self, value: str):
-        """Sets the hostname or IP address of the server."""
-        self._basic_option.withHost(value)
+    def host(self, value: str): self._basic_option.withHost(value)
 
     @property
     def port(self):
         """The port number of the server."""
         return int(self._basic_option.portName)
-
     @port.setter
-    def port(self, value: int):
-        """Sets the port number of the server."""
-        self._basic_option.withPort(str(value))
+    def port(self, value: int): self._basic_option.withPort(str(value))
+
+    @property
+    def output_format(self):
+        """The output format of the alignment."""
+        return self._basic_option.outputFormat
+    @output_format.setter
+    def output_format(self, value: str): self._basic_option.withOutputFormat(value)
+
+    @property
+    def max_intron(self):
+        """The maximum intron size for the alignment."""
+        return self._basic_option.maxIntron
+    @max_intron.setter
+    def max_intron(self, value: int): self._basic_option.withMaxIntron(value)
+
+    @property
+    def is_dynamic(self):
+        """Whether the server is dynamic."""
+        return self._basic_option.isDynamic
+    @is_dynamic.setter
+    def is_dynamic(self, value: bool): self._basic_option.withIsDynamic(value)
+
+    @property
+    def genome(self):
+        """The genome name of the server."""
+        return self._basic_option.genome
+    @genome.setter
+    def genome(self, value: str): self._basic_option.withGenome(value)
+
+    @property
+    def genome_data_dir(self):
+        """The genome data directory of the server."""
+        return self._basic_option.genomeDataDir
+    @genome_data_dir.setter
+    def genome_data_dir(self, value: str): self._basic_option.withGenomeDataDir(value)
+    # fmt: on
 
     @staticmethod
     def _verify_input(in_seqs: list[INSEQ]):
@@ -341,10 +404,10 @@ class Gclient:
             self._basic_option.withInSeq(in_seq).build()
         else:
             self._basic_option.withInName(str(in_seq)).build()
-
         return query_server(self._basic_option, parse=self._parse)
 
     def query(self, in_seqs: list[INSEQ]):
+        """Query the server with the specified sequences."""
         self._verify_input(in_seqs)
 
         if self._wait_ready:
@@ -355,8 +418,11 @@ class Gclient:
                 gfserver_option=self._server_option,
             )
 
-        from gevent.pool import Pool
+        num_cpus = min(mp.cpu_count(), len(in_seqs))
+        print(f"Using {num_cpus} CPUs")
+        Pool(len(in_seqs))
 
-        group = Pool(len(in_seqs))
+        for in_seq in in_seqs:
+            yield self._query(in_seq)
 
-        yield from group.imap(self._query, in_seqs)
+        # yield from group.imap(self._query, in_seqs)

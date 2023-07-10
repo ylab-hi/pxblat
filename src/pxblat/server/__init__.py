@@ -12,6 +12,7 @@ from .basic import status_server
 from .basic import stop_server
 from .basic import wait_server_ready
 from .client import Client
+from .client import ClientThread
 from .client import create_client_option
 from .client import query_server
 from .server import create_server_option
@@ -21,7 +22,7 @@ from .status import Status
 
 __all__ = [
     "Server",
-    "Client",
+    "ClientThread",
     "files",
     "server_query",
     "start_server_mt",
@@ -38,4 +39,5 @@ __all__ = [
     "check_port_in_use",
     "DEFAULT_PORT",
     "Status",
+    "Client",
 ]
