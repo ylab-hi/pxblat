@@ -299,10 +299,19 @@ def test_failing_case(tmpdir, port, failing_fas, time=False):
 
 if __name__ == "__main__":
     from pathlib import Path
+    from pxblat import stop_server
 
     tmpdir = Path("tmp")
     tmpdir.mkdir(exist_ok=True)
     port = 65000
-    fa = Path("tests/data/fas/")
+    # fa = Path("tests/data/fas/")
+    fa1 = Path("benchmark/fas/1")
+    fa2 = Path("benchmark/fas/2")
+    fa3 = Path("benchmark/fas/3")
+    fa4 = Path("benchmark/fas/4")
+    fa5 = Path("benchmark/fas/5")
+    fa6 = Path("benchmark/fas/6")
 
-    test_result(tmpdir, port, fa, time=False, compare=False)
+    test_result(tmpdir, port, fa1, time=False, compare=True)
+    time.sleep(5)
+    test_result(tmpdir, port, fa2, time=False, compare=True)
