@@ -180,7 +180,7 @@ def get_overlap(hsps1, hsps2):
     return set1 - set2, set2 - set1, set1 & set2
 
 
-def _cpsl(file1, file2, isprint=True):
+def _cpsl(file1, file2, isprint=False):
     cc_psl = file1
     cp_psl = file2
 
@@ -221,7 +221,7 @@ def _cpsl(file1, file2, isprint=True):
 
 
 def create_result(result_dir, port, fa_data):
-    # run_cblat(result_dir, port, fa_data)
+    run_cblat(result_dir, port, fa_data)
     results = run_pxblat_async(result_dir, port, fa_data)
     return results
 
@@ -243,7 +243,7 @@ def time_creat_result(result_dir, port, fas):
     return results
 
 
-def test_result(tmpdir, port, fas, time=False, compare=True):
+def test_result(tmpdir, port, fas, time=True, compare=True):
     pxblat_results = (
         create_result(tmpdir, port, fas)
         if not time
@@ -266,6 +266,7 @@ def test_result(tmpdir, port, fas, time=False, compare=True):
         print(f"test {file_num} files")
 
 
+@pytest.mark.failing
 @pytest.mark.parametrize(
     "failing_fas",
     [
@@ -289,10 +290,7 @@ def test_failing_case(tmpdir, port, failing_fas, time=False):
         _ret = _cpsl(cc_res, pp_res)
         if _ret is None:
             return
-
         a, b, _ = _ret
-        print(f"{fa.stem} a: {len(a)} b: {len(b)}")
-
         assert len(a) == 0
         assert len(b) == 0
 

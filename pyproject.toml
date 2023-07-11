@@ -147,7 +147,7 @@ show_error_context = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-markers = ["smoke: a quick smoke test"]
+markers = ["smoke: a quick smoke test", "failing: failing tests"]
 
 
 [tool.commitizen]

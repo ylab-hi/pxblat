@@ -443,7 +443,6 @@ class Client:
             self._basic_option.withInName(str(in_seq)).build()
         else:
             self._basic_option.withInSeq(str(in_seq)).build()
-
         return query_server(self._basic_option, parse=self._parse)
 
     def query(self, in_seqs: list[INSEQ]):
@@ -458,11 +457,5 @@ class Client:
                 gfserver_option=self._server_option,
             )
 
-        num_cpus = min(mp.cpu_count(), len(in_seqs))
-        print(f"Using {num_cpus} CPUs")
-        Pool(len(in_seqs))
-
-        for in_seq in in_seqs:
-            yield self._query(in_seq)
-
-        # yield from group.imap(self._query, in_seqs)
+        group = Pool(1)
+        yield from group.imap(self._query, in_seqs)
