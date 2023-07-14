@@ -1,18 +1,22 @@
+from __future__ import annotations
+
 import errno
 import socket
 import time
-import typing as t
 import warnings
 from collections import Counter
 from multiprocessing import Process
 
 from deprecated import deprecated  # type: ignore
-from pxblat.extc import pygetFileList
-from pxblat.extc import pyqueryServer
-from pxblat.extc import pystartServer
-from pxblat.extc import ServerOption
-from pxblat.extc import startServer
-from pxblat.extc import UsageStats
+
+from pxblat.extc import (
+    ServerOption,
+    UsageStats,
+    pygetFileList,
+    pyqueryServer,
+    pystartServer,
+    startServer,
+)
 
 from .status import Status
 from .utils import logger
@@ -41,10 +45,12 @@ def check_host_port(host: str, port: int) -> None:
         None
     """
     if not isinstance(host, str):
-        raise RuntimeError("host must be str")
+        msg = "host must be str"
+        raise RuntimeError(msg)
 
     if not isinstance(port, int):
-        raise RuntimeError("port must be number")
+        msg = "port must be number"
+        raise RuntimeError(msg)
 
 
 def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bool:
@@ -80,7 +86,9 @@ def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bo
 
 
 def _check_port_in_use_by_status(
-    host: str, port: int, gfserver_option: ServerOption
+    host: str,
+    port: int,
+    gfserver_option: ServerOption,
 ) -> bool:
     """Check the port is in use by status_server.
 
@@ -119,7 +127,7 @@ def _check_port_in_use_by_connect(host: str, port: int):
 
 
 @deprecated(
-    reason="The func will generate false alarm. Please use `_check_port_in_use_by_status` or  `_check_port_in_use_by_connect` instead"
+    reason="The func will generate false alarm. Please use `_check_port_in_use_by_status` or  `_check_port_in_use_by_connect` instead",
 )
 def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
     """Check the port is in use by bind to the port.
@@ -141,7 +149,7 @@ def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.bind((host, port))
-    except socket.error as e:
+    except OSError as e:
         logger.debug(f"port {host}:{port} is in use {e}")
         if e.errno == errno.EADDRINUSE:
             return True
@@ -153,7 +161,10 @@ def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
 
 
 def wait_server_ready(
-    host: str, port: int, timeout: int = 60, gfserver_option=None
+    host: str,
+    port: int,
+    timeout: int = 60,
+    gfserver_option=None,
 ) -> None:
     """Wait for a server to become ready by checking if a given port is open or if a specific server status is reached.
 
@@ -179,12 +190,14 @@ def wait_server_ready(
         while not check_port_open(host, port):
             time.sleep(1)
             if time.perf_counter() - start > timeout:
-                raise RuntimeError("wait for server ready timeout")
+                msg = "wait for server ready timeout"
+                raise RuntimeError(msg)
     else:
         while not check_server_status(host, port, gfserver_option):
             time.sleep(1)
             if time.perf_counter() - start > timeout:
-                raise RuntimeError("wait for server ready timeout")
+                msg = "wait for server ready timeout"
+                raise RuntimeError(msg)
 
 
 def check_server_status(
@@ -237,8 +250,12 @@ def _gfSignature() -> str:
 
 
 def status_server(
-    host: str, port: int, options: ServerOption, instance=False
-) -> t.Union[Status, t.Dict[str, str]]:
+    host: str,
+    port: int,
+    options: ServerOption,
+    *,
+    instance=False,
+) -> Status | dict[str, str]:
     """Get the status of a running server.
 
     Args:
@@ -341,12 +358,19 @@ def files(host: str, port: int) -> list[str]:
         ['file1', 'file2', 'file3']
     """
     ret_str = pygetFileList(host, str(port))
-    assert ret_str, "ret_str cannot be empty"
+    if ret_str == "":
+        raise ValueError
     return [file for file in ret_str.split("\n") if file]
 
 
 def server_query(
-    intype: str, host: str, port: int, faName: str, isComplex: bool, isProt: bool
+    intype: str,
+    host: str,
+    port: int,
+    faName: str,
+    *,
+    isComplex: bool,
+    isProt: bool,
 ):
     """Query a running server with a sequence.
 
@@ -369,8 +393,7 @@ def server_query(
         >>> server_query('dna', 'localhost', 8080, 'sequence1', False, False)
         'result1'
     """
-    re_str = pyqueryServer(intype, host, str(port), faName, isComplex, isProt)
-    return re_str
+    return pyqueryServer(intype, host, str(port), faName, isComplex, isProt)
 
 
 def start_server(
@@ -407,8 +430,9 @@ def start_server_mt(
     two_bit_file: str,
     option: ServerOption,
     stat: UsageStats,
-    use_others: bool = False,
+    *,
     timeout: int = 60,
+    use_others: bool = False,
     try_new_port: bool = True,
 ):
     """Starts a server on a new thread.
@@ -434,13 +458,12 @@ def start_server_mt(
         if check_port_in_use(host, port):
             if use_others:
                 pass
-                # wait_server_ready(host, port, timeout)
-                # status_server(host, port, option)
             elif try_new_port:
                 port = find_free_port(host, start=port + 1)
                 pystartServer(host, str(port), 1, [two_bit_file], option, stat)
             else:
-                raise ValueError(f"The port {port} is used")
+                msg = f"The port {port} is used"
+                raise ValueError(msg)
         else:
             pystartServer(host, str(port), 1, [two_bit_file], option, stat)
     except Exception as e:
@@ -453,8 +476,9 @@ def start_server_mt_nb(
     two_bit_file: str,
     option: ServerOption,
     stat: UsageStats,
-    use_others: bool = False,
+    *,
     timeout: int = 60,
+    use_others: bool = False,
     try_new_port: bool = True,
 ) -> Process:
     """Starts a server on a new thread and immediately returns a Process object.
@@ -502,12 +526,14 @@ def find_free_port(host: str, start: int = DEFAULT_PORT, end: int = 65535) -> in
         start: Start port number
         end: End port number.
     """
-    assert start < end
+    if start > end:
+        raise ValueError
 
     for port in range(start, end):
         try:
             if not check_port_in_use(host, port):
                 return port
-        except socket.error as e:
+        except OSError as e:
             raise e
-    raise RuntimeError(f"Cannot find available port in range [{start}, {end}]")
+    msg = f"Cannot find available port in range [{start}, {end}]"
+    raise RuntimeError(msg)

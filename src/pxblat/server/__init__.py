@@ -1,24 +1,21 @@
 """Server module."""
-from .basic import check_port_in_use
-from .basic import check_port_open
-from .basic import DEFAULT_PORT
-from .basic import files
-from .basic import find_free_port
-from .basic import server_query
-from .basic import start_server
-from .basic import start_server_mt
-from .basic import start_server_mt_nb
-from .basic import status_server
-from .basic import stop_server
-from .basic import wait_server_ready
-from .client import Client
-from .client import ClientThread
-from .client import create_client_option
-from .client import query_server
-from .server import create_server_option
-from .server import Server
+from .basic import (
+    DEFAULT_PORT,
+    check_port_in_use,
+    check_port_open,
+    files,
+    find_free_port,
+    server_query,
+    start_server,
+    start_server_mt,
+    start_server_mt_nb,
+    status_server,
+    stop_server,
+    wait_server_ready,
+)
+from .client import Client, ClientThread, create_client_option, query_server
+from .server import Server, create_server_option
 from .status import Status
-
 
 __all__ = [
     "Server",

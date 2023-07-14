@@ -26,47 +26,82 @@ pxblat = "pxblat.cli.cli:app"
 
 
 [tool.ruff]
+target-version = "py39"
 line-length = 120
 fix = true
-extend-ignore = ["E501", "D203", "D100", "D401"]
 select = [
-    # pyflakes
+    "ANN",
+    "D",
+    "A",
     "F",
-    # pycodestyle
     "E",
     "W",
-    # flake8-2020
+    "C90",
+    "I",
+    "UP",
+    "N",
     "YTT",
-    # flake8-bugbear
+    "TID",
+    "S",
+    "BLE",
+    "FBT",
+    "PLR",
     "B",
-    # flake8-quotes
-    "Q",
-    # flake8-debugger
+    "B9",
+    "A",
+    "C4",
     "T10",
-    # pylint
+    "EM",
+    "ICN",
+    "T20",
+    "Q",
+    "RET",
+    "SIM",
+    "ARG",
+    "DTZ",
+    "ERA",
+    "PD",
+    "PGH",
     "PLC",
     "PLE",
-    "PLR",
     "PLW",
-    # misc lints
-    "PIE",
-    # flake8-pyi
-    "PYI",
-    # tidy imports
-    "TID",
-    # implicit string concatenation
-    "ISC",
-    # type-checking imports
-    "TCH",
-    # comprehensions
-    "C4",
-    # flake8-pytest-style
-    "PT",
-    # "ANN",
-    "D",
     "RUF",
+    "PL",
+    "TD",
+    "FIX",
+    "PTH",
+    "TCH",
+    "SLOT",
+    "PT",
+    "PYI",
+    "PIE",
+    "ISC",
+    "FA",
+    "EXE",
+    "CPY",
+    "COM",
 ]
-
+ignore = [
+    "E501",
+    "D203",
+    "D100",
+    "D401",
+    "ANN101",
+    "ANN102",
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "ANN205",
+    "ANN206",
+    "PGH003",
+    "N802",
+    "N803",
+    "N806",
+    "N815",
+]
 exclude = [
     "src/pxblat/extc/__init__.pyi",
     "src/pxblat/__init__.py",
@@ -77,23 +112,28 @@ exclude = [
     "noxfile.py",
 ]
 
+
 [tool.ruff.flake8-annotations]
 allow-star-arg-any = true
 
 [tool.ruff.per-file-ignores]
+"src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
 "src/pxblat/server/server.py" = ["PLR0913"]
 "src/pxblat/server/client.py" = ["PLR0913"]
-"src/pxblat/cli/server.py" = ["PLR0913"]
-"src/pxblat/cli/client.py" = ["B008", "PLR0913"]
-"src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913"]
-"src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913"]
+"src/pxblat/cli/server.py" = ["PLR0913", "N816", "FBT001", "FBT003"]
+"src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
+"src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 
 
 [tool.ruff.pydocstyle]
 convention = 'google'
+
+
+[tool.isort]
+profile = "black"
 
 
 [tool.poetry.group.dev.dependencies]

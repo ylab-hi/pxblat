@@ -1,20 +1,16 @@
 from __future__ import annotations
 
-import multiprocessing as mp
 import tempfile
 from pathlib import Path
 from threading import Thread
-from typing import Optional
-from typing import TYPE_CHECKING
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from gevent.pool import Pool
-from pxblat.extc import ClientOption
-from pxblat.extc import pygfClient
+
+from pxblat.extc import ClientOption, pygfClient
 from pxblat.parser import read
 
 from .basic import wait_server_ready
-
 
 if TYPE_CHECKING:
     from .server import ServerOption
@@ -32,7 +28,9 @@ def create_client_option():
 
 
 def _resolve_host_port(
-    client_option: ClientOption, host: Optional[str], port: Optional[int]
+    client_option: ClientOption,
+    host: str | None,
+    port: int | None,
 ):
     """Resolves the host and port for the client option.
 
@@ -48,13 +46,15 @@ def _resolve_host_port(
         client_option.portName = str(port)
 
     if not client_option.hostName and not client_option.portName:
-        raise ValueError("host and port are both empty")
+        msg = "host and port are both empty"
+        raise ValueError(msg)
 
 
 def query_server_by_file(
     option: ClientOption,
-    host: Optional[str] = None,
-    port: Optional[int] = None,
+    host: str | None = None,
+    port: int | None = None,
+    *,
     parse: bool = True,
 ):
     """Sends a query to the server and returns the result.
@@ -72,7 +72,6 @@ def query_server_by_file(
     """
     _resolve_host_port(option, host, port)
 
-    # return bytes
     ret = pygfClient(option)
 
     try:
@@ -94,9 +93,10 @@ def query_server_by_file(
 
 def query_server(
     option: ClientOption,
-    host: Optional[str] = None,
-    port: Optional[int] = None,
-    seqname: Optional[str] = None,
+    host: str | None = None,
+    port: int | None = None,
+    seqname: str | None = None,
+    *,
     parse: bool = True,
 ):
     """Sends a query to the server and returns the result.
@@ -116,7 +116,8 @@ def query_server(
 
     fafile = None
     if not option.inName and not option.inSeq:
-        raise ValueError("inName and inSeq are both empty")
+        msg = "inName and inSeq are both empty"
+        raise ValueError(msg)
 
     if option.inSeq:
         fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
@@ -126,7 +127,6 @@ def query_server(
         fafile.close()
         option.inName = fafile.name
 
-    # return bytes
     ret = pygfClient(option)
 
     try:
@@ -175,12 +175,13 @@ class ClientThread(Thread):
     def __init__(
         self,
         option: ClientOption,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        wait_ready: bool = False,
+        host: str | None = None,
+        port: int | None = None,
+        *,
         wait_timeout: int = 60,
-        server_option: Optional[ServerOption] = None,
-        seqname: Optional[str] = None,
+        server_option: ServerOption | None = None,
+        seqname: str | None = None,
+        wait_ready: bool = False,
         parse: bool = True,
         daemon: bool = True,
     ) -> None:
@@ -311,9 +312,9 @@ class Client:
         output_format: str = "psl",
         max_intron: int = 750000,
         is_dynamic: bool = False,
-        genome: Optional[str] = None,
-        genome_data_dir: Optional[str] = None,
-        server_option: Optional[ServerOption] = None,
+        genome: str | None = None,
+        genome_data_dir: str | None = None,
+        server_option: ServerOption | None = None,
         wait_ready: bool = False,
         wait_timeout: int = 60,
         parse: bool = True,
@@ -436,7 +437,8 @@ class Client:
     def _verify_input(in_seqs: list[INSEQ]):
         for item in in_seqs:
             if isinstance(item, Path) and not item.exists():
-                raise FileNotFoundError(f"File {item} does not exist")
+                msg = f"File {item} does not exist"
+                raise FileNotFoundError(msg)
 
     def _query(self, in_seq: INSEQ):
         if isinstance(in_seq, Path):

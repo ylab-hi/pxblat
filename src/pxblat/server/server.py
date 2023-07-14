@@ -1,28 +1,32 @@
+from __future__ import annotations
+
 import typing as t
 from contextlib import ContextDecorator
 from multiprocessing import Process
-from pathlib import Path
-from typing import Union
 
-from pxblat.extc import pystartServer
-from pxblat.extc import ServerOption
-from pxblat.extc import UsageStats
+from pxblat.extc import ServerOption, UsageStats, pystartServer
 
-from .basic import check_port_in_use
-from .basic import files
-from .basic import find_free_port
-from .basic import logger
-from .basic import server_query
-from .basic import status_server
-from .basic import stop_server
-from .basic import wait_server_ready
-from .status import Status
+from .basic import (
+    check_port_in_use,
+    files,
+    find_free_port,
+    logger,
+    server_query,
+    status_server,
+    stop_server,
+    wait_server_ready,
+)
+
+if t.TYPE_CHECKING:
+    from pathlib import Path
+
+    from .status import Status
 
 
 def _pystartServer(
     hostName: str,
     portName: str,
-    seqFiles: t.List[str],
+    seqFiles: list[str],
     options: ServerOption,
     stats: UsageStats,
 ):
@@ -66,8 +70,9 @@ class Server(ContextDecorator):
         self,
         host: str,
         port: int,
-        two_bit: Union[Path, str],
+        two_bit: Path | str,
         option: ServerOption,
+        *,
         daemon=True,
         use_others: bool = False,
         timeout: int = 60,
@@ -141,7 +146,6 @@ class Server(ContextDecorator):
                     # WARN: Use server that is already open. However, the server may be not opened by gfServer <05-16-23>
                     # Hence, the `wait_server_ready` may be timeout.
 
-                    # wait_server_ready(host, port, timeout)
                 else:
                     self._is_open = True
                     new_port = find_free_port(self.host, start=self.port + 1)
@@ -156,7 +160,12 @@ class Server(ContextDecorator):
                     )
             else:
                 pystartServer(
-                    self.host, str(self.port), 1, [two_bit_file], self.option, self.stat
+                    self.host,
+                    str(self.port),
+                    1,
+                    [two_bit_file],
+                    self.option,
+                    self.stat,
                 )
         except Exception as e:
             raise e
@@ -170,7 +179,6 @@ class Server(ContextDecorator):
                 logger.debug(f"{self.port} port in use")
                 if self.use_others:
                     self._is_open = False
-                    # wait_server_ready(host, port, timeout)
                 else:
                     self._is_open = True
                     new_port = find_free_port(self._host, start=self.port + 1)
@@ -233,7 +241,7 @@ class Server(ContextDecorator):
         if self._process is not None:
             self._process.terminate()
 
-    def status(self, instance=False) -> t.Union[t.Dict[str, str], Status]:
+    def status(self, *, instance=False) -> dict[str, str] | Status:
         """Retrieves the status of the gfServer instance.
 
         Args:
@@ -252,7 +260,7 @@ class Server(ContextDecorator):
         """
         return files(self.host, self.port)
 
-    def query(self, intype: str, faName: str, isComplex: bool, isProt: bool) -> str:
+    def query(self, intype: str, faName: str, *, isComplex: bool, isProt: bool) -> str:
         """Queries the gfServer instance with the given parameters.
 
         Args:
@@ -282,7 +290,7 @@ class Server(ContextDecorator):
         """
         return self._is_open
 
-    def wait_ready(self, timeout: int = 60, restart: bool = False):
+    def wait_ready(self, timeout: int = 60, *, restart: bool = False):
         """Wait server ready in block mode.
 
         Args:
@@ -300,10 +308,11 @@ class Server(ContextDecorator):
                 if restart and self.use_others:
                     self.use_others = False
                     self.start()
-                    self.wait_ready(timeout * 2, restart)
+                    self.wait_ready(timeout * 2, restart=restart)
                 else:
+                    msg = f"Timeout for Waitting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
                     raise RuntimeError(
-                        f"Timeout for Waitting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
+                        msg,
                     ) from e
             else:
                 self._is_ready = True

@@ -1,13 +1,10 @@
 """Toolkit functions for working with BLAT."""
-import typing as t
+from __future__ import annotations
+
 from pathlib import Path
 
-from pxblat.extc import faToTwoBit
-from pxblat.extc import twoBitToFa
-from pxblat.extc import TwoBitToFaOption
+from pxblat.extc import TwoBitToFaOption, faToTwoBit, twoBitToFa
 
-
-# [
 #     "Args",
 #     "Arguments",
 #     "Attention",
@@ -36,14 +33,14 @@ from pxblat.extc import TwoBitToFaOption
 #     "Warns",
 #     "Yield",
 #     "Yields",
-# ]
 
 __all__ = ["fa_to_two_bit", "two_bit_to_fa"]
 
 
 def fa_to_two_bit(
-    inFiles: t.List[str],
+    inFiles: list[str],
     outFile: str,
+    *,
     noMask: bool = False,
     stripVersion: bool = False,
     ignoreDups: bool = False,
@@ -73,7 +70,9 @@ def fa_to_two_bit(
 
 
 def two_bit_to_fa(
-    inName: t.Union[str, Path], outName: t.Union[str, Path], option: TwoBitToFaOption
+    inName: str | Path,
+    outName: str | Path,
+    option: TwoBitToFaOption,
 ):
     """Converts a .2bit file to a .fa file.
 

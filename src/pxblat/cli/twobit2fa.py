@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import typer
-from pxblat import two_bit_to_fa
-from pxblat import TwoBitToFaOption
+
+from pxblat import TwoBitToFaOption, two_bit_to_fa
 
 # twoBitToFa - Convert all or part of .2bit file to fasta
 # usage:
@@ -29,7 +29,6 @@ from pxblat import TwoBitToFaOption
 # out: str = typer.Option(
 #        default_option.outputFormat,
 #        "--out",
-#        help="Controls output file format.  Type is one of: psl, pslx, axt, maf, sim4, wublast, blast, blast8, blast9",
 #    ),
 
 
@@ -52,16 +51,24 @@ def twoBitToFa(
     ),
     seq: str = typer.Option("", "--seq", help="Restrict this to just one sequence."),
     start: int = typer.Option(
-        0, "--start", help="Start at given position in sequence (zero-based)."
+        0,
+        "--start",
+        help="Start at given position in sequence (zero-based).",
     ),
     end: int = typer.Option(
-        0, "--end", help="End at given position in sequence (non-inclusive)."
+        0,
+        "--end",
+        help="End at given position in sequence (non-inclusive).",
     ),
     seqList: str = typer.Option(
-        "", "--seqList", help="File containing list of the desired sequence names"
+        "",
+        "--seqList",
+        help="File containing list of the desired sequence names",
     ),
     noMask: bool = typer.Option(
-        False, "--noMask", help="Convert sequence to all upper case."
+        False,
+        "--noMask",
+        help="Convert sequence to all upper case.",
     ),
     bpt: str = typer.Option("", "--bpt", help="Use bpt index instead of built-in one."),
     bed: str = typer.Option("", "--bed", help="Grab sequences specified by input.bed."),
@@ -71,29 +78,31 @@ def twoBitToFa(
         help="With -bed, use chrom:start-end as the fasta ID in output.fa.",
     ),
     udcDir: str = typer.Option(
-        "", "--udcDir", help="Place to put cache for remote bigBed/bigWigs."
+        "",
+        "--udcDir",
+        help="Place to put cache for remote bigBed/bigWigs.",
     ),
 ):
     """Convert all or part of .2bit file to fasta."""
-    if seqList:
-        if not Path(seqList).exists():
-            raise typer.BadParameter(f"{seqList} does not exist")
+    if seqList and not Path(seqList).exists():
+        msg = f"{seqList} does not exist"
+        raise typer.BadParameter(msg)
 
-    if bpt:
-        if not Path(bpt).exists():
-            raise typer.BadParameter(f"{bpt} does not exist")
+    if bpt and not Path(bpt).exists():
+        msg = f"{bpt} does not exist"
+        raise typer.BadParameter(msg)
 
-    if bed:
-        if not Path(bed).exists():
-            raise typer.BadParameter(f"{bed} does not exist")
+    if bed and not Path(bed).exists():
+        msg = f"{bed} does not exist"
+        raise typer.BadParameter(msg)
 
-    if udcDir:
-        if not Path(udcDir).exists():
-            raise typer.BadParameter(f"{udcDir} does not exist")
+    if udcDir and not Path(udcDir).exists():
+        msg = f"{udcDir} does not exist"
+        raise typer.BadParameter(msg)
 
     option = TwoBitToFaOption()
     option.withSeq(seq).withStart(start).withEnd(end).withSeqList(seqList).withNoMask(
-        noMask
+        noMask,
     ).withBpt(bpt).withBed(bed).withBedPos(bedPos).withUdcDir(udcDir).build()
 
     two_bit_to_fa(input2bit, outputfa, option=option)

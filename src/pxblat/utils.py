@@ -4,7 +4,6 @@ import io
 import os
 import sys
 import tempfile
-import typing
 from contextlib import contextmanager
 
 
@@ -13,7 +12,7 @@ class Result:
 
     def __init__(
         self,
-        returncode: typing.Any,
+        returncode,
         stdout: str,
         stderr: str,
     ) -> None:
@@ -28,12 +27,12 @@ class Result:
 
     def is_ok(self) -> bool:
         """Return True if the returncode is 0."""
-        assert isinstance(self.returncode, int)
+        if not isinstance(self.returncode, int):
+            raise ValueError
         return self.returncode == 0
 
     def result(self):
         """Return the returncode."""
-        assert not isinstance(self.returncode, int)
         return self.returncode
 
 
