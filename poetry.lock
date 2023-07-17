@@ -1580,17 +1580,17 @@ tests = ["pytest"]
 
 [[package]]
 name = "pybind11"
-version = "2.10.4"
+version = "2.11.0"
 description = "Seamless operability between C++11 and Python"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "pybind11-2.10.4-py3-none-any.whl", hash = "sha256:ec9be0c45061c829648d7e8c98a7d041768b768c934acd15196e0f1943d9a818"},
-    {file = "pybind11-2.10.4.tar.gz", hash = "sha256:0bb621d3c45a049aa5923debb87c5c0e2668227905c55ebe8af722608d8ed927"},
+    {file = "pybind11-2.11.0-py3-none-any.whl", hash = "sha256:307443ea89b73ce88f68fa48687d160c036622a54bc2a25aae9d5ea792bef268"},
+    {file = "pybind11-2.11.0.tar.gz", hash = "sha256:03006fb261379ed19cb0171a9cc6238d64da8a31b3f5e754cb276d4615449217"},
 ]
 
 [package.extras]
-global = ["pybind11-global (==2.10.4)"]
+global = ["pybind11-global (==2.11.0)"]
 
 [[package]]
 name = "pybind11-stubgen"
