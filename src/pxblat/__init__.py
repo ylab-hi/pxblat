@@ -24,6 +24,10 @@ from .server import stop_server
 from .server import wait_server_ready
 from .toolkit import fa_to_two_bit
 from .toolkit import two_bit_to_fa
+from rich.traceback import install
+
+install(show_locals=True)
+
 
 __all__ = [
     "Server",

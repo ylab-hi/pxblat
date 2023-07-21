@@ -5,6 +5,7 @@ import os
 import sys
 import tempfile
 from contextlib import contextmanager
+from pathlib import Path
 
 
 class Result:
@@ -41,8 +42,7 @@ def stdout_redirected(to=os.devnull):
     """Import os.
 
     with stdout_redirected(to=filename):
-        print("from Python")
-        os.system("echo non-Python applications are also supported")
+        print("from Python") os.system("echo non-Python applications are also supported")
     """
     fd = sys.stdout.fileno()
 
@@ -53,7 +53,7 @@ def stdout_redirected(to=os.devnull):
 
     with os.fdopen(os.dup(fd), "w") as old_stdout:
         if isinstance(to, str):
-            with open(to, "w") as file:
+            with Path(to).open("w") as file:
                 _redirect_stdout(to=file)
         elif isinstance(to, io.TextIOBase):
             _redirect_stdout(to=to)
@@ -81,7 +81,7 @@ def stderr_redirected(to=os.devnull):
 
     with os.fdopen(os.dup(fd), "w") as old_stdout:
         if isinstance(to, str):
-            with open(to, "w") as file:
+            with Path(to).open("w") as file:
                 _redirect_stdout(to=file)
         elif isinstance(to, io.TextIOBase):
             _redirect_stdout(to=to)

@@ -120,11 +120,10 @@ def query_server(
         raise ValueError(msg)
 
     if option.inSeq:
-        fafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
-        seqname = fafile.name if seqname is None else seqname
-        fafile.write(f">{seqname}\n")
-        fafile.write(option.inSeq)
-        fafile.close()
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fafile:
+            seqname = fafile.name if seqname is None else seqname
+            fafile.write(f">{seqname}\n")
+            fafile.write(option.inSeq)
         option.inName = fafile.name
 
     ret = pygfClient(option)

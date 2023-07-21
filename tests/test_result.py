@@ -1,3 +1,4 @@
+from __future__ import annotations
 import subprocess
 import sys
 import time
@@ -104,7 +105,7 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
         [fa_data] if fa_data.suffix == ".fa" else [fa for fa in fa_data.glob("*.fa")]
     )
 
-    ret = client.query(fa_datas)
+    ret = client.query(fa_datas[:250])
 
     for r, fa in zip(ret, fa_datas):
         print(f"run px {fa}")
@@ -221,7 +222,7 @@ def _cpsl(file1, file2, isprint=False):
 
 
 def create_result(result_dir, port, fa_data):
-    run_cblat(result_dir, port, fa_data)
+    # run_cblat(result_dir, port, fa_data)
     results = run_pxblat_async(result_dir, port, fa_data)
     return results
 
@@ -243,7 +244,7 @@ def time_creat_result(result_dir, port, fas):
     return results
 
 
-def test_result(tmpdir, port, fas, time=True, compare=True):
+def test_result_c_with_py(tmpdir, port, fas, *, time=True, compare=True):
     pxblat_results = (
         create_result(tmpdir, port, fas)
         if not time
@@ -311,7 +312,8 @@ if __name__ == "__main__":
     fa4 = Path("benchmark/fas/4")
     fa5 = Path("benchmark/fas/5")
     fa6 = Path("benchmark/fas/6")
+    test_fas = Path("benchmark/test_fas")
 
-    test_result(tmpdir, port, fa1, time=False, compare=True)
-    time.sleep(5)
-    test_result(tmpdir, port, fa2, time=False, compare=True)
+    test_result_c_with_py(tmpdir, port, test_fas, time=False, compare=True)
+    # time.sleep(5)
+    # test_result_c_with_py(tmpdir, port, fa1, time=False, compare=True)
