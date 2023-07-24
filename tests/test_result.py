@@ -10,6 +10,8 @@ import pytest
 from pxblat import Client
 from rich import print
 
+from Bio import SearchIO
+
 
 @pytest.fixture()
 def fas():
@@ -69,9 +71,9 @@ def run_cblat(result_dir: Path, port: int, fa_data: Path):
     p.start()
     time.sleep(5)
 
-    fa_datas = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
+    fa_files = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
 
-    for _, fa in enumerate(fa_datas):
+    for _, fa in enumerate(fa_files):
         print(f"run cc {fa}")
         cc_res = result_dir / f"{fa.stem}_cc.psl"
         run_cmd(
@@ -101,13 +103,14 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
         min_identity=90,
     )
 
-    fa_datas = (
+    fa_files = (
         [fa_data] if fa_data.suffix == ".fa" else [fa for fa in fa_data.glob("*.fa")]
     )
+    # fa_files = [Path("tests/data/fas/chr20_434138_436331.fa")]
 
-    ret = client.query(fa_datas[:250])
+    ret = client.query(fa_files)
 
-    for r, fa in zip(ret, fa_datas):
+    for r, fa in zip(ret, fa_files):
         print(f"run px {fa}")
         results[fa.stem] = r
 
@@ -126,8 +129,8 @@ def run_pxblat(result_dir: Path, port: int, fa_data: Path):
     server.wait_ready()
     results = {}
 
-    fa_datas = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
-    for _, fa in enumerate(fa_datas):
+    fa_files = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
+    for _, fa in enumerate(fa_files):
         client_option = (
             pxblat.ClientOption()
             .withMinScore(20)
@@ -185,11 +188,9 @@ def _cpsl(file1, file2, isprint=False):
     cc_psl = file1
     cp_psl = file2
 
-    from Bio import SearchIO
-
+    cc_res = None
     try:
         cc_res = SearchIO.read(cc_psl, "blat-psl")
-
     except ValueError as e:
         if "No query results" in str(e):
             print("no result found")
@@ -222,7 +223,7 @@ def _cpsl(file1, file2, isprint=False):
 
 
 def create_result(result_dir, port, fa_data):
-    # run_cblat(result_dir, port, fa_data)
+    run_cblat(result_dir, port, fa_data)
     results = run_pxblat_async(result_dir, port, fa_data)
     return results
 
@@ -300,20 +301,19 @@ def test_failing_case(tmpdir, port, failing_fas, time=False):
 
 if __name__ == "__main__":
     from pathlib import Path
-    from pxblat import stop_server
 
     tmpdir = Path("tmp")
     tmpdir.mkdir(exist_ok=True)
     port = 65000
-    # fa = Path("tests/data/fas/")
+    fa = Path("tests/data/fas/")
     fa1 = Path("benchmark/fas/1")
     fa2 = Path("benchmark/fas/2")
     fa3 = Path("benchmark/fas/3")
     fa4 = Path("benchmark/fas/4")
     fa5 = Path("benchmark/fas/5")
     fa6 = Path("benchmark/fas/6")
-    test_fas = Path("benchmark/test_fas")
+    # test_fas = Path("benchmark/test_fas")
 
-    test_result_c_with_py(tmpdir, port, test_fas, time=False, compare=True)
+    test_result_c_with_py(tmpdir, port, fa, time=False, compare=True)
     # time.sleep(5)
     # test_result_c_with_py(tmpdir, port, fa1, time=False, compare=True)

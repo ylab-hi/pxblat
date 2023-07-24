@@ -106,11 +106,6 @@ def test_query_server():
     )
 
 
-# def wait_server_ready(options):
-#     while extc.statusServer("localhost", str(PORT), options) < 0:
-#         pass
-
-
 @task
 def cstatus_server(c, docs=False):
     c.run(f"gfServer status localhost {PORT}")
@@ -1017,7 +1012,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
         # ret.done()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     server.stop()
 
@@ -1078,7 +1073,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
             ret.result()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     time.sleep(1)
 
@@ -1163,7 +1158,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
             ret.result()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     time.sleep(1)
 
@@ -1413,9 +1408,9 @@ def search_source(c):
     change_files = [Path(file) for file in changes]
 
     for file in change_files:
-        for souce in sources:
-            if souce.name == file.name:
-                print(f"{file} is in sources {souce}")
+        for source in sources:
+            if source.name == file.name:
+                print(f"{file} is in sources {source}")
                 break
 
 

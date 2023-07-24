@@ -136,15 +136,19 @@ def query_server(
     if fafile is not None:
         Path(fafile.name).unlink()
 
+    # import ipdb ipdb.set_trace()
+    print(f"{parse=} {ret_decode[:10]}\n")
     if parse and ret_decode:
         try:
-            ret = read(ret_decode, "psl")
+            res = read(ret_decode, "psl")
         except ValueError as e:
             if "No query results" in str(e):
                 return None
-
         else:
-            return ret
+            print(res)
+            assert not isinstance(res, str)
+
+            return res
 
     return ret_decode
 

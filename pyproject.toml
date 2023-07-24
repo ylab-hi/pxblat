@@ -19,6 +19,7 @@ deprecated = "^1.2.13"
 mashumaro = "^3.7"
 numpy = "^1.24.3"
 gevent = "^22.10.2"
+urllib3 = "2.0.3"
 
 
 [tool.poetry.scripts]
@@ -176,7 +177,6 @@ source = ["pxblat", "tests"]
 show_missing = true
 fail_under = 40
 ignore_errors = true
-
 
 [tool.mypy]
 strict = false

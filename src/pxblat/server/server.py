@@ -310,7 +310,7 @@ class Server(ContextDecorator):
                     self.start()
                     self.wait_ready(timeout * 2, restart=restart)
                 else:
-                    msg = f"Timeout for Waitting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
+                    msg = f"Timeout for Waiting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
                     raise RuntimeError(
                         msg,
                     ) from e

@@ -22,7 +22,7 @@ profile/
 *.ipynb
 # bam
 *.sam
-# debug reprot
+# debug report
 /debuglog/
 .DS*
 

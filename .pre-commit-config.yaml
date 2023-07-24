@@ -33,3 +33,9 @@ repos:
     rev: 1.15.0
     hooks:
       - id: blacken-docs
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.16.1
+    hooks:
+      - id: typos
+        exclude: "extc|svg|psl|CHANGELOG"

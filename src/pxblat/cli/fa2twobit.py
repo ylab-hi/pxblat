@@ -67,7 +67,7 @@ def faToTwoBit(
             raise typer.Abort()
 
     if out2bit.exists():
-        logger.warning(f"{out2bit} exist will be overide")
+        logger.warning(f"{out2bit} exist will be override")
 
     fa_to_two_bit(
         [f.as_posix() for f in infa],
