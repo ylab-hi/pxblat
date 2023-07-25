@@ -1,13 +1,16 @@
 from pathlib import Path
 
 import typer
-from pxblat.extc import UsageStats
-from pxblat.server import create_server_option
-from pxblat.server import files as server_files
-from pxblat.server import start_server_mt
-from pxblat.server import status_server
-from pxblat.server import stop_server
 from rich import print
+
+from pxblat.extc import UsageStats
+from pxblat.server import (
+    create_server_option,
+    start_server_mt,
+    status_server,
+    stop_server,
+)
+from pxblat.server import files as server_files
 
 # gfServer v 37x1 - Make a server to quickly find where DNA occurs in genome
 
@@ -76,7 +79,7 @@ from rich import print
 default_option = create_server_option()
 
 server_app = typer.Typer(
-    help="Make a server to quickly find where DNA occurs in genome"
+    help="Make a server to quickly find where DNA occurs in genome",
 )
 
 
@@ -99,7 +102,9 @@ minMatch: int = typer.Option(
 )
 
 trans: bool = typer.Option(
-    default_option.trans, "--trans", help="Translate database to protein in 6 frames."
+    default_option.trans,
+    "--trans",
+    help="Translate database to protein in 6 frames.",
 )
 
 log: str = typer.Option(
@@ -111,7 +116,9 @@ log: str = typer.Option(
 )
 
 mask: bool = typer.Option(
-    default_option.mask, "--mask", help="Use masking from .2bit file."
+    default_option.mask,
+    "--mask",
+    help="Use masking from .2bit file.",
 )
 
 repMatch: int = typer.Option(
@@ -166,7 +173,9 @@ indexFile: Path = typer.Option(
     help="Index file create by `gfServer index'.",
 )
 timeout: int = typer.Option(
-    default_option.timeout, "--timeout", help="Timeout in seconds."
+    default_option.timeout,
+    "--timeout",
+    help="Timeout in seconds.",
 )
 
 
@@ -238,7 +247,12 @@ def start(
     stat = UsageStats()
 
     start_server_mt(
-        host, port, two_bit.as_posix(), server_option, stat, try_new_port=False
+        host,
+        port,
+        two_bit.as_posix(),
+        server_option,
+        stat,
+        try_new_port=False,
     )
 
 

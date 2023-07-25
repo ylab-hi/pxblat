@@ -1,9 +1,9 @@
 """Sphinx configuration."""
-import os
 import sys
 from datetime import datetime
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, Path.resolve(Path("../src")).as_posix())
 
 
 # reference:
@@ -73,7 +73,6 @@ html_logo = "_static/logo.png"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-# pygments_style = "monokailight"
 
 source_suffix = [".md", ".rst"]
 html_theme = "sphinx_immaterial"
@@ -158,7 +157,6 @@ html_theme_options = {
             },
         },
     ],
-    # BEGIN: version_dropdown
     "version_dropdown": False,
     "version_info": [
         {
@@ -172,7 +170,6 @@ html_theme_options = {
             "aliases": [],
         },
     ],
-    # END: version_dropdown
     "toc_title_is_page_title": True,
     # BEGIN: social icons
     "social": [

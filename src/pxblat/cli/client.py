@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import typer
+
 from pxblat.extc import pygfClient
 from pxblat.server import create_client_option
-
 
 # gfClient v. 37x1 - A client for the genomic finding program that produces a .psl file
 # usage:
@@ -49,7 +49,6 @@ from pxblat.server import create_client_option
 #    -genome=name  When using a dynamic gfServer, The genome name is used to
 #                  find the data files relative to the dynamic gfServer root, named
 #                  in the form $genome.2bit, $genome.untrans.gfidx, and $genome.trans.gfidx
-#    -genomeDataDir=path
 #                  When using a dynamic gfServer, this is the dynamic gfServer root directory
 #                  that contained the genome data files.  Defaults to being the root directory.
 
@@ -59,10 +58,12 @@ default_option = create_client_option()
 
 def client(
     host: str = typer.Argument(
-        ..., help="The name of the machine running the gfServer"
+        ...,
+        help="The name of the machine running the gfServer",
     ),
     port: int = typer.Argument(
-        ..., help="The same port that you started the gfServer with"
+        ...,
+        help="The same port that you started the gfServer with",
     ),
     seqdir: Path = typer.Argument(
         ...,
@@ -70,7 +71,8 @@ def client(
         help="The path of the .2bit or .nib files relative to the current dir",
     ),
     infasta: Path = typer.Argument(
-        ..., help="Fasta format file.  May contain multiple records"
+        ...,
+        help="Fasta format file.  May contain multiple records",
     ),
     outpsl: Path = typer.Argument(..., help="where to put the output"),
     tType: str = typer.Option(
@@ -87,10 +89,14 @@ def client(
     ),
     prot: bool = typer.Option(False, "--prot", help="Synonymous with -t=prot -q=prot."),
     dots: int = typer.Option(
-        default_option.dots, "--dots", help="Output a dot every N query sequences."
+        default_option.dots,
+        "--dots",
+        help="Output a dot every N query sequences.",
     ),
     nohead: bool = typer.Option(
-        default_option.nohead, "--nohead", help="Suppresses 5-line psl header."
+        default_option.nohead,
+        "--nohead",
+        help="Suppresses 5-line psl header.",
     ),
     minnScore: int = typer.Option(
         default_option.minScore,
@@ -114,7 +120,9 @@ def client(
     ),
     genome: str = typer.Option(default_option.genome, "--genome", help="dynamic"),
     genomeDataDir: str = typer.Option(
-        default_option.genomeDataDir, "--genomeDataDir", help="dynamic"
+        default_option.genomeDataDir,
+        "--genomeDataDir",
+        help="dynamic",
     ),
 ):
     """A client for the genomic finding program that produces a .psl file."""

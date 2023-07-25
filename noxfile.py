@@ -183,15 +183,15 @@ def linkcheck(session: Session) -> None:
         "linkcheck",
         "-W",
         "--keep-going",
-        "source",
-        "source/_build",
+        "docs",
+        "docs/_build",
     ]
 
     builddir = Path("docs", "_build")
     if builddir.exists():
         shutil.rmtree(builddir)
 
-    session.install("-r", "source/requirements.txt")
+    session.install("-r", "docs/requirements.txt")
 
     session.run("sphinx-build", *args)
 

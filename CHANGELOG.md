@@ -84,7 +84,7 @@ All notable changes to this project will be documented in this file.
 
 ### Ci
 
-- Fix peotry
+- Fix poetry
 
 ## [0.1.6] - 2023-05-27
 
@@ -163,7 +163,7 @@ All notable changes to this project will be documented in this file.
 - Add bindings
 - Add native python for client
 - Change client binding
-- Foramt files
+- Format files
 - Avoide global variable
 - Pass extra parameter
 - Add debug printer

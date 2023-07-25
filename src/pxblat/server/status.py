@@ -1,8 +1,9 @@
-from dataclasses import dataclass
-from dataclasses import field
+from dataclasses import dataclass, field
 
-from mashumaro import DataClassDictMixin  # type: ignore
-from mashumaro import field_options  # type: ignore
+from mashumaro import (
+    DataClassDictMixin,  # type: ignore
+    field_options,  # type: ignore
+)
 from mashumaro.mixins.json import DataClassJSONMixin  # type: ignore
 
 

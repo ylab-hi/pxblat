@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import typer
+
 from pxblat import fa_to_two_bit
 
 from .log import logger
@@ -41,7 +42,9 @@ def faToTwoBit(
         help="Use 64-bit offsets for index. Allow for twoBit to contain more than 4Gb of sequence.",
     ),
     noMask: bool = typer.Option(
-        False, "--nomask", help="Ignore lower-case masking in fa file."
+        False,
+        "--nomask",
+        help="Ignore lower-case masking in fa file.",
     ),
     stripVersion: bool = typer.Option(
         False,
@@ -59,18 +62,18 @@ def faToTwoBit(
         if not file.exists():
             logger.error(f"{file} not exists")
             raise typer.Abort()
-        elif not file.is_file():
+        if not file.is_file():
             logger.error(f"{file} is not a file")
             raise typer.Abort()
 
     if out2bit.exists():
-        logger.warning(f"{out2bit} exist will be overide")
+        logger.warning(f"{out2bit} exist will be override")
 
     fa_to_two_bit(
         [f.as_posix() for f in infa],
         out2bit.as_posix(),
-        noMask,
-        stripVersion,
-        ignoreDups,
-        long,
+        noMask=noMask,
+        stripVersion=stripVersion,
+        ignoreDups=ignoreDups,
+        useLong=long,
     )

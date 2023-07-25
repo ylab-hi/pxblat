@@ -1,9 +1,8 @@
-import typing as t
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
 
 from Bio.SearchIO.BlatIO import BlatPslParser  # type: ignore
-
 
 # https://github.com/biopython/biopython/blob/master/Bio/SearchIO/BlatIO.py
 
@@ -11,9 +10,9 @@ from Bio.SearchIO.BlatIO import BlatPslParser  # type: ignore
 class PslOutput:
     """A class for PSL output."""
 
-    def __init__(self, content: str, save_mem: bool = False) -> None:
+    def __init__(self, content: str, *, save_mem: bool = False) -> None:
         """Initialize the class."""
-        self._content: Optional[str] = None if save_mem else content
+        self._content: str | None = None if save_mem else content
         self._iterable = iter(content.splitlines(keepends=True))
 
     def readline(self):
@@ -56,15 +55,14 @@ def get_handle(format: str, mapping):
         # handle the errors with helpful messages
         if format is None:
             raise ValueError("Format required (lower case string)") from None
-        elif not isinstance(format, str):
+
+        if not isinstance(format, str):
             raise TypeError("Need a string for the file format (lower case)") from None
-        elif format != format.lower():
+        if format != format.lower():
             raise ValueError("Format string %r should be lower case" % format) from None
-        else:
-            raise ValueError(
-                "Unknown format %r. Supported formats are %r"
-                % (format, "', '".join(mapping))
-            ) from None
+
+        msg = f"Unknown format {format!r}. Supported formats are {', '.join(mapping)}"
+        raise ValueError(msg) from None
 
     else:
         return handle
@@ -93,16 +91,16 @@ def get_processor(format, mapping):
     except KeyError:
         # handle the errors with helpful messages
         if format is None:
-            raise ValueError("Format required (lower case string)") from None
-        elif not isinstance(format, str):
-            raise TypeError("Need a string for the file format (lower case)") from None
-        elif format != format.lower():
+            msg = "Format required (lower case string)"
+            raise ValueError(msg) from None
+        if not isinstance(format, str):
+            msg = "Need a string for the file format (lower case)"
+            raise TypeError(msg) from None
+        if format != format.lower():
             raise ValueError("Format string %r should be lower case" % format) from None
-        else:
-            raise ValueError(
-                "Unknown format %r. Supported formats are %r"
-                % (format, "', '".join(mapping))
-            ) from None
+
+        msg = f"Unknown format {format!r}. Supported formats are {', '.join(mapping)}"
+        raise ValueError(msg) from None
 
     else:
         return obj_info
@@ -157,11 +155,13 @@ def read(content: str, format=None, **kwargs):
     try:
         query_result = next(query_results)
     except StopIteration:
-        raise ValueError("No query results found in handle") from None
+        msg = "No query results found in handle"
+        raise ValueError(msg) from None
 
     try:
         next(query_results)
-        raise ValueError("More than one query result found in handle")
+        msg = "More than one query result found in handle"
+        raise ValueError(msg)
     except StopIteration:
         pass
 
@@ -172,7 +172,7 @@ def _psl2sam(psl: str, samfile: Path):
     raise NotImplementedError
 
 
-def psl2sam(psl: t.Union[str, Path], samfile: Path):
+def psl2sam(psl: str | Path, samfile: Path):
     """Converts a psl file to a sam file."""
     if isinstance(psl, Path):
         psl = psl.read_text()

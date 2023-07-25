@@ -13,7 +13,7 @@ import simdjson
 from invoke.tasks import task
 from pxblat import extc
 from pxblat.extc import pygfClient
-from pxblat.server import Client
+from pxblat.server import ClientThread
 from pxblat.server import Server
 from pxblat.server import start_server_mt_nb
 from pxblat.server import status_server
@@ -104,11 +104,6 @@ def test_query_server():
     extc.queryServer(
         "query", "localhost", str(PORT), "tests/data/test_query.fa", False, False
     )
-
-
-# def wait_server_ready(options):
-#     while extc.statusServer("localhost", str(PORT), options) < 0:
-#         pass
 
 
 @task
@@ -401,7 +396,7 @@ def runp(c):
         .build()
     )
 
-    client = Client(client_option, server_option=server_option)
+    client = ClientThread(client_option, server_option=server_option)
     client.start()
 
     ret = client.get()
@@ -441,7 +436,7 @@ def runp2(c):
     )
 
     parse = True
-    client = Client(client_option, server_option=server_option, parse=parse)
+    client = ClientThread(client_option, server_option=server_option, parse=parse)
     client.start()
 
     ret = client.get()
@@ -495,7 +490,7 @@ def runcp(c):
     )
     parse = False
 
-    client = Client(client_option, server_option=server_option, parse=parse)
+    client = ClientThread(client_option, server_option=server_option, parse=parse)
     client.start()
 
     if not parse:
@@ -642,7 +637,7 @@ def bench(c, fa1: str):
         .build()
     )
     parse = False
-    client = Client(client_option, parse=parse)
+    client = ClientThread(client_option, parse=parse)
     client.start()
     client.get()
 
@@ -684,7 +679,7 @@ def bench(c, fa1: str):
     )
     print(f"run python client save to file {pp_res}")
     parse = False
-    client = Client(client_option, parse=parse)
+    client = ClientThread(client_option, parse=parse)
     client.start()
 
     client.get()
@@ -837,7 +832,7 @@ def benchsccp(c):
             .build()
         )
         parse = False
-        client = Client(client_option, parse=parse)
+        client = ClientThread(client_option, parse=parse)
         client.start()
         client.get()
 
@@ -883,7 +878,7 @@ def benchspcp(c):
         )
         print(f"run python client save to file {pp_res}")
         parse = False
-        client = Client(client_option, parse=parse)
+        client = ClientThread(client_option, parse=parse)
         client.start()
         client.get()
 
@@ -1017,7 +1012,7 @@ def benchtimep(c, concurrent: int = 4, max_files: int = 4):
         # ret.done()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     server.stop()
 
@@ -1078,7 +1073,7 @@ def benchtimepcp(c, concurrent: int = 4, max_files: int = 4):
             ret.result()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     time.sleep(1)
 
@@ -1163,7 +1158,7 @@ def benchtimeccp(c, concurrent: int = 4, max_files: int = 4):
             ret.result()
 
     dura_py = time.perf_counter() - start_time
-    print(f"run pyton in {concurrent} parallel, time: {dura_py:.4}s")
+    print(f"run python in {concurrent} parallel, time: {dura_py:.4}s")
 
     time.sleep(1)
 
@@ -1413,9 +1408,9 @@ def search_source(c):
     change_files = [Path(file) for file in changes]
 
     for file in change_files:
-        for souce in sources:
-            if souce.name == file.name:
-                print(f"{file} is in sources {souce}")
+        for source in sources:
+            if source.name == file.name:
+                print(f"{file} is in sources {source}")
                 break
 
 

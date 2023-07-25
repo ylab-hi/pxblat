@@ -4,7 +4,7 @@ import pytest
 from pxblat import ClientOption
 from pxblat import UsageStats
 from pxblat.server import check_port_open
-from pxblat.server import Client
+from pxblat.server import ClientThread
 from pxblat.server import find_free_port
 from pxblat.server import query_server
 from pxblat.server import Server
@@ -93,7 +93,7 @@ def test_thread_client_for_mem_fa(start_server, fa_seq1, seqname, parse):
         .build()
     )
     print(client_option)
-    client = Client(client_option, seqname=seqname, parse=parse)
+    client = ClientThread(client_option, seqname=seqname, parse=parse)
     client.start()
     ret = client.get()
     print(ret)
@@ -123,8 +123,8 @@ def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
         ret = query_server(client_option, seqname=seqname, parse=parse)
         assert ret
     else:
-        with pytest.raises(ValueError):
-            ret = query_server(client_option, seqname=seqname, parse=parse)
+        ret = query_server(client_option, seqname=seqname, parse=parse)
+        assert ret is None
 
 
 @pytest.mark.parametrize(
@@ -168,9 +168,10 @@ def test_server_stop(server_option, port):
 
 @pytest.mark.smoke()
 def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
-    expected_status_instance.port = port + 1
-    with Server("localhost", port + 1, two_bit, server_option) as server:
+    new_port = port + 8
+    expected_status_instance.port = new_port
+    with Server("localhost", new_port, two_bit, server_option) as server:
         server.wait_ready()
         assert server.is_ready()
-        status = server.status(True)
+        status = server.status(instance=True)
         assert status == expected_status_instance

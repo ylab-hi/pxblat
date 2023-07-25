@@ -4,8 +4,8 @@ import io
 import os
 import sys
 import tempfile
-import typing
 from contextlib import contextmanager
+from pathlib import Path
 
 
 class Result:
@@ -13,7 +13,7 @@ class Result:
 
     def __init__(
         self,
-        returncode: typing.Any,
+        returncode,
         stdout: str,
         stderr: str,
     ) -> None:
@@ -28,12 +28,12 @@ class Result:
 
     def is_ok(self) -> bool:
         """Return True if the returncode is 0."""
-        assert isinstance(self.returncode, int)
+        if not isinstance(self.returncode, int):
+            raise ValueError
         return self.returncode == 0
 
     def result(self):
         """Return the returncode."""
-        assert not isinstance(self.returncode, int)
         return self.returncode
 
 
@@ -42,8 +42,7 @@ def stdout_redirected(to=os.devnull):
     """Import os.
 
     with stdout_redirected(to=filename):
-        print("from Python")
-        os.system("echo non-Python applications are also supported")
+        print("from Python") os.system("echo non-Python applications are also supported")
     """
     fd = sys.stdout.fileno()
 
@@ -54,7 +53,7 @@ def stdout_redirected(to=os.devnull):
 
     with os.fdopen(os.dup(fd), "w") as old_stdout:
         if isinstance(to, str):
-            with open(to, "w") as file:
+            with Path(to).open("w") as file:
                 _redirect_stdout(to=file)
         elif isinstance(to, io.TextIOBase):
             _redirect_stdout(to=to)
@@ -82,7 +81,7 @@ def stderr_redirected(to=os.devnull):
 
     with os.fdopen(os.dup(fd), "w") as old_stdout:
         if isinstance(to, str):
-            with open(to, "w") as file:
+            with Path(to).open("w") as file:
                 _redirect_stdout(to=file)
         elif isinstance(to, io.TextIOBase):
             _redirect_stdout(to=to)

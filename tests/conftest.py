@@ -105,4 +105,3 @@ def start_server(server_option, port, two_bit):
     print(f"{server}")
     server.wait_ready(timeout=10, restart=False)
     return server
-    # server.stop()
