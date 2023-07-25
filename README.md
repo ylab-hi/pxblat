@@ -180,3 +180,10 @@ The license of [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) is [
 - [pybind11](https://github.com/pybind/pybind11/tree/stable)
 
 <!-- github-only -->
+
+<br>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=cauliyang/pxblat&type=Date&theme=light" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=cauliyang/pxblat&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=cauliyang/pxblat&type=Date" />
+</picture>
