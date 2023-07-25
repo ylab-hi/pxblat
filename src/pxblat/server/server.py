@@ -272,7 +272,14 @@ class Server(ContextDecorator):
         Returns:
             str: The result of the query as a string.
         """
-        return server_query(intype, self.host, self.port, faName, isComplex, isProt)
+        return server_query(
+            intype,
+            self.host,
+            self.port,
+            faName,
+            isComplex=isComplex,
+            isProt=isProt,
+        )
 
     def is_ready(self) -> bool:
         """Returns True if the server is ready to accept queries, False otherwise.

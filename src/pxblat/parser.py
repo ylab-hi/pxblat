@@ -54,12 +54,10 @@ def get_handle(format: str, mapping):
     except KeyError:
         # handle the errors with helpful messages
         if format is None:
-            msg = "Format required (lower case string)"
-            raise ValueError(msg) from None
+            raise ValueError("Format required (lower case string)") from None
 
         if not isinstance(format, str):
-            msg = "Need a string for the file format (lower case)"
-            raise TypeError(msg) from None
+            raise TypeError("Need a string for the file format (lower case)") from None
         if format != format.lower():
             raise ValueError("Format string %r should be lower case" % format) from None
 

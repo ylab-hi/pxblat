@@ -102,6 +102,7 @@ ignore = [
     "N803",
     "N806",
     "N815",
+    "EM101",
 ]
 exclude = [
     "src/pxblat/extc/__init__.pyi",

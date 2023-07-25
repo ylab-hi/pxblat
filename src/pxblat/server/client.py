@@ -438,7 +438,7 @@ class Client:
                 msg = f"File {item} does not exist"
                 raise FileNotFoundError(msg)
 
-    def _query(self, in_seq: list[str | Path]):
+    def _query(self, in_seq: str | Path):
         if isinstance(in_seq, Path):
             self._basic_option.withInName(str(in_seq)).build()
         else:

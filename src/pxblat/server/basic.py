@@ -45,12 +45,10 @@ def check_host_port(host: str, port: int) -> None:
         None
     """
     if not isinstance(host, str):
-        msg = "host must be str"
-        raise RuntimeError(msg)
+        raise RuntimeError("host must be str")
 
     if not isinstance(port, int):
-        msg = "port must be number"
-        raise RuntimeError(msg)
+        raise RuntimeError("port must be number")
 
 
 def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bool:
