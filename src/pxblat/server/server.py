@@ -10,7 +10,6 @@ from .basic import (
     check_port_in_use,
     files,
     find_free_port,
-    logger,
     server_query,
     status_server,
     stop_server,
@@ -176,7 +175,6 @@ class Server(ContextDecorator):
         )
         try:
             if check_port_in_use(self.host, self.port):
-                logger.debug(f"{self.port} port in use")
                 if self.use_others:
                     self._is_open = False
                 else:
@@ -200,7 +198,6 @@ class Server(ContextDecorator):
 
             else:
                 self._is_open = True
-                logger.debug(f"{self.port} port not in use")
                 self._process = Process(
                     target=_pystartServer,
                     args=(
