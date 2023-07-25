@@ -431,7 +431,6 @@ def start_server_mt(
     option: ServerOption,
     stat: UsageStats,
     *,
-    timeout: int = 60,
     use_others: bool = False,
     try_new_port: bool = True,
 ):

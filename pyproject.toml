@@ -111,6 +111,7 @@ exclude = [
     "build.py",
     "scripts/*",
     "noxfile.py",
+    "docs/conf.py",
 ]
 
 
@@ -127,7 +128,7 @@ allow-star-arg-any = true
 "src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
-
+"src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
 
 [tool.ruff.pydocstyle]
 convention = 'google'
@@ -164,6 +165,7 @@ sphinx-autoapi = "^2.1.0"
 sphinx-autodoc2 = "^0.4.2"
 psutil = "^5.9.5"
 seaborn = "^0.12.2"
+mypy = "^1.4.1"
 
 
 [tool.coverage.paths]
