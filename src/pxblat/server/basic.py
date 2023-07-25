@@ -474,7 +474,6 @@ def start_server_mt_nb(
     option: ServerOption,
     stat: UsageStats,
     *,
-    timeout: int = 60,
     use_others: bool = False,
     try_new_port: bool = True,
 ) -> Process:
@@ -504,10 +503,11 @@ def start_server_mt_nb(
             two_bit_file,
             option,
             stat,
-            use_others,
-            timeout,
-            try_new_port,
         ),
+        kwargs={
+            "use_others": use_others,
+            "try_new_port": try_new_port,
+        },
         daemon=True,
     )
 

@@ -123,8 +123,8 @@ def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
         ret = query_server(client_option, seqname=seqname, parse=parse)
         assert ret
     else:
-        with pytest.raises(ValueError):
-            ret = query_server(client_option, seqname=seqname, parse=parse)
+        ret = query_server(client_option, seqname=seqname, parse=parse)
+        assert ret is None
 
 
 @pytest.mark.parametrize(
