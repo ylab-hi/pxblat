@@ -2692,6 +2692,22 @@ sphinx = ["sphinx (>=4.0.0)"]
 testing = ["pytest", "pytest-cov", "pytest-regressions", "sphinx (>=4.0.0)"]
 
 [[package]]
+name = "sphinx-click"
+version = "4.4.0"
+description = "Sphinx extension that automatically documents click applications"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "sphinx-click-4.4.0.tar.gz", hash = "sha256:cc67692bd28f482c7f01531c61b64e9d2f069bfcf3d24cbbb51d4a84a749fa48"},
+    {file = "sphinx_click-4.4.0-py3-none-any.whl", hash = "sha256:2821c10a68fc9ee6ce7c92fad26540d8d8c8f45e6d7258f0e4fb7529ae8fab49"},
+]
+
+[package.dependencies]
+click = ">=7.0"
+docutils = "*"
+sphinx = ">=2.0"
+
+[[package]]
 name = "sphinx-copybutton"
 version = "0.5.2"
 description = "Add a copy button to each of your code cells."
@@ -3265,4 +3281,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "81390da3f48a342f9ba39a03940a1c30023060dc24c90f55e2d9684181d05a60"
+content-hash = "e33a5f202878e1e87c63adfc22bd2d2637fea78ad86bd700a068368403936494"
