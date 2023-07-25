@@ -15,6 +15,9 @@ from .basic import wait_server_ready
 if TYPE_CHECKING:
     from .server import ServerOption
 
+INSEQ = str | Path
+INSEQS = list[INSEQ] | list[str] | list[Path]
+
 
 def create_client_option():
     """Creates a new ClientOption object with default values.
@@ -432,7 +435,7 @@ class Client:
     # fmt: on
 
     @staticmethod
-    def _verify_input(in_seqs: list[str | Path]):
+    def _verify_input(in_seqs: list[str | Path] | list[str] | list[Path]):
         for item in in_seqs:
             if isinstance(item, Path) and not item.exists():
                 msg = f"File {item} does not exist"
@@ -445,7 +448,7 @@ class Client:
             self._basic_option.withInSeq(str(in_seq)).build()
         return query_server(self._basic_option, parse=self._parse)
 
-    def query(self, in_seqs: list[str | Path] | str):
+    def query(self, in_seqs: INSEQS | list[str] | list[Path] | INSEQ):
         """Query the server with the specified sequences.
 
         Attributes:
@@ -463,7 +466,7 @@ class Client:
                    result = client.query("AtcG")
                    result = client.query(["ATCG", "ATCG"])
         """
-        if isinstance(in_seqs, str):
+        if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]
 
         self._verify_input(in_seqs)

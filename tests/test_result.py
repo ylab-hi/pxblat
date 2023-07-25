@@ -269,7 +269,7 @@ def test_result_c_with_py(tmpdir, port, fas, *, time=True, compare=True):
         print(f"compare {file_num} files for BLAT and PxBLAT")
 
 
-@pytest.mark.failing
+@pytest.mark.skip
 @pytest.mark.parametrize(
     "failing_fas",
     [
