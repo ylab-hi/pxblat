@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, Path.resolve(Path("..")).as_posix())
+sys.path.insert(0, Path.resolve(Path("../src")).as_posix())
 
 
 # reference:
