@@ -15,6 +15,15 @@
       "contributions": [
         "maintenance"
       ]
+    },
+    {
+      "login": "mencian",
+      "name": "Joshua Zhuang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71105179?v=4",
+      "profile": "https://github.com/mencian",
+      "contributions": [
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
