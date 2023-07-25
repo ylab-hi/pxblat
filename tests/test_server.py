@@ -168,8 +168,9 @@ def test_server_stop(server_option, port):
 
 @pytest.mark.smoke()
 def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
-    expected_status_instance.port = port + 1
-    with Server("localhost", port + 1, two_bit, server_option) as server:
+    new_port = port + 8
+    expected_status_instance.port = new_port
+    with Server("localhost", new_port, two_bit, server_option) as server:
         server.wait_ready()
         assert server.is_ready()
         status = server.status(instance=True)

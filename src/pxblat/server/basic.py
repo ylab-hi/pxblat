@@ -51,7 +51,7 @@ def check_host_port(host: str, port: int) -> None:
         raise RuntimeError("port must be number")
 
 
-def check_port_in_use(host: str, port: int = DEFAULT_PORT, tries: int = 3) -> bool:
+def check_port_in_use(host: str, port: int, tries: int = 3) -> bool:
     """Check if a given port on a host is in use.
 
     Args:

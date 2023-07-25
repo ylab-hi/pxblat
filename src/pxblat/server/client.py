@@ -451,7 +451,7 @@ class Client:
     def query(self, in_seqs: INSEQS | list[str] | list[Path] | INSEQ):
         """Query the server with the specified sequences.
 
-        Attributes:
+        Args:
             in_seqs: The sequences to query.
 
         Returns:
