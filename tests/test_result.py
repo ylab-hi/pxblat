@@ -106,7 +106,6 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
     fa_files = (
         [fa_data] if fa_data.suffix == ".fa" else [fa for fa in fa_data.glob("*.fa")]
     )
-    # fa_files = [Path("tests/data/fas/chr20_434138_436331.fa")]
 
     ret = client.query(fa_files)
 
@@ -193,7 +192,7 @@ def _cpsl(file1, file2, isprint=False):
         cc_res = SearchIO.read(cc_psl, "blat-psl")
     except ValueError as e:
         if "No query results" in str(e):
-            print("no result found")
+            print(f"No result found in {cc_psl}")
             cc_res = None
 
     if isinstance(cp_psl, (Path, str)):
@@ -240,7 +239,7 @@ def time_creat_result(result_dir, port, fas):
     print(f"run_pxblat time: {pend - pstart:.4f}")
 
     speedup = (cend - cstart) / (pend - pstart)
-    print(f"speed up: {speedup:.4f}x")
+    print(f"\nspeed up: {speedup:.4f}x\n")
 
     return results
 
@@ -261,11 +260,13 @@ def test_result_c_with_py(tmpdir, port, fas, *, time=True, compare=True):
 
             _ret = _cpsl(cc_res, pp_res)
             if _ret is None:
-                return
+                print(f"No result found {fa.stem}")
+                continue
+
             a, b, _ = _ret
             assert len(a) == 0
             assert len(b) == 0
-        print(f"test {file_num} files")
+        print(f"compare {file_num} files for BLAT and PxBLAT")
 
 
 @pytest.mark.failing
@@ -301,6 +302,12 @@ def test_failing_case(tmpdir, port, failing_fas, time=False):
 
 if __name__ == "__main__":
     from pathlib import Path
+    import sys
+
+    input_fa = Path(sys.argv[1])
+
+    if not input_fa.exists() and not input_fa.is_dir():
+        raise SystemExit(f"input file {input_fa} does not exist")
 
     tmpdir = Path("tmp")
     tmpdir.mkdir(exist_ok=True)
@@ -312,8 +319,6 @@ if __name__ == "__main__":
     fa4 = Path("benchmark/fas/4")
     fa5 = Path("benchmark/fas/5")
     fa6 = Path("benchmark/fas/6")
-    # test_fas = Path("benchmark/test_fas")
+    test_fas = Path("benchmark/test_fas")
 
-    test_result_c_with_py(tmpdir, port, fa, time=False, compare=True)
-    # time.sleep(5)
-    # test_result_c_with_py(tmpdir, port, fa1, time=False, compare=True)
+    test_result_c_with_py(tmpdir, port, input_fa, time=True, compare=True)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from gevent.pool import Pool
 
@@ -14,8 +14,6 @@ from .basic import wait_server_ready
 
 if TYPE_CHECKING:
     from .server import ServerOption
-
-INSEQ = TypeVar("INSEQ", str, Path)
 
 
 def create_client_option():
@@ -136,8 +134,6 @@ def query_server(
     if fafile is not None:
         Path(fafile.name).unlink()
 
-    # import ipdb ipdb.set_trace()
-    print(f"{parse=} {ret_decode[:10]}\n")
     if parse and ret_decode:
         try:
             res = read(ret_decode, "psl")
@@ -145,9 +141,8 @@ def query_server(
             if "No query results" in str(e):
                 return None
         else:
-            print(res)
-            assert not isinstance(res, str)
-
+            if isinstance(res, str):
+                return read(res, "psl")
             return res
 
     return ret_decode
@@ -437,21 +432,40 @@ class Client:
     # fmt: on
 
     @staticmethod
-    def _verify_input(in_seqs: list[INSEQ]):
+    def _verify_input(in_seqs: list[str | Path]):
         for item in in_seqs:
             if isinstance(item, Path) and not item.exists():
                 msg = f"File {item} does not exist"
                 raise FileNotFoundError(msg)
 
-    def _query(self, in_seq: INSEQ):
+    def _query(self, in_seq: list[str | Path]):
         if isinstance(in_seq, Path):
             self._basic_option.withInName(str(in_seq)).build()
         else:
             self._basic_option.withInSeq(str(in_seq)).build()
         return query_server(self._basic_option, parse=self._parse)
 
-    def query(self, in_seqs: list[INSEQ]):
-        """Query the server with the specified sequences."""
+    def query(self, in_seqs: list[str | Path] | str):
+        """Query the server with the specified sequences.
+
+        Attributes:
+            in_seqs: The sequences to query.
+
+        Returns:
+            The query results.
+
+        Examples:
+            >>> from pxblat import Client, Server
+            >>> client = Client()
+            >>> with Server() as server:
+                   server.wait_for_ready()
+                   result = client.query("ATCG")
+                   result = client.query("AtcG")
+                   result = client.query(["ATCG", "ATCG"])
+        """
+        if isinstance(in_seqs, str):
+            in_seqs = [in_seqs]
+
         self._verify_input(in_seqs)
 
         if self._wait_ready:

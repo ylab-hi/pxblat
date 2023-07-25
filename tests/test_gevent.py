@@ -38,6 +38,12 @@ def test_gclient_parse(start_server, fa_seq1, fa_file1, parse):
         parse=parse,
     )
 
-    ret = client.query([fa_seq1, fa_seq1, fa_file1])
-    for r in ret:
+    special_seq = "TGAGAggcatctggccctccctgcgctgtgccagcagcttggagaaccCACACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTCTCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCAA"
+
+    ret1 = client.query([fa_seq1, fa_seq1, fa_file1, special_seq])
+    ret2 = client.query(special_seq)
+
+    print(ret2)
+
+    for r in ret1:
         print(r)
