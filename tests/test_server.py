@@ -172,5 +172,5 @@ def test_sever_with_context(server_option, port, two_bit, expected_status_instan
     with Server("localhost", port + 1, two_bit, server_option) as server:
         server.wait_ready()
         assert server.is_ready()
-        status = server.status(True)
+        status = server.status(instance=True)
         assert status == expected_status_instance

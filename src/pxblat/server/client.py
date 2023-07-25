@@ -3,7 +3,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from gevent.pool import Pool
 
@@ -15,8 +15,8 @@ from .basic import wait_server_ready
 if TYPE_CHECKING:
     from .server import ServerOption
 
-INSEQ = str | Path
-INSEQS = list[INSEQ] | list[str] | list[Path]
+INSEQ = Union[str, Path]
+INSEQS = Union[list[INSEQ], list[str], list[Path]]
 
 
 def create_client_option():
