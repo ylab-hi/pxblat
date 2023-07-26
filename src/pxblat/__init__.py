@@ -9,7 +9,6 @@ from .server import Client
 from .server import ClientThread
 from .server import create_client_option
 from .server import create_server_option
-from .server import DEFAULT_PORT
 from .server import files
 from .server import find_free_port
 from .server import query_server
@@ -49,7 +48,6 @@ __all__ = [
     "wait_server_ready",
     "find_free_port",
     "check_port_in_use",
-    "DEFAULT_PORT",
     "Status",
     "read",
     "TwoBitToFaOption",

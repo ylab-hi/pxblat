@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+from copy import deepcopy
 from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING, Union
@@ -224,7 +225,7 @@ class ClientThread(Thread):
                 self.host,
                 self.port,
                 timeout=self._wait_timeout,
-                gfserver_option=self._server_option,
+                server_option=self._server_option,
             )
 
         ret = query_server(self.option, seqname=self._seqname, parse=self._parse)
@@ -442,11 +443,12 @@ class Client:
                 raise FileNotFoundError(msg)
 
     def _query(self, in_seq: str | Path):
+        basic_option = deepcopy(self._basic_option)
         if isinstance(in_seq, Path):
-            self._basic_option.withInName(str(in_seq)).build()
+            basic_option.withInName(str(in_seq)).withInSeq("").build()
         else:
-            self._basic_option.withInSeq(str(in_seq)).build()
-        return query_server(self._basic_option, parse=self._parse)
+            basic_option.withInSeq(str(in_seq)).withInName("").build()
+        return query_server(basic_option, parse=self._parse)
 
     def query(self, in_seqs: INSEQS | list[str] | list[Path] | INSEQ):
         """Query the server with the specified sequences.
@@ -476,7 +478,7 @@ class Client:
                 self.host,
                 self.port,
                 timeout=self._wait_timeout,
-                gfserver_option=self._server_option,
+                server_option=self._server_option,
             )
 
         group = Pool(1)
