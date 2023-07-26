@@ -410,7 +410,6 @@ def start_server_mt(
         server_option (ServerOption): The options to use when starting the server.
         stat (UsageStats): The usage stats to use for the server.
         use_others (bool, optional): Whether to use the port even if it is already in use. Defaults to False.
-        timeout (int, optional): The number of seconds to wait for the server to be ready. Defaults to 60.
         try_new_port (bool, optional): Whether to try a new port if the initial port is in use. Defaults to True.
 
     Raises:
@@ -455,7 +454,6 @@ def start_server_mt_nb(
         server_option (ServerOption): The options to use when starting the server.
         stat (UsageStats): The usage stats to use for the server.
         use_others (bool, optional): Whether to use the port even if it is already in use. Defaults to False.
-        timeout (int, optional): The number of seconds to wait for the server to be ready. Defaults to 60.
         try_new_port (bool, optional): Whether to try a new port if the initial port is in use. Defaults to True.
 
     Returns:

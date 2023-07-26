@@ -24,13 +24,6 @@
 
 void bind_gfServer(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // cppbinding::Signal file:gfServer.hpp line:39
-		pybind11::class_<cppbinding::Signal, std::shared_ptr<cppbinding::Signal>> cl(M("cppbinding"), "Signal", "");
-		cl.def( pybind11::init( [](){ return new cppbinding::Signal(); } ) );
-		cl.def_readwrite("isReady", &cppbinding::Signal::isReady);
-
-		cl.def("__str__", [](cppbinding::Signal const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
-	}
 	{ // cppbinding::UsageStats file:gfServer.hpp line:45
 		pybind11::class_<cppbinding::UsageStats, std::shared_ptr<cppbinding::UsageStats>> cl(M("cppbinding"), "UsageStats", "");
 		cl.def( pybind11::init( [](){ return new cppbinding::UsageStats(); } ) );
