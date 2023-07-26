@@ -77,9 +77,9 @@ conda install pxblat
 Congratulations! You've successfully installed `PxBLAT` on your local machine.
 If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
 
-### 🤖 **Using pxblat**
+### 🤖 **Using PxBLAT**
 
-- **Example**
+- **API Example**
 
 ```python
 from pxblat import Server
@@ -97,15 +97,16 @@ server_option = Server.create_option().build()
 with Server("localhost", port, two_bit, server_option) as server:
     work()  # do some other stuffs that consuming time
     server.wait_for_ready()
-    result = client.query("ATCG")
-    result = client.query("AtcG")
-    result = client.query(["ATCG", "ATCG"])
+    result1 = client.query("ATCG")
+    result2 = client.query("AtcG")
+    result3 = client.query(["ATCG", "ATCG"])
+    result4 = client.query(["cgTA", "fasta.fa"])
 ```
 
 Moreover, `PxBLAT` provide command line tool that has same functions as `BLAT`.
 
 ```console
-❯ pxblat -h                                                                                                                            19:48:03
+❯ pxblat -h
 
  Usage: pxblat [OPTIONS] COMMAND [ARGS]...
 
