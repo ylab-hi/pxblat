@@ -15,6 +15,7 @@ project = "PxBLAT"
 author = "Yangyang Li"
 copyright = f"{datetime.now().year}, {author}"
 extensions = [
+    "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
@@ -100,7 +101,7 @@ myst_enable_extensions = [
 
 intersphinx_mapping = {
     "mypy": ("https://mypy.readthedocs.io/en/stable/", None),
-    "python": ("https://docs.python.org/3.8", None),
+    "python": ("https://docs.python.org/3.9", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
 }
 

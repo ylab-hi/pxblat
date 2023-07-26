@@ -12,7 +12,6 @@ We can get completion for current shell via `pxblat --install-completion`.
 The help message is got from
 
 ```{code-block} bash
-
 > pxblat -h
 Usage: pxblat [OPTIONS] COMMAND [ARGS]...
 

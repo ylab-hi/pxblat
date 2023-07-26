@@ -442,6 +442,16 @@ class Client:
                 msg = f"File {item} does not exist"
                 raise FileNotFoundError(msg)
 
+            if isinstance(item, str) and ("." in item or "/" in item):
+                new_item = Path(item)
+                if not new_item.exists():
+                    msg = f"File {item} does not exist"
+                    raise FileNotFoundError(msg)
+
+                yield new_item
+
+            yield item
+
     def _query(self, in_seq: str | Path):
         basic_option = deepcopy(self._basic_option)
         if isinstance(in_seq, Path):
@@ -471,7 +481,7 @@ class Client:
         if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]
 
-        self._verify_input(in_seqs)
+        in_seqs = list(self._verify_input(in_seqs))
 
         if self._wait_ready:
             wait_server_ready(
