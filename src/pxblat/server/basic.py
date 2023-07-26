@@ -19,9 +19,8 @@ from pxblat.extc import (
 )
 
 from .status import Status
-from .utils import logger
 
-DEFAULT_PORT = 65000
+MAX_PORT = 65535
 
 
 def check_host_port(host: str, port: int) -> None:
@@ -79,7 +78,6 @@ def check_port_in_use(host: str, port: int, tries: int = 3) -> bool:
     """
     res = [_check_port_in_use_by_connect(host, port) for _ in range(tries)]
     counter = Counter(res)
-    logger.debug(f"{res}")
     return counter[True] > counter[False]
 
 
@@ -102,7 +100,6 @@ def _check_port_in_use_by_status(
         The server option can be default value and will not influence result
         Also, it can detect if the port is opened by gfServer as well
     """
-    logger.debug(f"check port {host}:{port}")
     return check_server_status(host, port, gfserver_option)
 
 
@@ -127,7 +124,7 @@ def _check_port_in_use_by_connect(host: str, port: int):
 @deprecated(
     reason="The func will generate false alarm. Please use `_check_port_in_use_by_status` or  `_check_port_in_use_by_connect` instead",
 )
-def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
+def _check_port_in_use_by_bind(host: str, port: int):
     """Check the port is in use by bind to the port.
 
     Args:
@@ -143,12 +140,10 @@ def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
         ``_check_port_in_use_by_status``
 
     """
-    logger.debug(f"check port {host}:{port}")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.bind((host, port))
     except OSError as e:
-        logger.debug(f"port {host}:{port} is in use {e}")
         if e.errno == errno.EADDRINUSE:
             return True
 
@@ -515,7 +510,7 @@ def start_server_mt_nb(
     return process
 
 
-def find_free_port(host: str, start: int = DEFAULT_PORT, end: int = 65535) -> int:
+def find_free_port(host: str, start: int, end: int = 65535) -> int:
     """Find an available port in the range of [start, end].
 
     Args:
