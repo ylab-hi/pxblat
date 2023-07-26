@@ -34,13 +34,16 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 📚 **Table of Contents**
 
-- [📚 Table of Contents](#-table-of-contents)
-- [🔮 Features](#-features)
-- [📎 Citation](#-citation)
-- [🏎💨 Getting Started](#-getting-started)
-- [🤝 Contributing](#-contributing)
-- [🪪 License](#-license)
-- [🙏 Acknowledgments](#-acknowledgments)
+- [ **PxBLAT** ](#-pxblat-)
+  - [📚 **Table of Contents**](#-table-of-contents)
+  - [🔮 **Features**](#-features)
+  - [📎 **Citation**](#-citation)
+  - [🚀 **Getting Started**](#-getting-started)
+    - [🤖 **Using PxBLAT**](#-using-pxblat)
+  - [🤝 **Contributing**](#-contributing)
+  - [🪪 **License**](#-license)
+  - [**Contributors**](#contributors)
+  - [🙏 **Acknowledgments**](#-acknowledgments)
 
 ## 🔮 **Features**
 
