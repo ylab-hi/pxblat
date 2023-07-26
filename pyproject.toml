@@ -128,6 +128,7 @@ allow-star-arg-any = true
 "src/pxblat/cli/server.py" = ["PLR0913", "N816", "FBT001", "FBT003"]
 "src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
+"src/pxblat/cli/cli.py" = ["DTZ005"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 "src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
 

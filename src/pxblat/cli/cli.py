@@ -1,5 +1,6 @@
 """Command line interface for pxblat."""
 import sys
+from datetime import datetime
 
 import typer
 
@@ -9,7 +10,7 @@ from .server import server_app
 from .twobit2fa import twoBitToFa
 
 app = typer.Typer(
-    epilog="YangyangLi 2023 yangyang.li@northwstern.edu",
+    epilog=f"YangyangLi {datetime.now().year} yangyang.li@northwstern.edu",
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 
