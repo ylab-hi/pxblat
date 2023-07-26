@@ -168,6 +168,7 @@ psutil = "^5.9.5"
 seaborn = "^0.12.2"
 mypy = "^1.4.1"
 sphinx-click = "^4.4.0"
+py-spy = "^0.3.14"
 
 
 [tool.coverage.paths]
