@@ -1,10 +1,67 @@
 # **Tutorial**
 
+`PxBLAT` binds the codebase of [BLAT(v.37x1)][BLAT(v.37x1)], and aims to provide efficient and
+ergonomic APIs. Let's take the journey to show features `PxBLAT` provides.
+
+## APIs Compared to `BLAT`
+
+So far, `PxBLAT` provides four main APIs, including {class}`.Client`, {class}`.Server`, {func}`.two_bit_to_fa` and {func}`.fa_to_two_bit`,
+as well as other useful functions ({doc}`reference`).
+`PxBLAT` is able to finish the most significant features of `BLAT`.
+Here is a table in which the features are compared.
+
+| PxBLAT                 | BLAT                     |
+| :--------------------- | :----------------------- |
+| {class}`.Client`       | [gfClient][gfClient]     |
+| {class}`.Server`       | [gfServer][gfServer]     |
+| {func}`.two_bit_to_fa` | [twoBitToFa][twoBitToFa] |
+| {func}`.fa_to_two_bit` | [faToTwoBit][faToTwoBit] |
+
 ## From FASTA to 2bit
 
-Before we query certain sequence to a reference, we need to generate [.2bit](https://genome.ucsc.edu/FAQ/FAQformat.html#format7) file from [fasta](https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences.) format.
+Before we query certain sequence to a reference, we need to generate [.2bit][.2bit] file from [fasta][fasta] format.
 `PxBLAT` provides a free function {func}`.fa_to_two_bit`.
-Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`.
+Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`, for example,
+
+```{eval-rst}
+.. code-block:: python
+    :linenos:
+
+    from pxblat import fa_to_two_bit
+
+    fa_to_two_bit(
+        ["fasta1.fa"],  # (1)!
+        "out.2bit",  # (2)!
+        noMask=False,
+        stripVersion=False,
+        ignoreDups=False,
+        useLong=False,
+    )
+
+.. code-annotations::
+    #. Same as `BLAT`, :func:`.fa_to_two_bit` can accept  multilple inputs
+    #. Output file path
+```
+
+The code equals the code by `BLAT(v. 37x1)`.
+
+```bash
+$ faToTwoBit
+faToTwoBit - Convert DNA from fasta to 2bit format
+usage:
+   faToTwoBit in.fa [in2.fa in3.fa ...] out.2bit
+options:
+   -long          use 64-bit offsets for index.   Allow for twoBit to contain more than 4Gb of sequence.
+                  NOT COMPATIBLE WITH OLDER CODE.
+   -noMask        Ignore lower-case masking in fa file.
+   -stripVersion  Strip off version number after '.' for GenBank accessions.
+   -ignoreDups    Convert first sequence only if there are duplicate sequence
+                  names.  Use 'twoBitDup' to find duplicate sequences.
+$ faToTwoBit fasta1.fa out.2bit
+$ ls
+out.2bit fasta1.fa
+```
+
 Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`usage`.
 
 ## Query Sequences
@@ -85,7 +142,9 @@ But we may need to query sequences in more general way, for example,
     work()  # (2)!
     # server.wait_ready()
     # (3)!
-    result = client.query(["actg", "fasta.fa"])
+    result1 = client.query(["actg", "fasta.fa"])
+    other_work()
+    result2 = client.query("fasta.fa")
     server.stop()  # (4)!
 
 .. code-annotations::
@@ -94,6 +153,12 @@ But we may need to query sequences in more general way, for example,
     #. No need to wait current running server  to be ready, and the job will be done by :class:`.Client`
     #. Stop the current running server
 ```
+
+Although {class}`.Server` and {class}`.Client` already consider most contexts, `PxBLAT` provides {class}`.ClientThread` that can launch a thread to
+query sequence.
+However, {class}`.ClientThread` only query one sequence at one time.
+Its APIs are still not stable so far.
+Free feel to check that if you have interests.
 
 ## Query Result
 
@@ -259,3 +324,17 @@ We can manipulate the result for example:
         ['gi|262205317|ref|NR_030195.1|', 'gi|301171311|ref|NR_035856.1|', ...]
 
 ```
+
+## Caveats
+
+{class}`.ServerOption` hold most important parameters that are passed to {class}`.Server`.
+
+<!-- links -->
+
+[gfClient]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfClientUsage
+[gfServer]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfServerUsage
+[twoBitToFa]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#twoBitToFaUsage
+[faToTwoBit]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#faToTwoBitUsage
+[.2bit]: https://genome.ucsc.edu/FAQ/FAQformat.html#format7
+[fasta]: https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences
+[BLAT(v.37x1)]: https://github.com/ucscGenomeBrowser/kent

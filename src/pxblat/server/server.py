@@ -254,6 +254,9 @@ class Server(ContextDecorator):
 
         Returns:
             list[str]: A list of file names served by the gfServer instance.
+
+        See Also:
+            :func:`files` is a free function to query file status for server.
         """
         return files(self.host, self.port)
 
