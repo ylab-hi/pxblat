@@ -1,8 +1,68 @@
 # **Tutorial**
 
+## From FASTA to 2bit
+
+Before we query certain sequence to a reference, we need to generate [.2bit](https://genome.ucsc.edu/FAQ/FAQformat.html#format7) file from [fasta](https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences.) format.
+`PxBLAT` provides a free function {func}`.fa_to_two_bit`.
+Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`.
+Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`usage`.
+
 ## Query Sequences
 
-Most simple method to query sequence is to open {py:class}`pxblat.Server` in context mode
+Most simple method to query sequence is to open {class}`pxblat.Server` in context mode
+
+```{eval-rst}
+.. code-block:: python
+    :linenos:
+
+    from pxblat import Server, Client
+
+    client = Client(
+        host="localhost",
+        port=port,  # (1)!
+        seq_dir=two_bit,  # (2)!
+        min_score=20,
+        min_identity=90,
+    )
+
+    server_option = Server.create_option().withCanStop(True).withStepSize(5).build()  # (3)!
+    with Server("localhost", port, two_bit, server_option) as server:
+        work()  # (4)!
+        server.wait_for_ready()  # (5)!
+        result1 = client.query("ATCG")  # (6)!
+        result2 = client.query("AtcG")  # (7)!
+        result3 = client.query(["ATCG", "ATCG"])  # (8)!
+        result4 = client.query(["fasta1.fa", "fasta2.fa"])  # (9)!
+        result5 = client.query(["cgTA", "fasta.fa"])  # (10)!
+
+.. code-annotations::
+    #. The port number of current running :class:`.Server`
+    #. The two bit files from reference, and we can get it via :func:`.fa_to_two_bit` or via  :doc:`usage`
+    #. Create :class:`.ServerOption` with specific parameters for :class:`.Server`
+    #. We can do some other stuffs that consuming time
+    #. Block current thread to wait server to be ready
+    #. :meth:`.Client.query` accepts a :class:`str` consisting of DNA or Protein Sequences, e.g. `"ATCG"`
+    #. :meth:`.Client.query` accepts a path of Fasta file, e.g. `"data/fasta1.fa"`
+    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
+    #. :meth:`.Client.query` accepts a :class:`list` of path of Fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
+    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
+```
+
+```{tip}
+Click the blinking circle cross, and you will be blessed and get more information.
+```
+
+{meth}`.Client.query` accepts parameters of several types:
+
+1. Path of Fasta file e.g. `data/fasta1.fa`
+2. {class}`list` of {class}`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
+3. {class}`list` of path of Fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
+4. {class}`list` of `str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
+5. {meth}`.Client.query` accepts a {class}`list` of {class}`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
+
+{meth}`.Client.query` return [Bio.SearchIO.QueryResult](#query-result).
+
+But we may need to query sequences in more general way, for example,
 
 ```{eval-rst}
 .. code-block:: python
@@ -16,64 +76,186 @@ Most simple method to query sequence is to open {py:class}`pxblat.Server` in con
         seq_dir=two_bit,
         min_score=20,
         min_identity=90,
+        wait_ready=True,  # (1)!
     )
 
-    server_option = Server.create_option().build()
-    with Server("localhost", port, two_bit, server_option) as server:
-        work()  # (1)
-        server.wait_for_ready()  # (2)
-        result1 = client.query("ATCG")  # (3)
-        result2 = client.query("AtcG")  # (4)
-        result3 = client.query(["ATCG", "ATCG"])  # (5)
-        result4 = client.query(["cgTA", "fasta.fa"])  # (6)
+    server_option = Server.create_option().withCanStop(True).withStepSize(5).build()
+    server = Server("localhost", port, two_bit, server_option)
+    server.start()
+    work()  # (2)!
+    # server.wait_ready()
+    # (3)!
+    result = client.query(["actg", "fasta.fa"])
+    server.stop()  # (4)!
 
 .. code-annotations::
-    1. We can do some other stuffs that consuming time
-    2. Block current thread to wait server to be ready
-    #. :meth:`.Client.query` accepts a :class:`str` consisting of DNA or Protein Sequences e.g. `"ATCG"`
-    #. :meth:`.Client.query` accepts a path of Fasta file e.g. `data/fasta1.fa`
-    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` consisting of DNA or Protein Sequences e.g. `["ATCG","CTGAG"]`
-    #. :meth:`.Client.query` accepts a :class:`list` of path of Fasta files e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
-    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path e.g. `["ATCG", "data/fasta1.fa"]`
+    #. The parameter `wait_ready` is used to control if the client need to check and wait current server to be ready or query directly.
+    #. May a task consuming long time
+    #. No need to wait current running server  to be ready, and the job will be done by :class:`.Client`
+    #. Stop the current running server
 ```
 
-`Client.query` accepts parameters of multiple types
+## Query Result
 
-1. A `Path` of Fasta file e.g. `data/fasta1.fa`
-2. A list of `str` consisting of DNA or Protein Sequences e.g. `["ATCG","CTGAG"]`
-3. A list of `Path` of Fasta files e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
-4. A list of `str` and `Path` e.g. `["ATCG", "data/fasta1.fa"]`
+We can manipulate the result for example:
 
 ```{eval-rst}
-.. code-block:: python
+.. py:class:: QueryResult
 
-    html_theme_options = {
-        "features": ["content.code.annotate"],  # (1)
-    }
+    Class representing search results from a single query.
 
-.. code-annotations::
-    1. .. admonition:: Obsolete
-           :class: failure
+    QueryResult is the container object that stores all search hits from a
+    single search query. It is the top-level object returned by SearchIO's two
+    main functions, ``read`` and ``parse``. Depending on the search results and
+    search output format, a QueryResult object will contain zero or more Hit
+    objects (see Hit).
 
-           This has no special effect because the :rst:dir:`code-annotations` directive
-           automatically enables the feature.
-```
+    You can take a quick look at a QueryResult's contents and attributes by
+    invoking ``print`` on it::
 
-```{eval-rst}
-.. code-block:: cpp
+        >>> from Bio import SearchIO
+        >>> qresult = next(SearchIO.parse('Blast/mirna.xml', 'blast-xml'))
+        >>> print(qresult)
+        Program: blastn (2.2.27+)
+          Query: 33211 (61)
+                 mir_1
+         Target: refseq_rna
+           Hits: ----  -----  ----------------------------------------------------------
+                    #  # HSP  ID + description
+                 ----  -----  ----------------------------------------------------------
+                    0      1  gi|262205317|ref|NR_030195.1|  Homo sapiens microRNA 52...
+                    1      1  gi|301171311|ref|NR_035856.1|  Pan troglodytes microRNA...
+                    2      1  gi|270133242|ref|NR_032573.1|  Macaca mulatta microRNA ...
+                    3      2  gi|301171322|ref|NR_035857.1|  Pan troglodytes microRNA...
+                    4      1  gi|301171267|ref|NR_035851.1|  Pan troglodytes microRNA...
+                    5      2  gi|262205330|ref|NR_030198.1|  Homo sapiens microRNA 52...
+                    6      1  gi|262205302|ref|NR_030191.1|  Homo sapiens microRNA 51...
+                    7      1  gi|301171259|ref|NR_035850.1|  Pan troglodytes microRNA...
+                    8      1  gi|262205451|ref|NR_030222.1|  Homo sapiens microRNA 51...
+                    9      2  gi|301171447|ref|NR_035871.1|  Pan troglodytes microRNA...
+                   10      1  gi|301171276|ref|NR_035852.1|  Pan troglodytes microRNA...
+                   11      1  gi|262205290|ref|NR_030188.1|  Homo sapiens microRNA 51...
+        ...
 
-    // What can I put in an annotation? (1)
-    /* What about nested lists and emojis? (2) */
+    If you just want to know how many hits a QueryResult has, you can invoke
+    ``len`` on it. Alternatively, you can simply type its name in the interpreter::
 
-.. code-annotations::
-    3. These annotations can have anything that Sphinx supports (including extensions).
+        >>> len(qresult)
+        100
+        >>> qresult
+        QueryResult(id='33211', 100 hits)
 
-       .. image:: desert-flower.jpg
-           :width: 75%
-    #. Indentation for lists' items that span multiple lines can be tricky in
-       reStructuredText.
+    QueryResult behaves like a hybrid of Python's built-in list and dictionary.
+    You can retrieve its items (Hit objects) using the integer index of the
+    item, just like regular Python lists::
 
-       0. First item in a nested list that starts with ``0``.
-       #. Checkout the `sphinxemoji <https://sphinxemojicodes.rtfd.io>`_ extension to
-          put emojis here.
+        >>> first_hit = qresult[0]
+        >>> first_hit
+        Hit(id='gi|262205317|ref|NR_030195.1|', query_id='33211', 1 hsps)
+
+    You can slice QueryResult objects as well. Slicing will return a new
+    QueryResult object containing only the sliced hits::
+
+        >>> sliced_qresult = qresult[:3]    # slice the first three hits
+        >>> len(qresult)
+        100
+        >>> len(sliced_qresult)
+        3
+        >>> print(sliced_qresult)
+        Program: blastn (2.2.27+)
+          Query: 33211 (61)
+                 mir_1
+         Target: refseq_rna
+           Hits: ----  -----  ----------------------------------------------------------
+                    #  # HSP  ID + description
+                 ----  -----  ----------------------------------------------------------
+                    0      1  gi|262205317|ref|NR_030195.1|  Homo sapiens microRNA 52...
+                    1      1  gi|301171311|ref|NR_035856.1|  Pan troglodytes microRNA...
+                    2      1  gi|270133242|ref|NR_032573.1|  Macaca mulatta microRNA ...
+
+    Like Python dictionaries, you can also retrieve hits using the hit's ID.
+    This is useful for retrieving hits that you know should exist in a given
+    search::
+
+        >>> hit = qresult['gi|262205317|ref|NR_030195.1|']
+        >>> hit
+        Hit(id='gi|262205317|ref|NR_030195.1|', query_id='33211', 1 hsps)
+
+    You can also replace a Hit in QueryResult with another Hit using either the
+    integer index or hit key string. Note that the replacing object must be a
+    Hit that has the same ``query_id`` property as the QueryResult object.
+
+    If you're not sure whether a QueryResult contains a particular hit, you can
+    use the hit ID to check for membership first::
+
+        >>> 'gi|262205317|ref|NR_030195.1|' in qresult
+        True
+        >>> 'gi|262380031|ref|NR_023426.1|' in qresult
+        False
+
+    Or, if you just want to know the rank / position of a given hit, you can
+    use the hit ID as an argument for the ``index`` method. Note that the values
+    returned will be zero-based. So zero (0) means the hit is the first in the
+    QueryResult, three (3) means the hit is the fourth item, and so on. If the
+    hit does not exist in the QueryResult, a ``ValueError`` will be raised.
+
+        >>> qresult.index('gi|262205317|ref|NR_030195.1|')
+        0
+        >>> qresult.index('gi|262205330|ref|NR_030198.1|')
+        5
+        >>> qresult.index('gi|262380031|ref|NR_023426.1|')
+        Traceback (most recent call last):
+        ...
+        ValueError: ...
+
+    To ease working with a large number of hits, QueryResult has several
+    ``filter`` and ``map`` methods, analogous to Python's built-in functions with
+    the same names. There are ``filter`` and ``map`` methods available for
+    operations over both Hit objects or HSP objects. As an example, here we are
+    using the ``hit_map`` method to rename all hit IDs within a QueryResult::
+
+        >>> def renamer(hit):
+        ...     hit.id = hit.id.split('|')[3]
+        ...     return hit
+        >>> mapped_qresult = qresult.hit_map(renamer)
+        >>> print(mapped_qresult)
+        Program: blastn (2.2.27+)
+          Query: 33211 (61)
+                 mir_1
+         Target: refseq_rna
+           Hits: ----  -----  ----------------------------------------------------------
+                    #  # HSP  ID + description
+                 ----  -----  ----------------------------------------------------------
+                    0      1  NR_030195.1  Homo sapiens microRNA 520b (MIR520B), micr...
+                    1      1  NR_035856.1  Pan troglodytes microRNA mir-520b (MIR520B...
+                    2      1  NR_032573.1  Macaca mulatta microRNA mir-519a (MIR519A)...
+        ...
+
+    The principle for other ``map`` and ``filter`` methods are similar: they accept
+    a function, applies it, and returns a new QueryResult object.
+
+    There are also other methods useful for working with list-like objects:
+    ``append``, ``pop``, and ``sort``. More details and examples are available in
+    their respective documentations.
+
+    Finally, just like Python lists and dictionaries, QueryResult objects are
+    iterable. Iteration over QueryResults will yield Hit objects::
+
+        >>> for hit in qresult[:4]:     # iterate over the first four items
+        ...     hit
+        ...
+        Hit(id='gi|262205317|ref|NR_030195.1|', query_id='33211', 1 hsps)
+        Hit(id='gi|301171311|ref|NR_035856.1|', query_id='33211', 1 hsps)
+        Hit(id='gi|270133242|ref|NR_032573.1|', query_id='33211', 1 hsps)
+        Hit(id='gi|301171322|ref|NR_035857.1|', query_id='33211', 2 hsps)
+
+    If you need access to all the hits in a QueryResult object, you can get
+    them in a list using the ``hits`` property. Similarly, access to all hit IDs is
+    available through the ``hit_keys`` property.
+
+        >>> qresult.hits
+        [Hit(id='gi|262205317|ref|NR_030195.1|', query_id='33211', 1 hsps), ...]
+        >>> qresult.hit_keys
+        ['gi|262205317|ref|NR_030195.1|', 'gi|301171311|ref|NR_035856.1|', ...]
+
 ```

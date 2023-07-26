@@ -103,6 +103,7 @@ intersphinx_mapping = {
     "mypy": ("https://mypy.readthedocs.io/en/stable/", None),
     "python": ("https://docs.python.org/3.9", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+    "biopython": ("https://biopython.org/docs/latest/api", None),
 }
 
 # https://jbms.github.io/sphinx-immaterial/customization.html

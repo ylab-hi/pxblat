@@ -58,7 +58,7 @@ pip install pxblat
 
 ``````{warning}
 You meet the issue _*.h cannot found_ or _undefined symbol **_ If you install `pxblat` by `pip`.
-If you have installed the prerequisites, the problem is caused by incorrect environment variable `CFLAGS`, `CXXFLAGS`,
+If you have installed the prerequisites, the problem is caused by incorrect environment variable {envvar}`CFLAGS`, `CXXFLAGS`,
 and `LDFLAGS`, which direct compiler and linker find right location of
 dependencies so as to compile and link code properly.
 **The easy solution** is to install  **PxBLAT**  via `conda`.
