@@ -66,6 +66,7 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
 		cl.def("to_string", (std::string (cppbinding::ClientOption::*)() const) &cppbinding::ClientOption::to_string, "C++: cppbinding::ClientOption::to_string() const --> std::string");
 
 		cl.def("__str__", [](cppbinding::ClientOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
+		cl.def("__repr__", [](cppbinding::ClientOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 
         cl.def(pybind11::pickle([](const cppbinding::ClientOption& p){
                return pybind11::make_tuple(p.hostName, p.portName,p.tType, p.qType, p.dots,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import tempfile
-from copy import deepcopy
+from copy import copy
 from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING, Union
@@ -453,7 +453,7 @@ class Client:
             yield item
 
     def _query(self, in_seq: str | Path):
-        basic_option = deepcopy(self._basic_option)
+        basic_option = copy(self._basic_option)
         if isinstance(in_seq, Path):
             basic_option.withInName(str(in_seq)).withInSeq("").build()
         else:
