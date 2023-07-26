@@ -117,39 +117,6 @@ def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
     return results
 
 
-def run_pxblat(result_dir: Path, port: int, fa_data: Path):
-    cport = port + 20
-    two_bit = Path("benchmark/data/chr20.2bit")
-    server_option = pxblat.ServerOption().withCanStop(True).withStepSize(5).build()
-
-    print("open python server")
-    server = pxblat.Server("localhost", cport, two_bit, server_option)
-    server.start()
-    server.wait_ready()
-    results = {}
-
-    fa_files = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
-    for _, fa in enumerate(fa_files):
-        client_option = (
-            pxblat.ClientOption()
-            .withMinScore(20)
-            .withMinIdentity(90)
-            .withHost("localhost")
-            .withPort(str(cport))
-            .withSeqDir(two_bit.parent.as_posix())
-            .withInName(fa.as_posix())
-            .build()
-        )
-
-        client = pxblat.ClientThread(client_option)
-        client.start()
-        ret = client.get()
-        results[fa.stem] = ret
-
-    server.stop()
-    return results
-
-
 def get_key_hsp(hsp):
     key = ""
 
@@ -267,37 +234,6 @@ def test_result_c_with_py(tmpdir, port, fas, *, time=True, compare=True):
             assert len(a) == 0
             assert len(b) == 0
         print(f"compare {file_num} files for BLAT and PxBLAT")
-
-
-@pytest.mark.skip
-@pytest.mark.parametrize(
-    "failing_fas",
-    [
-        Path("tests/data/fas/chr20_11648866_11650925.fa"),
-        Path("benchmark/fas/chr20_30806959_30809757.fa"),
-    ],
-)
-def test_failing_case(tmpdir, port, failing_fas, time=False):
-    pxblat_results = (
-        create_result(tmpdir, port, failing_fas)
-        if not time
-        else time_creat_result(tmpdir, port, failing_fas)
-    )
-
-    file_num = 0
-    for fa in [failing_fas]:
-        file_num += 1
-        cc_res = tmpdir / f"{fa.stem}_cc.psl"
-        pp_res = pxblat_results[fa.stem]
-
-        _ret = _cpsl(cc_res, pp_res)
-        if _ret is None:
-            return
-        a, b, _ = _ret
-        assert len(a) == 0
-        assert len(b) == 0
-
-    print(f"test {file_num} files")
 
 
 if __name__ == "__main__":
