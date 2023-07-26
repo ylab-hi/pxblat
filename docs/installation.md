@@ -26,7 +26,6 @@ brew install htslib openssl
 conda install htslib openssl
 ```
 ````
-
 ````{md-tab-item} Apt-get
 ```{code-block} bash
 apt-get update && apt-get install libhts-dev libssl-dev
@@ -78,8 +77,8 @@ export CXXFLAGS="-Idependencies"
 
 ````{md-tab-item} Fish
 ```{code-block} fish
-set -gs CFLAGS="-Idependencies"
-set -gs CXXLAGS="-Idependencies"
+set -x CFLAGS="-Idependencies"
+set -x CXXLAGS="-Idependencies"
 ...
 ```
 ````

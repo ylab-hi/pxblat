@@ -1,5 +1,7 @@
 # **Tutorial**
 
+## Query Sequences
+
 Use {py:class}`pxblat.Server` in context mode
 
 ```{code-block} python

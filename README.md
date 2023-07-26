@@ -75,7 +75,7 @@ conda install pxblat
 ```
 
 Congratulations! You've successfully installed `PxBLAT` on your local machine.
-If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
+If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/installation.html) first before opening a issue.
 
 ### 🤖 **Using PxBLAT**
 
