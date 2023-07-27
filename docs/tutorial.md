@@ -17,6 +17,32 @@ Here is a table in which the features are compared.
 | {func}`.two_bit_to_fa` | [twoBitToFa][twoBitToFa] |
 | {func}`.fa_to_two_bit` | [faToTwoBit][faToTwoBit] |
 
+## Options Design
+
+`PxBLAT` uses a extra class to hold and change parameters for {class}`.Server`
+and {class}`.TwoBitToFaOption`.
+The design is a trick to mimic named parameter, and is used in Cpp and Rust.
+Python may not need to the design but it still benefit if the parameters are too
+long.
+For example, `PxBLAT` can create and change parameters of {class}`.Server` via {meth}`.Server.create_option`.
+The chain methods of options is builder pattern which is used in Cpp and Rust.
+
+```{eval-rst}
+.. code-block:: python
+    :linenos:
+
+    from pxblat import Server
+
+    server_option = Server.create_option().withStepSize(3).withTileSize(10).build()  # (1)!
+    server = Server("localhost", port, two_bit, server_option)
+
+.. code-annotations::
+    #. we change step size and tile size
+```
+
+The options have same parameter as its command line version of `BLAT`.
+{doc}`reference` includes all possible parameters the option will accept.
+
 ## From FASTA to 2bit
 
 Before we query certain sequence to a reference, we need to generate [.2bit][.2bit] file from [fasta][fasta] format.
@@ -43,7 +69,7 @@ Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {fun
     #. Output file path
 ```
 
-The code equals the code by `BLAT(v. 37x1)`.
+The code equals `faToTwoBit fasta1.fa out.2bit` by `BLAT(v. 37x1)`.
 
 ```bash
 $ faToTwoBit
@@ -65,6 +91,10 @@ out.2bit fasta1.fa
 Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`usage`.
 
 ## Query Sequences
+
+```{tip}
+Click the blinking circle cross, and you will be blessed and get more information.
+```
 
 Most simple method to query sequence is to open {class}`pxblat.Server` in context mode
 
@@ -105,10 +135,6 @@ Most simple method to query sequence is to open {class}`pxblat.Server` in contex
     #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
 ```
 
-```{tip}
-Click the blinking circle cross, and you will be blessed and get more information.
-```
-
 {meth}`.Client.query` accepts parameters of several types:
 
 1. Path of Fasta file e.g. `data/fasta1.fa`
@@ -119,7 +145,7 @@ Click the blinking circle cross, and you will be blessed and get more informatio
 
 {meth}`.Client.query` return [Bio.SearchIO.QueryResult](#query-result).
 
-But we may need to query sequences in more general way, for example,
+We may need to query sequences in more general way, for example,
 
 ```{eval-rst}
 .. code-block:: python
@@ -162,7 +188,9 @@ Free feel to check that if you have interests.
 
 ## Query Result
 
-We can manipulate the result for example:
+`PxBLAT` aims to introduce as few concepts as possible so that users do not need to take time to learn.
+The query result is the same as `QueryResult` of [Bio][Bio].
+Hence, we can manipulate the query result as shown below.
 
 ```{eval-rst}
 .. py:class:: QueryResult
@@ -325,6 +353,13 @@ We can manipulate the result for example:
 
 ```
 
+## Beyond APIs
+
+Even though `PxBLAT` is designed as library, it provides command-line tools
+using its APIs.
+That could provide more choices for user according to different situations.
+{doc}`reference` contain more details, and do not hesitate to check.
+
 ## Caveats
 
 {class}`.ServerOption` hold most important parameters that are passed to {class}`.Server`.
@@ -338,3 +373,4 @@ We can manipulate the result for example:
 [.2bit]: https://genome.ucsc.edu/FAQ/FAQformat.html#format7
 [fasta]: https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences
 [BLAT(v.37x1)]: https://github.com/ucscGenomeBrowser/kent
+[bio]: https://biopython.org/docs/latest/api/Bio.SearchIO.html?highlight=queryresult
