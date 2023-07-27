@@ -1,5 +1,4 @@
-from pxblat import ClientOption
-from copy import copy
+from pxblat import ClientOption, copy_client_option
 
 
 def test_client_option_copy(port):
@@ -14,7 +13,7 @@ def test_client_option_copy(port):
 
     assert client_option.inName == ""
 
-    correct_copy = copy(client_option)
+    correct_copy = copy_client_option(client_option)
 
     pointer_copy = client_option
 

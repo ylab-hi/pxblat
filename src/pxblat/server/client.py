@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import tempfile
-from copy import copy
 from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING, Union
@@ -18,6 +17,29 @@ if TYPE_CHECKING:
 
 INSEQ = Union[str, Path]
 INSEQS = Union[list[INSEQ], list[str], list[Path]]
+
+
+def copy_client_option(option: ClientOption) -> ClientOption:
+    """Copies the ClientOption object."""
+    new_option = ClientOption()
+    new_option.hostName = option.hostName
+    new_option.portName = option.portName
+    new_option.tType = option.tType
+    new_option.qType = option.qType
+    new_option.dots = option.dots
+    new_option.nohead = option.nohead
+    new_option.minScore = option.minScore
+    new_option.minIdentity = option.minIdentity
+    new_option.outputFormat = option.outputFormat
+    new_option.maxIntron = option.maxIntron
+    new_option.genome = option.genome
+    new_option.genomeDataDir = option.genomeDataDir
+    new_option.isDynamic = option.isDynamic
+    new_option.SeqDir = option.SeqDir
+    new_option.inName = option.inName
+    new_option.outName = option.outName
+    new_option.inSeq = option.inSeq
+    return new_option
 
 
 def create_client_option():
@@ -453,7 +475,7 @@ class Client:
             yield item
 
     def _query(self, in_seq: str | Path):
-        basic_option = copy(self._basic_option)
+        basic_option = copy_client_option(self._basic_option)
         if isinstance(in_seq, Path):
             basic_option.withInName(str(in_seq)).withInSeq("").build()
         else:
