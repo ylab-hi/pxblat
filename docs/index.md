@@ -15,7 +15,7 @@ maxdepth: 1
 
 installation
 tutorial
-usage
+cli
 reference
 contributing
 Code of Conduct <codeofconduct>

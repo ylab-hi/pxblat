@@ -209,7 +209,6 @@ def start(
     canStop: bool = canStop,
     indexFile: Path = indexFile,
     timeout: int = timeout,
-    _threads: int = threads,
 ):
     """To set up a server.
 

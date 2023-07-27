@@ -27,6 +27,10 @@ long.
 For example, `PxBLAT` can create and change parameters of {class}`.Server` via {meth}`.Server.create_option`.
 The chain methods of options is builder pattern which is used in Cpp and Rust.
 
+```{tip}
+Click the blinking circle cross, and you will be blessed and get more information.
+```
+
 ```{eval-rst}
 .. code-block:: python
     :linenos:
@@ -88,13 +92,9 @@ $ ls
 out.2bit fasta1.fa
 ```
 
-Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`usage`.
+Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`cli`.
 
 ## Query Sequences
-
-```{tip}
-Click the blinking circle cross, and you will be blessed and get more information.
-```
 
 Most simple method to query sequence is to open {class}`pxblat.Server` in context mode
 
@@ -124,7 +124,7 @@ Most simple method to query sequence is to open {class}`pxblat.Server` in contex
 
 .. code-annotations::
     #. The port number of current running :class:`.Server`
-    #. The two bit files from reference, and we can get it via :func:`.fa_to_two_bit` or via  :doc:`usage`
+    #. The two bit files from reference, and we can get it via :func:`.fa_to_two_bit` or via  :doc:`cli`
     #. Create :class:`.ServerOption` with specific parameters for :class:`.Server`
     #. We can do some other stuffs that consuming time
     #. Block current thread to wait server to be ready
@@ -366,11 +366,11 @@ That could provide more choices for user according to different situations.
 
 <!-- links -->
 
-[gfClient]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfClientUsage
-[gfServer]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfServerUsage
-[twoBitToFa]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#twoBitToFaUsage
-[faToTwoBit]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#faToTwoBitUsage
+[gfclient]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfClientUsage
+[gfserver]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#gfServerUsage
+[twobittofa]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#twoBitToFaUsage
+[fatotwobit]: https://genome.ucsc.edu/goldenpath/help/blatSpec.html#faToTwoBitUsage
 [.2bit]: https://genome.ucsc.edu/FAQ/FAQformat.html#format7
 [fasta]: https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences
-[BLAT(v.37x1)]: https://github.com/ucscGenomeBrowser/kent
+[blat(v.37x1)]: https://github.com/ucscGenomeBrowser/kent
 [bio]: https://biopython.org/docs/latest/api/Bio.SearchIO.html?highlight=queryresult
