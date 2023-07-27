@@ -18,7 +18,7 @@ typer = "^0.9.0"
 deprecated = "^1.2.13"
 mashumaro = "^3.7"
 numpy = "^1.24.3"
-gevent = ">=22.10.2,<24.0.0"
+gevent = "22.10.2"
 urllib3 = "2.0.4"
 
 
@@ -121,7 +121,7 @@ allow-star-arg-any = true
 
 [tool.ruff.per-file-ignores]
 "src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
-"src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103"]
+"src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103", "TID252"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
 "src/pxblat/server/server.py" = ["PLR0913"]
 "src/pxblat/server/client.py" = ["PLR0913"]
@@ -158,7 +158,12 @@ nox = "^2023.4.22"
 nox-poetry = "^1.0.2"
 codecov = "^2.1.13"
 myst-parser = ">=1,<3"
-sphinx-immaterial = {extras = ["clang-format", "cpp", "json", "keys"], version = "^0.11.6"}
+sphinx-immaterial = { extras = [
+    "clang-format",
+    "cpp",
+    "json",
+    "keys",
+], version = "^0.11.6" }
 linkify-it-py = "^2.0.2"
 sphinx-copybutton = "^0.5.2"
 sphinx-togglebutton = "^0.3.2"
@@ -170,7 +175,6 @@ seaborn = "^0.12.2"
 mypy = "^1.4.1"
 sphinx-click = "^4.4.0"
 py-spy = "^0.3.14"
-sphobjinv = "^2.3.1"
 sphinx-autobuild = "^2021.3.14"
 
 

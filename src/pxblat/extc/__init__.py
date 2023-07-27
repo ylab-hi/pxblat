@@ -1,4 +1,4 @@
-from pxblat._extc.cppbinding import *  # type: ignore
+from .._extc.cppbinding import *  # type: ignore
 
 
 def set_state(self, d):
