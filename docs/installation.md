@@ -87,3 +87,9 @@ set -x CXXLAGS="-Idependencies"
 ``````
 
 ## **FAQ (Frequently Asked Questions)**
+
+1. I cannot download `PxBLAT` via `Conda` in MacOS with Arm (M1 or M2).
+
+A: So far, conda build `PxBLAT` in x86 instead of arrch64.
+Hence we can install [prerequisites](#prerequisites) manually via `brew` or `Conda`.
+Then, we can use `pip install pxblat` to install `PxBLAT`.
