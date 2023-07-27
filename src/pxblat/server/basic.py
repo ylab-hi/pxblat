@@ -19,36 +19,8 @@ from pxblat.extc import (
 )
 
 from .status import Status
-from .utils import logger
 
-DEFAULT_PORT = 65000
-
-
-def check_host_port(host: str, port: int) -> None:
-    """Check if the given host and port are valid.
-
-    Args:
-        host (str): The host to check.
-        port (int): The port to check.
-
-    Returns:
-        None
-
-    Raises:
-        RuntimeError: If the host is not a string or the port is not an integer.
-
-    This function checks if the given host and port are valid. The host must be a string and the port must be an integer.
-    If either of these conditions are not met, a RuntimeError is raised with an appropriate error message.
-
-    Example:
-        >>> check_host_port("localhost", 8080)
-        None
-    """
-    if not isinstance(host, str):
-        raise RuntimeError("host must be str")
-
-    if not isinstance(port, int):
-        raise RuntimeError("port must be number")
+MAX_PORT = 65535
 
 
 def check_port_in_use(host: str, port: int, tries: int = 3) -> bool:
@@ -73,27 +45,26 @@ def check_port_in_use(host: str, port: int, tries: int = 3) -> bool:
     If the host argument is not a string, a TypeError will be raised. If the port argument is not a valid port number, a
     ValueError will be raised.
 
-    Example usage:
-    >>> check_port_in_use('localhost', 8080)
-    True
+    Example:
+        >>> check_port_in_use('localhost', 8080)
+        True
     """
     res = [_check_port_in_use_by_connect(host, port) for _ in range(tries)]
     counter = Counter(res)
-    logger.debug(f"{res}")
     return counter[True] > counter[False]
 
 
 def _check_port_in_use_by_status(
     host: str,
     port: int,
-    gfserver_option: ServerOption,
+    server_option: ServerOption,
 ) -> bool:
     """Check the port is in use by status_server.
 
     Args:
         host: host name
         port: port number
-        gfserver_option: server option for the opening server
+        server_option: server option for the opening server
 
     Returns:
         True if the port is in use
@@ -102,8 +73,7 @@ def _check_port_in_use_by_status(
         The server option can be default value and will not influence result
         Also, it can detect if the port is opened by gfServer as well
     """
-    logger.debug(f"check port {host}:{port}")
-    return check_server_status(host, port, gfserver_option)
+    return check_server_status(host, port, server_option)
 
 
 def _check_port_in_use_by_connect(host: str, port: int):
@@ -127,7 +97,7 @@ def _check_port_in_use_by_connect(host: str, port: int):
 @deprecated(
     reason="The func will generate false alarm. Please use `_check_port_in_use_by_status` or  `_check_port_in_use_by_connect` instead",
 )
-def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
+def _check_port_in_use_by_bind(host: str, port: int):
     """Check the port is in use by bind to the port.
 
     Args:
@@ -143,12 +113,10 @@ def _check_port_in_use_by_bind(host: str, port: int = DEFAULT_PORT):
         ``_check_port_in_use_by_status``
 
     """
-    logger.debug(f"check port {host}:{port}")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.bind((host, port))
     except OSError as e:
-        logger.debug(f"port {host}:{port} is in use {e}")
         if e.errno == errno.EADDRINUSE:
             return True
 
@@ -162,7 +130,7 @@ def wait_server_ready(
     host: str,
     port: int,
     timeout: int = 60,
-    gfserver_option=None,
+    server_option=None,
 ) -> None:
     """Wait for a server to become ready by checking if a given port is open or if a specific server status is reached.
 
@@ -170,7 +138,7 @@ def wait_server_ready(
         host (str): The hostname or IP address of the server to check.
         port (int): The port number to check for open status.
         timeout (int, optional): The maximum number of seconds to wait for the server to become ready. Defaults to 60.
-        gfserver_option (str, optional): The specific server status to check for. If None, the function will check for an open port. Defaults to None.
+        server_option (str, optional): The specific server status to check for. If None, the function will check for an open port. Defaults to None.
 
     Raises:
         RuntimeError: If the server does not become ready within the specified timeout.
@@ -180,7 +148,7 @@ def wait_server_ready(
     """
     start = time.perf_counter()
 
-    if gfserver_option is None:
+    if server_option is None:
         warnings.warn(
             "Use `check_server_status` instead of `check_port_open` when wait for ready",
             stacklevel=1,
@@ -191,7 +159,7 @@ def wait_server_ready(
                 msg = "wait for server ready timeout"
                 raise RuntimeError(msg)
     else:
-        while not check_server_status(host, port, gfserver_option):
+        while not check_server_status(host, port, server_option):
             time.sleep(1)
             if time.perf_counter() - start > timeout:
                 msg = "wait for server ready timeout"
@@ -201,14 +169,14 @@ def wait_server_ready(
 def check_server_status(
     host: str,
     port: int,
-    gfserver_option: ServerOption,
+    server_option: ServerOption,
 ) -> bool:
     """Check the status of a server by attempting to connect to it using the specified host, port, and gfserver_option.
 
     Args:
         host (str): The hostname or IP address of the server to check.
         port (int): The port number to use when attempting to connect to the server.
-        gfserver_option (ServerOption): The gfserver option to use when attempting to connect to the server.
+        server_option (ServerOption): The gfserver option to use when attempting to connect to the server.
 
     Returns:
         bool: True if the server is running and accepting connections, False otherwise.
@@ -221,7 +189,7 @@ def check_server_status(
         True
     """
     try:
-        status_server(host, port, gfserver_option)
+        status_server(host, port, server_option)
     except ConnectionRefusedError:
         return False
     else:
@@ -250,7 +218,7 @@ def _gfSignature() -> str:
 def status_server(
     host: str,
     port: int,
-    options: ServerOption,
+    server_option: ServerOption,
     *,
     instance=False,
 ) -> Status | dict[str, str]:
@@ -259,7 +227,7 @@ def status_server(
     Args:
         host (str): The hostname or IP address of the server to check.
         port (int): The port number to use when attempting to connect to the server.
-        options (ServerOption): The gfserver option to use when attempting to connect to the server.
+        server_option (ServerOption): The gfserver option to use when attempting to connect to the server.
         instance (bool, optional): If True, return a Status object instead of a dictionary. Defaults to False.
 
     Returns:
@@ -269,13 +237,11 @@ def status_server(
         >>> status_server('localhost', 8080, ServerOption, instance=True)
         Status(uptime='0', queries='0', sequences='0', bytes='0', memory='0', threads='0', connections='0')
     """
-    if not options.genome:
+    if not server_option.genome:
         message = f"{_gfSignature()}status".encode()
     else:
-        temp = "transInfo" if options.trans else "untransInfo"
-        message = (
-            f"{_gfSignature()}{temp} {options.genome} {options.genomeDataDir}".encode()
-        )
+        temp = "transInfo" if server_option.trans else "untransInfo"
+        message = f"{_gfSignature()}{temp} {server_option.genome} {server_option.genomeDataDir}".encode()
 
     data = b""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -398,7 +364,7 @@ def start_server(
     host: str,
     port: int,
     two_bit_file: str,
-    option: ServerOption,
+    server_option: ServerOption,
     stat: UsageStats,
 ):
     """Start a server in blocking mode.
@@ -407,7 +373,7 @@ def start_server(
         host (str): The hostname or IP address to bind the server to.
         port (int): The port number to bind the server to.
         two_bit_file (str): The path to the 2bit file to use for the server.
-        option (ServerOption): The options to use for the server.
+        server_option (ServerOption): The options to use for the server.
         stat (UsageStats): The usage statistics for the server.
 
     Returns:
@@ -419,14 +385,14 @@ def start_server(
     Example:
         >>> start_server('localhost', 8080, '/path/to/2bit/file', ServerOption, UsageStats())
     """
-    return startServer(host, str(port), 1, [two_bit_file], option, stat)
+    return startServer(host, str(port), 1, [two_bit_file], server_option, stat)
 
 
 def start_server_mt(
     host: str,
     port: int,
     two_bit_file: str,
-    option: ServerOption,
+    server_option: ServerOption,
     stat: UsageStats,
     *,
     use_others: bool = False,
@@ -441,10 +407,9 @@ def start_server_mt(
         host (str): The hostname or IP address to start the server on.
         port (int): The initial port number to try to start the server on.
         two_bit_file (str): The .2bit file to use for the server.
-        option (ServerOption): The options to use when starting the server.
+        server_option (ServerOption): The options to use when starting the server.
         stat (UsageStats): The usage stats to use for the server.
         use_others (bool, optional): Whether to use the port even if it is already in use. Defaults to False.
-        timeout (int, optional): The number of seconds to wait for the server to be ready. Defaults to 60.
         try_new_port (bool, optional): Whether to try a new port if the initial port is in use. Defaults to True.
 
     Raises:
@@ -457,12 +422,12 @@ def start_server_mt(
                 pass
             elif try_new_port:
                 port = find_free_port(host, start=port + 1)
-                pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+                pystartServer(host, str(port), 1, [two_bit_file], server_option, stat)
             else:
                 msg = f"The port {port} is used"
                 raise ValueError(msg)
         else:
-            pystartServer(host, str(port), 1, [two_bit_file], option, stat)
+            pystartServer(host, str(port), 1, [two_bit_file], server_option, stat)
     except Exception as e:
         raise e
 
@@ -471,7 +436,7 @@ def start_server_mt_nb(
     host: str,
     port: int,
     two_bit_file: str,
-    option: ServerOption,
+    server_option: ServerOption,
     stat: UsageStats,
     *,
     use_others: bool = False,
@@ -486,10 +451,9 @@ def start_server_mt_nb(
         host (str): The hostname or IP address to start the server on.
         port (int): The initial port number to try to start the server on.
         two_bit_file (str): The .2bit file to use for the server.
-        option (ServerOption): The options to use when starting the server.
+        server_option (ServerOption): The options to use when starting the server.
         stat (UsageStats): The usage stats to use for the server.
         use_others (bool, optional): Whether to use the port even if it is already in use. Defaults to False.
-        timeout (int, optional): The number of seconds to wait for the server to be ready. Defaults to 60.
         try_new_port (bool, optional): Whether to try a new port if the initial port is in use. Defaults to True.
 
     Returns:
@@ -501,7 +465,7 @@ def start_server_mt_nb(
             host,
             port,
             two_bit_file,
-            option,
+            server_option,
             stat,
         ),
         kwargs={
@@ -515,8 +479,8 @@ def start_server_mt_nb(
     return process
 
 
-def find_free_port(host: str, start: int = DEFAULT_PORT, end: int = 65535) -> int:
-    """Find an available port in the range of [start, end].
+def find_free_port(host: str, start: int, end: int = MAX_PORT) -> int:
+    """Find an available port in the range of [start, end).
 
     Args:
         host: Hostname

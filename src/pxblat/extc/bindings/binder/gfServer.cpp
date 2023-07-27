@@ -24,13 +24,6 @@
 
 void bind_gfServer(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // cppbinding::Signal file:gfServer.hpp line:39
-		pybind11::class_<cppbinding::Signal, std::shared_ptr<cppbinding::Signal>> cl(M("cppbinding"), "Signal", "");
-		cl.def( pybind11::init( [](){ return new cppbinding::Signal(); } ) );
-		cl.def_readwrite("isReady", &cppbinding::Signal::isReady);
-
-		cl.def("__str__", [](cppbinding::Signal const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
-	}
 	{ // cppbinding::UsageStats file:gfServer.hpp line:45
 		pybind11::class_<cppbinding::UsageStats, std::shared_ptr<cppbinding::UsageStats>> cl(M("cppbinding"), "UsageStats", "");
 		cl.def( pybind11::init( [](){ return new cppbinding::UsageStats(); } ) );
@@ -44,6 +37,7 @@ void bind_gfServer(std::function< pybind11::module &(std::string const &namespac
 		cl.def_readwrite("trimCount", &cppbinding::UsageStats::trimCount);
 
 		cl.def("__str__", [](cppbinding::UsageStats const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
+		cl.def("__repr__", [](cppbinding::UsageStats const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 
         cl.def(pybind11::pickle([](const cppbinding::UsageStats &p) { // __getstate__
             return pybind11::make_tuple(p.baseCount, p.blatCount, p.aaCount, p.pcrCount, p.warnCount
@@ -123,6 +117,7 @@ void bind_gfServer(std::function< pybind11::module &(std::string const &namespac
 		cl.def("withThreads", (struct cppbinding::ServerOption & (cppbinding::ServerOption::*)(int)) &cppbinding::ServerOption::withThreads, "C++: cppbinding::ServerOption::withThreads(int) --> struct cppbinding::ServerOption &", pybind11::return_value_policy::automatic, pybind11::arg("threads_"));
 
 		cl.def("__str__", [](cppbinding::ServerOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
+		cl.def("__repr__", [](cppbinding::ServerOption const &o) -> std::string { std::ostringstream s; using namespace cppbinding; s << o; return s.str(); } );
 
         cl.def(pybind11::pickle(
             [](const cppbinding::ServerOption &p) { // __getstate__

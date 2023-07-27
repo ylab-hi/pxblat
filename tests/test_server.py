@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from pxblat import Client
 from pxblat import ClientOption
 from pxblat import UsageStats
 from pxblat.server import check_port_open
@@ -167,11 +168,28 @@ def test_server_stop(server_option, port):
 
 
 @pytest.mark.smoke()
-def test_sever_with_context(server_option, port, two_bit, expected_status_instance):
+def test_sever_with_context(
+    server_option, port, two_bit, expected_status_instance, fa_seq1
+):
     new_port = port + 8
     expected_status_instance.port = new_port
+    client = Client(
+        host="localhost",
+        port=new_port,
+        seq_dir="tests/data/",
+        min_score=20,
+        min_identity=90,
+    )
     with Server("localhost", new_port, two_bit, server_option) as server:
         server.wait_ready()
         assert server.is_ready()
         status = server.status(instance=True)
         assert status == expected_status_instance
+        ret = list(client.query(fa_seq1))
+        for r in ret:
+            print("\n")
+            print(r)
+            print("repr(r)")
+            print(repr(r))
+            print("len(r)")
+            print(len(r))

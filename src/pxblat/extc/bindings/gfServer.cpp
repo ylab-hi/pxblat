@@ -1038,7 +1038,6 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
   socketHandle = netAcceptingSocket(port, 100);
   if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
 
-  // signal.isReady = true;
   logInfo("Server ready for queries!");
   printf("Server ready for queries!\n");
 
@@ -1730,12 +1729,6 @@ std::ostream &operator<<(std::ostream &os, const UsageStats &stats) {
   os << ", missCount: " << stats.missCount;
   os << ", trimCount: " << stats.trimCount;
   os << ")";
-  return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const Signal &signal) {
-  os << "Signal(";
-  os << "signal: " << std::boolalpha << signal.isReady;
   return os;
 }
 

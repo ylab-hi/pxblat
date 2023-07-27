@@ -254,6 +254,9 @@ class Server(ContextDecorator):
 
         Returns:
             list[str]: A list of file names served by the gfServer instance.
+
+        See Also:
+            :func:`files` is a free function to query file status for server.
         """
         return files(self.host, self.port)
 
@@ -321,12 +324,12 @@ class Server(ContextDecorator):
             else:
                 self._is_ready = True
 
-    @classmethod
-    def create_option(cls):
-        """Creates a dictionary of options for the gfServer instance.
+    @staticmethod
+    def create_option() -> ServerOption:
+        """Creates a ServerOption for the gfServer instance.
 
         Returns:
-            dict: A dictionary of options for the gfServer instance.
+            ServerOption: A class that hold options for the gfServer instance.
         """
         return create_server_option()
 

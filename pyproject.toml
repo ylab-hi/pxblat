@@ -128,6 +128,7 @@ allow-star-arg-any = true
 "src/pxblat/cli/server.py" = ["PLR0913", "N816", "FBT001", "FBT003"]
 "src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
+"src/pxblat/cli/cli.py" = ["DTZ005"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 "src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
 
@@ -157,7 +158,7 @@ nox = "^2023.4.22"
 nox-poetry = "^1.0.2"
 codecov = "^2.1.13"
 myst-parser = ">=1,<3"
-sphinx-immaterial = "^0.11.3"
+sphinx-immaterial = {extras = ["clang-format", "cpp", "json", "keys"], version = "^0.11.6"}
 linkify-it-py = "^2.0.2"
 sphinx-copybutton = "^0.5.2"
 sphinx-togglebutton = "^0.3.2"
@@ -169,6 +170,8 @@ seaborn = "^0.12.2"
 mypy = "^1.4.1"
 sphinx-click = "^4.4.0"
 py-spy = "^0.3.14"
+sphobjinv = "^2.3.1"
+sphinx-autobuild = "^2021.3.14"
 
 
 [tool.coverage.paths]

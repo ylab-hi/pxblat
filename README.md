@@ -34,13 +34,16 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 ## 📚 **Table of Contents**
 
-- [📚 Table of Contents](#-table-of-contents)
-- [🔮 Features](#-features)
-- [📎 Citation](#-citation)
-- [🏎💨 Getting Started](#-getting-started)
-- [🤝 Contributing](#-contributing)
-- [🪪 License](#-license)
-- [🙏 Acknowledgments](#-acknowledgments)
+- [ **PxBLAT** ](#-pxblat-)
+  - [📚 **Table of Contents**](#-table-of-contents)
+  - [🔮 **Features**](#-features)
+  - [📎 **Citation**](#-citation)
+  - [🚀 **Getting Started**](#-getting-started)
+    - [🤖 **Using PxBLAT**](#-using-pxblat)
+  - [🤝 **Contributing**](#-contributing)
+  - [🪪 **License**](#-license)
+  - [**Contributors**](#contributors)
+  - [🙏 **Acknowledgments**](#-acknowledgments)
 
 ## 🔮 **Features**
 
@@ -59,44 +62,70 @@ Check the [published] to read the paper.
 
 ## 🚀 **Getting Started**
 
-The very first step in starting your journey with `PxBLAT` is to install the tool.
+The first step in starting your journey with `PxBLAT` is to install the tool.
 To do this, there are two options shown as below:
 
-- PyPI
+- **PyPI**
 
 ```bash
 pip install pxblat
 ```
 
-- CONDA
+- **CONDA** via [Bioconda](https://bioconda.github.io/)
 
 ```bash
 conda install pxblat
 ```
 
-- Example
+Congratulations! You've successfully installed `PxBLAT` on your local machine.
+If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/installation.html) first before opening a issue.
+
+### 🤖 **Using PxBLAT**
+
+- **API Example**
 
 ```python
 from pxblat import Server
 from pxblat import Client
 
-server_option = Server.create_option().build()
-client_option = Client.create_option().build()
+client = Client(
+    host="localhost",
+    port=port,
+    seq_dir=two_bit,
+    min_score=20,
+    min_identity=90,
+)
 
-with Server(server_option).start() as server:
-    work()  # do some other stuff that consuming time
+server_option = Server.create_option().build()
+with Server("localhost", port, two_bit, server_option) as server:
+    work()  # do some other stuffs that consuming time
     server.wait_for_ready()
-    client = Client(client_option)
-    ret = client.query("TACAT")
+    result1 = client.query("ATCG")
+    result2 = client.query("AtcG")
+    result3 = client.query(["ATCG", "ATCG"])
+    result4 = client.query(["cgTA", "fasta.fa"])
 ```
 
-Congratulations! You've successfully installed `PxBLAT` on your local machine.
-If you have some issues, please check the [document](https://pxblat.readthedocs.io/en/latest/) first before opening a issue.
+Moreover, `PxBLAT` provide command line tool that has same functions as `BLAT`.
 
-### 🤖 **Using pxblat**
+```console
+❯ pxblat -h
 
-```bash
-pxblat -h
+ Usage: pxblat [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --install-completion            Install completion for the current shell.                                                                    │
+│ --show-completion               Show completion for the current shell, to copy it or customize the installation.                             │
+│ --help                -h        Show this message and exit.                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ client               A client for the genomic finding program that produces a .psl file.                                                     │
+│ fatotwobit           Convert DNA from fasta to 2bit format.                                                                                  │
+│ server               Make a server to quickly find where DNA occurs in genome                                                                │
+│ twobittofa           Convert all or part of .2bit file to fasta.                                                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+ YangyangLi 2023 yangyang.li@northwstern.edu
 ```
 
 Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details.
@@ -123,7 +152,7 @@ poetry install
 6. Test your changes
 
 ```bash
-pytest -vlsx test
+pytest -vlsx tests
 ```
 
 7. Commit your changes to your local branch with a clear commit message that explains the changes you've made.

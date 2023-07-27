@@ -19,6 +19,29 @@ INSEQ = Union[str, Path]
 INSEQS = Union[list[INSEQ], list[str], list[Path]]
 
 
+def copy_client_option(option: ClientOption) -> ClientOption:
+    """Copies the ClientOption object."""
+    new_option = ClientOption()
+    new_option.hostName = option.hostName
+    new_option.portName = option.portName
+    new_option.tType = option.tType
+    new_option.qType = option.qType
+    new_option.dots = option.dots
+    new_option.nohead = option.nohead
+    new_option.minScore = option.minScore
+    new_option.minIdentity = option.minIdentity
+    new_option.outputFormat = option.outputFormat
+    new_option.maxIntron = option.maxIntron
+    new_option.genome = option.genome
+    new_option.genomeDataDir = option.genomeDataDir
+    new_option.isDynamic = option.isDynamic
+    new_option.SeqDir = option.SeqDir
+    new_option.inName = option.inName
+    new_option.outName = option.outName
+    new_option.inSeq = option.inSeq
+    return new_option
+
+
 def create_client_option():
     """Creates a new ClientOption object with default values.
 
@@ -224,7 +247,7 @@ class ClientThread(Thread):
                 self.host,
                 self.port,
                 timeout=self._wait_timeout,
-                gfserver_option=self._server_option,
+                server_option=self._server_option,
             )
 
         ret = query_server(self.option, seqname=self._seqname, parse=self._parse)
@@ -441,12 +464,23 @@ class Client:
                 msg = f"File {item} does not exist"
                 raise FileNotFoundError(msg)
 
+            if isinstance(item, str) and ("." in item or "/" in item):
+                new_item = Path(item)
+                if not new_item.exists():
+                    msg = f"File {item} does not exist"
+                    raise FileNotFoundError(msg)
+
+                yield new_item
+
+            yield item
+
     def _query(self, in_seq: str | Path):
+        basic_option = copy_client_option(self._basic_option)
         if isinstance(in_seq, Path):
-            self._basic_option.withInName(str(in_seq)).build()
+            basic_option.withInName(str(in_seq)).withInSeq("").build()
         else:
-            self._basic_option.withInSeq(str(in_seq)).build()
-        return query_server(self._basic_option, parse=self._parse)
+            basic_option.withInSeq(str(in_seq)).withInName("").build()
+        return query_server(basic_option, parse=self._parse)
 
     def query(self, in_seqs: INSEQS | list[str] | list[Path] | INSEQ):
         """Query the server with the specified sequences.
@@ -469,14 +503,14 @@ class Client:
         if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]
 
-        self._verify_input(in_seqs)
+        in_seqs = list(self._verify_input(in_seqs))
 
         if self._wait_ready:
             wait_server_ready(
                 self.host,
                 self.port,
                 timeout=self._wait_timeout,
-                gfserver_option=self._server_option,
+                server_option=self._server_option,
             )
 
         group = Pool(1)

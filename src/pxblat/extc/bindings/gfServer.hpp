@@ -39,12 +39,6 @@ using std::min;
 
 namespace cppbinding {
 
-struct Signal {
-  bool isReady{};
-  Signal() = default;
-  friend std::ostream &operator<<(std::ostream &os, const Signal &signal);
-};
-
 struct UsageStats {
   long baseCount{0}, blatCount{0}, aaCount{0}, pcrCount{0};
   int warnCount{0};

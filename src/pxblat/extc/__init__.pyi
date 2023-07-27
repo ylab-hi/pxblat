@@ -5,7 +5,6 @@ import typing
 
 __all__ = [
     "IntStruct",
-    "Signal",
     "TwoBitToFaOption",
     "UsageStats",
     "buildIndex",
@@ -42,19 +41,6 @@ __all__ = [
 
 class IntStruct:
     def __init__(self, arg0: int) -> None: ...
-    pass
-
-class Signal:
-    def __init__(self) -> None: ...
-    def __str__(self) -> str: ...
-    @property
-    def isReady(self) -> bool:
-        """
-        :type: bool
-        """
-    @isReady.setter
-    def isReady(self, arg0: bool) -> None:
-        pass
     pass
 
 class TwoBitToFaOption:
