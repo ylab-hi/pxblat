@@ -90,15 +90,20 @@ from pxblat import Client
 
 client = Client(
     host="localhost",
-    port=port,
-    seq_dir=two_bit,
+    port=65000,
+    seq_dir="ref/",
     min_score=20,
     min_identity=90,
 )
 
 server_option = Server.create_option().build()
-with Server("localhost", port, two_bit, server_option) as server:
-    work()  # do some other stuffs that consuming time
+with Server(
+    host="localhost",
+    port=65000,
+    two_bit="ref/reference.2bit",
+    option=server_option
+) as server:
+    work()  # work that consumes time
     server.wait_for_ready()
     result1 = client.query("ATCG")
     result2 = client.query("AtcG")
