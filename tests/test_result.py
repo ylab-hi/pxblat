@@ -150,7 +150,7 @@ def get_overlap(hsps1, hsps2):
     return set1 - set2, set2 - set1, set1 & set2
 
 
-def _cpsl(file1, file2, isprint=False):
+def _cpsl(file1, file2, *, isprint=False, write=False):
     cc_psl = file1
     cp_psl = file2
 
@@ -184,6 +184,12 @@ def _cpsl(file1, file2, isprint=False):
             print(cp_hsps[i])
             print(f"compare same:  {compare_hsp(cc_hsps[i], cp_hsps[i])}")
             print("\n")
+
+    if write:
+        with open(f"chps.txt", "a") as f:
+            f.write(
+                f"{Path(file1).name[:-7]}\t{sum(1 for _ in cc_hsps)}\t{sum(1 for _ in cp_hsps)}\n"
+            )
 
     return get_overlap(cc_hsps, cp_hsps)
 
@@ -225,7 +231,7 @@ def test_result_c_with_py(tmpdir, port, fas, *, time=True, compare=True):
             cc_res = tmpdir / f"{fa.stem}_cc.psl"
             pp_res = pxblat_results[fa.stem]
 
-            _ret = _cpsl(cc_res, pp_res)
+            _ret = _cpsl(cc_res, pp_res, write=True)
             if _ret is None:
                 print(f"No result found {fa.stem}")
                 continue
