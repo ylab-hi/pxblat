@@ -115,6 +115,11 @@ def query_server_by_file(
     return ret_decode
 
 
+def _assign_info_to_query_result(query_result):
+    query_result.version = "v.37x1"
+    return query_result
+
+
 def query_server(
     option: ClientOption,
     host: str | None = None,
@@ -168,8 +173,8 @@ def query_server(
                 return None
         else:
             if isinstance(res, str):
-                return read(res, "psl")
-            return res
+                return _assign_info_to_query_result(read(res, "psl"))
+            return _assign_info_to_query_result(res)
 
     return ret_decode
 
