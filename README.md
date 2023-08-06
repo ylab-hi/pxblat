@@ -32,6 +32,23 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [conda]: https://bioconda.github.io/recipes/pxblat/README.html
 [pypi]: https://pypi.org/project/pxblat/
 
+## Why PxBLAT?
+
+When conducting extensive queries, using the `blat` of `BLAT` suit can prove to be quite inefficient, especially if these operations aren't grouped. The tasks are allocated sporadically, often interspersed among other tasks.
+In general, the choice narrows down to either utilizing `blat` or combining `gfServer` with `gfClient`.
+`blat` launches `gfServer`, conducts the sequence query via `gfClient`, and then proceeds to terminate the server.
+
+This approach is far from ideal when performing numerous queries that aren't grouped since `blat` repeatedly initializes and shuts down `gfServer` for each query, resulting in substantial overhead.
+This overhead consists of the time required for the server to index the reference, contingent on the reference's size.
+To index the human genome (hg38), for example, would take approximately five minutes.
+
+A more efficient solution would involve initializing `gfServer` once and invoking `gfClient` multiple times for the queries.
+However, `gfServer` and `gfClient` are only accessible via the command line.
+This necessitates managing system calls (for instance, `subprocess` or `os.system`), intermediate temporary files, and format conversion, further diminishing performance.
+
+That is why `PxBLAT` holds its position.
+It resolves the issues mentioned above while introducing handy features like `port retry`, `use current running server`, etc.
+
 ## 📚 **Table of Contents**
 
 - [ **PxBLAT** ](#-pxblat-)
