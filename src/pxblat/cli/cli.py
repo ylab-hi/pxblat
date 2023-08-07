@@ -4,6 +4,8 @@ from datetime import datetime
 
 import typer
 
+from pxblat import __version__
+
 from .client import client
 from .fa2twobit import faToTwoBit
 from .server import server_app
@@ -20,6 +22,14 @@ app.command()(twoBitToFa)
 
 
 app.add_typer(server_app, name="server")
+
+
+@app.callback()
+def common():  # noqa: D103
+    pass
+
+
+common.__doc__ = f"""{typer.style("Version", fg=typer.colors.YELLOW, bold=True)}: {typer.style(f"{__version__}", fg=typer.colors.GREEN, bold=True)}"""
 
 
 if "sphinx" in sys.modules and __name__ != "__main__":
