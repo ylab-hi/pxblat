@@ -37,6 +37,9 @@ def create_server_option() -> ServerOption:
 
     Returns:
         ServerOption: A new ServerOption object with default values.
+
+    See Also:
+        :class:`.ServerOption`
     """
     return ServerOption()
 
@@ -231,6 +234,9 @@ class Server(ContextDecorator):
         """Stops the gfServer instance if it is running.
 
         This method sends a stop signal to the server process, causing it to terminate gracefully.
+
+        See Also:
+            :func:`stop_server` is a free function to stop a server.
         """
         if self._is_open:
             stop_server(self.host, self.port)
@@ -246,6 +252,9 @@ class Server(ContextDecorator):
 
         Returns:
             t.Union[t.Dict[str, str], Status]: The status of the gfServer instance, either as a dictionary or a Status object.
+
+        See Also:
+            :func:`status_server` is a free function to query server status.
         """
         return status_server(self.host, self.port, self.option, instance=instance)
 
@@ -326,10 +335,13 @@ class Server(ContextDecorator):
 
     @staticmethod
     def create_option() -> ServerOption:
-        """Creates a ServerOption for the gfServer instance.
+        """Creates a :class:`.ServerOption` for the gfServer instance.
 
         Returns:
             ServerOption: A class that hold options for the gfServer instance.
+
+        See Also:
+            :func:`create_server_option` is a free function to create a :class:`.ServerOption`.
         """
         return create_server_option()
 

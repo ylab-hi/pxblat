@@ -47,6 +47,21 @@ def create_client_option():
 
     Return:
         ClientOption object
+
+    See Also:
+        :class:`.ClientOption`
+
+    Examples:
+        >>> option = create_client_option().build()
+        >>> option
+        ClientOption(hostName=, portName=, tType=dna, qType=dna, dots=0, nohead=false, minScore=30, minIdentity=90,
+                     outputFormat=psl, maxIntron=750000, genome=, genomeDataDir=, isDynamic=false,
+                     tSeqDir=, inName=, outName=)
+        >>> option = create_client_option().withPort("66666").build()
+        >>> option
+        ClientOption(hostName=, portName=66666, tType=dna, qType=dna, dots=0, nohead=false, minScore=30, minIdentity=90,
+                     outputFormat=psl, maxIntron=750000, genome=, genomeDataDir=, isDynamic=false,
+                     tSeqDir=, inName=, outName=)
     """
     return ClientOption()
 
@@ -59,7 +74,7 @@ def _resolve_host_port(
     """Resolves the host and port for the client option.
 
     Args:
-        client_option: ClientOption object
+        client_option: ClientOption
         host: Optional[str]
         port: Optional[int]
     """
@@ -84,7 +99,7 @@ def query_server_by_file(
     """Sends a query to the server and returns the result.
 
     Args:
-        option: ClientOption object
+        option: ClientOption
         host: Optional[str]
         port: Optional[int]
         seqname: Optional[str]
@@ -131,7 +146,7 @@ def query_server(
     """Sends a query to the server and returns the result.
 
     Args:
-        option: ClientOption object
+        option: ClientOption
         host: Optional[str]
         port: Optional[int]
         seqname: Optional[str]
@@ -217,7 +232,7 @@ class ClientThread(Thread):
         """A class for querying a gfServer using a separate thread.
 
         Args:
-            option: ClientOption object
+            option: ClientOption
             host: Optional[str]
             port: Optional[int]
             wait_ready: bool
@@ -494,16 +509,30 @@ class Client:
             in_seqs: The sequences to query.
 
         Returns:
-            The query results.
+            The query results: `Bio.SearchIO.QueryResult`
 
         Examples:
-            >>> from pxblat import Client, Server
-            >>> client = Client()
-            >>> with Server() as server:
-                   server.wait_for_ready()
-                   result = client.query("ATCG")
-                   result = client.query("AtcG")
-                   result = client.query(["ATCG", "ATCG"])
+            >>> from pxblat import Server
+            >>> from pxblat import Client
+            >>> client = Client(
+            >>>     host="localhost",
+            >>>     port=65000,
+            >>>     seq_dir="ref/",
+            >>>     min_score=20,
+            >>>     min_identity=90)
+            >>> server_option = Server.create_option().build()
+            >>> with Server(host="localhost", port=65000,
+            ...                two_bit="ref/reference.2bit",
+            ...                option=server_option ) as server:
+            ...    work()  # work that consumes time
+            ...    server.wait_for_ready()
+            ...    result1 = client.query("ATCG")
+            ...    result2 = client.query("AtcG")
+            ...    result3 = client.query(["ATCG", "ATCG"])
+            ...    result4 = client.query(["cgTA", "fasta.fa"])
+            ...    for hsp in result1.hsps:
+            ...        print(hsp)
+
         """
         if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]
