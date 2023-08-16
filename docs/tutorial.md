@@ -106,7 +106,7 @@ Most simple method to query sequence is to open {class}`pxblat.Server` in contex
 
     client = Client(
         host="localhost",
-        port=port,  # (1)!
+        port=65000,  # (1)!
         seq_dir=two_bit,  # (2)!
         min_score=20,
         min_identity=90,
