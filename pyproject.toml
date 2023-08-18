@@ -173,7 +173,7 @@ sphinx-autodoc2 = "^0.4.2"
 psutil = "^5.9.5"
 seaborn = "^0.12.2"
 mypy = "^1.4.1"
-sphinx-click = "^4.4.0"
+sphinx-click = ">=4.4,<6.0"
 py-spy = "^0.3.14"
 sphinx-autobuild = "^2021.3.14"
 
