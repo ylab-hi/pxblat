@@ -53,6 +53,10 @@ Before we query certain sequence to a reference, we need to generate [.2bit][.2b
 `PxBLAT` provides a free function {func}`.fa_to_two_bit`.
 Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`, for example,
 
+```{tip}
+The source code includes [chr20.fa] and [chr20.2bit] as well, making it easy for users to give it a try.
+```
+
 ```{eval-rst}
 .. code-block:: python
     :linenos:
@@ -374,3 +378,5 @@ That could provide more choices for user according to different situations.
 [fasta]: https://en.wikipedia.org/wiki/FASTA_format#:~:text=In%20bioinformatics%20and%20biochemistry%2C%20the,represented%20using%20single%2Dletter%20codes.&text=The%20format%20allows%20for%20sequence%20names%20and%20comments%20to%20precede%20the%20sequences
 [blat(v.37x1)]: https://github.com/ucscGenomeBrowser/kent
 [bio]: https://biopython.org/docs/latest/api/Bio.SearchIO.html?highlight=queryresult
+[chr20.fa]: https://raw.githubusercontent.com/ylab-hi/pxblat/main/benchmark/data/chr20.fa
+[chr20.2bit]: https://raw.githubusercontent.com/ylab-hi/pxblat/main/benchmark/data/chr20.2bit
