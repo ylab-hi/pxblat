@@ -36,7 +36,7 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 
 When conducting extensive queries, using the `blat` of `BLAT` suit can prove to be quite inefficient, especially if these operations aren't grouped. The tasks are allocated sporadically, often interspersed among other tasks.
 In general, the choice narrows down to either utilizing `blat` or combining `gfServer` with `gfClient`.
-`blat` launches `gfServer`, conducts the sequence query via `gfClient`, and then proceeds to terminate the server.
+Indeed, `blat` is a program that launches `gfServer`, conducts the sequence query via `gfClient`, and then proceeds to terminate the server.
 
 This approach is far from ideal when performing numerous queries that aren't grouped since `blat` repeatedly initializes and shuts down `gfServer` for each query, resulting in substantial overhead.
 This overhead consists of the time required for the server to index the reference, contingent on the reference's size.
