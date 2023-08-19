@@ -36,6 +36,24 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v3
 
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python }}-
+            ${{ runner.os }}-pip-
+
+      - name: Cache Poetry virtual environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-${{ matrix.python }}-
+            ${{ runner.os }}-poetry-
+
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
         with:
