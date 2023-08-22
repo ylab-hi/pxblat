@@ -15,10 +15,13 @@ on:
   pull_request:
     branches:
       - main
+      - master
     paths:
       - "**.py"
       - "**/Dockerfile"
       - ".github/workflows/*.yml"
+      - poetry.lock
+      - pyproject.toml
 
 jobs:
   tests:
