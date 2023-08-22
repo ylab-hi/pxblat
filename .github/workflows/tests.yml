@@ -9,6 +9,8 @@ on:
       - "**.py"
       - "**/Dockerfile"
       - ".github/workflows/*.yml"
+      - poetry.lock
+      - pyproject.toml
 
   pull_request:
     branches:
