@@ -244,6 +244,9 @@ class Server(ContextDecorator):
         if self._process is not None:
             self._process.terminate()
 
+        self._is_open = False
+        self._is_ready = False
+
     def status(self, *, instance=False) -> dict[str, str] | Status:
         """Retrieves the status of the gfServer instance.
 
@@ -347,7 +350,9 @@ class Server(ContextDecorator):
 
     def __str__(self) -> str:
         """Return server option as a string."""
-        return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()} {self.option})"
+        return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()}\n {self.option})"
+
+    __repr__ = __str__
 
     def __enter__(self):
         """Starts the gfServer instance in blocking mode when used as a context manager."""

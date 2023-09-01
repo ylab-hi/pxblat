@@ -383,8 +383,8 @@ class Client:
             self._basic_option.withGenome(genome)
         if genome_data_dir is not None:
             self._basic_option.withGenomeDataDir(genome_data_dir)
-        if seq_dir is not None:
-            self._basic_option.withSeqDir(str(seq_dir))
+
+        self._basic_option.withSeqDir(str(seq_dir))
 
         self._wait_ready = wait_ready
         self._wait_timeout = wait_timeout
