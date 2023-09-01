@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from kent.src.hg.utils.otto.sarscov2phylo.bioSampleJsonToTab import epiIdFromRecordAttrs
 from pxblat import Client
 from pxblat import ClientOption
 from pxblat import UsageStats

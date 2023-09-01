@@ -548,4 +548,4 @@ class Client:
             )
 
         group = Pool(1)
-        yield from group.imap(self._query, in_seqs)
+        return list(group.imap(self._query, in_seqs))

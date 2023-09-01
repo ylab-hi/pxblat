@@ -350,7 +350,7 @@ class Server(ContextDecorator):
 
     def __str__(self) -> str:
         """Return server option as a string."""
-        return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()}\n {self.option})"
+        return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()}\n{self.option})"
 
     __repr__ = __str__
 
