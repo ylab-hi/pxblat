@@ -530,8 +530,9 @@ class Client:
             ...    result2 = client.query("AtcG")
             ...    result3 = client.query(["ATCG", "ATCG"])
             ...    result4 = client.query(["cgTA", "fasta.fa"])
-            ...    for hsp in result1.hsps:
-            ...        print(hsp)
+            ...    for res in result1:
+            ...        for hsp in res.hsps:
+            ...            print(hsp)
 
         """
         if isinstance(in_seqs, (str, Path)):
