@@ -24,6 +24,9 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [![lastcommit](https://img.shields.io/github/last-commit/cauliyang/pxblat?style=for-the-badge)][repo]
 [![opull](https://img.shields.io/github/issues-pr-raw/cauliyang/pxblat?style=for-the-badge)][opull]
 [![all contributors](https://img.shields.io/github/all-contributors/cauliyang/pxblat?style=for-the-badge)](#contributors)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][colab]
+
+
 
 [repo]: https://github.com/ylab-hi/pxblat
 [open-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc
@@ -31,6 +34,7 @@ _An Efficient and Ergonomics Python Binding Library for BLAT_
 [opull]: https://github.com/cauliyang/pxblat/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-desc
 [conda]: https://bioconda.github.io/recipes/pxblat/README.html
 [pypi]: https://pypi.org/project/pxblat/
+[colab]: https://colab.research.google.com/drive/1TXb9GBmYa2EYezwBKbD-y9Xg6MC2gL36
 
 ## Why PxBLAT?
 
@@ -166,7 +170,8 @@ Moreover, `PxBLAT` provide command line tool that has same functions as `BLAT`.
  YangyangLi 2023 yangyang.li@northwstern.edu
 ```
 
-Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details.
+The fastest way to try `pxblat` is [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][colab].
+Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details and more examples.
 
 ## 🤝 **Contributing**
 
