@@ -2096,13 +2096,13 @@ global = ["pybind11-global (==2.11.1)"]
 
 [[package]]
 name = "pybind11-stubgen"
-version = "2.0.2"
+version = "2.1"
 description = "PEP 561 type stubs generator for pybind11 modules"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "pybind11-stubgen-2.0.2.tar.gz", hash = "sha256:8dca9e6aafa740b18480af35fba11c4359c8f94114285b8001a163780ca70a1d"},
-    {file = "pybind11_stubgen-2.0.2-py3-none-any.whl", hash = "sha256:8b2ed188c649d32218e4a6dba5df927ee980a0f7a98400fcff79393d503116e4"},
+    {file = "pybind11-stubgen-2.1.tar.gz", hash = "sha256:bfab865b9189333a6982c3df64de5bff4583e9ba1401266140fe4ac3fbca31b6"},
+    {file = "pybind11_stubgen-2.1-py3-none-any.whl", hash = "sha256:880a8da8c8373b73b79a4450c5aa2a4571d67715958ed8b8d85e804734251add"},
 ]
 
 [[package]]
@@ -3496,4 +3496,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c6fcd0a469a0f5ee7227d025b04a52e5f9fe1490b3f39b6afbd0ba36567805a5"
+content-hash = "9d634d50f10326d6e32a274c3f916a0281b6d33f8cc01eee8b527ea9c9974d8d"
