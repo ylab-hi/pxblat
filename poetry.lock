@@ -1510,13 +1510,13 @@ files = [
 
 [[package]]
 name = "mashumaro"
-version = "3.9.1"
+version = "3.10"
 description = "Fast serialization library on top of dataclasses"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "mashumaro-3.9.1-py3-none-any.whl", hash = "sha256:1e06717e2887951b6fb513e97a6abfe024eb148f1655baea62b0dc9308e2c7da"},
-    {file = "mashumaro-3.9.1.tar.gz", hash = "sha256:f4777ef400ea6e19a94d70348a583b2c207b3660407b1b835505466866a5f088"},
+    {file = "mashumaro-3.10-py3-none-any.whl", hash = "sha256:d2c0fd5e7878987629d41f4986d9b0903d362a92eeb299b7d88b87eb113f4f48"},
+    {file = "mashumaro-3.10.tar.gz", hash = "sha256:0248a5c8574aa6cd20696621502d38a7ea66af3d6d93c5d03f93b33298edc878"},
 ]
 
 [package.dependencies]
