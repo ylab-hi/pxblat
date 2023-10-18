@@ -19,7 +19,7 @@ deprecated = "^1.2.13"
 mashumaro = "^3.7"
 numpy = "^1.24.3"
 gevent = "22.10.2"
-urllib3 = "2.0.4"
+urllib3 = "2.0.7"
 
 
 [tool.poetry.scripts]
