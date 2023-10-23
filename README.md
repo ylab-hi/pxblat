@@ -57,7 +57,6 @@ It resolves the issues mentioned above while introducing handy features like `po
   - [🔮 **Features**](#-features)
   - [📎 **Citation**](#-citation)
   - [🚀 **Getting Started**](#-getting-started)
-    - [🤖 **Using PxBLAT**](#-using-pxblat)
   - [🤝 **Contributing**](#-contributing)
   - [🪪 **License**](#-license)
   - [**Contributors**](#contributors)
@@ -144,7 +143,6 @@ The project maintainers will review your changes and provide feedback or merge t
 executables are freely available for academic, nonprofit, and personal use.
 Commercial licensing information is available on the Kent Informatics website
 (https://kentinformatics.com/).**
-
 
 ## **Contributors**
 
