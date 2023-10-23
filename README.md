@@ -218,8 +218,6 @@ executables are freely available for academic, nonprofit, and personal use.
 Commercial licensing information is available on the Kent Informatics website
 (https://kentinformatics.com/).**
 
-See the [LICENSE](https://github.com/cauliyang/pxblat/blob/main/LICENSE) file for additional info.
-
 
 ## **Contributors**
 
