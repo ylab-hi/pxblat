@@ -8,7 +8,6 @@ _An Efficient and Ergonomic Python Binding Library for BLAT_
 [![pypi](https://img.shields.io/pypi/v/pxblat.svg?style=for-the-badge)][pypi]
 [![conda](https://img.shields.io/conda/vn/bioconda/pxblat?style=for-the-badge)][conda]
 [![pyversion](https://img.shields.io/pypi/pyversions/pxblat?style=for-the-badge)][pypi]
-[![license](https://img.shields.io/pypi/l/pxblat?style=for-the-badge)](https://opensource.org/licenses/mit)
 [![tests](https://img.shields.io/github/actions/workflow/status/cauliyang/pxblat/tests.yml?style=for-the-badge&logo=github&label=Tests)](https://github.com/cauliyang/pxblat/actions/workflows/tests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/cauliyang/pxblat/main?style=for-the-badge)](https://app.codecov.io/gh/cauliyang/pxblat)
 [![docs](https://img.shields.io/readthedocs/pxblat?style=for-the-badge)](https://pxblat.readthedocs.io/en/latest/)
