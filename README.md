@@ -213,8 +213,13 @@ The project maintainers will review your changes and provide feedback or merge t
 
 ## 🪪 **License**
 
-This project is licensed under the [MIT](https://opensource.org/licenses/mit) License. See the [LICENSE](https://github.com/cauliyang/pxblat/blob/main/LICENSE) file for additional info.
-The license of [BLAT](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) is [here](https://genome.ucsc.edu/license/).
+**PxBLAT is modified from blat, the license is the same as blat. The source code and
+executables are freely available for academic, nonprofit, and personal use.
+Commercial licensing information is available on the Kent Informatics website
+(https://kentinformatics.com/).**
+
+See the [LICENSE](https://github.com/cauliyang/pxblat/blob/main/LICENSE) file for additional info.
+
 
 ## **Contributors**
 
