@@ -102,13 +102,13 @@ test = ["astroid", "pytest"]
 
 [[package]]
 name = "babel"
-version = "2.13.0"
+version = "2.13.1"
 description = "Internationalization utilities"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Babel-2.13.0-py3-none-any.whl", hash = "sha256:fbfcae1575ff78e26c7449136f1abbefc3c13ce542eeb13d43d50d8b047216ec"},
-    {file = "Babel-2.13.0.tar.gz", hash = "sha256:04c3e2d28d2b7681644508f836be388ae49e0cfe91465095340395b60d00f210"},
+    {file = "Babel-2.13.1-py3-none-any.whl", hash = "sha256:7077a4984b02b6727ac10f1f7294484f737443d7e2e66c5e4380e41a3ae0b4ed"},
+    {file = "Babel-2.13.1.tar.gz", hash = "sha256:33e0952d7dd6374af8dbf6768cc4ddf3ccfefc244f9986d4074704f2fbd18900"},
 ]
 
 [package.extras]
@@ -2050,13 +2050,13 @@ global = ["pybind11-global (==2.11.1)"]
 
 [[package]]
 name = "pybind11-stubgen"
-version = "2.3.4"
+version = "2.3.6"
 description = "PEP 561 type stubs generator for pybind11 modules"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "pybind11-stubgen-2.3.4.tar.gz", hash = "sha256:b620c9640fb15ad91b3885890fdd4f0318203dc5def4022ecc9f3e714e24625a"},
-    {file = "pybind11_stubgen-2.3.4-py3-none-any.whl", hash = "sha256:6d5d2710b6c0ca79cd65dc367b2951226e1ad54c69a5a1a5a01b99588a0d222b"},
+    {file = "pybind11-stubgen-2.3.6.tar.gz", hash = "sha256:76427d7c0046b23f5955808e2e0c47d6a05b04c41c53663464b2400852a53045"},
+    {file = "pybind11_stubgen-2.3.6-py3-none-any.whl", hash = "sha256:5ac1eec42d7c471d00cb38afb640142703d4078e9fb1e2b39e5a35e75b3dc7fb"},
 ]
 
 [[package]]
@@ -3468,5 +3468,5 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.9, <=3.11"
-content-hash = "ceced7c016f2c610756808bd86518279819dbafeba6bec015ae4091f98899efd"
+python-versions = "^3.9, <3.12"
+content-hash = "7bc2941761a46c85177ed94a3bc455fe7a932d29df6b35e4739643ae9d0add44"
