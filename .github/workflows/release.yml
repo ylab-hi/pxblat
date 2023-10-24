@@ -31,6 +31,14 @@ jobs:
           pip install --constraint=.github/workflows/constraints.txt poetry
           poetry --version
 
+      - name: Build sdist
+        run: |
+          poetry build --format=sdist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
       - name: Check if there is a parent commit
         id: check-parent-commit
         run: |
@@ -59,7 +67,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-        cibw_archs: ["x86_64", "i686", "aarch64", "ppc64le"]
+        cibw_archs: ["x86_64", "aarch64"]
 
     steps:
       - name: Check out repository
@@ -92,7 +100,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.3
         env:
-          CIBW_BEFORE_ALL: apt update && apt install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev
+          CIBW_BEFORE_ALL: (yum install -y libhts-dev  libssl-dev ||  apt-get update && apt install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev)
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_TEST_REQUIRES: pytest
@@ -171,6 +179,7 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
           skip_existing: true
+          packages_dir: artifact/
 
       - name: Publish package on TestPyPI
         if: "! needs.release.check-version.outputs.tag"
@@ -180,6 +189,7 @@ jobs:
           password: ${{ secrets.TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
           skip_existing: true
+          packages_dir: artifact/
 
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v5.25.0
