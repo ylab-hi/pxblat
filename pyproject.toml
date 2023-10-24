@@ -21,7 +21,7 @@ classifiers = [
 keywords = ["bioinformatics", "sequence aligner", "blat"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9, <=3.12"
 loguru = "^0.7.0"
 pybind11 = "^2.10.4"
 setuptools = ">=67.7.2,<69.0.0"
@@ -72,6 +72,7 @@ sphinx-click = ">=4.4,<6.0"
 py-spy = "^0.3.14"
 sphinx-autobuild = "^2021.3.14"
 cibuildwheel = "^2.16.2"
+numpy = "^1.26.1"
 
 
 [tool.poetry.scripts]
