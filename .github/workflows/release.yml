@@ -97,7 +97,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.3
         env:
           # CIBW_BEFORE_ALL: yum install -y openssl-devel zlib-devel bzip2-devel xz-devel && curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install
-          CIBW_BEFORE_ALL: (yum install -y openssl-devel zlib-devel bzip2-devel xz-devel && curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install || apt-get update && apt-get install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev)
+          CIBW_BEFORE_ALL: (yum install -y openssl-devel zlib-devel bzip2-devel xz-devel || apt-get update) && (curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install || apt-get install -q --no-install-recommends --no-install-suggests libhts-dev libssl-dev)
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
           # CIBW_TEST_REQUIRES: pytest
