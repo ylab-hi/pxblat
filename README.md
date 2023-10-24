@@ -23,7 +23,8 @@ _An Efficient and Ergonomic Python Binding Library for BLAT_
 [![lastcommit](https://img.shields.io/github/last-commit/cauliyang/pxblat?style=for-the-badge)][repo]
 [![opull](https://img.shields.io/github/issues-pr-raw/cauliyang/pxblat?style=for-the-badge)][opull]
 [![all contributors](https://img.shields.io/github/all-contributors/cauliyang/pxblat?style=for-the-badge)](#contributors)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][colab]
+
+<!-- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][colab] -->
 
 [repo]: https://github.com/ylab-hi/pxblat
 [open-issue]: https://github.com/cauliyang/pxblat/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc

@@ -60,7 +60,7 @@ jobs:
           poetry version $version.dev.$(date +%s)
 
     outputs:
-      tag: ${{step.check-version.outputs.tag}}
+      tag: ${{steps.check-version.outputs.tag}}
 
   build_wheels_linux:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
