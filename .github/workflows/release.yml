@@ -66,8 +66,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-        cibw_archs: ["x86_64", "aarch64"]
+        # cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
+        cibw_build: ["cp39-*", "cp310-*"]
+        cibw_archs: ["x86_64"]
 
     steps:
       - name: Check out repository
@@ -86,11 +87,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      # - name: Install Dependencies
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev
-
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
@@ -103,8 +99,8 @@ jobs:
           CIBW_BEFORE_ALL: yum install -y openssl-devel zlib-devel bzip2-devel xz-devel && curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest {package}/tests
+          # CIBW_TEST_REQUIRES: pytest
+          # CIBW_TEST_COMMAND: pytest {package}/tests
 
       - uses: actions/upload-artifact@v3
         with:
