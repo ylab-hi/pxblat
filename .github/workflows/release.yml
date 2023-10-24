@@ -248,7 +248,7 @@ jobs:
       - uses: actions/download-artifact@v3
 
       - name: Publish package on PyPI
-        if: needs.release.check-version.outputs.tag
+        if: needs.release.outputs.tag
         uses: pypa/gh-action-pypi-publish@v1.8.10
         with:
           user: __token__
