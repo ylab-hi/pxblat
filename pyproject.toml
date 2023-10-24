@@ -83,6 +83,7 @@ pxblat = "pxblat.cli.cli:app"
 target-version = "py39"
 line-length = 120
 fix = true
+fixable = ["ALL"]
 select = [
     "ANN",
     "D",
@@ -176,7 +177,44 @@ exclude = [
     "scripts/*",
     "noxfile.py",
     "docs/conf.py",
+
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+
 ]
+
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+# magic-trailing-comma = "respect"
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = ["chr", "typer.Argument", "typer.Option"]
