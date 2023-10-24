@@ -3,6 +3,9 @@ name = "pxblat"
 version = "0.3.6"
 description = "A native python binding for blat suit"
 authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
+homepage = "https://github.com/ylab-hi/pxblat"
+documentation = "https://pxblat.readthedocs.io/en/latest/"
+repository = "https://github.com/ylab-hi/pxblat"
 readme = "README.md"
 license = "LICENSE"
 classifiers = [
@@ -15,6 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3 :: Only",
 ]
+keywords = ["bioinformatics", "sequence aligner", "blat"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
