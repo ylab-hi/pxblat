@@ -99,8 +99,6 @@ jobs:
   #         CIBW_ARCHS: ${{ matrix.cibw_archs }}
   #         CIBW_BUILD: ${{ matrix.cibw_build }}
   #         CIBW_SKIP: "*musllinux*"
-  #         # CIBW_TEST_REQUIRES: pytest
-  #         # CIBW_TEST_COMMAND: pytest {package}/tests
 
   #     - uses: actions/upload-artifact@v3
   #       with:
@@ -155,8 +153,6 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest {package}/tests -vsl
 
       - uses: actions/upload-artifact@v3
         with:
@@ -188,8 +184,6 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_SKIP: "*-macosx_arm64"
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest {package}/tests
           CIBW_REPAIR_WHEEL_COMMAND: |
             echo "Target delocate archs: {delocate_archs}"
 

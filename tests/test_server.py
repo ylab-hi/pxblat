@@ -173,6 +173,7 @@ def test_sever_with_context(
 ):
     new_port = port + 8
     expected_status_instance.port = new_port
+
     client = Client(
         host="localhost",
         port=new_port,
@@ -193,3 +194,23 @@ def test_sever_with_context(
             print(repr(r))
             print("len(r)")
             print(len(r))
+
+
+@pytest.mark.imports()
+def test_imports(server_option, port):
+    from pxblat import Client
+    from pxblat import ClientOption
+    from pxblat import UsageStats
+    from pxblat.server import check_port_open
+    from pxblat.server import ClientThread
+    from pxblat.server import find_free_port
+    from pxblat.server import query_server
+    from pxblat.server import Server
+    from pxblat.server import start_server_mt_nb
+    from pxblat.server import status_server
+    from pxblat.server import stop_server
+    from pxblat.server import wait_server_ready
+
+    assert port == 65000
+
+    pass
