@@ -69,7 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_archs: ["x86_64"]
 
     steps:
@@ -117,7 +117,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_archs: ["x86_64"]
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
@@ -171,7 +171,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_archs: ["arm64"]
 
     steps:
@@ -233,7 +233,13 @@ jobs:
           path: ./wheelhouse/*.whl
 
   upload_to_pypi:
-    needs: ["release", "build_wheels_macos_arm64", "build_wheels_macos"]
+    needs:
+      [
+        "release",
+        "build_wheels_macos_arm64",
+        "build_wheels_macos",
+        "build_wheels_linux",
+      ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
