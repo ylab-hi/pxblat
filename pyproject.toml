@@ -128,6 +128,8 @@ exclude = [
     "docs/conf.py",
 ]
 
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = ["chr", "typer.Argument", "typer.Option"]
 
 [tool.ruff.flake8-annotations]
 allow-star-arg-any = true
@@ -189,6 +191,7 @@ mypy = "^1.4.1"
 sphinx-click = ">=4.4,<6.0"
 py-spy = "^0.3.14"
 sphinx-autobuild = "^2021.3.14"
+cibuildwheel = "^2.16.2"
 
 
 [tool.coverage.paths]
@@ -197,7 +200,8 @@ tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["pxblat", "tests"]
+source = ["pxblat"]
+omit = ["tests/*"]
 
 [tool.coverage.report]
 show_missing = true
@@ -216,6 +220,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 markers = ["smoke: a quick smoke test", "failing: failing tests"]
 
+
+[tool.codespell]
+skip = 'poetry.lock,'
 
 [tool.commitizen]
 name = "cz_conventional_commits"
