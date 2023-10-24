@@ -59,11 +59,14 @@ jobs:
           version=$(poetry version | awk '{ print $2 }') &&
           poetry version $version.dev.$(date +%s)
 
+    outputs:
+      tag: ${{step.check-version.outputs.tag}}
+
   build_wheels_linux:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
     needs: ["release"]
-    if: needs.release.check-version.outputs.tag
+    if: needs.release.outputs.tag
 
     strategy:
       fail-fast: false
@@ -111,7 +114,7 @@ jobs:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
     needs: ["release"]
-    if: needs.release.check-version.outputs.tag
+    if: needs.release.outputs.tag
 
     strategy:
       fail-fast: false
@@ -167,7 +170,7 @@ jobs:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
     needs: ["release"]
-    if: needs.release.check-version.outputs.tag
+    if: needs.release.outputs.tag
     strategy:
       matrix:
         os: [macos-latest]
@@ -254,7 +257,7 @@ jobs:
           packages_dir: artifact/
 
       - name: Publish package on TestPyPI
-        if: "! needs.release.check-version.outputs.tag"
+        if: "! needs.release.outputs.tag"
         uses: pypa/gh-action-pypi-publish@v1.8.10
         with:
           user: __token__
@@ -266,7 +269,7 @@ jobs:
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v5.25.0
         with:
-          publish: ${{ needs.release.check-version.outputs.tag != '' }}
-          tag: ${{ needs.release.check-version.outputs.tag }}
+          publish: ${{ needs.release.outputs.tag != '' }}
+          tag: ${{ needs.release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
