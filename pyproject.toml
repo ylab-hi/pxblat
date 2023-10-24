@@ -220,7 +220,6 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 markers = ["smoke: a quick smoke test", "failing: failing tests"]
 
-
 [tool.codespell]
 skip = 'poetry.lock,'
 
@@ -231,6 +230,15 @@ version_type = "pep440"
 version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y openssl-devel zlib-devel bzip2-devel xz-devel && curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install"
+test-command = "echo 'installed'"
+
+
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
+before-all = "apk --no-cache add openssl-dev zlib-dev bzip2-dev xz-dev &&  curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj &&  cd htslib-1.18 && ./configure && make && make install"
 
 [tool.poetry.build]
 script = "build.py"
