@@ -138,9 +138,7 @@ class Server(ContextDecorator):
 
     def _start_b(self):
         """Start server in blocking mode."""
-        two_bit_file = (
-            self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
-        )
+        two_bit_file = self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
         try:
             if check_port_in_use(self.host, self.port):
                 if self.use_others:
@@ -173,9 +171,7 @@ class Server(ContextDecorator):
             raise e
 
     def _start_nb(self):
-        two_bit_file = (
-            self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
-        )
+        two_bit_file = self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
         try:
             if check_port_in_use(self.host, self.port):
                 if self.use_others:

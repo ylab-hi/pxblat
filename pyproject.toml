@@ -39,7 +39,6 @@ urllib3 = "2.0.7"
 pytest = "^7.3.1"
 pytest-sugar = "^0.9.7"
 black = "^23.3.0"
-ruff = ">=0.0.270,<0.1.2"
 ipython = "^8.13.1"
 pybind11-stubgen = ">=0.13,<2.4"
 invoke = "^2.1.2"
@@ -73,6 +72,7 @@ py-spy = "^0.3.14"
 sphinx-autobuild = "^2021.3.14"
 cibuildwheel = "^2.16.2"
 numpy = "^1.26.1"
+ruff = "^0.1.2"
 
 
 [tool.poetry.scripts]
@@ -132,7 +132,7 @@ select = [
     "ISC",
     "FA",
     "EXE",
-    "CPY",
+    # "CPY",
     "COM",
 ]
 ignore = [
@@ -156,6 +156,16 @@ ignore = [
     "N806",
     "N815",
     "EM101",
+    # formater conflict
+    'COM812',
+    'COM819',
+    'D206',
+    'ISC001',
+    'Q000',
+    'Q001',
+    'Q002',
+    'Q003',
+    'W191',
 ]
 exclude = [
     "src/pxblat/extc/__init__.pyi",
@@ -190,8 +200,8 @@ allow-star-arg-any = true
 [tool.ruff.pydocstyle]
 convention = 'google'
 
-[tool.isort]
-profile = "black"
+# [tool.isort]
+# profile = "black"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

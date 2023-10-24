@@ -271,10 +271,7 @@ def status_server(
     for k, v in mapping.items():
         data = data.replace(k, v)
 
-    data_dict = {
-        " ".join(line.split()[:-1]): line.split()[-1]
-        for line in data.decode("utf-8").strip().split("\n")
-    }
+    data_dict = {" ".join(line.split()[:-1]): line.split()[-1] for line in data.decode("utf-8").strip().split("\n")}
 
     if instance:
         return Status.from_dict(data_dict)
