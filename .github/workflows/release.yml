@@ -100,7 +100,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.3
         env:
-          CIBW_BEFORE_ALL: (yum install -y libhts-dev  libssl-dev ||  apt-get update && apt install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev)
+          CIBW_BEFORE_ALL: yum install -y openssl-devel zlib-devel bzip2-devel xz-devel && curl -L https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2 | tar xj && cd htslib-1.18 && ./configure && make && make install
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_TEST_REQUIRES: pytest
@@ -110,64 +110,64 @@ jobs:
         with:
           path: wheelhouse/*.whl
 
-  build_wheels_macos:
-    name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
-        cibw_archs: ["x86_64"]
-    env:
-      SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+  # build_wheels_macos:
+  #   name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [macos-latest]
+  #       cibw_build: ["cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+  #       cibw_archs: ["x86_64"]
+  #   env:
+  #     SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
+  #   steps:
+  #     - name: Check out repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Set up python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+  #     - name: Set up python 3.12
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: "3.12"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+  #     - name: Install poetry
+  #       uses: snok/install-poetry@v1
+  #       with:
+  #         virtualenvs-create: false
+  #         virtualenvs-in-project: false
 
-      - name: Configure Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+  #     - name: Configure Homebrew
+  #       uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Install Dependencies
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
-          HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
+  #     - name: Install Dependencies
+  #       env:
+  #         HOMEBREW_NO_AUTO_UPDATE: 1
+  #         HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
+  #         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
 
-        run: |
-          brew install htslib
-          brew install openssl@3
-          ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-          ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
-          ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
+  #       run: |
+  #         brew install htslib
+  #         brew install openssl@3
+  #         ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
+  #         ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
+  #         ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
-        env:
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_BUILD: ${{ matrix.cibw_build }}
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: pytest {package}/tests
+  #     - name: Build wheels
+  #       uses: pypa/cibuildwheel@v2.16.2
+  #       env:
+  #         CIBW_ARCHS: ${{ matrix.cibw_archs }}
+  #         CIBW_BUILD: ${{ matrix.cibw_build }}
+  #         CIBW_TEST_REQUIRES: pytest
+  #         CIBW_TEST_COMMAND: pytest {package}/tests
 
-      - uses: actions/upload-artifact@v3
-        with:
-          path: wheelhouse/*.whl
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         path: wheelhouse/*.whl
 
   upload_to_pypi:
-    needs: ["release", "build_wheels_linux", "build_wheels_macos"]
+    needs: ["release", "build_wheels_linux"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
