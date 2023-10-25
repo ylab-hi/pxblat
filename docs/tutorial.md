@@ -1,7 +1,7 @@
 # **Tutorial**
 
 ```{warning}
-Before proceeding, ensure you have PxBLAT installed. If not, please refer to our ({doc}`installation`) guide.
+Before proceeding, ensure you have PxBLAT installed. If not, please refer to our ({doc}`installation`).
 ```
 
 ```{important}
@@ -243,7 +243,7 @@ In this section, we delve into initiating the {class}`pxblat.Server` utilizing t
 
 .. code-annotations::
     #. :attr:`.Client.host` is the hostname or IP address of the current running :class:`.Server`.
-    #. :attr:`.Client.post` is the port number of the current running :class:`.Server`.
+    #. :attr:`.Client.port` is the port number of the current running :class:`.Server`.
     #. :attr:`.Client.seq_dir` is the directory including `test_ref.fa` and `test_ref.2bit`
     #. `two_bit` is the 2bit file that :ref:`we already create <fa_to_two_bit_block>`
     #. :attr:`.Client.min_score`  is the minimum score for the alignment.
@@ -545,7 +545,7 @@ Below is a table comparing the features of **PxBLAT** to those of `BLAT`:
 
 While `PxBLAT` is primarily designed as a library, it also offers command-line tools built on top of its APIs.
 This provides users with additional options and flexibility, catering to a variety of use cases.
-For more detailed information on these tools, refer to the [reference documentation](reference).
+For more detailed information on these tools, refer to the [CLI documentation](cli).
 
 ## 8. Sharing Your Feedback and Reporting Issues
 
