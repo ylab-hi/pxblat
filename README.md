@@ -80,7 +80,6 @@ It resolves the issues mentioned above while introducing handy features like `po
 PxBLAT is scientific software, with a published paper in the BioRxiv.
 Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v2) to read the paper.
 
-
 ```bibtex
 @article {Li2023pxblat,
 	author = {Yangyang Li and Rendong Yang},
