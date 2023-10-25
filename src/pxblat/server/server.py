@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 from contextlib import ContextDecorator
 from multiprocessing import Process
+from pathlib import Path
 
 from pxblat.extc import ServerOption, UsageStats, pystartServer
 
@@ -17,8 +18,6 @@ from .basic import (
 )
 
 if t.TYPE_CHECKING:
-    from pathlib import Path
-
     from .status import Status
 
 
@@ -178,6 +177,20 @@ class Server(ContextDecorator):
 
         Returns:
             None
+
+        Examples:
+            Create a server object with options.
+
+            >>> from pxblat import Server
+            >>> server = Server("localhost", 65000, "tests/data/test_ref.2bit", can_stop=True, step_size=5)
+            >>> server.start()
+            >>> server.wait_ready()
+            >>> server.stop()
+            >>> server.can_stop
+            True
+            >>> server.step_size = 10
+            >>> server.step_size
+            10
         """
         self._host = host
         self._port = port
@@ -329,7 +342,14 @@ class Server(ContextDecorator):
 
         If the server is set to non-blocking mode, it will start the server in a separate process.
         If the server is set to blocking mode, it will start the server in the current process.
+
+        Raises:
+            ValueError: If the given two_bit file or URL is invalid.
         """
+        if not Path(self.two_bit).exists():
+            msg = f"Invalid two_bit file: {self.two_bit}"
+            raise ValueError(msg)
+
         self.option.build()
         if not self._block:
             self._start_nb()

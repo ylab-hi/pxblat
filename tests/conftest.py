@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 from pxblat import ClientOption
-from pxblat import ServerOption
 from pxblat.server import Server
 from pxblat.server import Status
 
@@ -100,7 +99,7 @@ def server_instance(port, two_bit):
 
 
 @pytest.fixture()
-def start_server(server_instance, port, two_bit):
+def start_server(server_instance):
     server = server_instance
 
     server.start()
