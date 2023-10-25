@@ -541,12 +541,11 @@ Below is a table comparing the features of **PxBLAT** to those of `BLAT`:
 
 ```
 
-## 7. Creating Our own `BLAT` by Pure Python
+## 7. Crafting Our Own `BLAT` Using Pure Python
 
-Now we know how to align sequence to the reference and check the query result.
-Let's wrap up all previous code to create our own `BLAT`
+Now that we have acquired the knowledge on how to align sequences to a reference and analyze the query results, it's time to consolidate all the previously covered code to create our own version of `BLAT`.
 
-````{example} Pure Python BLAT
+````{example} blat.py - Pure Python BLAT
 :collapsible: close
 
 ```{literalinclude} tutorial_data/blat.py
@@ -554,8 +553,30 @@ Let's wrap up all previous code to create our own `BLAT`
 ````
 
 ```{note}
-Keep in mind to change directory including `test_ref.fa` if you try the code.
+Remember to modify the directory path to include `test_ref.fa` when attempting to run the code.
 ```
+
+Upon executing the script with the command:
+
+```python
+$ python blat.py
+Program: blat (v.37x1)
+  Query: /var/folders/s3/vs6nrrg52sdfjk3z90p7ndt94gg4tq/T/tmptzggbu4h (151)
+         <unknown description>
+ Target: <unknown target>
+   Hits: ----  -----  ----------------------------------------------------------
+            #  # HSP  ID + description
+         ----  -----  ----------------------------------------------------------
+            0      1  chr1  <unknown description>
+      Query: /var/folders/s3/vs6nrrg52sdfjk3z90p7ndt94gg4tq/T/tmptzggbu4h <un...
+        Hit: chr1 <unknown description>
+Query range: [0:151] (1)
+  Hit range: [12699:12850] (1)
+Quick stats: evalue ?; bitscore ?
+  Fragments: 1 (? columns)
+```
+
+By integrating this functionality into a Python script, we have successfully demonstrated how one can leverage the `PxBLAT` library to recreate the core functionalities of `BLAT`, all while enjoying the benefits and conveniences that come with using Python.
 
 ## 8. Beyond APIs: Command-Line Tools
 
