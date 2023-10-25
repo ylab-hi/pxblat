@@ -337,6 +337,11 @@ class Server(ContextDecorator):
             if self._process is not None:
                 self._process.start()
 
+    def _check(self):
+        if not Path(self.two_bit).exists():
+            msg = f"Invalid two_bit file: {self.two_bit}"
+            raise FileNotFoundError(msg)
+
     def start(self):
         """Starts the gfServer instance in either blocking or non-blocking mode.
 
@@ -346,10 +351,6 @@ class Server(ContextDecorator):
         Raises:
             ValueError: If the given two_bit file or URL is invalid.
         """
-        if not Path(self.two_bit).exists():
-            msg = f"Invalid two_bit file: {self.two_bit}"
-            raise ValueError(msg)
-
         self.option.build()
         if not self._block:
             self._start_nb()
