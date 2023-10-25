@@ -35,9 +35,9 @@ def test_server_start_free_func(server_option, port):
     assert status
 
 
-def test_server_start_class(server_option, port, two_bit):
+def test_server_start_class(port, two_bit):
     port += 11
-    server = Server("localhost", port, two_bit, server_option)
+    server = Server("localhost", port, two_bit, can_stop=True)
     server.start()
 
     assert not server.is_ready()
@@ -181,7 +181,7 @@ def test_sever_with_context(
         min_score=20,
         min_identity=90,
     )
-    with Server("localhost", new_port, two_bit, server_option) as server:
+    with Server("localhost", new_port, two_bit, can_stop=True, step_size=5) as server:
         server.wait_ready()
         assert server.is_ready()
         status = server.status(instance=True)

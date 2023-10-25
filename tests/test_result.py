@@ -87,10 +87,9 @@ def run_cblat(result_dir: Path, port: int, fa_data: Path):
 def run_pxblat_async(result_dir: Path, port: int, fa_data: Path):
     cport = port + 20
     two_bit = Path("benchmark/data/chr20.2bit")
-    server_option = pxblat.ServerOption().withCanStop(True).withStepSize(5).build()
 
     print("open python server")
-    server = pxblat.Server("localhost", cport, two_bit, server_option)
+    server = pxblat.Server("localhost", cport, two_bit, can_stop=True, step_size=5)
     server.start()
     server.wait_ready()
     results = {}

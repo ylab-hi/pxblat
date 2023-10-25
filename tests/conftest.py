@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from pxblat import ClientOption
+from pxblat import ClientOption , ServerOption
 from pxblat.server import Server
 from pxblat.server import Status
 
@@ -92,16 +92,14 @@ def expected_status_instance():
     )
 
 
-@pytest.fixture()
-def server_instance(port, two_bit):
-    return Server("localhost", port, two_bit, can_stop=True, step_size=5,
-                  use_others=True)
-
 
 @pytest.fixture()
-def start_server(server_instance):
-    server = server_instance
+def server_option():
+    return ServerOption().withCanStop(True).withStepSize(5).build()
 
+@pytest.fixture()
+def start_server(port, two_bit):
+    server = Server("localhost", port, two_bit, can_stop=True, step_size=5, use_others=True)
     server.start()
     print(f"{server}")
     server.wait_ready(timeout=10, restart=False)
