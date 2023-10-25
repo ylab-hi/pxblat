@@ -1,4 +1,4 @@
-# Installation Guide
+# **Installation Guide**
 
 Welcome to the installation guide for **PxBLAT**!
 Below, you'll find straightforward instructions on how to install **PxBLAT** on your system.

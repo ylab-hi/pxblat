@@ -169,6 +169,7 @@ ignore = [
     'W191',
 ]
 exclude = [
+    "docs/tutorial_data/*",
     "src/pxblat/extc/__init__.pyi",
     "src/pxblat/__init__.py",
     "tasks.py",

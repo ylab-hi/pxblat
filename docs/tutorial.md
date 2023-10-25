@@ -1,31 +1,119 @@
 # **Tutorial**
 
-`PxBLAT` binds the codebase of [BLAT(v.37x1)][BLAT(v.37x1)], and aims to provide efficient and
-ergonomic APIs. Let's take the journey to show features `PxBLAT` provides.
+```{warning}
+Make sure you have installed PxBLAT, otherwise please go-to ({doc}`installation`).
+```
 
-## APIs Compared to `BLAT`
+```{tip}
+We do not assume you already know common formats and BLAT, which is a standout within the bioinformatics landscape and is recognized for its capability to conduct genome sequence alignments.
+BLAT can help us know where one or several sequences can be mapped to the reference for nucleotide or peptide sequences.
+Assume we have multiple sequences, and want to know where these sequences can be mapped in reference sequence.
+After reading the tutorial, you are supported to know how to use PxBLAT to align your sequences.
+```
 
-So far, `PxBLAT` provides four main APIs, including {class}`.Client`, {class}`.Server`, {func}`.two_bit_to_fa` and {func}`.fa_to_two_bit`,
-as well as other useful functions ({doc}`reference`).
-`PxBLAT` is able to finish the most significant features of `BLAT`.
-Here is a table in which the features are compared.
+**PxBLAT** binds the codebase of [BLAT(v.37x1)][BLAT(v.37x1)], and aims to provide efficient and
+ergonomic APIs. Let's take the journey to show features **PxBLAT** provides.
 
-| PxBLAT                 | BLAT                     |
-| :--------------------- | :----------------------- |
-| {class}`.Client`       | [gfClient][gfClient]     |
-| {class}`.Server`       | [gfServer][gfServer]     |
-| {func}`.two_bit_to_fa` | [twoBitToFa][twoBitToFa] |
-| {func}`.fa_to_two_bit` | [faToTwoBit][faToTwoBit] |
+## 1. Understanding the FASTA Format
 
-## Options Design
+In bioinformatics, the FASTA format is a widely used text-based format for representing nucleotide sequences or peptide sequences and their associated information.
+Below, we will introduce the FASTA format, its structure, and how it is utilized in bioinformatics applications.
 
-`PxBLAT` uses a extra class to hold and change parameters for {class}`.Server`
-and {class}`.TwoBitToFaOption`.
-The design is a trick to mimic named parameter, and is used in Cpp and Rust.
-Python may not need to the design but it still benefit if the parameters are too
-long.
-For example, `PxBLAT` can create and change parameters of {class}`.Server` via {meth}`.Server.create_option`.
-The chain methods of options is builder pattern which is used in Cpp and Rust.
+The FASTA format is a simple, text-based format for representing biological sequences.
+Each entry in a FASTA file begins with a single-line description, followed by the sequence data.
+The description line is distinguished from the sequence data by a greater-than (`>`) symbol at the beginning.
+
+### Structure of a FASTA File
+
+Here is an example to illustrate the structure of a FASTA file:
+
+```
+>sequence1
+ATGCTAGCTAGCTAGCTAGCTAGCTA
+GCTAGCTAGCTAGCTAGCTAGCTAGC
+TAGCTAGCTAGCTAGCTAGCTAGCTA
+```
+
+In this example:
+
+- `>sequence1` are description lines for two different sequences.
+- The sequences themselves are represented in the lines following the description lines.
+- Sequences can span multiple lines for readability, and there are no line length restrictions.
+
+In bioinformatics, the FASTA format is used to represent sequences for various applications, such as:
+
+- Sequence alignment: Comparing sequences to find similarities and differences.
+- Database search: Searching for sequences in large databases.
+- Phylogenetics: Studying the evolutionary relationships between sequences.
+
+The FASTA format is a fundamental part of bioinformatics, providing a simple and efficient way to represent biological sequences.
+Understanding this format is crucial for anyone looking to work in the field or use bioinformatics tools, including **PxBLAT**.
+
+## 2. Prepare Example Data
+
+### Download sequences and reference examples
+
+- Let's create a new directory first.
+
+```bash
+mkdir tutorial
+cd tutorial
+```
+
+- Download reference data `test_ref.fa`, which is fasta format.
+
+```bash
+wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_ref.fa
+```
+
+Let's check the reference data
+
+```console
+$ head test_ref.fa
+>chr1
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+taaccctaaccctaaccctaaccctaaccctaaccctaaccctaacccta
+accctaaccctaaccctaaccctaaccctaaccctaaccctaaccctaac
+cctaacccaaccctaaccctaaccctaaccctaaccctaaccctaacccc
+taaccctaaccctaaccctaaccctaacctaaccctaaccctaaccctaa
+ccctaaccctaaccctaaccctaaccctaacccctaaccctaaccctaaa
+ccctaaaccctaaccctaaccctaaccctaaccctaaccccaaccccaac
+cccaaccccaaccccaaccccaaccctaacccctaaccctaaccctaacc
+ctaccctaaccctaaccctaaccctaaccctaaccctaacccctaacccc
+
+$ wc -l test_ref.fa
+301 test_ref.fa
+```
+
+- Download test sequences `test_case1.fa`, which is fasta format.
+
+```bash
+wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_case1.fa
+```
+
+Let's check test reference
+
+```bash
+$ head test_case1.fa
+>case1
+TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCA
+CACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTC
+TCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCA
+A
+```
+
+Now we already have `test_case1.fa` and `test_ref.fa` for following analysis.
+
+```bash
+$ ls
+test_case1.fa  test_ref.fa
+```
+
+## 3. Convert FASTA to 2bit
+
+Before we query certain sequence to a reference `test_ref.fa`, we need to convert [fasta][fasta] format to [.2bit][.2bit] file for reference sequence `test_ref.fa`.
+**PxBLAT** provides a function {func}`.fa_to_two_bit`.
+Also, **PxBLAT** supports to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`, for example,
 
 ```{tip}
 Click the blinking circle cross, and you will be blessed and get more information.
@@ -35,37 +123,11 @@ Click the blinking circle cross, and you will be blessed and get more informatio
 .. code-block:: python
     :linenos:
 
-    from pxblat import Server
-
-    server_option = Server.create_option().withStepSize(3).withTileSize(10).build()  # (1)!
-    server = Server("localhost", port, two_bit, server_option)
-
-.. code-annotations::
-    #. we change step size and tile size
-```
-
-The options have same parameter as its command line version of `BLAT`.
-{doc}`reference` includes all possible parameters the option will accept.
-
-## From FASTA to 2bit
-
-Before we query certain sequence to a reference, we need to generate [.2bit][.2bit] file from [fasta][fasta] format.
-`PxBLAT` provides a free function {func}`.fa_to_two_bit`.
-Also, `PxBLAT` support to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`, for example,
-
-```{tip}
-The source code includes [chr20.fa] and [chr20.2bit] as well, making it easy for users to give it a try.
-```
-
-```{eval-rst}
-.. code-block:: python
-    :linenos:
-
     from pxblat import fa_to_two_bit
 
     fa_to_two_bit(
-        ["fasta1.fa"],  # (1)!
-        "out.2bit",  # (2)!
+        ["test_ref.fa"],  # (1)!
+        "test_ref.2bit",  # (2)!
         noMask=False,
         stripVersion=False,
         ignoreDups=False,
@@ -75,6 +137,21 @@ The source code includes [chr20.fa] and [chr20.2bit] as well, making i
 .. code-annotations::
     #. Same as `BLAT`, :func:`.fa_to_two_bit` can accept  multilple inputs
     #. Output file path
+```
+
+Let's create a Python file named `2bit.py`, and copy and past code above to `2bit.py`.
+Then, execute the `2bit.py`
+
+```bash
+python 2bit.py
+```
+
+After, we will get a new file named `test_ref.2bit`, which is the 2bit file we
+need to align sequences to reference.
+
+```bash
+$ ls
+2bit.py  test_case1.fa  test_ref.2bit  test_ref.fa
 ```
 
 The code equals `faToTwoBit fasta1.fa out.2bit` by `BLAT(v. 37x1)`.
@@ -91,49 +168,76 @@ options:
    -stripVersion  Strip off version number after '.' for GenBank accessions.
    -ignoreDups    Convert first sequence only if there are duplicate sequence
                   names.  Use 'twoBitDup' to find duplicate sequences.
-$ faToTwoBit fasta1.fa out.2bit
+$ faToTwoBit test_ref.fa test_ref.2bit
 $ ls
-out.2bit fasta1.fa
+test_ref.2bit test_ref.fa
 ```
 
-Moreover, `PxBLAT` provides flexible options to allow conducting the conversion in {doc}`cli`.
+Moreover, **PxBLAT** provides flexible options to allow conducting the conversion in {doc}`cli`.
 
-## Query Sequences
+## 4. Query Sequences
 
-Most simple method to query sequence is to open {class}`pxblat.Server` in context mode
+**PxBLAT** contains {class}`pxblat.Server` and {class}`pxblat.Client`.
+We use them to align our sequences in two steps.
+
+1. start {class}`pxblat.Server`
+2. {class}`pxblat.Client` send our sequence to {class}`pxblat.Server` for
+   alignment
+
+Generally, {class}`pxblat.Server` has three status including `preparing`, `ready`, and `stop`.
+It only accepts sequence alignment task in `ready` status.
+Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready` status before {class}`pxblat.Client`send sequences.
+**PxBLAT** allow this process more smooth without bothering intermediate file.
+
+**PxBLAT** provide several ways to start the {class}`pxblat.Server`.
+
+### 4.1 Start {class}`pxblat.Server` in context mode
 
 ```{eval-rst}
 .. code-block:: python
     :linenos:
 
-    from pxblat import Server, Client
+    from pxblat import Client, Server
 
-    client = Client(
-        host="localhost",
-        port=65000,  # (1)!
-        seq_dir=two_bit,  # (2)!
-        min_score=20,
-        min_identity=90,
-    )
 
-    server_option = Server.create_option().withCanStop(True).withStepSize(5).build()  # (3)!
-    with Server("localhost", port, two_bit, server_option) as server:
-        work()  # (4)!
-        server.wait_for_ready()  # (5)!
-        result1 = client.query("ATCG")  # (6)!
-        result2 = client.query("AtcG")  # (7)!
-        result3 = client.query(["ATCG", "ATCG"])  # (8)!
-        result4 = client.query(["fasta1.fa", "fasta2.fa"])  # (9)!
-        result5 = client.query(["cgTA", "fasta.fa"])  # (10)!
+    def query_context():
+        host = "localhost"  # (1)!
+        port = 65000  # (2)!
+        seq_dir = "."  # (3)!
+        two_bit = "./test_ref.2bit"  # (4)!
+
+        client = Client(
+            host=host,
+            port=port,
+            seq_dir=seq_dir,
+            min_score=20,  # (5)!
+            min_identity=90,  # (6)!
+        )
+
+        with Server(host, port, two_bit, can_stop=True, step_size=5) as server:
+            # work() assume work() is your own function that takes time to prepare something
+            server.wait_ready()  # (7)!
+            result1 = client.query("ATCG")  # (8)!
+            result2 = client.query("AtcG")  # (9)!
+            result3 = client.query(["ATCG", "ATCG"])  # (10)!
+            result4 = client.query(["test_case1.fa"])  # (11)!
+            result5 = client.query(["cgTA", "test_case1.fa"])  # (12)!
+            print(result4[0])
+
+
+    if __name__ == "__main__":
+        query_context()
 
 .. code-annotations::
-    #. The port number of current running :class:`.Server`
-    #. The two bit files from reference, and we can get it via :func:`.fa_to_two_bit` or via  :doc:`cli`
-    #. Create :class:`.ServerOption` with specific parameters for :class:`.Server`
-    #. We can do some other stuffs that consuming time
-    #. Block current thread to wait server to be ready
+    #. :attr:`.Client.host` is the hostname or IP address of the current running :class:`.Server`.
+    #. :attr:`.Client.post` is the port number of the current running :class:`.Server`.
+    #. :attr:`.Client.seq_dir` is the directory including `test_ref.fa` and `test_ref.2bit`
+    #. `two_bit` is the 2bit file [we already create](#3-convert-fasta-to-2bit)
+    #. :attr:`.Client.min_score`  is the minimum score for the alignment.
+    #. :attr:`.Client.min_identity`  is the minimum identity for the alignment.
+    #. block current thread to wait server to be ready
     #. :meth:`.Client.query` accepts a :class:`str` consisting of DNA or Protein Sequences, e.g. `"ATCG"`
-    #. :meth:`.Client.query` accepts a path of Fasta file, e.g. `"data/fasta1.fa"`
+    #. :meth:`.Client.query` accepts a path of Fasta file, e.g. `"./test_case1.fa"`
     #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
     #. :meth:`.Client.query` accepts a :class:`list` of path of Fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
     #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
@@ -141,15 +245,31 @@ Most simple method to query sequence is to open {class}`pxblat.Server` in contex
 
 {meth}`.Client.query` accepts parameters of several types:
 
-1. Path of Fasta file e.g. `data/fasta1.fa`
+1. Path of fasta file e.g. `data/fasta1.fa`
 2. {class}`list` of {class}`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
-3. {class}`list` of path of Fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
+3. {class}`list` of path of fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
 4. {class}`list` of `str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
 5. {meth}`.Client.query` accepts a {class}`list` of {class}`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
 
-{meth}`.Client.query` return [Bio.SearchIO.QueryResult](#query-result).
+{meth}`.Client.query` return [`QueryResult`](#query-result).
 
-We may need to query sequences in more general way, for example,
+Let's Create a new Python script named `query_context.py`, and copy above to the
+script.
+Then execute the Python script.
+
+```bash
+$ python query_context.py
+Program: blat (v.37x1)
+  Query: case1 (151)
+         <unknown description>
+ Target: <unknown target>
+   Hits: ----  -----  ----------------------------------------------------------
+            #  # HSP  ID + description
+         ----  -----  ----------------------------------------------------------
+            0      1  chr1  <unknown description>
+```
+
+### 4.2 Start {class}`pxblat.Server` in general mode
 
 ```{eval-rst}
 .. code-block:: python
@@ -357,16 +477,38 @@ Hence, we can manipulate the query result as shown below.
 
 ```
 
+## APIs Compared to `BLAT`
+
+So far, **PxBLAT** provides APIs, including {class}`.Client`, {class}`.Server`, {func}`.two_bit_to_fa` and {func}`.fa_to_two_bit`,
+as well as other useful functions ({doc}`reference`).
+**PxBLAT** is able to finish the most significant features of `BLAT`.
+Here is a table in which the features are compared.
+
+| PxBLAT                 | BLAT                     |
+| :--------------------- | :----------------------- |
+| {class}`.Client`       | [gfClient][gfClient]     |
+| {class}`.Server`       | [gfServer][gfServer]     |
+| {func}`.two_bit_to_fa` | [twoBitToFa][twoBitToFa] |
+| {func}`.fa_to_two_bit` | [faToTwoBit][faToTwoBit] |
+
+```{eval-rst}
+.. code-block:: python
+    :linenos:
+
+    from pxblat import Server
+
+    server = Server("localhost", port, two_bit, server_option)  # (1)!
+
+.. code-annotations::
+    #. we change step size and tile size
+```
+
 ## Beyond APIs
 
 Even though `PxBLAT` is designed as library, it provides command-line tools
 using its APIs.
 That could provide more choices for user according to different situations.
 {doc}`reference` contain more details, and do not hesitate to check.
-
-## Caveats
-
-{class}`.ServerOption` hold most important parameters that are passed to {class}`.Server`.
 
 <!-- links -->
 
