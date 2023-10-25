@@ -541,13 +541,29 @@ Below is a table comparing the features of **PxBLAT** to those of `BLAT`:
 
 ```
 
-## 7. Beyond APIs: Command-Line Tools
+## 7. Creating Our own `BLAT` by Pure Python
+
+Now we know how to align sequence to the reference and check the query result.
+Let's wrap up all previous code to create our own `BLAT`
+
+````{example} Pure Python BLAT
+:collapsible: close
+
+```{literalinclude} tutorial_data/blat.py
+```
+````
+
+```{note}
+Keep in mind to change directory including `test_ref.fa` if you try the code.
+```
+
+## 8. Beyond APIs: Command-Line Tools
 
 While `PxBLAT` is primarily designed as a library, it also offers command-line tools built on top of its APIs.
 This provides users with additional options and flexibility, catering to a variety of use cases.
 For more detailed information on these tools, refer to the [CLI documentation](cli).
 
-## 8. Sharing Your Feedback and Reporting Issues
+## 9. Sharing Your Feedback and Reporting Issues
 
 In our ongoing effort to enhance the clarity and accuracy of this tutorial, we invite you to share your insights and observations.
 If you come across any statements that are unclear, or if you identify any inaccuracies, please feel empowered to [make direct edits to the tutorial](https://github.com/ylab-hi/pxblat/edit/main/docs/tutorial.md) or [initiate an issue](https://github.com/ylab-hi/pxblat/issues/new/choose) to bring it to our attention.
