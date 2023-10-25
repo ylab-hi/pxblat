@@ -38,11 +38,6 @@ def fa_file1():
 
 
 @pytest.fixture()
-def server_option():
-    return ServerOption().withCanStop(True).withStepSize(5).build()
-
-
-@pytest.fixture()
 def client_option(port):
     return (
         ClientOption()
@@ -99,8 +94,15 @@ def expected_status_instance():
 
 
 @pytest.fixture()
-def start_server(server_option, port, two_bit):
-    server = Server("localhost", port, two_bit, server_option, use_others=True)
+def server_instance(port, two_bit):
+    return Server("localhost", port, two_bit, can_stop=True, step_size=5,
+                  use_others=True)
+
+
+@pytest.fixture()
+def start_server(server_instance, port, two_bit):
+    server = server_instance
+
     server.start()
     print(f"{server}")
     server.wait_ready(timeout=10, restart=False)

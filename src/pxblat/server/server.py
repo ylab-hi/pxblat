@@ -212,7 +212,6 @@ class Server(ContextDecorator):
             .withPerSeqMax(per_seq_max)
             .withNoSimpRepMask(no_simp_rep_mask)
             .withIndexFile(index_file)
-            .build()
         )
 
         self.stat = UsageStats()
@@ -331,6 +330,7 @@ class Server(ContextDecorator):
         If the server is set to non-blocking mode, it will start the server in a separate process.
         If the server is set to blocking mode, it will start the server in the current process.
         """
+        self.option.build()
         if not self._block:
             self._start_nb()
         else:
@@ -442,18 +442,6 @@ class Server(ContextDecorator):
             else:
                 self._is_ready = True
 
-    @staticmethod
-    def create_option() -> ServerOption:
-        """Creates a :class:`.ServerOption` for the gfServer instance.
-
-        Returns:
-            ServerOption: A class that hold options for the gfServer instance.
-
-        See Also:
-            :func:`create_server_option` is a free function to create a :class:`.ServerOption`.
-        """
-        return create_server_option()
-
     def __str__(self) -> str:
         """Return server option as a string."""
         return f"Server({self.host}, {self.port}, ready: {self.is_ready()} open: {self.is_open()}\n{self.option})"
@@ -468,3 +456,82 @@ class Server(ContextDecorator):
     def __exit__(self, *exc):
         """Stops the gfServer."""
         self.stop()
+
+    # fmt: off
+    @property
+    def can_stop(self) -> bool: return self.option.canStop
+    @can_stop.setter
+    def can_stop(self, value: bool): self.option.canStop = value
+    @property
+    def log(self) -> str: return self.option.log
+    @log.setter
+    def log(self, value: str): self.option.log = value
+    @property
+    def log_facility(self) -> str: return self.option.logFacility
+    @log_facility.setter
+    def log_facility(self, value: str): self.option.logFacility = value
+    @property
+    def mask(self) -> bool: return self.option.mask
+    @mask.setter
+    def mask(self, value: bool): self.option.mask = value
+    @property
+    def max_aa_size(self) -> int: return self.option.maxAaSize
+    @max_aa_size.setter
+    def max_aa_size(self, value: int): self.option.maxAaSize = value
+    @property
+    def max_dna_hits(self) -> int: return self.option.maxDnaHits
+    @max_dna_hits.setter
+    def max_dna_hits(self, value: int): self.option.maxDnaHits = value
+    @property
+    def max_gap(self) -> int: return self.option.maxGap
+    @max_gap.setter
+    def max_gap(self, value: int): self.option.maxGap = value
+    @property
+    def max_nt_size(self) -> int: return self.option.maxNtSize
+    @max_nt_size.setter
+    def max_nt_size(self, value: int): self.option.maxNtSize = value
+    @property
+    def max_trans_hits(self) -> int: return self.option.maxTransHits
+    @max_trans_hits.setter
+    def max_trans_hits(self, value: int): self.option.maxTransHits = value
+    @property
+    def min_match(self) -> int: return self.option.minMatch
+    @min_match.setter
+    def min_match(self, value: int): self.option.minMatch = value
+    @property
+    def rep_match(self) -> int: return self.option.repMatch
+    @rep_match.setter
+    def rep_match(self, value: int): self.option.repMatch = value
+    @property
+    def seq_log(self) -> bool: return self.option.seqLog
+    @seq_log.setter
+    def seq_log(self, value: bool): self.option.seqLog = value
+    @property
+    def ip_log(self) -> bool: return self.option.ipLog
+    @ip_log.setter
+    def ip_log(self, value: bool): self.option.ipLog = value
+    @property
+    def debug_log(self) -> bool: return self.option.debugLog
+    @debug_log.setter
+    def debug_log(self, value: bool): self.option.debugLog = value
+    @property
+    def trans(self) -> bool: return self.option.trans
+    @trans.setter
+    def trans(self, value: bool): self.option.trans = value
+    @property
+    def syslog(self) -> bool: return self.option.syslog
+    @syslog.setter
+    def syslog(self, value: bool): self.option.syslog= value
+    @property
+    def no_simp_rep_mask(self) -> bool: return self.option.noSimpRepMask
+    @no_simp_rep_mask.setter
+    def no_simp_rep_mask(self, value: bool): self.option.noSimpRepMask= value
+    @property
+    def per_seq_max(self) -> str: return self.option.perSeqMax
+    @per_seq_max.setter
+    def per_seq_max(self, value: str): self.option.perSeqMax = value
+    @property
+    def index_file(self) -> str: return self.option.indexFile
+    @index_file.setter
+    def index_file(self, value: str): self.option.indexFile= value
+    # fmt: on
