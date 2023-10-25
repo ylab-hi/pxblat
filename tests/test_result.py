@@ -166,7 +166,7 @@ def _cpsl(file1, file2, *, isprint=False, write=False):
     else:
         cp_res = cp_psl
 
-    if cc_res is None and cp_res is None:
+    if cc_res is None or cp_res is None:
         return
 
     cc_hsps = cc_res.hsps
