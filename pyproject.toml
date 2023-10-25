@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pxblat"
-version = "0.3.10"
+version = "1.0.0"
 description = "A native python binding for blat suit"
 authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
 homepage = "https://github.com/ylab-hi/pxblat"
@@ -9,7 +9,7 @@ repository = "https://github.com/ylab-hi/pxblat"
 readme = "README.md"
 license = "LICENSE"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 6 - Mature",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python :: 3",
