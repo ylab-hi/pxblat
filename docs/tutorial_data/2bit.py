@@ -8,3 +8,4 @@ fa_to_two_bit(
     ignoreDups=False,
     useLong=False,
 )
+print("Done")

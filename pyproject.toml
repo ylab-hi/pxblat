@@ -169,7 +169,6 @@ ignore = [
     'W191',
 ]
 exclude = [
-    "docs/tutorial_data/*",
     "src/pxblat/extc/__init__.pyi",
     "src/pxblat/__init__.py",
     "tasks.py",
@@ -232,6 +231,10 @@ allow-star-arg-any = true
 "src/pxblat/cli/cli.py" = ["DTZ005"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 "src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
+"docs/tutorial_data/query_context.py" = ["T201", "D103"]
+"docs/tutorial_data/2bit.py" = ["T201", "D103"]
+"docs/tutorial_data/query_general.py" = ["T201", "D103"]
+"docs/tutorial_data/query_result.py" = ["T201", "D103"]
 
 [tool.ruff.pydocstyle]
 convention = 'google'
