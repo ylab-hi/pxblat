@@ -1,31 +1,30 @@
 # **Tutorial**
 
 ```{warning}
-Make sure you have installed PxBLAT, otherwise please go-to ({doc}`installation`).
+Before proceeding, ensure you have PxBLAT installed. If not, please refer to our ({doc}`installation`) guide.
 ```
 
 ```{important}
-We do not assume you already know common formats and BLAT, which is a standout within the bioinformatics landscape and is recognized for its capability to conduct genome sequence alignments.
-BLAT can help us know where one or several sequences can be mapped to the reference for nucleotide or peptide sequences.
-Assume we have multiple sequences, and want to know where these sequences can be mapped in reference sequence.
-After reading the tutorial, you are supported to know how to use PxBLAT to align your sequences.
+In this tutorial, we aim to introduce you to PxBLAT, a powerful tool for genome sequence alignments.
+We cater to both beginners and those new to BLAT, ensuring a comprehensive understanding by the end.
+By the end of this guide, you should be able to use PxBLAT confidently for aligning nucleotide or peptide sequences.
 ```
 
-**PxBLAT** binds the codebase of [BLAT(v.37x1)][BLAT(v.37x1)], and aims to provide efficient and
-ergonomic APIs. Let's take the journey to show features **PxBLAT** provides.
+**PxBLAT** builds upon the foundation of [BLAT(v.37x1)][BLAT(v.37x1)], striving to provide both efficient and user-friendly APIs.
+Let's embark on a journey to explore the features and capabilities that **PxBLAT** offers.
 
-## 1. Understanding the FASTA Format
+## 1. Grasping the FASTA Format
 
-In bioinformatics, the FASTA format is a widely used text-based format for representing nucleotide sequences or peptide sequences and their associated information.
-Below, we will introduce the FASTA format, its structure, and how it is utilized in bioinformatics applications.
+In the realm of bioinformatics, the FASTA format stands as a text-based standard for denoting nucleotide or peptide sequences alongside their pertinent information.
+This section is dedicated to elucidating the FASTA format, its structural components, and its prevalent applications in bioinformatics.
 
-The FASTA format is a simple, text-based format for representing biological sequences.
-Each entry in a FASTA file begins with a single-line description, followed by the sequence data.
-The description line is distinguished from the sequence data by a greater-than (`>`) symbol at the beginning.
+### FASTA Format Demystified
 
-### Structure of a FASTA File
+The FASTA format is characterized by its simplicity, encapsulating biological sequences in a text-based file.
+Each entry within a FASTA file commences with a description line, immediately followed by the sequence data.
+Notably, the description line is marked by a greater-than (`>`) symbol at its beginning.
 
-Here is an example to illustrate the structure of a FASTA file:
+Consider the following example to better understand the structure of a FASTA file:
 
 ```
 >sequence1
@@ -36,42 +35,41 @@ TAGCTAGCTAGCTAGCTAGCTAGCTA
 
 In this example:
 
-- `>sequence1` are description lines for two different sequences.
-- The sequences themselves are represented in the lines following the description lines.
-- Sequences can span multiple lines for readability, and there are no line length restrictions.
+- `>sequence1` signifies the description line for the sequence.
+- The sequence data is encapsulated in the subsequent lines.
+- For enhanced readability, sequences can extend across multiple lines, and there is no restriction on line length.
 
-In bioinformatics, the FASTA format is used to represent sequences for various applications, such as:
+fasta files find extensive applications in various bioinformatics tasks, including but not limited to:
 
-- Sequence alignment: Comparing sequences to find similarities and differences.
-- Database search: Searching for sequences in large databases.
-- Phylogenetics: Studying the evolutionary relationships between sequences.
+- Sequence alignment: Identifying similarities and distinctions between sequences.
+- Database search: Scouring large databases for specific sequences.
+- Phylogenetics: Analyzing the evolutionary connections between sequences.
 
-The FASTA format is a fundamental part of bioinformatics, providing a simple and efficient way to represent biological sequences.
-Understanding this format is crucial for anyone looking to work in the field or use bioinformatics tools, including **PxBLAT**.
+Grasping the fasta format is indispensable for anyone aspiring to thrive in bioinformatics or utilize tools like **PxBLAT**.
 
-## 2. Prepare Example Data
+## 2. Preparing Example Data
 
-### Download sequences and reference examples
+### Acquiring Sequences and Reference Data
 
-- Let's create a new directory first.
+- Begin by creating a new directory:
 
 ```bash
 mkdir tutorial
 cd tutorial
 ```
 
-- Download reference data {download}`⬇️ test_ref.fa <tutorial_data/test_ref.fa>`, which is fasta format.
+- Download reference data {download}`⬇️ test_ref.fa <tutorial_data/test_ref.fa>`(in fasta format).
 
 ````{example} Download via wget
 :collapsible: close
 
 ```bash
-wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_ref.fa
+wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/docs/tutorial_data/test_ref.fa
 ```
 
 ````
 
-Let's check the reference data
+Inspect the reference data:
 
 ```console
 $ head test_ref.fa
@@ -90,17 +88,17 @@ $ wc -l test_ref.fa
 301 test_ref.fa
 ```
 
-- Download test sequences {download}`⬇️ test_case1.fa <tutorial_data/test_case1.fa>`, which is fasta format.
+- Download test sequences {download}`⬇️ test_case1.fa <tutorial_data/test_case1.fa>`(in fasta format).
 
 ````{example} Download via wget
 :collapsible: close
 
 ```bash
-wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_case1.fa
+wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/docs/tutorial_data/test_case1.fa
 ```
 ````
 
-Let's check test reference
+Inspect the test sequences:
 
 ```bash
 $ head test_case1.fa
@@ -111,21 +109,22 @@ TCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCA
 A
 ```
 
-Now we already have `test_case1.fa` and `test_ref.fa` for following analysis.
+With `test_case1.fa` and `test_ref.fa` now available, we're set to proceed to the next steps of the analysis.
 
 ```bash
 $ ls
 test_case1.fa  test_ref.fa
 ```
 
-## 3. Convert FASTA to 2bit
+## 3. Transforming FASTA to 2bit Format
 
-Before we query certain sequence to a reference `test_ref.fa`, we need to convert [fasta][fasta] format to [.2bit][.2bit] file for reference sequence `test_ref.fa`.
-**PxBLAT** provides a function {func}`.fa_to_two_bit`.
-Also, **PxBLAT** supports to convert the `.2bit` file back to fasta format via {func}`.two_bit_to_fa`, for example,
+In order to align a query sequence to our reference `test_ref.fa`, it's necessary to convert the FASTA formatted file to a .2bit file.
+**PxBLAT** facilitates this process with the {func}`.fa_to_two_bit` function.
+Additionally, **PxBLAT** allows for the conversion of .2bit files back to the FASTA format using the {func}`.two_bit_to_fa` function.
+For further insights and usage details, refer to the following tip.
 
 ```{tip}
-Click the blinking circle cross, and you will be blessed and get more information.
+Click on the blinking circle cross icon for comprehensive information and usage examples.
 ```
 
 ```{eval-rst}
@@ -148,17 +147,17 @@ Click the blinking circle cross, and you will be blessed and get more informatio
 
 .. code-annotations::
     #. Same as `BLAT`, :func:`.fa_to_two_bit` can accept  multilple inputs
-    #. Output file path
+    #. Define the path for the output .2bit file.
 ```
 
-Let's create a Python file named `2bit.py`, and copy and paste [code above](#fa_to_two_bit_block) to `2bit.py`.
-Then, execute the `2bit.py`
+To proceed, create a Python script named `2bit.py` and paste the [code provided above](#fa_to_two_bit_block) into the script.
+Execute the script with the following command:
 
 ```bash
 python 2bit.py
 ```
 
-After, we will get a new file named `test_ref.2bit`, which is the 2bit file we
+After, we will get a new file named `test_ref.2bit` in working directory, which is the 2bit file we
 need to align sequences to reference.
 
 ```bash
@@ -166,7 +165,7 @@ $ ls
 2bit.py  test_case1.fa  test_ref.2bit  test_ref.fa
 ```
 
-The code equals `faToTwoBit fasta1.fa out.2bit` by `BLAT(v. 37x1)`.
+It's worth noting that this operation is equivalent to running `faToTwoBit fasta1.fa out.2bit` using `BLAT(v. 37x1)`.
 
 ```bash
 $ faToTwoBit
@@ -185,25 +184,25 @@ $ ls
 test_ref.2bit test_ref.fa
 ```
 
-Moreover, **PxBLAT** provides flexible options to allow conducting the conversion in {doc}`cli`.
+For those who prefer command line interfaces, **PxBLAT** offers a variety of options for conversion available in {doc}`cli`.
 
-## 4. Query Sequences
+## 4. Conducting Sequence Queries
 
-**PxBLAT** contains {class}`pxblat.Server` and {class}`pxblat.Client`.
-We use them to align our sequences in two steps.
+**PxBLAT** provides two main classes for aligning sequences: {class}`pxblat.Server` and {class}`pxblat.Client`.
+The alignment process is executed in two primary steps:
 
-1. Start {class}`pxblat.Server`
-2. {class}`pxblat.Client` send our sequence to {class}`pxblat.Server` for
-   alignment
+1. Initiate the {class}`pxblat.Server`.
+2. Utilize {class}`pxblat.Client` to send sequence to {class}`pxblat.Server` for alignment.
 
-Generally, {class}`pxblat.Server` has three status including `preparing`, `ready`, and `stop`.
-It only accepts sequence alignment task in `ready` status.
-Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready` status before {class}`pxblat.Client`send sequences.
-**PxBLAT** allow this process more smooth without bothering intermediate file.
+Typically, {class}`pxblat.Server` operates in one of three statuses: `preparing`, `ready`, or `stop`.
+It's crucial that the server is in the `ready` status before attempting to send sequences for alignment with {class}`pxblat.Client`.
+**PxBLAT** is designed to streamline this process, mitigating the need for dealing with intermediate files.
 
-**PxBLAT** provide several ways to start the {class}`pxblat.Server`.
+Below, we provide various methods for starting the {class}`pxblat.Server`:
 
-### 4.1 Start {class}`pxblat.Server` in context mode
+### 4.1 Launching {class}`pxblat.Server` in Context Mode
+
+In this section, we delve into initiating the {class}`pxblat.Server` utilizing the context mode and sending queries through {class}`pxblat.Client`.
 
 ```{eval-rst}
 .. code-block:: python
@@ -258,7 +257,7 @@ Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready
     #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "test_case1.fa"]`
 ```
 
-{meth}`.Client.query` accepts parameters of several types:
+The {meth}`.Client.query` method is versatile, accepting a variety of parameter types:
 
 - Path of fasta file e.g. `./test_case1.fa`
 - {class}`str` consisting of nucleotide or peptide sequences that are case-insensitive, e.g. `ATCG`, or `ATcg`
@@ -266,8 +265,8 @@ Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready
 - {class}`list` of path of fasta files, e.g. `["data/fasta1.fa", "./test_case1.fa"]`
 - {class}`list` of `str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
 
-Let's Create a new Python script named `query_context.py`, and copy and paste [code above](#query_context_block) to the script.
-Then execute the Python script.
+Proceed by creating a Python script named `query_context.py`.
+Copy and paste the [relevant code](#query_context_block) into this script and then execute it with Python.
 
 ```bash
 $ python query_context.py
@@ -281,9 +280,11 @@ Program: blat (v.37x1)
             0      1  chr1  <unknown description>
 ```
 
-{meth}`.Client.query` return [`QueryResult`](#query-result), which is introduced later.
+The {meth}`.Client.query` method will return a `QueryResult` object, which we will explore in greater detail later in the documentation.
 
-### 4.2 Start {class}`pxblat.Server` in general mode
+### 4.2 Launching {class}`pxblat.Server` in General Mode
+
+In this mode, the {class}`pxblat.Server` is initiated in a more general setting.
 
 ```{eval-rst}
 .. code-block:: python
@@ -329,12 +330,11 @@ Program: blat (v.37x1)
 ```
 
 ```{note}
-the explanation of parameters including `two_bit` and `seq_dir` etc. is same as
-[previous code](#query_context_block)
+The parameters `two_bit`, `seq_dir`, and others are defined similarly to what has been described in the [previous section](#query_context_block).
 ```
 
-Let's Create a new Python script named `query_general.py`, and copy and paste [code above](#query_general_block) to the script.
-Then execute the Python script.
+Start by creating a new Python script named `query_general.py`.
+Copy and paste the [corresponding code](#query_general_block) into the script, and then execute it.
 
 ```bash
 $ python query_general.py
@@ -342,19 +342,20 @@ result1=[None, QueryResult(id='case1', 1 hits)]
 result2=[QueryResult(id='case1', 1 hits)]
 ```
 
-```{note}
-`None` means the sequence cannot be mapped to the reference.
-```
+In the results shown above:
 
-Although {class}`.Server` and {class}`.Client` already consider most contexts, **PxBLAT** provides {class}`.ClientThread` that can launch a thread to
-query sequence.
-Free feel to check that if you have interests.
+- `None` signifies that the sequence could not be aligned or mapped to the reference.
+- `QueryResult` instances provide details of the alignment, including the identifier of the query and the number of hits found.
 
-## 5. Query Result
+Despite {class}`.Server` and {class}`.Client` being designed to handle most use cases, **PxBLAT** goes a step further by providing the {class}`.ClientThread` class.
+This allows for the initiation of a thread to handle sequence queries.
+For those interested, it is worth exploring this feature further.
 
-Right now we know how to query certain sequence to the reference, and let's dive into the query result and manipulate that together.
+## 5. Understanding Query Results
 
-Here we use contexts mode to align sequence, and modify a little bit based on [previous code](#query_context_block)
+Having learned how to query sequences against a reference, it's now time to delve into the query results and learn how to manipulate and understand them.
+
+We will continue using the context mode for sequence alignment, making slight modifications based on the [previous example](#query_context_block).
 
 ````{example} query_context (hint: convenient to copy)
 :collapsible: close
@@ -513,17 +514,15 @@ def query_context():
 
 ````
 
-We can precisely determine the regions of our sequence that align with specific parts of the reference.
-We are able to know strand, start position, and end position for alignment part
-both for our sequence and the reference.
-The last part of [code example](#query_result_block) shows all methods of a high-scoring pairs (HSP).
+After receiving the query results, we can precisely identify which regions of our sequence align with specific parts of the reference sequence.
+This includes information about the strand, start position, and end position for the alignment on both our sequence and the reference.
+The last part of the [code example](#query_result_block) showcases all the methods available for handling high-scoring pairs (HSPs).
 
-## 6. APIs Compared to `BLAT`
+## 6. API Comparison with `BLAT`
 
-So far, **PxBLAT** provides APIs, including {class}`.Client`, {class}`.Server`, {func}`.two_bit_to_fa` and {func}`.fa_to_two_bit`,
-as well as other useful functions ({doc}`reference`).
-**PxBLAT** is able to finish the most significant features of `BLAT`.
-Here is a table in which the features are compared.
+**PxBLAT** offers a comprehensive set of APIs, including {class}`.Client`, {class}`.Server`, {func}`.two_bit_to_fa`, {func}`.fa_to_two_bit`, among other useful functions detailed in the [reference documentation](reference).
+
+Below is a table comparing the features of **PxBLAT** to those of `BLAT`:
 
 ```{list-table} APIs Comparison
    :header-rows: 1
@@ -542,17 +541,17 @@ Here is a table in which the features are compared.
 
 ```
 
-## 7. Beyond APIs
+## 7. Beyond APIs: Command-Line Tools
 
-Even though `PxBLAT` is designed as library, it provides command-line tools
-using its APIs.
-That could provide more choices for user according to different situations.
-{doc}`reference` contain more details, and do not hesitate to check.
+While `PxBLAT` is primarily designed as a library, it also offers command-line tools built on top of its APIs.
+This provides users with additional options and flexibility, catering to a variety of use cases.
+For more detailed information on these tools, refer to the [reference documentation](reference).
 
-```{bug}
-please feel free to [edit the tutorial](https://github.com/ylab-hi/pxblat/edit/main/docs/tutorial.md) or [open an issue](https://github.com/ylab-hi/pxblat/issues/new/choose), if you find some unclear or wrong statement.
+## 8. Sharing Your Feedback and Reporting Issues
 
-```
+In our ongoing effort to enhance the clarity and accuracy of this tutorial, we invite you to share your insights and observations.
+If you come across any statements that are unclear, or if you identify any inaccuracies, please feel empowered to [make direct edits to the tutorial](https://github.com/ylab-hi/pxblat/edit/main/docs/tutorial.md) or [initiate an issue](https://github.com/ylab-hi/pxblat/issues/new/choose) to bring it to our attention.
+Your contributions are invaluable to us, and play a crucial role in ensuring that our documentation meets the highest standards of quality and precision.
 
 <!-- links -->
 
