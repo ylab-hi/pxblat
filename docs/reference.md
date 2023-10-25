@@ -6,7 +6,7 @@
 .. python-apigen-group:: Classes
 ```
 
-## **Free Functions**
+## **Top-level Functions**
 
 ```{eval-rst}
 .. python-apigen-group:: Public members

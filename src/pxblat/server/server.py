@@ -43,45 +43,6 @@ def create_server_option() -> ServerOption:
     return ServerOption()
 
 
-#   bool canStop{false};        //-canStop      If set, a quit message will actually take down the server.
-#   std::string log{};          //-log=logFile  Keep a log file that records server requests.
-#   std::string logFacility{};  //-logFacility=facility  Log to the specified syslog facility default local0
-#   bool mask{};                //-mask   Use masking from .2bit file.
-#   int maxAaSize{8000};        //-maxAaSize=N  Maximum size of protein or translated DNA queries."
-#   int maxDnaHits{100};        //-maxDnaHits=N   Maximum number of hits for a DNA query that are sent from the server"
-#   int maxGap{gfMaxGap};       //-maxGap=N    Number of insertions or deletions allowed between n-mers. Default is 2 for
-#                               // nucleotides, 0 for proteins"
-#   int maxNtSize{40000};       //-maxNtSize=N    Maximum size of untranslated DNA query sequence
-#   int maxTransHits{200};      //-maxTransHits=N Maximum number of hits for a translated query that are sent from the
-#                               // server"
-#   int minMatch{gfMinMatch};   //-minMatch=N   Number of n-mer matches that trigger detailed alignment Default
-#                               // is 2 for nucleotides, 3 for proteins
-#   int repMatch{};             //-repMatch=N    Number of occurrences of a tile (n-mer) that triggers repeat masking
-#                               // the  tile
-#   bool seqLog{false};         //-seqLog   Include sequences in log file (not logged with  -syslog)
-#   bool ipLog{false};          //-ipLog    Include user's IP in log file (not logged with -syslog)
-#   bool debugLog{false};       //-debugLog   Include debugging info in log file
-
-#   int tileSize{gfTileSize};     //-tileSize=N   Size of n-mers to index.  Default is 11 for nucleotides, 4 for
-#   int stepSize{tileSize};       //-stepSize=N     Spacing between tiles. Default is tileSize
-#                                 // proteins (or translated nucleotides)
-#   bool trans{false};            //-trans      Translate database to protein in 6 frames.  Note: it is best to run
-#                                 // this on RepeatMasked data in this case
-#   bool syslog{false};           //-syslog     Log to syslog.
-#   std::string perSeqMax{};      //-perSeqMax=file File contains one seq filename (possibly with ':seq' suffix) per line
-#   bool noSimpRepMask{false};    //-noSimpRepMask  Suppresses simple repeat masking
-#   std::string indexFile{};      //-indexFile   Index file create by `gfServer index'. Saving index  can
-#                                 // speed up gfServer startup by two orders of magnitude.
-#                                 // The parameters must  exactly match the parameters when
-#                                 // the file is written or bad things  will happen
-#   int timeout{90};              //-timeout=N  Timeout in seconds
-#   std::string genome{};         // no need to get
-#   std::string genomeDataDir{};  // no need to get
-
-#   int threads{1};
-#   bool allowOneMismatch{false};
-
-
 class Server(ContextDecorator):
     """A context manager and decorator for managing a server process.
 

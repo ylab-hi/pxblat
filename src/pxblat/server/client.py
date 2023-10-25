@@ -363,7 +363,45 @@ class Client:
         wait_timeout: int = 60,
         parse: bool = True,
     ) -> None:
-        """A class for querying a gfServer using a separate thread."""
+        """A class for querying a gfServer using a separate thread.
+
+        Args:
+            host (str): The hostname or IP address of the server.
+            port (int): The port number of the server.
+            seq_dir (Union[str, Path]): The directory where sequence data is stored.
+            ttype (str, optional): Database type. One of 'dna', 'prot', 'dnax'. Default is 'dna'.
+            qtype (str, optional): Query type. One of 'dna', 'rna', 'prot', 'dnax', 'rnax'. Default is 'dna'.
+            dots (int, optional): Output a dot every N query sequences. Default is 0.
+            nohead (bool, optional): If True, suppresses 5-line psl header. Default is False.
+            min_score (int, optional): Sets minimum score. Default is 30.
+            min_identity (float, optional): Sets minimum sequence identity (in percent). Default is 90.
+            output_format (str, optional): Controls output file format. One of 'psl', 'pslx', 'axt', 'maf', 'sim4', 'wublast', 'blast', 'blast8', 'blast9'. Default is 'psl'.
+            max_intron (int, optional): Sets maximum intron size. Default is 750000.
+            is_dynamic (bool, optional): If True, the client is expected to interact with a dynamic gfServer. Default is False.
+            genome (Optional[str], optional): The genome name when using a dynamic gfServer. Defaults to None.
+            genome_data_dir (Optional[str], optional): The root directory containing the genome data files for a dynamic gfServer. Defaults to None.
+            server_option (Optional[ServerOption], optional): The server options to use if a server is not provided. Defaults to None.
+            wait_ready (bool, optional): If True, wait until the server is ready before sending a query. Default is False.
+            wait_timeout (int, optional): The number of seconds to wait for the server to be ready. Default is 60.
+            parse (bool, optional): If True, parse the result of the query. Default is True.
+
+        Raises:
+            ValueError: If any of the input values are invalid.
+
+        Examples:
+            >>> from pxblat import Client
+            >>> host = "localhost"
+            >>> port = 65000
+            >>> seq_dir = "."
+            >>> two_bit = "./test_ref.2bit"
+            >>> client = Client(
+            ...     host=host,
+            ...     port=port,
+            ...     seq_dir=seq_dir,
+            ...     min_score=20,
+            ...     min_identity=90,
+            ... )
+        """
         self._basic_option = (
             ClientOption()
             .withHost(host)
@@ -512,28 +550,28 @@ class Client:
             The query results: `Bio.SearchIO.QueryResult`
 
         Examples:
-            >>> from pxblat import Server
-            >>> from pxblat import Client
+            >>> from pxblat import Client, Server
+            >>> host = "localhost"
+            >>> port = 65000
+            >>> seq_dir = "."
+            >>> two_bit = "./test_ref.2bit"
             >>> client = Client(
-            >>>     host="localhost",
-            >>>     port=65000,
-            >>>     seq_dir="ref/",
-            >>>     min_score=20,
-            >>>     min_identity=90)
-            >>> server_option = Server.create_option().build()
-            >>> with Server(host="localhost", port=65000,
-            ...                two_bit="ref/reference.2bit",
-            ...                option=server_option ) as server:
-            ...    work()  # work that consumes time
-            ...    server.wait_for_ready()
-            ...    result1 = client.query("ATCG")
-            ...    result2 = client.query("AtcG")
-            ...    result3 = client.query(["ATCG", "ATCG"])
-            ...    result4 = client.query(["cgTA", "fasta.fa"])
-            ...    for res in result1:
-            ...        for hsp in res.hsps:
-            ...            print(hsp)
-
+            ...     host=host,
+            ...     port=port,
+            ...     seq_dir=seq_dir,
+            ...     min_score=20,
+            ...     min_identity=90,
+            ... )
+            >>> with Server(host, port, two_bit, can_stop=True, step_size=5) as server:
+            ...     # work() assume work() is your own function that takes time to prepare something
+            ...     server.wait_ready()
+            ...     result1 = client.query("ATCG")
+            ...     result2 = client.query("AtcG")
+            ...     result3 = client.query("test_case1.fa")
+            ...     result4 = client.query(["ATCG", "ATCG"])
+            ...     result5 = client.query(["test_case1.fa"])
+            ...     result6 = client.query(["cgTA", "test_case1.fa"])
+            ...     print(result3[0]) # print result
         """
         if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]
