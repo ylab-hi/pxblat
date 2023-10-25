@@ -1,5 +1,6 @@
 from pxblat import Client, Server
 
+
 def query_context():
     host = "localhost"
     port = 65000
@@ -33,6 +34,7 @@ def query_context():
         print(f"{result4[0]=}")
         print(f"{result5=}")
         print(f"{result6=}")
+
 
 if __name__ == "__main__":
     query_context()
