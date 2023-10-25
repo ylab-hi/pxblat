@@ -4,7 +4,7 @@
 Make sure you have installed PxBLAT, otherwise please go-to ({doc}`installation`).
 ```
 
-```{tip}
+```{important}
 We do not assume you already know common formats and BLAT, which is a standout within the bioinformatics landscape and is recognized for its capability to conduct genome sequence alignments.
 BLAT can help us know where one or several sequences can be mapped to the reference for nucleotide or peptide sequences.
 Assume we have multiple sequences, and want to know where these sequences can be mapped in reference sequence.
@@ -60,11 +60,16 @@ mkdir tutorial
 cd tutorial
 ```
 
-- Download reference data `test_ref.fa`, which is fasta format.
+- Download reference data {download}`⬇️ test_ref.fa <tutorial_data/test_ref.fa>`, which is fasta format.
+
+````{example} Download via wget
+:collapsible: close
 
 ```bash
 wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_ref.fa
 ```
+
+````
 
 Let's check the reference data
 
@@ -85,11 +90,15 @@ $ wc -l test_ref.fa
 301 test_ref.fa
 ```
 
-- Download test sequences `test_case1.fa`, which is fasta format.
+- Download test sequences {download}`⬇️ test_case1.fa <tutorial_data/test_case1.fa>`, which is fasta format.
+
+````{example} Download via wget
+:collapsible: close
 
 ```bash
 wget https://raw.githubusercontent.com/ylab-hi/pxblat/main/tests/data/test_case1.fa
 ```
+````
 
 Let's check test reference
 
@@ -121,6 +130,7 @@ Click the blinking circle cross, and you will be blessed and get more informatio
 
 ```{eval-rst}
 .. code-block:: python
+    :name: fa_to_two_bit_block
     :linenos:
 
     from pxblat import fa_to_two_bit
@@ -139,7 +149,7 @@ Click the blinking circle cross, and you will be blessed and get more informatio
     #. Output file path
 ```
 
-Let's create a Python file named `2bit.py`, and copy and past code above to `2bit.py`.
+Let's create a Python file named `2bit.py`, and copy and paste [code above](#fa_to_two_bit_block) to `2bit.py`.
 Then, execute the `2bit.py`
 
 ```bash
@@ -180,7 +190,7 @@ Moreover, **PxBLAT** provides flexible options to allow conducting the conversio
 **PxBLAT** contains {class}`pxblat.Server` and {class}`pxblat.Client`.
 We use them to align our sequences in two steps.
 
-1. start {class}`pxblat.Server`
+1. Start {class}`pxblat.Server`
 2. {class}`pxblat.Client` send our sequence to {class}`pxblat.Server` for
    alignment
 
@@ -219,10 +229,11 @@ Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready
             server.wait_ready()  # (7)!
             result1 = client.query("ATCG")  # (8)!
             result2 = client.query("AtcG")  # (9)!
-            result3 = client.query(["ATCG", "ATCG"])  # (10)!
-            result4 = client.query(["test_case1.fa"])  # (11)!
-            result5 = client.query(["cgTA", "test_case1.fa"])  # (12)!
-            print(result4[0])
+            result3 = client.query("test_case1.fa")  # (10)!
+            result4 = client.query(["ATCG", "ATCG"])  # (11)!
+            result5 = client.query(["test_case1.fa"])  # (12)!
+            result6 = client.query(["cgTA", "test_case1.fa"])  # (13)!
+            print(result3[0])
 
 
     if __name__ == "__main__":
@@ -236,25 +247,25 @@ Hence, in real life we need to make sure the {class}`pxblat.Server` is in `ready
     #. :attr:`.Client.min_score`  is the minimum score for the alignment.
     #. :attr:`.Client.min_identity`  is the minimum identity for the alignment.
     #. block current thread to wait server to be ready
-    #. :meth:`.Client.query` accepts a :class:`str` consisting of DNA or Protein Sequences, e.g. `"ATCG"`
-    #. :meth:`.Client.query` accepts a path of Fasta file, e.g. `"./test_case1.fa"`
-    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
-    #. :meth:`.Client.query` accepts a :class:`list` of path of Fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
-    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
+    #. :meth:`.Client.query` accepts a :class:`str` consisting of nucleotide or peptide sequences, e.g. `"ATCG"`
+    #. :meth:`.Client.query` accepts nucleotide or peptide sequences that are case-insensitive, e.g. `"AtcG"`
+    #. :meth:`.Client.query` accepts a path of fasta file, e.g. `"./test_case1.fa"`
+    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` consisting of nucleotide or peptide sequences, e.g. `["ATCG","CTGAG"]`
+    #. :meth:`.Client.query` accepts a :class:`list` of path of fasta files, e.g. `["test_case1.fa"]`
+    #. :meth:`.Client.query` accepts a :class:`list` of :class:`str` and path, e.g. `["ATCG", "test_case1.fa"]`
 ```
 
 {meth}`.Client.query` accepts parameters of several types:
 
-1. Path of fasta file e.g. `data/fasta1.fa`
-2. {class}`list` of {class}`str` consisting of DNA or Protein Sequences, e.g. `["ATCG","CTGAG"]`
-3. {class}`list` of path of fasta files, e.g. `["data/fasta1.fa", "data/fasta2.fa"]`
-4. {class}`list` of `str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
-5. {meth}`.Client.query` accepts a {class}`list` of {class}`str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
+- Path of fasta file e.g. `./test_case1.fa`
+- {class}`str` consisting of nucleotide or peptide sequences that are case-insensitive, e.g. `ATCG`, or `ATcg`
+- {class}`list` of {class}`str` consisting of nucleotide or peptide sequences that are case-insensitive, e.g. `["AtcG","CTGAG"]`
+- {class}`list` of path of fasta files, e.g. `["data/fasta1.fa", "./test_case1.fa"]`
+- {class}`list` of `str` and path, e.g. `["ATCG", "data/fasta1.fa"]`
 
 {meth}`.Client.query` return [`QueryResult`](#query-result).
 
-Let's Create a new Python script named `query_context.py`, and copy above to the
-script.
+Let's Create a new Python script named `query_context.py`, and copy above to the script.
 Then execute the Python script.
 
 ```bash

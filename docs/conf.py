@@ -82,6 +82,7 @@ html_theme = "sphinx_immaterial"
 # so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ["_static"]
 
+
 myst_heading_anchors = 3
 myst_enable_extensions = [
     "dollarmath",
