@@ -44,6 +44,45 @@ def create_server_option() -> ServerOption:
     return ServerOption()
 
 
+#   bool canStop{false};        //-canStop      If set, a quit message will actually take down the server.
+#   std::string log{};          //-log=logFile  Keep a log file that records server requests.
+#   std::string logFacility{};  //-logFacility=facility  Log to the specified syslog facility default local0
+#   bool mask{};                //-mask   Use masking from .2bit file.
+#   int maxAaSize{8000};        //-maxAaSize=N  Maximum size of protein or translated DNA queries."
+#   int maxDnaHits{100};        //-maxDnaHits=N   Maximum number of hits for a DNA query that are sent from the server"
+#   int maxGap{gfMaxGap};       //-maxGap=N    Number of insertions or deletions allowed between n-mers. Default is 2 for
+#                               // nucleotides, 0 for proteins"
+#   int maxNtSize{40000};       //-maxNtSize=N    Maximum size of untranslated DNA query sequence
+#   int maxTransHits{200};      //-maxTransHits=N Maximum number of hits for a translated query that are sent from the
+#                               // server"
+#   int minMatch{gfMinMatch};   //-minMatch=N   Number of n-mer matches that trigger detailed alignment Default
+#                               // is 2 for nucleotides, 3 for proteins
+#   int repMatch{};             //-repMatch=N    Number of occurrences of a tile (n-mer) that triggers repeat masking
+#                               // the  tile
+#   bool seqLog{false};         //-seqLog   Include sequences in log file (not logged with  -syslog)
+#   bool ipLog{false};          //-ipLog    Include user's IP in log file (not logged with -syslog)
+#   bool debugLog{false};       //-debugLog   Include debugging info in log file
+
+#   int tileSize{gfTileSize};     //-tileSize=N   Size of n-mers to index.  Default is 11 for nucleotides, 4 for
+#   int stepSize{tileSize};       //-stepSize=N     Spacing between tiles. Default is tileSize
+#                                 // proteins (or translated nucleotides)
+#   bool trans{false};            //-trans      Translate database to protein in 6 frames.  Note: it is best to run
+#                                 // this on RepeatMasked data in this case
+#   bool syslog{false};           //-syslog     Log to syslog.
+#   std::string perSeqMax{};      //-perSeqMax=file File contains one seq filename (possibly with ':seq' suffix) per line
+#   bool noSimpRepMask{false};    //-noSimpRepMask  Suppresses simple repeat masking
+#   std::string indexFile{};      //-indexFile   Index file create by `gfServer index'. Saving index  can
+#                                 // speed up gfServer startup by two orders of magnitude.
+#                                 // The parameters must  exactly match the parameters when
+#                                 // the file is written or bad things  will happen
+#   int timeout{90};              //-timeout=N  Timeout in seconds
+#   std::string genome{};         // no need to get
+#   std::string genomeDataDir{};  // no need to get
+
+#   int threads{1};
+#   bool allowOneMismatch{false};
+
+
 class Server(ContextDecorator):
     """A context manager and decorator for managing a server process.
 
@@ -53,7 +92,7 @@ class Server(ContextDecorator):
     Attributes:
         host (str): The hostname or IP address to bind the server to.
         port (int): The port number to bind the server to.
-        two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
+        two_bit (Path | str): The path to the 2bit file or the URL of the 2bit file.
         option (ServerOption): The options to use when starting the server.
         daemon (bool, optional): Whether to run the server as a daemon process. Defaults to True.
         use_others (bool, optional): Whether to allow other users to access the server. Defaults to False.
@@ -73,8 +112,28 @@ class Server(ContextDecorator):
         host: str,
         port: int,
         two_bit: Path | str,
-        option: ServerOption,
         *,
+        can_stop: bool = True,
+        mask: bool = False,
+        tile_size: int = 11,
+        step_size: int = 11,
+        max_aa_size: int = 8000,
+        max_dna_hits: int = 100,
+        max_gap: int = 2,
+        max_nt_size: int = 40000,
+        max_trans_hits: int = 200,
+        min_match: int = 2,
+        rep_match: int = 0,
+        seq_log: bool = False,
+        ip_log: bool = False,
+        debug_log: bool = False,
+        trans: bool = False,
+        syslog: bool = False,
+        no_simp_rep_mask: bool = False,
+        log: str | Path | None = None,
+        log_facility: str | None = None,
+        per_seq_max: str | Path | None = None,
+        index_file: str | Path | None = None,
         daemon=True,
         use_others: bool = False,
         timeout: int = 60,
@@ -85,8 +144,29 @@ class Server(ContextDecorator):
         Args:
             host (str): The hostname or IP address to bind the server to.
             port (int): The port number to bind the server to.
-            two_bit (Union[Path, str]): The path to the 2bit file or the URL of the 2bit file.
-            option (ServerOption): The options to use when starting the server.
+            two_bit (Path | str): The path to the 2bit file or the URL of the 2bit file.
+            can_stop (bool, optional): Whether to allow the server to be stopped. Defaults to True.
+            mask (bool, optional): Whether to use masking from the 2bit file. Defaults to False.
+            tile_size (int, optional): The size of n-mers to index. Defaults to 11 for nucleotides, 4 for proteins (or translated nucleotides).
+            step_size (int, optional): The spacing between tiles. Defaults to tileSize.
+            max_aa_size (int, optional): The maximum size of protein or translated DNA queries. Defaults to 8000.
+            max_dna_hits (int, optional): The maximum number of hits for a DNA query that are sent from the server. Defaults to 100.
+            max_gap (int, optional): The number of insertions or deletions allowed between n-mers. Defaults to 2 for nucleotides, 0 for proteins.
+            max_nt_size (int, optional): The maximum size of untranslated DNA query sequence. Defaults to 40000.
+            max_trans_hits (int, optional): The maximum number of hits for a translated query that are sent from the server. Defaults to 200.
+            min_match (int, optional): The number of n-mer matches that trigger detailed alignment. Defaults to 2 for nucleotides, 3 for proteins.
+            rep_match (int, optional): The number of occurrences of a tile (n-mer) that triggers repeat masking the tile. Defaults to 0.
+            seq_log (bool, optional): Whether to include sequences in the log file (not logged with syslog). Defaults to False.
+            ip_log (bool, optional): Whether to include user's IP in the log file (not logged with syslog). Defaults to False.
+            debug_log (bool, optional): Whether to include debugging info in the log file. Defaults to False.
+            trans (bool, optional): Whether to translate database to protein in 6 frames, and it is best to run this on RepeatMasked data. Defaults to False.
+            syslog (bool, optional): Whether to log to syslog. Defaults to False.
+            no_simp_rep_mask (bool, optional): Whether to suppress simple repeat masking. Defaults to False.
+            log (str | Path | None, optional): The path to the log file that records server requests. Defaults to None.
+            log_facility (str | None, optional): The syslog facility to log to. Defaults to None.
+            per_seq_max (str | Path | None, optional): The path to a file that contains one seq filename (possibly with ':seq' suffix) per line. Defaults to None.
+            index_file (str | Path | None, optional): The path to the index file created by `gfServer index`.
+                Saving index can speed up `gfServer` startup by two orders of magnitude. Defaults to None.
             daemon (bool, optional): Whether to run the server as a daemon process. Defaults to True.
             use_others (bool, optional): Whether to allow other users to access the server. Defaults to False.
             timeout (int, optional): The number of seconds to wait for the server to start. Defaults to 60.
@@ -98,13 +178,43 @@ class Server(ContextDecorator):
 
         Returns:
             None
-
         """
         self._host = host
         self._port = port
 
         self.two_bit = two_bit
-        self.option = option
+
+        log = "" if log is None else str(log)
+        log_facility = "" if log_facility is None else str(log_facility)
+        per_seq_max = "" if per_seq_max is None else str(per_seq_max)
+        index_file = "" if index_file is None else str(index_file)
+
+        self.option = (
+            create_server_option()
+            .withCanStop(can_stop)
+            .withLog(log)
+            .withLogFacility(log_facility)
+            .withMask(mask)
+            .withMaxAaSize(max_aa_size)
+            .withMaxDnaHits(max_dna_hits)
+            .withMaxGap(max_gap)
+            .withMaxNtSize(max_nt_size)
+            .withMaxTransHits(max_trans_hits)
+            .withMinMatch(min_match)
+            .withRepMatch(rep_match)
+            .withSeqLog(seq_log)
+            .withIpLog(ip_log)
+            .withDebugLog(debug_log)
+            .withTileSize(tile_size)
+            .withStepSize(step_size)
+            .withTrans(trans)
+            .withSyslog(syslog)
+            .withPerSeqMax(per_seq_max)
+            .withNoSimpRepMask(no_simp_rep_mask)
+            .withIndexFile(index_file)
+            .build()
+        )
+
         self.stat = UsageStats()
 
         self.use_others = use_others
