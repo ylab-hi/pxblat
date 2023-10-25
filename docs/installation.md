@@ -1,95 +1,74 @@
-# Install
+# Installation Guide
 
-## **Prerequisites**
+Welcome to the installation guide for **PxBLAT**!
+Below, you'll find straightforward instructions on how to install **PxBLAT** on your system.
+You can choose between `CONDA` and `PyPI` for installation, depending on your preference.
 
-```{tip}
-I highly recommend to install `PxBLAT` via `CONDA` such that you do not need to
-install dependencies [goto ➡️](#get-started).
-```
+## Get started
 
-Before you begin with the installation and use of **PxBLAT**, there are certain prerequisites that need to be met.
-The following sections detail the necessary software, hardware, and knowledge prerequisites that you should have before you start.
-**PxBLAT** has been tested and runs on the following operating systems **Linux** and **MacOS**.
-Choosing appropriate dependencies manager according to the operating systems.
-You should have an active and stable internet connection for downloading and installing the software:
+Installing **PxBLAT** is a breeze, whether you prefer using `CONDA` or `PyPI`.
+Simply follow the tabs below to choose your preferred installation method.
 
 `````{md-tab-set}
-
-````{md-tab-item} Brew
-```{code-block} bash
-brew install htslib openssl
-```
-````
-
-````{md-tab-item} Conda
-```{code-block} bash
-conda install htslib openssl
-```
-````
-````{md-tab-item} Apt-get
-```{code-block} bash
-apt-get update && apt-get install libhts-dev libssl-dev
-```
-````
-
-`````
-
-## **Get Started**
-
-Installing **PxBLAT** via `CONDA` **do not requires** the prerequisites.
-Installing **PxBLAT** via `PyPI` requires the prerequisites.
-Once you have confirmed the prerequisites, you can proceed with the software installation:
-
-`````{md-tab-set}
-
-````{md-tab-item} Conda
-```{code-block} bash
-conda install pxblat
-```
-````
 
 ````{md-tab-item} Pip
+
+To install using `pip`, run the following command in your terminal:
+
 ```{code-block} bash
 pip install pxblat
 ```
+
+This will fetch the latest version of **PxBLAT** and install it on your system.
 ````
 
-`````
+````{md-tab-item} Conda
 
-``````{warning}
-You meet the issue _*.h cannot found_ or _undefined symbol **_ If you install `pxblat` by `pip`.
-If you have installed the prerequisites, the problem is caused by incorrect environment variable {envvar}`CFLAGS`, `CXXFLAGS`,
-and `LDFLAGS`, which direct compiler and linker find right location of
-dependencies so as to compile and link code properly.
-**The easy solution** is to install  **PxBLAT**  via `conda`.
-You can also set proper environment variable if `conda` is not accessible.
+To install using `conda`, execute the following command:
 
-
-`````{md-tab-set}
-
-````{md-tab-item} Bash/Zsh
 ```{code-block} bash
-export CFLAGS="-Idependencies"
-export CXXFLAGS="-Idependencies"
-...
+conda install pxblat
 ```
+This command will install **PxBLAT** from the [conda] repository.
 ````
 
-````{md-tab-item} Fish
-```{code-block} fish
-set -x CFLAGS="-Idependencies"
-set -x CXXLAGS="-Idependencies"
-...
-```
-````
 `````
 
-``````
+## Compatibility and Support
 
-## **FAQ (Frequently Asked Questions)**
+Below is a compatibility matrix that shows the support status of **PxBLAT** across different platforms and Python versions.
 
-1. I cannot download `PxBLAT` via `Conda` in MacOS with Arm (M1 or M2).
+### [Conda Support][conda]
 
-A: So far, conda build `PxBLAT` in x86 instead of arrch64.
-Hence we can install [prerequisites](#prerequisites) manually via `brew` or `Conda`.
-Then, we can use `pip install pxblat` to install `PxBLAT`.
+| Python Version | Linux x86_64 | macOS Intel |
+| :------------: | :----------: | :---------: |
+|      3.9       |      ✅      |     ✅      |
+|      3.10      |      ✅      |     ✅      |
+|      3.11      |      ✅      |     ✅      |
+|      3.12      |      ⚫      |     ⚫      |
+
+### [PyPI Support][pypi]
+
+| Python Version | Linux x86_64 | macOS Intel | macOS Apple Silicon |
+| :------------: | :----------: | :---------: | :-----------------: |
+|      3.9       |      ✅      |     ✅      |         ✅          |
+|      3.10      |      ✅      |     ✅      |         ✅          |
+|      3.11      |      ✅      |     ✅      |         ✅          |
+|      3.12      |      ⚫      |     ⚫      |         ⚫          |
+
+## Frequently Asked Questions (FAQ)
+
+- **Q1**: I'm unable to install `PxBLAT` via `Conda` on my macOS device with an Arm-based processor (M1 or M2). What should I do?
+
+  > **A**: Currently, `Conda` provides **PxBLAT** built for x86 architectures. For Arm-based macOS devices, we recommend installing **PxBLAT** via `PyPI` instead:
+
+  ```bash
+  pip install pxblat
+  ```
+
+You've successfully installed **PxBLAT**! Feel free to dive into a real usage case ({doc}`tutorial`) to start exploring its functionalities.
+
+<!-- links -->
+
+[conda]: https://anaconda.org/bioconda/pxblat
+[pypi]: https://pypi.org/project/pxblat/
