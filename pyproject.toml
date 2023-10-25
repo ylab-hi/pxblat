@@ -206,13 +206,10 @@ exclude = [
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
-
 # Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
-
 # Like Black, respect magic trailing commas.
 # magic-trailing-comma = "respect"
-
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
@@ -226,7 +223,7 @@ allow-star-arg-any = true
 "src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103", "TID252"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
-"src/pxblat/server/server.py" = ["PLR0913"]
+"src/pxblat/server/server.py" = ["PLR0913", "D102"]
 "src/pxblat/server/client.py" = ["PLR0913"]
 "src/pxblat/cli/server.py" = ["PLR0913", "N816", "FBT001", "FBT003"]
 "src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]

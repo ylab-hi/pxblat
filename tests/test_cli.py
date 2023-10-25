@@ -51,7 +51,7 @@ def test_fa2twobit_cli(tmp_path, two_bit):
 
 
 @pytest.fixture()
-def start_server2(server_option, port, two_bit):
+def start_server2(server_instance, port, two_bit):
     server = Server("localhost", port + 1, two_bit, server_option, use_others=True)
     server.start()
 
