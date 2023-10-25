@@ -2,6 +2,8 @@
 
 ## **1. CLIs Overview**
 
+[![cli](images/cli.gif)](cli)
+
 | CLI                       |                               Usage                                |
 | :------------------------ | :----------------------------------------------------------------: |
 | [server](#server)         |      Make a server to quickly find where DNA occurs in genome      |

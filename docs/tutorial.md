@@ -580,6 +580,8 @@ By integrating this functionality into a Python script, we have successfully dem
 
 ## 8. Beyond APIs: Command-Line Tools
 
+[![cli](images/cli.gif)](cli)
+
 While `PxBLAT` is primarily designed as a library, it also offers command-line tools built on top of its APIs.
 This provides users with additional options and flexibility, catering to a variety of use cases.
 For more detailed information on these tools, refer to the [CLI documentation](cli).
