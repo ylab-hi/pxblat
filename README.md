@@ -77,7 +77,8 @@ It resolves the issues mentioned above while introducing handy features like `po
 ## 📎 **Citation**
 
 PxBLAT is scientific software, with a published paper in the BioRxiv.
-Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v1) to read the paper.
+Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v2) to read the paper.
+
 
 ```bibtex
 @article {Li2023pxblat,
@@ -87,9 +88,7 @@ Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v
 	year = {2023},
 	doi = {10.1101/2023.08.02.551686},
 	publisher = {Cold Spring Harbor Laboratory},
-	abstract = {Summary: We introduce PxBLAT, a Python library designed to enhance usability and efficiency in interacting with the BLAST-like alignment tool (BLAT). PxBLAT provides an intuitive application programming interface (API) design, allowing the incorporation of its functionality directly into Python-based bioinformatics workflows. Besides, it integrates seamlessly with Biopython and comes equipped with user-centric features like server readiness checks and port retry mechanisms. PxBLAT removes the necessity for system calls and intermediate files, as well as reducing latency and data conversion overhead. Benchmark tests reveal PxBLAT gains a ~20\% performance boost compared to BLAT in the Python environment. Availability and Implementation: PxBLAT supports Python (version 3.8+), and pre-compiled packages are released via PyPI (https://pypi.org/project/ pxblat/) and Bioconda (https://anaconda.org/ bioconda/pxblat). The source code of PxBLAT is available under the terms of an open-source MIT license and hosted on GitHub (https:// github.com/ylab-hi/pxblat). Its documentation is available on ReadTheDocs (https://pxblat. readthedocs.io/en/latest/).Competing Interest StatementThe authors have declared no competing interest.},
-	URL = {https://www.biorxiv.org/content/early/2023/08/05/2023.08.02.551686},
-	eprint = {https://www.biorxiv.org/content/early/2023/08/05/2023.08.02.551686.full.pdf},
+	url = {https://www.biorxiv.org/content/10.1101/2023.08.02.551686v2},
 	journal = {bioRxiv}
 }
 ```
