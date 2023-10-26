@@ -267,11 +267,11 @@ jobs:
   upload_to_test_pypi:
     needs: ["release"]
     runs-on: ubuntu-latest
+    if: "! needs.release.outputs.tag"
     steps:
       - uses: actions/download-artifact@v3
 
       - name: Publish package on TestPyPI
-        if: "! needs.release.outputs.tag"
         uses: pypa/gh-action-pypi-publish@v1.8.10
         with:
           user: __token__
