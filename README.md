@@ -62,7 +62,7 @@ It resolves the issues mentioned above while introducing handy features like `po
   - [🚀 **Getting Started**](#-getting-started)
   - [🤝 **Contributing**](#-contributing)
   - [🪪 **License**](#-license)
-  - [**Contributors**](#contributors)
+  - [🤗 **Contributors**](#contributors)
   - [🙏 **Acknowledgments**](#-acknowledgments)
 
 ## 🔮 **Features**
@@ -95,6 +95,20 @@ Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v
 
 ## 🚀 **Getting Started**
 
+Welcome to PxBLAT! To kickstart your journey and get the most out of this tool, we have prepared a comprehensive [documentation](https://pxblat.readthedocs.io/en/latest/).
+Inside, you’ll find detailed guides, examples, and all the necessary information to help you navigate and utilize PxBLAT effectively.
+
+### Need Help or Found an Issue?
+
+If you encounter any issues or if something is not clear in the documentation, do not hesitate to [open an issue](https://github.com/ylab-hi/pxblat/issues/new/choose).
+We are here to help and appreciate your feedback for improving PxBLAT.
+
+### Show Your Support
+
+If PxBLAT has been beneficial to your projects or you appreciate the work put into it, consider leaving a ⭐️ [Star](https://github.com/ylab-hi/pxblat/stargazers) on our GitHub repository.
+Your support means the world to us and motivates us to continue enhancing PxBLAT.
+
+Let’s embark on this journey together and make the most out of PxBLAT! 🎉
 Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details and more examples.
 
 ## 🤝 **Contributing**
