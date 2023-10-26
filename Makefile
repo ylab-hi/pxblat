@@ -125,3 +125,7 @@ binder: ## Generate pybind11 bindings
 		-I/bind/src/pxblat/extc/bindings \
 		--std=c++17 \
 		-DNDEBUG
+
+update:
+	pre-commit autoupdate
+	poetry update
