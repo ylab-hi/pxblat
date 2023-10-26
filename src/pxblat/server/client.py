@@ -5,8 +5,6 @@ from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING, Union
 
-from gevent.pool import Pool
-
 from pxblat.extc import ClientOption, pygfClient
 from pxblat.parser import read
 
@@ -586,5 +584,8 @@ class Client:
                 server_option=self._server_option,
             )
 
-        group = Pool(1)
-        return list(group.imap(self._query, in_seqs))
+        results = []
+        for in_seq in in_seqs:
+            results.append(self._query(in_seq))
+
+        return results
