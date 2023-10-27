@@ -2,6 +2,452 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2023-10-27
+
+### Documentation
+
+- Update README.md with documentation links and instructions
+- Update URLs in README and pyproject.toml
+
+### Miscellaneous Tasks
+
+- Update upload_to_test_pypi step
+- Add update command in Makefile
+- Add concurrency settings for workflows
+- Update version to 1.0.1
+
+### Styling
+
+- Update ruff-pre-commit to v0.1.3
+
+### Build
+
+- Remove depdendency
+
+## [1.0.0] - 2023-10-25
+
+### Bug Fixes
+
+- Validate two_bit file before starting server
+- Fix logic bug in \_cpsl function
+
+### Documentation
+
+- Update version number to v0.3.10
+- Update installation guide and compatibility matrix
+- Rewrite toturial
+- Update tutorial and conf.py
+- Add code example for turorial
+- Update README.md
+- Polish tutorial
+- Update link in tutorial
+- Update tutorial.md with proper Python script execution and comments
+- Add CLI documentation link to tutorial.md
+
+### Features
+
+- Add optional parameters to `Server` constructor
+- Add new options for starting the server
+- Add server option 'can stop' and 'step size'
+- Add documentation for Client class and methods
+- Add Pure Python BLAT code for creating our own `BLAT`
+
+### Miscellaneous Tasks
+
+- Bump actions/checkout from 3 to 4
+- Bump virtualenv in /.github/workflows
+- Bump docker/setup-qemu-action from 2 to 3
+- Bump pypa/cibuildwheel from 2.12.3 to 2.16.2
+- Update .pre-commit-config.yaml and pyproject.toml
+- Add platform badge to README.md
+- Remove unused code and properties
+- Update release workflow configuration
+- Update version to 1.0.0
+
+### Styling
+
+- Remove unnecessary parentheses and simplify code
+- Update code style badge URL
+
+### Build
+
+- Update python dependencies
+
+### Chroe
+
+- Update dependencies
+
+## [0.3.10] - 2023-10-24
+
+### Features
+
+- Update version to 0.3.10
+
+## [0.3.9] - 2023-10-24
+
+### Features
+
+- Update version to 0.3.9
+
+### Miscellaneous Tasks
+
+- Update version to 0.3.8
+
+## [0.3.7] - 2023-10-24
+
+### Features
+
+- Add tests for Python 3.11 and 3.12 on macOS
+- Update supported Python versions
+
+### Miscellaneous Tasks
+
+- Remove unnecessary OS Independent classifier
+- Update release workflow and dependencies
+- Update CIBW_BEFORE_ALL command in release.yml
+- Update package installation command
+- Update build dependencies
+- Update cibw_build and cibw_archs configurations
+- Update CIBW_BEFORE_ALL command
+- Update release.yml and pyproject.toml configurations
+- Update manylinux x86_64 image version
+- Update cibw_build and cibw_archs values
+- Remove commented out code and unused steps
+- Update test command in release.yml
+- Update release workflow
+- Update tests.yml configuration
+- Update Python version range
+- Update python dependency
+- Update version to 0.3.7
+
+### Refactor
+
+- Update python version requirement and add numpy dependency
+
+### Testing
+
+- Importing tests
+
+### Build
+
+- Add sdist artifact to release workflow
+- Update CIBW_BEFORE_ALL command
+- Update build dependencies
+- Use manylinux1 image and skip musllinux builds
+- Add Homebrew dependencies and configure
+- Update setuptools requirement
+- Update python version
+
+### Ci
+
+- Upgrade Python version to 3.11
+
+## [0.3.6] - 2023-10-23
+
+### Styling
+
+- Update pyproject.toml version and license
+
+### Build
+
+- Remove numpy dependency
+
+## [0.3.5] - 2023-10-23
+
+### Documentation
+
+- Remove unnecessary section in README.md
+
+### Miscellaneous Tasks
+
+- Update version to 0.3.4
+- Update dependencies
+- Bump pip from 23.2.1 to 23.3 in /.github/workflows
+- Bump psutil from 5.9.5 to 5.9.6
+- Update dependencies
+- Bump release-drafter/release-drafter from 5.24.0 to 5.25.0
+- Bump ruff from 0.0.292 to 0.1.0
+- Bump mypy from 1.6.0 to 1.6.1
+- Bump black from 23.9.1 to 23.10.0
+- Bump urllib3 from 2.0.4 to 2.0.7
+- Update dependencies
+- Bump ruff from 0.1.0 to 0.1.1
+- Bump pybind11-stubgen from 2.3 to 2.3.4
+- Bump pip from 23.3 to 23.3.1 in /.github/workflows
+- Update pxblat version to 0.3.5
+
+### Styling
+
+- Fix typo in README.md
+
+## [0.3.4] - 2023-10-11
+
+### Features
+
+- Add pr_agent.yml workflow for pull requests and comments
+
+### Miscellaneous Tasks
+
+- Remove unnecessary lines from README.md
+- Bump virtualenv in /.github/workflows
+- Bump ruff from 0.0.286 to 0.0.287
+- Bump pytest from 7.4.0 to 7.4.1
+- Bump pybind11-stubgen from 1.2 to 2.0.2 (#128)
+- Bump loguru from 0.7.0 to 0.7.1
+- Bump actions/checkout from 3 to 4
+- Bump pybind11-stubgen from 2.0.2 to 2.1
+- Bump setuptools from 68.1.2 to 68.2.0
+- Bump pytest from 7.4.1 to 7.4.2
+- Bump crazy-max/ghaction-github-labeler from 4.2.0 to 5.0.0
+- Bump black from 23.7.0 to 23.9.1
+- Bump virtualenv in /.github/workflows
+- Bump ruff from 0.0.287 to 0.0.288
+- Bump mashumaro from 3.9.1 to 3.10
+- Bump setuptools from 68.2.1 to 68.2.2
+- Bump sphinx from 7.2.5 to 7.2.6
+- Bump rich from 13.5.2 to 13.5.3
+- Bump ruff from 0.0.288 to 0.0.290
+- Bump pybind11-stubgen from 2.1 to 2.2
+- Bump ruff from 0.0.290 to 0.0.291
+- Bump pybind11-stubgen from 2.2 to 2.2.1
+- Bump pybind11-stubgen from 2.2.1 to 2.2.2
+- Bump pybind11-stubgen from 2.2.2 to 2.3
+- Bump sphinx-autoapi from 2.1.1 to 3.0.0 (#153)
+- Bump rich from 13.5.3 to 13.6.0
+- Bump seaborn from 0.12.2 to 0.13.0 (#156)
+- Bump ruff from 0.0.291 to 0.0.292
+- Bump ipython from 8.15.0 to 8.16.1
+- Bump pysam from 0.21.0 to 0.22.0
+- Update version to 0.3.3
+- Bump mypy from 1.5.1 to 1.6.0
+- Update dependencies and version numbers
+
+## [0.3.2] - 2023-09-01
+
+### Miscellaneous Tasks
+
+- Bump sphinxcontrib-bibtex from 2.5.0 to 2.6.1
+- Bump ruff from 0.0.285 to 0.0.286
+- Bump sphinx from 7.2.2 to 7.2.4
+- Bump pybind11-stubgen from 0.16.2 to 1.1
+- Bump pybind11-stubgen from 1.1 to 1.2
+- Bump crazy-max/ghaction-github-labeler from 4.1.0 to 4.2.0
+- Update version to 0.3.2
+
+### Refactor
+
+- Simplify code in client.py and server.py
+- Simplify nested loop for printing hsps in client query
+
+### Build
+
+- Update pre-commit and typos dependencies
+
+## [0.3.1] - 2023-08-22
+
+### Documentation
+
+- Update docuemnt for CLIs
+- Add FAQ for installing PxBLAT on MacOS Arm
+- Update citation link in README.md
+- Update README.md
+- Update contributors and pre-commit config versions
+- Add documentation for `create_client_option` function
+- Add example files for users to try
+- Update README.md with more detailed explanation
+
+### Features
+
+- Add version information to CLI output
+- Update version to 0.3.1
+
+### Miscellaneous Tasks
+
+- Update lock file
+- Update sys.path in conf.py
+- Cerate figures for paper
+- Bump rich from 13.4.2 to 13.5.0
+- Bump ruff from 0.0.280 to 0.0.281
+- Bump numpy from 1.25.1 to 1.25.2
+- Bump rich from 13.5.0 to 13.5.1
+- Bump ruff from 0.0.281 to 0.0.282
+- Bump rich from 13.5.0 to 13.5.2 (#95)
+- Bump mashumaro from 3.8.1 to 3.9
+- Update repository link in README.md
+- Bump ruff from 0.0.282 to 0.0.283
+- Bump ruff from 0.0.283 to 0.0.284
+- Bump pypa/gh-action-pypi-publish from 1.8.8 to 1.8.10
+- Bump mypy from 1.4.1 to 1.5.0
+- Bump virtualenv in /.github/workflows
+- Bump setuptools from 68.0.0 to 68.1.0
+- Bump mypy from 1.5.0 to 1.5.1
+- Bump sphinx-click from 4.4.0 to 5.0.1
+- Bump ruff from 0.0.284 to 0.0.285 (#109)
+- Bump sphinx-immaterial from 0.11.6 to 0.11.7
+- Bump setuptools from 68.1.0 to 68.1.2
+- Bump sphinx-click from 4.4.0 to 5.0.1 in /docs
+- Cache pip packages and Poetry virtual environment
+- Remove Docker workflow configuration
+- Update pre-commit hooks versions
+- Bump poetry from 1.5.1 to 1.6.0 in /.github/workflows
+- Bump poetry from 1.6.0 to 1.6.1 in /.github/workflows
+- Update test workflow configuration
+- Bump sphinx from 7.1.2 to 7.2.2
+
+### Refactor
+
+- Remove unnecessary import statement
+- Assign version info to query result
+
+### Styling
+
+- Simplify code formatting and remove unnecessary lines
+- Change port number in tutorial code example
+
+### Testing
+
+- Add benchmark result for hsp compared to BLAT
+
+### Build
+
+- Add caching for macOS dependencies
+
+### Ci
+
+- Update crate-ci/typos to v1.16.8
+
+## [0.3.0] - 2023-07-27
+
+### Bug Fixes
+
+- Find free port in specified range
+- Fix file existence check in query method
+
+### Documentation
+
+- Update Sphinx configuration and requirements
+- Remove autodoc2 and update API generation groups
+- Use ruff docs
+- Remove d417
+- Add rst prolog and python highlighting
+- Add references and annotations to conf.py and tutorial.md
+- Update Sphinx configuration and requirements
+- Remove autodoc2 and update API generation groups
+- Use ruff docs
+- Remove d417
+- Add rst prolog and python highlighting
+- Add references and annotations to conf.py and tutorial.md
+- Update README.md [skip ci]
+- Update .all-contributorsrc [skip ci]
+- Fix the error of docs build
+- Update API example in README.md
+- Draft a tutorial
+
+### Features
+
+- Add test_gevent.py
+- Implemt new client and add tests
+- Change query api to be more friendly and use gevent to implement query
+- Make `__repr__` equals to `__str__`
+- Add fa_to_two_bit function and update tutorial.md
+- Add static method create_option()
+
+### Miscellaneous Tasks
+
+- Remove obsolete test_pickle file
+- Remove obsolete test_pickle file
+- Add/update pre-commit and commitizen config
+- Add commitizen and update pre-commit hooks
+- Bump myst-parser from 1.0.0 to 2.0.0
+- Bump myst-parser from 1.0.0 to 2.0.0 in /docs
+- Update version to v0.2.0 and add example in README
+- Bump ruff from 0.0.272 to 0.0.274
+- Bump setuptools from 67.8.0 to 68.0.0
+- Bump invoke from 2.1.2 to 2.1.3
+- Bump ruff from 0.0.274 to 0.0.275
+- Bump mashumaro from 3.7 to 3.8
+- Bump mashumaro from 3.8 to 3.8.1
+- Bump pytest from 7.3.2 to 7.4.0
+- Update lock file
+- Remove unnecessary MACHTYPE variable assignment
+- Bump ruff from 0.0.275 to 0.0.276
+- Bump pybind11-stubgen from 0.15.1 to 0.16.1 (#60)
+- Bump sphinx-immaterial from 0.11.4 to 0.11.5 (#59)
+- Bump release-drafter/release-drafter from 5.23.0 to 5.24.0
+- Bump pypa/gh-action-pypi-publish from 1.8.6 to 1.8.7
+- Bump virtualenv in /.github/workflows
+- Bump ruff from 0.0.276 to 0.0.277
+- Bump numpy from 1.25.0 to 1.25.1
+- Bump nox-poetry from 1.0.2 to 1.0.3
+- Bump nox-poetry from 1.0.2 to 1.0.3 in /.github/workflows
+- Bump black from 23.3.0 to 23.7.0
+- Bump pypa/gh-action-pypi-publish from 1.8.7 to 1.8.8
+- Bump virtualenv in /.github/workflows
+- Bump pybind11 from 2.10.4 to 2.11.1
+- Bump pybind11-stubgen from 0.16.1 to 0.16.2
+- Bump pip from 23.1.2 to 23.2 in /.github/workflows
+- Bump invoke from 2.1.3 to 2.2.0
+- Bump ruff from 0.0.277 to 0.0.278
+- Bump ruff from 0.0.278 to 0.0.280
+- Bump pip from 23.2 to 23.2.1 in /.github/workflows
+- Update pyproject.toml and remove unused timeout parameter
+- Bump virtualenv in /.github/workflows
+- Update lock files
+- Upadte dependencies
+- Add sphnix_click as dev dependency
+- Bump gevent from 22.10.2 to 23.7.0
+- Bump urllib3 from 2.0.3 to 2.0.4 (#86)
+- Bump gevent from 22.10.2 to 23.7.0
+- Remove unused Signal class
+- Update version to 0.3.0
+
+### Refactor
+
+- Clean up pyproject.toml formatting and remove unused files
+- Clean up and optimize client code
+- Refactor query_server_by_file method
+- Simplify query method and remove unnecessary code
+- Split fas on single directory
+- Fix typos and formatting in code and documentation
+- Simplify error message handling
+- Remove unnecessary logger.debug statements
+- Remove unused function
+- Rename copy function for clarity
+
+### Styling
+
+- Fix formatting and spacing in README and installation.md
+- Fix formatting and spacing in README and installation.md
+- Fix typo in Makefile target name
+- Update pre-commit hooks and remove commented code in utils.py
+- Enbale more linter rules
+
+### Testing
+
+- Add smoke test for set_state function
+- Add smoke test for set_state function
+- Add new test data
+- Add benchmark tests for pxblat results and bpresult and bcresult tests
+- Add failing tests
+- Add test files to fix the bug about (open too many files)
+- Remove unnecessary code
+- Rename test_gevent.py to test_client.py
+
+### Build
+
+- Update Ruff version to v0.0.276
+- Update symbolic links for OpenSSL installation
+- Update lock file
+- Addd gevent
+- Add py-spy dependency
+
+### Ci
+
+- Fix ci error
+- Make typing annotation to be compatible with py39
+- Fix the ci errors of tests
+- Fix ci error for tests
+
 ## [0.2.0] - 2023-06-13
 
 ### Bug Fixes
@@ -14,16 +460,36 @@ All notable changes to this project will be documented in this file.
 - Update contact information in epilog
 - Add installation guide for prerequisites
 - Add tutorial and CLI usage to docs
+- Update CLI list in usage.md
+- Add installation instructions for pxblat
 - Update README.md [skip ci]
 - Create .all-contributorsrc [skip ci]
+- Add tutorial and CLI usage to docs
+- Update CLI list in usage.md
+- Add installation instructions for pxblat
+- Update CLI usage and add completion command
 - Update FAQ heading in installation.md
 
 ### Features
 
-- Add twoBitToFa module
-- Add support for twobittofa command
-- Add PXBLATLIB macro to escape unused code
+- Add twoBitToFa conversion function
+- Draft new features
+- Finish cpp implementation
+- Add twobit2fa.py script and CLI arguments
 - Add linkcheck to build docs
+- Finish twobit2fa cpp
+- Add twoBitToFa module and bind it in \_extc.cpp
+- Add PXBLATLIB macro to escape unused code
+- Add support for twobittofa command
+- Add twoBitToFa conversion function
+- Draft new features
+- Finish cpp implementation
+- Add twobit2fa.py script and CLI arguments
+- Add linkcheck to build docs
+- Finish twobit2fa cpp
+- Add twoBitToFa module and bind it in \_extc.cpp
+- Add PXBLATLIB macro to escape unused code
+- Add support for twobittofa command
 
 ### Miscellaneous Tasks
 
@@ -45,6 +511,7 @@ All notable changes to this project will be documented in this file.
 - Remove 2to3 binary on macOS build workflow
 - Rename directories and update tasks
 - Remove unnecessary file for macos-latest build
+- Update lock file
 - Remove unnecessary file in Install Dependencies script
 - Remove unused code and update comments
 - Remove unused Python IDLE3 binary
@@ -54,9 +521,11 @@ All notable changes to this project will be documented in this file.
 - Bump pytest from 7.3.1 to 7.3.2 (#37)
 - Bump sphinx-autoapi from 2.1.0 to 2.1.1 (#36)
 - Remove urllib3 dependency
+- Update version to 0.2.0 and change log
 
 ### Refactor
 
+- Add udcDir option to twoBitToFa() function
 - Add udcDir option to twoBitToFa() function
 - Rename gfClientOption to ClientOption
 - Rename gfServerOption to ServerOption
@@ -79,12 +548,13 @@ All notable changes to this project will be documented in this file.
 ### Testing
 
 - Add test for twobit2fa
+- Add test for twobit2fa
 - Add blat suit as benchmark
 - Test correct result with blat suit
 
 ### Ci
 
-- Fix poetry
+- Fix peotry
 
 ## [0.1.6] - 2023-05-27
 
@@ -163,7 +633,7 @@ All notable changes to this project will be documented in this file.
 - Add bindings
 - Add native python for client
 - Change client binding
-- Format files
+- Foramt files
 - Avoide global variable
 - Pass extra parameter
 - Add debug printer
