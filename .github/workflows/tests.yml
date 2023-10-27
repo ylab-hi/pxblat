@@ -101,7 +101,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -q --no-install-recommends --no-install-suggests libhts-dev  libssl-dev
+          sudo apt-get install -q --no-install-recommends --no-install-suggests libssl-dev
 
       - name: Cache macOS dependencies
         if: matrix.os == 'macos-latest'
@@ -124,7 +124,6 @@ jobs:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
 
         run: |
-          brew install htslib
           brew install openssl@3
           ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
