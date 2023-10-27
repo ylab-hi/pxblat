@@ -2,12 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.1] - 2023-10-27
+## [1.0.2] - 2023-10-27
 
 ### Documentation
 
 - Update README.md with documentation links and instructions
 - Update URLs in README and pyproject.toml
+- Update changelog for v1.0.1
 
 ### Miscellaneous Tasks
 
@@ -15,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Add update command in Makefile
 - Add concurrency settings for workflows
 - Update version to 1.0.1
+- Update version to 1.0.2
 
 ### Styling
 
