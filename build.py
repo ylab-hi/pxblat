@@ -197,7 +197,7 @@ library_dirs: list[str] = []
 python_module_link_args = []
 base_library_link_args: list[str] = []
 external_libraries = [
-    "z",
+    # "z",
     "ssl",
     "crypto",
     "m",
