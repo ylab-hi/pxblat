@@ -2,6 +2,7 @@ import os
 import shlex
 import sys
 import typing
+import subprocess
 from contextlib import contextmanager
 from ctypes.util import find_library
 from functools import wraps
@@ -157,6 +158,14 @@ def find_available_library(lib_name: str):
     return Path(lib_path).parent, header_path
 
 
+def find_openssl_libs():
+    openssl_dir = subprocess.getoutput('openssl version -d')
+    openssl_dir = openssl_dir.replace('OPENSSLDIR: "', '').replace('"', '').strip()
+
+    lib_paths = [f"{openssl_dir}/lib"]
+
+    return lib_paths
+
 def _extra_compile_args_for_libpxblat():
     return [
         "-D_FILE_OFFSET_BITS=64",
@@ -193,11 +202,10 @@ ParallelCompile(f"{get_thread_count()}").install()
 extra_compile_args = ["-pthread"]
 hidden_visibility_args = []
 include_dirs: list[str] = []
-library_dirs: list[str] = []
+library_dirs: list[str] = [] + find_openssl_libs()
 python_module_link_args = []
 base_library_link_args: list[str] = []
 external_libraries = [
-    # "z",
     "ssl",
     "crypto",
     "m",
