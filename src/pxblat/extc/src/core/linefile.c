@@ -15,7 +15,7 @@
 #include "localmem.h"
 #include "cheapcgi.h"
 #include "udc.h"
-#include "htslib/tbx.h"
+// #include "htslib/tbx.h"
 
 char *getFileNameFromHdrSig(char *m)
 /* Check if header has signature of supported compression stream,
@@ -237,34 +237,35 @@ if (tbiFileOrUrl==NULL)
 else
     safef(tbiName, sizeof(tbiName), "%s", tbiFileOrUrl);
 
-htsFile *htsFile = hts_open(fileOrUrl, "r");
-if (htsFile == NULL)
-    {
-    warn("Unable to open \"%s\"", fileOrUrl);
-    return NULL;
-    }
-tbx_t *tabix;
-if ((tabix = tbx_index_load2(fileOrUrl, tbiName)) == NULL)
-    {
-    warn("Unable to load tabix index from \"%s\"", tbiName);
-    if (tabix)
-        ti_close(tabix);
-    tabix = NULL;
-    return NULL;
-    }
+    // HACK:  reduce htslib dependencies <10-26-23> Yangyang Li
+// htsFile *htsFile = hts_open(fileOrUrl, "r");
+// if (htsFile == NULL)
+//     {
+//     warn("Unable to open \"%s\"", fileOrUrl);
+//     return NULL;
+//     }
+// tbx_t *tabix;
+// if ((tabix = tbx_index_load2(fileOrUrl, tbiName)) == NULL)
+//     {
+//     warn("Unable to load tabix index from \"%s\"", tbiName);
+//     if (tabix)
+//         ti_close(tabix);
+//     tabix = NULL;
+//     return NULL;
+//     }
 struct lineFile *lf = needMem(sizeof(struct lineFile));
-lf->fileName = cloneString(fileOrUrl);
-lf->fd = -1;
-lf->bufSize = 64 * 1024;
-lf->buf = needMem(lf->bufSize);
-lf->zTerm = zTerm;
-lf->tabix = tabix;
-lf->htsFile = htsFile;
-kstring_t *kline;
-AllocVar(kline);
-kline->s = malloc(8192);
-lf->kline = kline;
-lf->tabixIter = tbx_itr_queryi(tabix, HTS_IDX_REST, 0, 0);
+// lf->fileName = cloneString(fileOrUrl);
+// lf->fd = -1;
+// lf->bufSize = 64 * 1024;
+// lf->buf = needMem(lf->bufSize);
+// lf->zTerm = zTerm;
+// lf->tabix = tabix;
+// lf->htsFile = htsFile;
+// kstring_t *kline;
+// AllocVar(kline);
+// kline->s = malloc(8192);
+// lf->kline = kline;
+// lf->tabixIter = tbx_itr_queryi(tabix, HTS_IDX_REST, 0, 0);
 return lf;
 }
 
@@ -276,29 +277,29 @@ if (lf->tabix == NULL)
     errAbort("lineFileSetTabixRegion: lf->tabix is NULL.  Did you open lf with lineFileTabixMayOpen?");
 if (seqName == NULL)
     return FALSE;
-int tabixSeqId = ti_get_tid(lf->tabix, seqName);
-if (tabixSeqId < 0 && startsWith("chr", seqName))
-    // We will get some files that have chr-less Ensembl chromosome names:
-    tabixSeqId = ti_get_tid(lf->tabix, seqName+strlen("chr"));
-// Allow SARS-CoV-2 VCF to use GenBank or RefSeq ID instead of our chromified RefSeq ID:
-if (tabixSeqId < 0 && sameString(seqName, "NC_045512v2"))
-    {
-    tabixSeqId = ti_get_tid(lf->tabix, "MN908947.3");
-    if (tabixSeqId < 0)
-        tabixSeqId = ti_get_tid(lf->tabix, "NC_045512.2");
-    }
-if (tabixSeqId < 0)
-    return FALSE;
-ti_iter_t *iter = ti_queryi((tbx_t *)lf->tabix, tabixSeqId, start, end);
-if (iter == NULL)
-    return FALSE;
-if (lf->tabixIter != NULL)
-    ti_iter_destroy(lf->tabixIter);
-lf->tabixIter = iter;
-lf->bytesInBuf = 0;
-lf->lineIx = -1;
-lf->lineStart = 0;
-lf->lineEnd = 0;
+// int tabixSeqId = ti_get_tid(lf->tabix, seqName);
+// if (tabixSeqId < 0 && startsWith("chr", seqName))
+//     // We will get some files that have chr-less Ensembl chromosome names:
+//     tabixSeqId = ti_get_tid(lf->tabix, seqName+strlen("chr"));
+// // Allow SARS-CoV-2 VCF to use GenBank or RefSeq ID instead of our chromified RefSeq ID:
+// if (tabixSeqId < 0 && sameString(seqName, "NC_045512v2"))
+//     {
+//     tabixSeqId = ti_get_tid(lf->tabix, "MN908947.3");
+//     if (tabixSeqId < 0)
+//         tabixSeqId = ti_get_tid(lf->tabix, "NC_045512.2");
+//     }
+// if (tabixSeqId < 0)
+//     return FALSE;
+// ti_iter_t *iter = ti_queryi((tbx_t *)lf->tabix, tabixSeqId, start, end);
+// if (iter == NULL)
+//     return FALSE;
+// if (lf->tabixIter != NULL)
+//     ti_iter_destroy(lf->tabixIter);
+// lf->tabixIter = iter;
+// lf->bytesInBuf = 0;
+// lf->lineIx = -1;
+// lf->lineStart = 0;
+// lf->lineEnd = 0;
 return TRUE;
 }
 
@@ -561,25 +562,27 @@ if (lf->udcFile)
 
 if (lf->tabix != NULL && lf->tabixIter != NULL)
     {
+
+    // HACK:  reduce htslib dependencies <10-26-23> Yangyang Li
     // Just use line-oriented ti_read:
-    int lineSize = 0;
-    lineSize = tbx_itr_next(lf->htsFile, lf->tabix, lf->tabixIter, lf->kline);
-    if (lineSize == -1)
-	return FALSE;
-    lf->bufOffsetInFile = -1;
-    lf->bytesInBuf = lineSize;
-    lf->lineIx = -1;
-    lf->lineStart = 0;
-    lf->lineEnd = lineSize;
-    if (lineSize > lf->bufSize)
-	// shouldn't be!  but just in case:
-	lineFileExpandBuf(lf, lineSize * 2);
-    kstring_t *kline = lf->kline;
-    safecpy(lf->buf, lf->bufSize, kline->s);
-    *retStart = lf->buf;
-    if (retSize != NULL)
-	*retSize = lineSize;
-    return TRUE;
+ //    int lineSize = 0;
+ //    lineSize = tbx_itr_next(lf->htsFile, lf->tabix, lf->tabixIter, lf->kline);
+ //    if (lineSize == -1)
+	// return FALSE;
+ //    lf->bufOffsetInFile = -1;
+ //    lf->bytesInBuf = lineSize;
+ //    lf->lineIx = -1;
+ //    lf->lineStart = 0;
+ //    lf->lineEnd = lineSize;
+ //    if (lineSize > lf->bufSize)
+	// // shouldn't be!  but just in case:
+	// lineFileExpandBuf(lf, lineSize * 2);
+ //    kstring_t *kline = lf->kline;
+ //    safecpy(lf->buf, lf->bufSize, kline->s);
+ //    *retStart = lf->buf;
+ //    if (retSize != NULL)
+	// *retSize = lineSize;
+ //    return TRUE;
     }
 
 char *buf = lf->buf;
@@ -717,12 +720,13 @@ if ((lf = *pLf) != NULL)
 	}
     else if (lf->tabix != NULL)
 	{
-	if (lf->tabixIter != NULL)
-	    ti_iter_destroy(lf->tabixIter);
-	ti_close(lf->tabix);
-        hts_close(lf->htsFile);
-        kstring_t *kline = lf->kline;
-        free(kline->s);
+    // HACK:  reduce htslib dependencies <10-26-23> Yangyang Li
+	// if (lf->tabixIter != NULL)
+	    // ti_iter_destroy(lf->tabixIter);
+	// ti_close(lf->tabix);
+        // hts_close(lf->htsFile);
+        // kstring_t *kline = lf->kline;
+        // free(kline->s);
 	}
     else if (lf->udcFile != NULL)
         udcFileClose(&lf->udcFile);
