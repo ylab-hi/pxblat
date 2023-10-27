@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pxblat"
 version = "1.0.0"
-description = "A native python binding for blat suit"
+description = "A native python binding for blat suite"
 authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
 homepage = "https://github.com/ylab-hi/pxblat"
 documentation = "https://pxblat.readthedocs.io/en/latest/"

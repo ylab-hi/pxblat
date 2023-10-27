@@ -38,7 +38,7 @@ _An Efficient and Ergonomic Python Binding Library for BLAT_
 
 ## Why PxBLAT?
 
-When conducting extensive queries, using the `blat` of `BLAT` suit can prove to be quite inefficient, especially if these operations aren't grouped. The tasks are allocated sporadically, often interspersed among other tasks.
+When conducting extensive queries, using the `blat` of `BLAT` suite can prove to be quite inefficient, especially if these operations aren't grouped. The tasks are allocated sporadically, often interspersed among other tasks.
 In general, the choice narrows down to either utilizing `blat` or combining `gfServer` with `gfClient`.
 Indeed, `blat` is a program that launches `gfServer`, conducts the sequence query via `gfClient`, and then proceeds to terminate the server.
 
@@ -95,7 +95,7 @@ Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v
 
 ## 🚀 **Getting Started**
 
-Welcome to PxBLAT! To kickstart your journey and get the most out of this tool, we have prepared a comprehensive [documentation](https://pxblat.readthedocs.io/en/latest/).
+Welcome to PxBLAT! To kickstart your journey and get the most out of this tool, we have prepared a comprehensive [documentation](https://pxblat.readthedocs.io/en/latest/installation.html).
 Inside, you’ll find detailed guides, examples, and all the necessary information to help you navigate and utilize PxBLAT effectively.
 
 ### Need Help or Found an Issue?
@@ -109,7 +109,7 @@ If PxBLAT has been beneficial to your projects or you appreciate the work put in
 Your support means the world to us and motivates us to continue enhancing PxBLAT.
 
 Let’s embark on this journey together and make the most out of PxBLAT! 🎉
-Please see the [document](https://pxblat.readthedocs.io/en/latest/) for details and more examples.
+Please see the [document](https://pxblat.readthedocs.io/en/latest/installation.html) for details and more examples.
 
 ## 🤝 **Contributing**
 
