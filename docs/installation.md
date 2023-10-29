@@ -66,6 +66,13 @@ Below is a compatibility matrix that shows the support status of **PxBLAT** acro
   pip install pxblat
   ```
 
+```{bug}
+As we continuously strive to improve the precision and comprehensibility of this documentation, your insights and observations become crucial.
+Should you come across any inconsistencies or issues, we encourage you to [open an issue](https://github.com/ylab-hi/pxblat/issues/new/choose) on our GitHub repository.
+Your contributions are immensely valuable, playing a pivotal role in helping us uphold and enhance the quality and accuracy of our documentation.
+We appreciate your commitment to excellence and look forward to your feedback.
+```
+
 You've successfully installed **PxBLAT**! Feel free to dive into a real usage case ({doc}`tutorial`) to start exploring its functionalities.
 
 <!-- links -->

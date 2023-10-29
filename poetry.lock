@@ -673,13 +673,13 @@ testing = ["hatch", "pre-commit", "pytest", "tox"]
 
 [[package]]
 name = "executing"
-version = "2.0.0"
+version = "2.0.1"
 description = "Get the currently executing AST node of a frame, and other information"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
 files = [
-    {file = "executing-2.0.0-py2.py3-none-any.whl", hash = "sha256:06df6183df67389625f4e763921c6cf978944721abf3e714000200aab95b0657"},
-    {file = "executing-2.0.0.tar.gz", hash = "sha256:0ff053696fdeef426cda5bd18eacd94f82c91f49823a2e9090124212ceea9b08"},
+    {file = "executing-2.0.1-py2.py3-none-any.whl", hash = "sha256:eac49ca94516ccc753f9fb5ce82603156e590b27525a8bc32cce8ae302eb61bc"},
+    {file = "executing-2.0.1.tar.gz", hash = "sha256:35afe2ce3affba8ee97f2d69927fa823b08b472b7b994e36a52a964b93d16147"},
 ]
 
 [package.extras]
@@ -687,19 +687,19 @@ tests = ["asttokens (>=2.1.0)", "coverage", "coverage-enable-subprocess", "ipyth
 
 [[package]]
 name = "filelock"
-version = "3.12.4"
+version = "3.13.0"
 description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "filelock-3.12.4-py3-none-any.whl", hash = "sha256:08c21d87ded6e2b9da6728c3dff51baf1dcecf973b768ef35bcbc3447edb9ad4"},
-    {file = "filelock-3.12.4.tar.gz", hash = "sha256:2e6f249f1f3654291606e046b09f1fd5eac39b360664c27f5aad072012f8bcbd"},
+    {file = "filelock-3.13.0-py3-none-any.whl", hash = "sha256:a552f4fde758f4eab33191e9548f671970f8b06d436d31388c9aa1e5861a710f"},
+    {file = "filelock-3.13.0.tar.gz", hash = "sha256:63c6052c82a1a24c873a549fbd39a26982e8f35a3016da231ead11a5be9dad44"},
 ]
 
 [package.extras]
-docs = ["furo (>=2023.7.26)", "sphinx (>=7.1.2)", "sphinx-autodoc-typehints (>=1.24)"]
-testing = ["covdefaults (>=2.3)", "coverage (>=7.3)", "diff-cover (>=7.7)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)", "pytest-timeout (>=2.1)"]
-typing = ["typing-extensions (>=4.7.1)"]
+docs = ["furo (>=2023.9.10)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.24)"]
+testing = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "diff-cover (>=8)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)", "pytest-timeout (>=2.2)"]
+typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "fonttools"
@@ -2646,13 +2646,13 @@ rtd = ["ipython", "myst-nb", "sphinx", "sphinx-book-theme", "sphinx-examples"]
 
 [[package]]
 name = "sphinx-immaterial"
-version = "0.11.7"
+version = "0.11.8"
 description = "Adaptation of mkdocs-material theme for the Sphinx documentation system"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "sphinx_immaterial-0.11.7-py3-none-any.whl", hash = "sha256:2166b8272e1dbf2c2fd93c801c6db24e1d7168c5c7283159bf0e8ee713166c02"},
-    {file = "sphinx_immaterial-0.11.7.tar.gz", hash = "sha256:619075d7d5edd03bc92a1bbf9bab68675cf52cf43965b1d6607222881a15d88c"},
+    {file = "sphinx_immaterial-0.11.8-py3-none-any.whl", hash = "sha256:4362096902384f907aad4758452fdc02f4080e615cb4ce28838fb941f9f52734"},
+    {file = "sphinx_immaterial-0.11.8.tar.gz", hash = "sha256:35b1d96b8bf2eaf42d8a1ce7d5d1526b8fe0d95a14aed90635ad50211805182d"},
 ]
 
 [package.dependencies]
@@ -2660,7 +2660,7 @@ appdirs = "*"
 clang-format = {version = "*", optional = true, markers = "extra == \"clang-format\""}
 libclang = {version = "*", optional = true, markers = "extra == \"cpp\""}
 markupsafe = "*"
-pydantic = ">=2.0"
+pydantic = ">=2.4"
 pydantic-extra-types = "*"
 pymdown-extensions = {version = "*", optional = true, markers = "extra == \"keys\""}
 pyyaml = {version = "*", optional = true, markers = "extra == \"json\""}
