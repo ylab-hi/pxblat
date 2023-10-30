@@ -216,7 +216,7 @@ jobs:
             ORIGINAL_WHEEL={wheel}
 
             echo "Running delocate-listdeps to list linked original wheel dependencies"
-            delocate-listdeps --all $ORIGINAL_WHEEL
+            DYLD_LIBRARY_PATH=$LIBRARY_PATH delocate-listdeps --all $ORIGINAL_WHEEL
 
             echo "Renaming .whl file when architecture is 'macosx_arm64'"
             RENAMED_WHEEL=${ORIGINAL_WHEEL//x86_64/arm64}
@@ -225,11 +225,11 @@ jobs:
             mv $ORIGINAL_WHEEL $RENAMED_WHEEL
 
             echo "Running delocate-wheel command on $RENAMED_WHEEL"
-            delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v $RENAMED_WHEEL
+            DYLD_LIBRARY_PATH=$LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v $RENAMED_WHEEL
 
             echo "Running delocate-listdeps to list linked wheel dependencies"
             WHEEL_SIMPLE_FILENAME="${RENAMED_WHEEL##*/}"
-            delocate-listdeps --all {dest_dir}/$WHEEL_SIMPLE_FILENAME
+            DYLD_LIBRARY_PATH=$LIBRARY_PATH  delocate-listdeps --all {dest_dir}/$WHEEL_SIMPLE_FILENAME
 
             echo "DONE."
 
