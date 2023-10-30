@@ -69,15 +69,6 @@ jobs:
             ${{ runner.os }}-pip-${{ matrix.python }}-
             ${{ runner.os }}-pip-
 
-      - name: Cache Poetry virtual environment
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: ${{ runner.os }}-poetry-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-${{ matrix.python }}-
-            ${{ runner.os }}-poetry-
-
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
         with:
@@ -97,60 +88,16 @@ jobs:
           with open(os.environ["GITHUB_ENV"], mode="a") as io:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
 
-      # - name: Install Dependencies
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -q --no-install-recommends --no-install-suggests libssl-dev
-
-      # - name: Cache macOS dependencies
-      #   if: matrix.os == 'macos-latest'
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/brew-cache
-      #     key: macos-brew-${{ hashFiles('**/Dockerfile') }}
-      #     restore-keys: |
-      #       macos-brew-
-
       - name: Install Poetry
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
           poetry --version
-
-      - name: debug
-        if: matrix.os == 'macos-latest'
-        run: |
-          which python
 
       - name: Install Nox
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
           pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
           nox --version
-
-      - name: Compute pre-commit cache key
-        if: matrix.session == 'pre-commit'
-        id: pre-commit-cache
-        shell: python
-        run: |
-          import hashlib
-          import sys
-
-          python = "py{}.{}".format(*sys.version_info[:2])
-          payload = sys.version.encode() + sys.executable.encode()
-          digest = hashlib.sha256(payload).hexdigest()
-          result = "${{ runner.os }}-{}-{}-pre-commit".format(python, digest[:8])
-
-          print("::set-output name=result::{}".format(result))
-
-      - name: Restore pre-commit cache
-        uses: actions/cache@v3
-        if: matrix.session == 'pre-commit'
-        with:
-          path: ~/.cache/pre-commit
-          key: ${{ steps.pre-commit-cache.outputs.result }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            ${{ steps.pre-commit-cache.outputs.result }}-
 
       - name: Run Nox
         run: |
