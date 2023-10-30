@@ -77,7 +77,7 @@ jobs:
         os: [ubuntu-latest]
         # cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_build: ["cp39-*"]
-        cibw_archs: ["x86_64", "aarch64"]
+        cibw_archs: ["x86_64"]
 
     steps:
       - name: Check out repository
