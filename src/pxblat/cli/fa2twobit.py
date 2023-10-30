@@ -1,15 +1,12 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import List
 
 import typer
+from typing_extensions import Annotated
 
 from pxblat import fa_to_two_bit
 
 from .log import logger
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 # faToTwoBit - Convert DNA from fasta to 2bit format
 # usage:
@@ -24,23 +21,29 @@ if TYPE_CHECKING:
 
 
 def faToTwoBit(
-    infa: list[Path] = typer.Argument(
-        ...,
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        metavar="in.fa [inf2.fa in3.fa ...]",
-        show_default=False,
-        help="The fasta files",
-    ),
-    out2bit: Path = typer.Argument(
-        ...,
-        dir_okay=False,
-        writable=True,
-        show_default=False,
-        metavar="out.2bit",
-        help="The output file",
-    ),
+    infa: Annotated[
+        List[Path],
+        typer.Argument(
+            ...,
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            metavar="in.fa [inf2.fa in3.fa ...]",
+            show_default=False,
+            help="The fasta files",
+        ),
+    ],
+    out2bit: Annotated[
+        Path,
+        typer.Argument(
+            ...,
+            dir_okay=False,
+            writable=True,
+            show_default=False,
+            metavar="out.2bit",
+            help="The output file",
+        ),
+    ],
     long: bool = typer.Option(
         False,
         "--long",

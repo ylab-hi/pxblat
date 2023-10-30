@@ -1,6 +1,6 @@
+import pytest
 import filecmp
 
-import pytest
 from pxblat.cli import app
 from pxblat.server import Server
 from typer.testing import CliRunner

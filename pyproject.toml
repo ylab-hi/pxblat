@@ -29,10 +29,10 @@ setuptools = "^68.2.2"
 rich = "^13.3.5"
 pysimdjson = "^5.0.2"
 biopython = "^1.81"
-typer = "^0.9.0"
 deprecated = "^1.2.13"
 mashumaro = "^3.7"
 urllib3 = "2.0.7"
+typer = "^0.9.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -225,7 +225,7 @@ allow-star-arg-any = true
 "src/pxblat/server/client.py" = ["PLR0913"]
 "src/pxblat/cli/server.py" = ["PLR0913", "N816", "FBT001", "FBT003"]
 "src/pxblat/cli/client.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
-"src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
+"src/pxblat/cli/fa2twobit.py" = ["B008", "PLR0913", "FBT001", "FBT003", "FA100"]
 "src/pxblat/cli/cli.py" = ["DTZ005"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 "src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
