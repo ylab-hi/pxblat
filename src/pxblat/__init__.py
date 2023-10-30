@@ -1,3 +1,4 @@
+from __future__ import annotations
 from .extc import ClientOption
 from .extc import ServerOption
 from .extc import TwoBitToFaOption

@@ -1,10 +1,15 @@
-from pathlib import Path
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import typer
 
 from pxblat import fa_to_two_bit
 
 from .log import logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # faToTwoBit - Convert DNA from fasta to 2bit format
 # usage:

@@ -13,8 +13,10 @@ from .basic import wait_server_ready
 if TYPE_CHECKING:
     from .server import ServerOption
 
+from typing import List
+
 INSEQ = Union[str, Path]
-INSEQS = Union[list[INSEQ], list[str], list[Path]]
+INSEQS = Union[List[INSEQ], List[str], List[Path]]
 
 
 def copy_client_option(option: ClientOption) -> ClientOption:
