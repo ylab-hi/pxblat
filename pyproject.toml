@@ -284,14 +284,14 @@ update_changelog_on_bump = true
 major_version_zero = true
 
 [tool.cibuildwheel.linux]
-before-all = "echo hello world"
+before-all = "yum install -y openssl-devel"
 test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 
 [tool.cibuildwheel.macos]
+test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 
-before-all = "echo hello world"
 
 [tool.poetry.build]
 script = "build.py"
