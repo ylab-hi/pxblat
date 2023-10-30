@@ -8,6 +8,7 @@ on:
       - "**.py"
       - "**/Dockerfile"
       - ".github/workflows/*.yml"
+      - "!.github/workflows/release.yml"
       - poetry.lock
       - pyproject.toml
 

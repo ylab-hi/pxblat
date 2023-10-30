@@ -20,7 +20,6 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 
 DEBUG = False
-RAISE_ERROR = False
 
 class PxblatExtensionBuilder(_build_ext):
     def build_extension(self, extension: setuptools.extension.Extension) -> None:  # type: ignore
@@ -143,7 +142,7 @@ def find_lib_in_conda(lib_name: str):
     return None
 
 
-def find_available_library(lib_name: str):
+def find_available_library(lib_name: str, *, ignores=[]):
     lib_path = find_library(lib_name)
 
     if lib_path is None:
@@ -152,7 +151,7 @@ def find_available_library(lib_name: str):
     print(f"{lib_name} lib_path: {lib_path}")
 
     if not lib_path:
-        if RAISE_ERROR:
+        if lib_name not in ignores:
             raise RuntimeError(f"Cannot find {lib_name} library.")
         return Path.cwd(), Path.cwd()
 
@@ -166,6 +165,8 @@ def find_openssl_libs():
     openssl_dir = openssl_dir.replace('OPENSSLDIR: "', '').replace('"', '').strip()
 
     lib_paths = [f"{openssl_dir}/lib"]
+
+    print(f"find openssl lib_paths: {lib_paths}")
 
     return lib_paths
 
@@ -215,7 +216,7 @@ external_libraries = [
 ]
 
 for lib in external_libraries:
-    lib_library_dir, lib_include_dir = find_available_library(lib)
+    lib_library_dir, lib_include_dir = find_available_library(lib, ignores=["m"])
     library_dirs.append(lib_library_dir.as_posix())
     include_dirs.append(lib_include_dir.as_posix())
 
