@@ -125,7 +125,7 @@ jobs:
         os: [macos-latest]
         # cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_build: ["cp39-*", "cp38-*"]
-        cibw_archs: ["x86_64", "arm64"]
+        cibw_archs: ["x86_64"]
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
     steps:
@@ -146,7 +146,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.15.0
+        uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
@@ -156,73 +156,46 @@ jobs:
         with:
           path: wheelhouse/*.whl
 
-  # build_wheels_macos_arm64:
-  #   name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
-  #   runs-on: ${{ matrix.os }}
-  #   needs: ["release"]
-  #   if: needs.release.outputs.tag
-  #   strategy:
-  #     matrix:
-  #       os: [macos-latest]
-  #       cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-  #       cibw_archs: ["arm64"]
+  build_wheels_macos_arm64:
+    name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
+    runs-on: ${{ matrix.os }}
+    needs: ["release"]
+    # if: needs.release.outputs.tag
+    strategy:
+      matrix:
+        os: [macos-latest]
+        cibw_build: ["cp38-*", "cp39-*"]
+        cibw_archs: ["arm64"]
 
-  #   steps:
-  #     - name: Check out repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.10"
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-  #     - name: Configure Homebrew
-  #       uses: Homebrew/actions/setup-homebrew@master
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BUILD: ${{ matrix.cibw_build }}
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
+          CIBW_TEST_SKIP: "*-macosx_arm64"
 
-  #     - name: Install Dependencies
-  #       env:
-  #         HOMEBREW_NO_AUTO_UPDATE: 1
-  #         HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
-  #         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
-  #       run: |
-  #         brew install openssl@3
-  #         ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-  #         ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
-  #         ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
+      - run: pip install wheel
 
-  #     - name: Build wheels
-  #       uses: pypa/cibuildwheel@v2.16.2
-  #       env:
-  #         CIBW_BUILD: ${{ matrix.cibw_build }}
-  #         CIBW_ARCHS: ${{ matrix.cibw_archs }}
-  #         CIBW_TEST_SKIP: "*-macosx_arm64"
-  #         CIBW_REPAIR_WHEEL_COMMAND: |
-  #           echo "Target delocate archs: {delocate_archs}"
+      - name: Rename wheels
+        run: |
+          for cwheel in ./wheelhouse/*.whl; do
+            wheel tags  --platform-tag macosx_12_0_arm64  $cwheel
+            rm $cwheel
+          done
 
-  #           ORIGINAL_WHEEL={wheel}
-
-  #           echo "Running delocate-listdeps to list linked original wheel dependencies"
-  #           DYLD_LIBRARY_PATH=$LIBRARY_PATH delocate-listdeps --all $ORIGINAL_WHEEL
-
-  #           echo "Renaming .whl file when architecture is 'macosx_arm64'"
-  #           RENAMED_WHEEL=${ORIGINAL_WHEEL//x86_64/arm64}
-
-  #           echo "Wheel will be renamed to $RENAMED_WHEEL"
-  #           mv $ORIGINAL_WHEEL $RENAMED_WHEEL
-
-  #           echo "Running delocate-wheel command on $RENAMED_WHEEL"
-  #           DYLD_LIBRARY_PATH=$LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v $RENAMED_WHEEL
-
-  #           echo "Running delocate-listdeps to list linked wheel dependencies"
-  #           WHEEL_SIMPLE_FILENAME="${RENAMED_WHEEL##*/}"
-  #           DYLD_LIBRARY_PATH=$LIBRARY_PATH  delocate-listdeps --all {dest_dir}/$WHEEL_SIMPLE_FILENAME
-
-  #           echo "DONE."
-
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         path: ./wheelhouse/*.whl
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
 
   upload_to_pypi:
     needs: [
