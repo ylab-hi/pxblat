@@ -20,7 +20,7 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 
 DEBUG = False
-
+RAISE_ERROR = False
 
 class PxblatExtensionBuilder(_build_ext):
     def build_extension(self, extension: setuptools.extension.Extension) -> None:  # type: ignore
@@ -152,7 +152,9 @@ def find_available_library(lib_name: str):
     print(f"{lib_name} lib_path: {lib_path}")
 
     if not lib_path:
-        raise RuntimeError(f"Cannot find {lib_name} library.")
+        if RAISE_ERROR:
+            raise RuntimeError(f"Cannot find {lib_name} library.")
+        return Path.cwd(), Path.cwd()
 
     header_path = Path(lib_path).parent.parent / "include"
 
