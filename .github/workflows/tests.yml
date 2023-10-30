@@ -97,37 +97,20 @@ jobs:
           with open(os.environ["GITHUB_ENV"], mode="a") as io:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
 
-      - name: Install Dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -q --no-install-recommends --no-install-suggests libssl-dev
-
-      - name: Cache macOS dependencies
-        if: matrix.os == 'macos-latest'
-        uses: actions/cache@v3
-        with:
-          path: ~/brew-cache
-          key: macos-brew-${{ hashFiles('**/Dockerfile') }}
-          restore-keys: |
-            macos-brew-
-
-      - name: Configure Homebrew
-        if: matrix.os == 'macos-latest'
-        uses: Homebrew/actions/setup-homebrew@master
-
       # - name: Install Dependencies
-      #   if: matrix.os == 'macos-latest'
-      #   env:
-      #     HOMEBREW_NO_AUTO_UPDATE: 1
-      #     HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
-      #     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
-
+      #   if: matrix.os == 'ubuntu-latest'
       #   run: |
-      #     brew install openssl@3
-      #     ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-      #     ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
-      #     ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
+      #     sudo apt-get update
+      #     sudo apt-get install -q --no-install-recommends --no-install-suggests libssl-dev
+
+      # - name: Cache macOS dependencies
+      #   if: matrix.os == 'macos-latest'
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/brew-cache
+      #     key: macos-brew-${{ hashFiles('**/Dockerfile') }}
+      #     restore-keys: |
+      #       macos-brew-
 
       - name: Install Poetry
         run: |
