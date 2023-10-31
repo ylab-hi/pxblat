@@ -116,14 +116,15 @@ jobs:
   build_wheels_macos:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
-    needs: ["release"]
-    if: needs.release.outputs.tag
+    # needs: ["release"]
+    # if: needs.release.outputs.tag
 
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
+        # cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
+        cibw_build: ["cp39-*"]
         cibw_archs: ["x86_64"]
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
@@ -150,7 +151,6 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_SKIP: "*-macosx_arm64"
-          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9"
 
       - uses: actions/upload-artifact@v3
         with:
@@ -159,14 +159,14 @@ jobs:
   build_wheels_macos_arm64:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
-    needs: ["release"]
+    # needs: ["release"]
     # if: needs.release.outputs.tag
     strategy:
       matrix:
-        os: [macos-latest-xlarge]
+        os: [macos-latest]
         # cibw_build: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
         cibw_build: ["cp39-*"]
-        cibw_archs: ["native"]
+        cibw_archs: ["arm64"]
 
     steps:
       - name: Check out repository
@@ -183,7 +183,7 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          # CIBW_TEST_SKIP: "*-macosx_arm64"
+          CIBW_TEST_SKIP: "*-macosx_arm64"
 
       - uses: actions/upload-artifact@v3
         with:
