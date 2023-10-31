@@ -163,7 +163,7 @@ jobs:
   build_wheels_macos_arm64:
     name: "${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}"
     runs-on: ${{ matrix.os }}
-    needs: ["release"]
+    # needs: ["release"]
     # if: needs.release.outputs.tag
     strategy:
       matrix:
