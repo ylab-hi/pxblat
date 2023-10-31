@@ -292,5 +292,5 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 
 [build-system]
-requires = ["pdm-backend", "setuptools", "pybind11"]
-build-backend = "pdm.backend"
+requires = ["setuptools", "pybind11"]
+build-backend = "setuptools.build_meta"
