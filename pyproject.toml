@@ -77,7 +77,6 @@ dev = [
 
 [tool.pdm.build]
 includes = []
-run-setuptools = true
 custom-hook = "build.py"
 
 [tool.ruff]
@@ -292,5 +291,5 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 
 [build-system]
-requires = ["setuptools", "pybind11"]
+requires = ["setuptools", "pybind11", "wheel"]
 build-backend = "setuptools.build_meta"
