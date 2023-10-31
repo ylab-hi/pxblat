@@ -6,18 +6,10 @@ from pathlib import Path
 from textwrap import dedent
 
 import nox
+# from nox import Session,session
 
-try:
-    from nox_poetry import Session, session
-except ImportError:
-    message = f"""\
-    Nox failed to import the 'nox-poetry' package.
-
-    Please install it using the following command:
-
-    {sys.executable} -m pip install nox-poetry"""
-    raise SystemExit(dedent(message)) from None
-
+from nox_poetry import Session, session
+os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 
 package = "pxblat"
 python_versions = ["3.11", "3.10", "3.9"]
@@ -29,14 +21,9 @@ nox.options.sessions = (
     "tests",
     "docs-build",
 )
-DEBUG = False
 
-
-def poetry_install():
-    if DEBUG:
-        return ["poetry", "install", "-vvv"]
-    else:
-        return ["poetry", "install"]
+def pdm_install():
+    return ["pdm", "install", "--dev"]
 
 
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
@@ -109,16 +96,17 @@ def precommit(session: Session) -> None:
 @session(python="3.10")
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
-    requirements = session.poetry.export_requirements()
     session.install("safety")
-    session.run("safety", "check", "--full-report", f"--file={requirements}")
+    session.run("pdm", "export", "-f", "requirements", "--without-hashes",
+
+                "|","safety", "check", "--full-report", f"--stdin")
 
 
 @session(python=python_versions)
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.run(*poetry_install(), external=True)
+    session.run(*pdm_install(), external=True)
     session.install("mypy", "pytest")
     session.run("mypy", *args)
     if not session.posargs:
@@ -128,7 +116,7 @@ def mypy(session: Session) -> None:
 @session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
-    session.run(*poetry_install(), external=True)
+    session.run(*pdm_install(), external=True)
     session.install("coverage[toml]", "pytest", "pygments")
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
@@ -157,7 +145,7 @@ def docs_build(session: Session) -> None:
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    session.run(*poetry_install(), external=True)
+    session.run(*pdm_install(), external=True)
 
     session.install(
         "sphinx",
@@ -200,7 +188,7 @@ def linkcheck(session: Session) -> None:
 def docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.run(*poetry_install(), external=True)
+    session.run(*pdm_install(), external=True)
     session.install(
         "sphinx",
         "sphinx-immaterial",

@@ -304,8 +304,7 @@ def get_extension_modules():
     extension_modules.append(pxblat_python)
     return extension_modules
 
-
-def build(setup_kwargs):
+def pdm_build_update_setup_kwargs(context, setup_kwargs):
     """Build cpp extension."""
     ext_modules = get_extension_modules()
     setup_kwargs.update(
