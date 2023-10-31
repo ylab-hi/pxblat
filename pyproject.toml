@@ -291,13 +291,10 @@ test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 
 
-# [tool.poetry.build]
-# script = "build.py"
-# generate-setup-file = true
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
 
-# [build-system]
-# requires = ["pybind11>2.9.1", "poetry-core>=1.2.0", "setuptools>=40.8.0"]
-# build-backend = "poetry.core.masonry.api"
 [build-system]
-requires = ["setuptools", "wheel", "pybind11"]
-build-backend = "setuptools.build_meta"
+requires = ["pybind11>2.9.1", "poetry-core>=1.2.0", "setuptools>=40.8.0"]
+build-backend = "poetry.core.masonry.api"
