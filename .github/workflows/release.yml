@@ -75,7 +75,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        cibw_build: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
+        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_archs: ["x86_64"]
 
     steps:
@@ -123,7 +123,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        cibw_build: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
+        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
         cibw_archs: ["x86_64"]
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
@@ -150,6 +150,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_SKIP: "*-macosx_arm64"
+          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9"
 
       - uses: actions/upload-artifact@v3
         with:
