@@ -211,7 +211,7 @@ jobs:
           export CXXFLAGS="$CXXFLAGS -I$PREFIX/include"
           export LDFLAGS="$LDFLAGS -Wl,-S -Wl,-rpath,$PREFIX/lib -L$PREFIX/lib -lssl -lcrypto"
           export LIBRARY_PATH="$LIBRARY_PATH:$PREFIX/lib"
-          DYLD_LIBRARY_PATH=$LIBRARY_PATH  python -m cibuildwheel --output-dir wheelhouse
+          DYLD_LIBRARY_PATH="$LIBRARY_PATH"  python -m cibuildwheel --output-dir wheelhouse
 
           # ORIGINAL_WHEEL={wheel}
           # delocate-listdeps --all $ORIGINAL_WHEEL
