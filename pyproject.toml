@@ -293,5 +293,10 @@ script = "build.py"
 generate-setup-file = true
 
 [build-system]
-requires = ["pybind11>2.9.1", "poetry-core>=1.2.0", "setuptools>=40.8.0"]
+requires = [
+    "pybind11>2.9.1",
+    "poetry-core>=1.2.0",
+    "setuptools>=40.8.0",
+    "wheel",
+]
 build-backend = "poetry.core.masonry.api"
