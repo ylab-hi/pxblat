@@ -12,7 +12,7 @@ def main():
         return 1
     libbase = Path(libpath)
     libbase = libbase.resolve()
-    print(libbase)  # noqa: T201
+    print(libbase.parent.parent)  # noqa: T201
     return 0
 
 
