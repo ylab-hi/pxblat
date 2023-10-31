@@ -205,7 +205,7 @@ jobs:
 
           echo "Target delocate archs: {delocate_archs}"
 
-          ORIGINAL_WHEEL={wheel}
+          ORIGINAL_WHEEL=$(ls wheelhouse/*whl)
 
           echo "Running delocate-listdeps to list linked original wheel dependencies"
           delocate-listdeps --all $ORIGINAL_WHEEL
