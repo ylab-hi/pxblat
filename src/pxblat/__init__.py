@@ -27,7 +27,7 @@ from .toolkit import fa_to_two_bit
 from .toolkit import two_bit_to_fa
 from rich.traceback import install
 
-__version__ = "1.1.8"
+__version__ = "1.1.9"
 
 install(show_locals=True)
 
