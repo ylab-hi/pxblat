@@ -94,7 +94,6 @@ jobs:
       - name: Install Nox
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
-          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox
           nox --version
 
       - name: Run Nox

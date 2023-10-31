@@ -165,7 +165,7 @@ jobs:
         os: [macos-latest]
         # cibw_build: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
         cibw_build: ["cp39-*"]
-        cibw_archs: ["arm64"]
+        cibw_archs: ["arm64", "x86_64"]
 
     steps:
       - name: Check out repository
