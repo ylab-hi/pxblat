@@ -2,7 +2,127 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.2] - 2023-10-27
+## [1.1.9] - 2023-11-01
+
+### Bug Fixes
+
+- Fix import error in fa2twobit.py
+
+### Documentation
+
+- Update installation.md with bug reporting information
+- Update tutorial.md and pyproject.toml files
+
+### Features
+
+- Update version to 1.1.2
+- Add skip test for macOS arm64 in CI workflow
+- Add script to find library path
+- Use setuppy
+- Install cibuildwheel and build wheels
+- Remove setuppy
+
+### Miscellaneous Tasks
+
+- Comment out dependency installation step
+- Remove unused code
+- Remove unnecessary steps
+- Update release.yml and pyproject.toml files
+- Update Python version requirements
+- Add Python 3.8 to python_versions
+- Update Python version and import annotations
+- Update test matrix
+- Update release and test workflow
+- Bump version to 1.1.3
+- Update Python version requirement
+- Bump version to 1.1.4
+- Bump version to 1.1.5
+- Update version to 1.1.6
+- Update version to 1.1.7
+- Comment out unnecessary code in release.yml
+- Remove build_wheels_linux step
+- Update pypa/cibuildwheel to v2.16.2
+- Update build_wheels_linux and build_wheels_macos configurations
+- Update version to 1.1.8
+- Update Python versions and dependencies
+- Update release workflow
+- Update find_lib.py script
+- Update release.yml file
+- Update release.yml to remove unnecessary code
+- Update release.yml file
+- Update version to 1.1.9
+
+### Refactor
+
+- Remove unnecessary code and add RAISE_ERROR flag
+- Remove unused variable and print statements
+- Refactor setup.py code
+- Comment out unnecessary code lines
+
+### Styling
+
+- Update code style badge
+- Import fix
+
+### Build
+
+- Add DYLD_LIBRARY_PATH to delocate commands
+- Remove unnecessary build configurations
+- Remove numpy dependency
+- Update manylinux images for macOS job
+- Update cibw_build options and delocate-wheel command
+- Update macOS deployment target to 12.0
+- Add delocate as a dependency for cibuildwheel
+- Update macOS version and architecture for cibuildwheel
+- Configure Homebrew and Install Dependencies
+- Install openssl@3 using Homebrew
+
+### Build_wheels_macos
+
+- Enable build_wheels_macos_arm64
+
+## [1.1.1] - 2023-10-27
+
+### Features
+
+- Add find_openssl_libs() function
+
+### Miscellaneous Tasks
+
+- Update version to 1.1.1
+
+### Styling
+
+- Remove unused library "z"
+
+### Ci
+
+- Update release workflow to skip if no tag
+
+## [1.1.0] - 2023-10-27
+
+### Bug Fixes
+
+- Uncomment "hts" external library
+
+### Features
+
+- Update version to 1.1.0
+
+### Miscellaneous Tasks
+
+- Remove unused external library
+- Remove unnecessary installation of htslib and update OpenSSL dependencies
+
+### Refactor
+
+- Comment out unused code in build.py and linefile.c
+
+### Build
+
+- Update package dependencies and installation
+
+## [1.0.3] - 2023-10-27
 
 ### Documentation
 
@@ -17,6 +137,8 @@ All notable changes to this project will be documented in this file.
 - Add concurrency settings for workflows
 - Update version to 1.0.1
 - Update version to 1.0.2
+- Update version to 1.0.2
+- Update version to 1.0.3
 
 ### Styling
 
