@@ -521,6 +521,24 @@ def query_context():
 
 ````
 
+In this documentation snippet, we elucidate certain attributes and their corresponding data extracted from the alignment process:
+
+- `top_hsp.query_id` denotes the identifier of the sequence provided in `test_case1.fa`.
+
+```
+>case1
+TGAGAGGCATCTGGCCCTCCCTGCGCTGTGCCAGCAGCTTGGAGAACCCA
+CACTCAATGAACGCAGCACTCCACTACCCAGGAAATGCCTTCCTGCCCTC
+TCCTCATCCCATCCCTGGGCAGGGGACATGCAACTGTCTACAAGGTGCCA
+A
+```
+
+- `top_hsp.query_range` encapsulates the starting and ending positions `(0, 151)` that have been aligned to the reference sequence. It's pertinent to note that the range `(0, 151)` is formatted as left-closed and right-open, denoted as `[0, 151)`.
+- `top_hsp.query_span` signifies the length of the sequence segment that has been aligned to the reference.
+- `top_hsp.query_start` and `top_hsp.query_end` respectively mark the starting and ending positions of the alignment.
+- `top_hsp.query_strand` identifies the strand orientation of the query sequence.
+- Methods prefixed with `hit`, for example `top_hsp.hit_*`, exhibit analogous information, albeit pertaining to the reference sequence rather than the query sequence.
+
 After receiving the query results, we can precisely identify which regions of our sequence align with specific parts of the reference sequence.
 This includes information about the strand, start position, and end position for the alignment on both our sequence and the reference.
 The last part of the [code example](#query_result_block) showcases all the methods available for handling high-scoring pairs (HSPs).
@@ -565,7 +583,7 @@ Remember to modify the directory path to include `test_ref.fa` when attempting t
 
 Upon executing the script with the command:
 
-```python
+```bash
 $ python blat.py
 Program: blat (v.37x1)
   Query: /var/folders/s3/vs6nrrg52sdfjk3z90p7ndt94gg4tq/T/tmptzggbu4h (151)
