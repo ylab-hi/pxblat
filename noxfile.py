@@ -5,6 +5,9 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
+import glob
+import os
+
 import nox
 
 try:
@@ -87,6 +90,39 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
 
         lines.insert(1, header)
         hook.write_text("\n".join(lines))
+
+def find_wheel(dist_dir='dist'):
+    # The pattern to match wheel files
+    pattern = os.path.join(dist_dir, '*.whl')
+
+    # Use glob to find all wheel files in the dist directory
+    wheel_files = glob.glob(pattern)
+
+    if not wheel_files:
+        raise FileNotFoundError(f"No wheel files found in {dist_dir}")
+
+    # Assuming you want the first wheel file found
+    # If you have multiple wheel files, you may need to add logic to select the correct one
+    wheel_file = wheel_files[0]
+
+    return Path(wheel_file)
+
+@session(python=python_versions)
+def build_wheel(session: Session) -> None:
+    """Run the test suite."""
+    session.run("make", "clean", external=True)
+    session.run("poetry","install","--no-dev", external=True)
+    session.run("rm", "-rf", "fixed_wheels", external=True)
+    session.run("poetry", "build", external=True)
+    session.install("delocate", "pybind11", "wheel")
+    wheel_location = find_wheel()
+    print(f'Wheel file located at: {wheel_location}')
+    session.run("delocate-listdeps", wheel_location.as_posix())
+    session.run("delocate-wheel", "-w", "fixed_wheels", "-v", wheel_location.as_posix())
+    new_wheel_location = find_wheel('fixed_wheels')
+    session.run("mv", new_wheel_location.as_posix(), wheel_location.parent.as_posix(), external=True)
+    session.run("rm", "-rf", "fixed_wheels", external=True)
+    session.run("delocate-listdeps", wheel_location.as_posix())
 
 
 @session(name="pre-commit", python="3.10")
