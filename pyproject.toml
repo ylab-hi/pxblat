@@ -6,6 +6,7 @@ authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
 homepage = "https://github.com/ylab-hi/pxblat"
 documentation = "https://pxblat.readthedocs.io/en/latest/"
 repository = "https://github.com/ylab-hi/pxblat"
+bugtracker = "https://github.com/ylab-hi/pxblat/issues"
 readme = "README.md"
 license = "LICENSE"
 classifiers = [

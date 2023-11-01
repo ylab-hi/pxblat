@@ -13,6 +13,11 @@ By the end of this guide, you should be able to use PxBLAT confidently for align
 **PxBLAT** builds upon the foundation of [BLAT(v.37x1)][BLAT(v.37x1)], striving to provide both efficient and user-friendly APIs.
 Let's embark on a journey to explore the features and capabilities that **PxBLAT** offers.
 
+In this tutorial, we will be utilizing data derived from human samples as our primary example.
+Let's presume we have acquired several sequences from human sources; however, the precise locations of these sequences within the human reference genome remain unknown.
+Utilizing PxBLAT, we can align these sequences to the human reference genome, facilitating the identification of their accurate genomic locations.
+For instance, through this alignment, we may discover that one of the sequences originates from chromosome 1 of the human reference genome.
+
 ## 1. Grasping the FASTA Format
 
 In the realm of bioinformatics, the FASTA format stands as a text-based standard for denoting nucleotide or peptide sequences alongside their pertinent information.
@@ -59,6 +64,8 @@ cd tutorial
 ```
 
 - Download reference data {download}`⬇️ test_ref.fa <tutorial_data/test_ref.fa>`(in fasta format).
+
+The file `test_ref.fa` represents a segment of chromosome 1 from the human reference genome (hg38).
 
 ````{example} Download via wget
 :collapsible: close
