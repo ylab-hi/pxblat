@@ -123,6 +123,7 @@ def build_wheel(session: Session) -> None:
     session.run("mv", new_wheel_location.as_posix(), wheel_location.parent.as_posix(), external=True)
     session.run("rm", "-rf", "fixed_wheels", external=True)
     session.run("delocate-listdeps", wheel_location.as_posix())
+    session.run("poetry", "publish", "--skip-existing", external=True)
 
 
 @session(name="pre-commit", python="3.10")
