@@ -58,7 +58,7 @@ Below is a compatibility matrix that shows the support status of **PxBLAT** acro
 
 ## Frequently Asked Questions (FAQ)
 
-- **Q1**: I'm unable to install `PxBLAT` via `Conda` on my macOS device with an Arm-based processor (M1 or M2). What should I do?
+- **Q1**: I'm unable to install `PxBLAT` via `Conda` on my macOS device with an Arm-based processor (M1, M2 or M3). What should I do?
 
   > **A**: Currently, `Conda` provides **PxBLAT** built for x86 architectures. For Arm-based macOS devices, we recommend installing **PxBLAT** via `PyPI` instead:
 
