@@ -33,7 +33,7 @@ repos:
         exclude: docs/tutorial.md
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.21
+    rev: typos-dict-v0.11.3
     hooks:
       - id: typos
         exclude: "extc|svg|psl|CHANGELOG"
