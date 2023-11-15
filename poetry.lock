@@ -582,13 +582,13 @@ files = [
 
 [[package]]
 name = "delocate"
-version = "0.10.4"
+version = "0.10.5"
 description = "Move macOS dynamic libraries into package"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "delocate-0.10.4-py3-none-any.whl", hash = "sha256:78b6840c32c74c82e576529f68662f69883a1cc51bfcf8273cf37f25ee6b3860"},
-    {file = "delocate-0.10.4.tar.gz", hash = "sha256:eae712f46f23481ac82250b9dc357280b8cd17ac0e57dce08654d5f722793c93"},
+    {file = "delocate-0.10.5-py3-none-any.whl", hash = "sha256:d2e0bfb219e6f88eb00074960b29c5479bc7b923a63e76c0889e12c3feb73ea2"},
+    {file = "delocate-0.10.5.tar.gz", hash = "sha256:263fedc7512625980517e076bbf6b693f79c1b0668924a738d2ebb7022dd8412"},
 ]
 
 [package.dependencies]
