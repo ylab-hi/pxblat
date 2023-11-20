@@ -1847,13 +1847,13 @@ global = ["pybind11-global (==2.11.1)"]
 
 [[package]]
 name = "pybind11-stubgen"
-version = "2.3.6"
+version = "2.3.7"
 description = "PEP 561 type stubs generator for pybind11 modules"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "pybind11-stubgen-2.3.6.tar.gz", hash = "sha256:76427d7c0046b23f5955808e2e0c47d6a05b04c41c53663464b2400852a53045"},
-    {file = "pybind11_stubgen-2.3.6-py3-none-any.whl", hash = "sha256:5ac1eec42d7c471d00cb38afb640142703d4078e9fb1e2b39e5a35e75b3dc7fb"},
+    {file = "pybind11-stubgen-2.3.7.tar.gz", hash = "sha256:7a4b37c794c8787f43466b6fd8c627581ba8079896daca0e53b9e485a308189d"},
+    {file = "pybind11_stubgen-2.3.7-py3-none-any.whl", hash = "sha256:c578b5dc0e6370e60d6d2861bc32a0a530140211d9aa1ea4cd2ad4f55e724445"},
 ]
 
 [[package]]
