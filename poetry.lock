@@ -1847,13 +1847,13 @@ global = ["pybind11-global (==2.11.1)"]
 
 [[package]]
 name = "pybind11-stubgen"
-version = "2.3.7"
+version = "2.4"
 description = "PEP 561 type stubs generator for pybind11 modules"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "pybind11-stubgen-2.3.7.tar.gz", hash = "sha256:7a4b37c794c8787f43466b6fd8c627581ba8079896daca0e53b9e485a308189d"},
-    {file = "pybind11_stubgen-2.3.7-py3-none-any.whl", hash = "sha256:c578b5dc0e6370e60d6d2861bc32a0a530140211d9aa1ea4cd2ad4f55e724445"},
+    {file = "pybind11-stubgen-2.4.tar.gz", hash = "sha256:1237590bd3dcda11383963597be49fd2255b5288708dae1dc5ed79956406173c"},
+    {file = "pybind11_stubgen-2.4-py3-none-any.whl", hash = "sha256:09127fb5269c5fcd9cff12e60cd96c45074f33a96f0bbaa52d09ed35228af65a"},
 ]
 
 [[package]]
@@ -3165,4 +3165,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9, <3.12"
-content-hash = "8a0566b6c6e498e1f79185158b23a92e09202f15405dc9265483823ed5d06b68"
+content-hash = "a8009f435e59e6608046ddc56d01ad9f14f2753a5b67c99eb8d28a714ec7dece"
