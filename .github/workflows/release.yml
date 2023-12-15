@@ -159,7 +159,7 @@ jobs:
     needs: ["release", "build_wheels_macos", "build_wheels_linux"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
 
       - name: Publish package on PyPI
         if: needs.release.outputs.tag
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "! needs.release.outputs.tag"
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
 
       - name: Publish package on TestPyPI
         uses: pypa/gh-action-pypi-publish@v1.8.11
