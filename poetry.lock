@@ -2695,13 +2695,13 @@ test = ["pytest"]
 
 [[package]]
 name = "sphinxcontrib-bibtex"
-version = "2.6.1"
+version = "2.6.2"
 description = "Sphinx extension for BibTeX style citations."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "sphinxcontrib-bibtex-2.6.1.tar.gz", hash = "sha256:046b49f070ae5276af34c1b8ddb9bc9562ef6de2f7a52d37a91cb8e53f54b863"},
-    {file = "sphinxcontrib_bibtex-2.6.1-py3-none-any.whl", hash = "sha256:094c772098fe6b030cda8618c45722b2957cad0c04f328ba2b154aa08dfe720a"},
+    {file = "sphinxcontrib-bibtex-2.6.2.tar.gz", hash = "sha256:f487af694336f28bfb7d6a17070953a7d264bec43000a2379724274f5f8d70ae"},
+    {file = "sphinxcontrib_bibtex-2.6.2-py3-none-any.whl", hash = "sha256:10d45ebbb19207c5665396c9446f8012a79b8a538cb729f895b5910ab2d0b2da"},
 ]
 
 [package.dependencies]
