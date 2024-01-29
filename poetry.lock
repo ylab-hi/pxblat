@@ -305,13 +305,13 @@ files = [
 
 [[package]]
 name = "cibuildwheel"
-version = "2.16.2"
+version = "2.16.4"
 description = "Build Python wheels on CI with minimal configuration."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cibuildwheel-2.16.2-py3-none-any.whl", hash = "sha256:bbc86ca937d81745f43ab28fd378bff1c1eaf390370c2f3a6e8224290a50127e"},
-    {file = "cibuildwheel-2.16.2.tar.gz", hash = "sha256:0f3472a1b927786f74ed3843e78d7cb368a2daeb904503b2129276a23b22f7be"},
+    {file = "cibuildwheel-2.16.4-py3-none-any.whl", hash = "sha256:7dab00ecb30405fe80c6c3a88416c0595449b6b91466cfe91598a435f9136668"},
+    {file = "cibuildwheel-2.16.4.tar.gz", hash = "sha256:2bd6fa7991192861f52d42928c56cc4432e958d6e72ee1034ab0d1dc2cdb7708"},
 ]
 
 [package.dependencies]
