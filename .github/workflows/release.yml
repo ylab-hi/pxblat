@@ -190,6 +190,8 @@ jobs:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
         run: |
           brew install openssl@3
+          mkdir -p /usr/local/include
+          mkdir -p /usr/local/lib
           ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
           ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
           ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
