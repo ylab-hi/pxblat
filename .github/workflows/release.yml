@@ -186,6 +186,11 @@ jobs:
           virtualenvs-create: false
           virtualenvs-in-project: false
 
+      - name: log
+        run: |
+          # print opensll
+          ls /opt/homebrew/etc/openssl@1.1/
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.5
         env:

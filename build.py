@@ -165,10 +165,18 @@ def find_openssl_libs():
     openssl_dir = openssl_dir.replace('OPENSSLDIR: "', '').replace('"', '').strip()
 
     lib_paths = [f"{openssl_dir}/lib"]
+    head_paths = [f"{openssl_dir}/include"]
 
-    print(f"find openssl lib_paths: {lib_paths}")
+    print(f"openssl lib_paths: {lib_paths}")
+    print(f"openssl include: {head_paths}")
 
-    return lib_paths
+    if not Path(lib_paths[0]).exists():
+        print(f"Cannot find openssl lib in {lib_paths[0]}")
+
+    if not Path(head_paths[0]).exists():
+        print(f"Cannot find openssl include in {head_paths[0]}")
+
+    return lib_paths, head_paths
 
 def _extra_compile_args_for_libpxblat():
     return [
@@ -203,10 +211,13 @@ def _extra_compile_args_for_pxblat():
 
 ParallelCompile(f"{get_thread_count()}").install()
 
+
+openssl_lib, openssl_include = find_openssl_libs()
+
 extra_compile_args = ["-pthread"]
 hidden_visibility_args = []
-include_dirs: list[str] = []
-library_dirs: list[str] = [] + find_openssl_libs()
+include_dirs: list[str] = [] +  openssl_include
+library_dirs: list[str] = [] +  openssl_lib
 python_module_link_args = []
 base_library_link_args: list[str] = []
 external_libraries = [
