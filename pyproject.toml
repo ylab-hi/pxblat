@@ -70,7 +70,7 @@ sphinx-click = ">=4.4,<6.0"
 py-spy = "^0.3.14"
 sphinx-autobuild = "^2021.3.14"
 cibuildwheel = "^2.16.2"
-ruff = "^0.1.2"
+ruff = ">=0.1.2,<0.3.0"
 delocate = "^0.10.4"
 
 
