@@ -180,18 +180,18 @@ def query_server(
     if fafile is not None:
         Path(fafile.name).unlink()
 
-    if parse:
-        try:
-            res = read(ret_decode, "psl")
-        except ValueError as e:
-            if "No query results" in str(e):
-                return None
-        else:
-            if isinstance(res, str):
-                return _assign_info_to_query_result(read(res, "psl"))
-            return _assign_info_to_query_result(res)
-    else:
+    if not parse:
         return ret_decode
+
+    try:
+        res = read(ret_decode, "psl")
+    except ValueError as e:
+        if "No query results" in str(e):
+            return None
+    else:
+        if isinstance(res, str):
+            return _assign_info_to_query_result(read(res, "psl"))
+        return _assign_info_to_query_result(res)
 
 
 class ClientThread(Thread):
