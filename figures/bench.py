@@ -42,7 +42,7 @@ def main():
     plt.xticks([50, 100, 200, 300, 400, 500, 600])
     plt.ylim(0, 200)
 
-    plt.xlabel("Data")
+    plt.xlabel("Samples")
     plt.ylabel("Time (s)")
     plt.legend(loc="upper left")
 
