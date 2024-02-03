@@ -82,8 +82,8 @@ pxblat = "pxblat.cli.cli:app"
 target-version = "py38"
 line-length = 120
 fix = true
-fixable = ["ALL"]
-select = [
+lint.fixable = ["ALL"]
+lint.select = [
     "ANN",
     "D",
     "A",
@@ -135,7 +135,7 @@ select = [
     # "CPY",
     "COM",
 ]
-ignore = [
+lint.ignore = [
     "E501",
     "D203",
     "D100",
@@ -199,6 +199,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "figures",
 
 ]
 
@@ -213,13 +214,13 @@ indent-style = "space"
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
 
-[tool.ruff.flake8-bugbear]
+[tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["chr", "typer.Argument", "typer.Option"]
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
 "src/pxblat/extc/__init__.py" = ["F405", "F403", "D104", "D103", "TID252"]
 "src/pxblat/server/basic.py" = ["PLR0913"]
@@ -237,7 +238,7 @@ allow-star-arg-any = true
 "docs/tutorial_data/query_result.py" = ["T201", "D103"]
 "docs/tutorial_data/blat.py" = ["T201", "D103"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = 'google'
 
 [tool.coverage.paths]
