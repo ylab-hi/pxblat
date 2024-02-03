@@ -33,9 +33,9 @@ def main():
             f"{avg_speedup:.2f}x",
             (data_point, min(data_df[data_df["Data"] == data_point]["PxBLAT (s)"])),
             textcoords="offset points",
-            xytext=(0, -10),
+            xytext=(0, -12),
             ha="center",
-            fontsize=6,
+            fontsize=8,
             color="darkgreen",
         )
 

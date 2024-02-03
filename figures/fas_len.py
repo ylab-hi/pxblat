@@ -31,7 +31,7 @@ def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
 
     fig, axs = plt.subplots(3, 3, figsize=figure_size)
     axs = axs.flatten()
-    tick_labelsize = 18
+    tick_labelsize = 14
     labelsize = 18
     titlesize = 18
     color = "tab:cyan"
@@ -55,7 +55,7 @@ def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
         _ = ax.set_xlabel(r"Length of Fasta Data", fontsize=labelsize)
         _ = ax.set_ylabel(r"Count", fontsize=labelsize)
         ax.set_title(f"{sample} samples", {"fontsize": titlesize})
-        ax.set_yticks(list(range(0, 12, 2)))
+        # ax.set_yticks(list(range(0, 12, 2)))
         ax.tick_params(axis="y", labelsize=tick_labelsize)
         ax.tick_params(axis="x", labelsize=tick_labelsize)
         ax.text(
