@@ -1415,11 +1415,15 @@ def search_source(c):
 
 
 @task
-def tpickle(c):
-    import pickle
+def generate_bench_data(c):
+    import shutil
+    bench_dir = Path("benchmark/fas")
 
-    c = pxblat.ClientOption()
-    c.withHost("localhost2").build()
-    cdata = pickle.dumps(c)
-    cn = pickle.loads(cdata)
-    print(cn)
+    data_range = [50, 100, 200, 300, 400, 500, 600]
+    all_fas = [fa for fa in bench_dir.rglob("*.fa")]
+
+    for data in data_range:
+        (bench_dir / f"range_{data}").mkdir(exist_ok=True)
+
+        for fa in all_fas[:data]:
+            shutil.copy(fa, bench_dir / f"range_{data}" / fa.name)
