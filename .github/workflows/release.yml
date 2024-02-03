@@ -189,11 +189,9 @@ jobs:
           # brew install openssl@3
           # mkdir -p /usr/local/include
           # mkdir -p /usr/local/lib
-          # ln -sf  $(brew --prefix openssl)/include/openssl /usr/local/include/openssl
-          # ln -sf  $(brew --prefix openssl)/lib/*a /usr/local/lib/
-          # ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/local/lib/
-          export CFLAGS="-I$(brew --prefix openssl)/include"
-          export LDFLAGS="-L$(brew --prefix openssl)/lib"
+          ln -sf  $(brew --prefix openssl)/include/openssl /usr/include/openssl
+          ln -sf  $(brew --prefix openssl)/lib/*a /usr/lib/
+          ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/lib/
           ls $(brew --prefix openssl)/include
 
       - name: Install poetry
