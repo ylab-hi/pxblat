@@ -180,20 +180,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Dependencies
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
-          HOMEBREW_NO_INSTALL_CLEANUP: 1 # Do not run brew cleanup automatically.
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1 # Do not automatically update packages.
-        run: |
-          # brew install openssl@3
-          # mkdir -p /usr/local/include
-          # mkdir -p /usr/local/lib
-          ln -sf  $(brew --prefix openssl)/include/openssl /usr/include/openssl
-          ln -sf  $(brew --prefix openssl)/lib/*a /usr/lib/
-          ln -sf  $(brew --prefix openssl)/lib/*dylib /usr/lib/
-          ls $(brew --prefix openssl)/include
-
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
