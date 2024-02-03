@@ -160,23 +160,25 @@ def find_available_library(lib_name: str, *, ignores=[]):
     return Path(lib_path).parent, header_path
 
 
-def find_openssl_libs():
-    openssl_dir = subprocess.getoutput('openssl version -d')
-    openssl_dir = openssl_dir.replace('OPENSSLDIR: "', '').replace('"', '').strip()
+# def find_openssl_libs():
+#     openssl_dir = subprocess.getoutput('openssl version -d')
+#     openssl_dir = openssl_dir.replace('OPENSSLDIR: "', '').replace('"', '').strip()
 
-    lib_paths = [f"{openssl_dir}/lib"]
-    head_paths = [f"{openssl_dir}/include"]
+#     lib_paths = [f"{openssl_dir}/lib"]
+#     head_paths = [f"{openssl_dir}/include"]
 
-    print(f"openssl lib_paths: {lib_paths}")
-    print(f"openssl include: {head_paths}")
 
-    if not Path(lib_paths[0]).exists():
-        print(f"Cannot find openssl lib in {lib_paths[0]}")
+#     if not Path(lib_paths[0]).exists():
+#         print(f"Cannot find openssl lib in {lib_paths[0]}")
+#     else:
+#         print(f"Find openssl lib_paths: {lib_paths}")
 
-    if not Path(head_paths[0]).exists():
-        print(f"Cannot find openssl include in {head_paths[0]}")
+#     if not Path(head_paths[0]).exists():
+#         print(f"Cannot find openssl include in {head_paths[0]}")
+#     else:
+#         print(f"Find openssl include: {head_paths}")
 
-    return lib_paths, head_paths
+#     return lib_paths, head_paths
 
 def _extra_compile_args_for_libpxblat():
     return [
@@ -212,12 +214,12 @@ def _extra_compile_args_for_pxblat():
 ParallelCompile(f"{get_thread_count()}").install()
 
 
-openssl_lib, openssl_include = find_openssl_libs()
+# openssl_lib, openssl_include = find_openssl_libs()
 
 extra_compile_args = ["-pthread"]
 hidden_visibility_args = []
-include_dirs: list[str] = [] +  openssl_include
-library_dirs: list[str] = [] +  openssl_lib
+include_dirs: list[str] = []
+library_dirs: list[str] = []
 python_module_link_args = []
 base_library_link_args: list[str] = []
 external_libraries = [
