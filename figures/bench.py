@@ -6,6 +6,8 @@ from matplotlib import rc
 
 
 def main(file_name: str = "performance.png"):
+
+    rc("font", family="Arial")
     rc("font", weight="bold")
 
     """Plot the performance comparison between PxBLAT and BLAT."""
