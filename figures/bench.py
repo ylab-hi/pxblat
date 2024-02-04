@@ -6,7 +6,7 @@ from matplotlib import rc
 rc("font", weight="bold")
 
 
-def main():
+def main(file_name: str = "performance.png"):
     """Plot the performance comparison between PxBLAT and BLAT."""
     data_df = pd.read_csv("./performance_table.tsv", sep="\t")
     data = data_df["Data"]
@@ -46,10 +46,13 @@ def main():
     plt.ylabel("Time (s)")
     plt.legend(loc="upper left")
 
-    # Displaying the plot
-    plt.savefig("performance.png", format="png", bbox_inches="tight", dpi=300)
+    plt.savefig(file_name,
+                format="tiff",
+                pil_kwargs={"compression": "tiff_lzw"},
+                bbox_inches="tight",
+                dpi=350)
     plt.close()
 
 
 if __name__ == "__main__":
-    main()
+    main("performance.tif")

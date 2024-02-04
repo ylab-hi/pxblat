@@ -4,8 +4,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib import rc
-
-rc("font", weight="bold")
+import scienceplots
 
 
 def get_fa_seq_len(file: Path):
@@ -25,15 +24,18 @@ def collect_fa_len(data_dirs):
     return result
 
 
-def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
+def plot_fas_len(data_dirs, file_name, figure_size=(6,6)):
     """Plot the length of the sequences in the fasta files."""
-    # plt.rc("font", family="Arial")
+    rc("font", family="Arial")
+    rc("font", weight="bold")
 
     fig, axs = plt.subplots(3, 3, figsize=figure_size)
     axs = axs.flatten()
-    tick_labelsize = 14
-    labelsize = 18
-    titlesize = 18
+
+    labelsize = 4
+    tick_labelsize = 4
+    titlesize = 4
+
     color = "tab:cyan"
     numbers = ["a", "b", "c", "d", "e", "f", "g"]
 
@@ -52,8 +54,8 @@ def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
         )
 
         # ax.axhline(0, color="k", clip_on=False)
-        _ = ax.set_xlabel(r"Length of Fasta Data", fontsize=labelsize)
-        _ = ax.set_ylabel(r"Count", fontsize=labelsize)
+        _ = ax.set_xlabel("Length of Fasta Data", fontsize=labelsize)
+        _ = ax.set_ylabel("Count", fontsize=labelsize)
         ax.set_title(f"{sample} samples", {"fontsize": titlesize})
         # ax.set_yticks(list(range(0, 12, 2)))
         ax.tick_params(axis="y", labelsize=tick_labelsize)
@@ -62,7 +64,7 @@ def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
             ax.get_xlim()[0] - 100,
             ax.get_ylim()[1] * 1.1,
             f"{numbers[ind]}",
-            fontsize=28,
+            fontsize=8,
         )
 
     # Finalize the plot
@@ -73,18 +75,21 @@ def plot_fas_len(data_dirs, file_name, figure_size=(20, 20)):
     # _ = ax1.set_ylim(0, 200)
     # plt.xticks(rotation=30)
 
-    plt.savefig(f"{file_name}", bbox_inches="tight", dpi=300)
+    # plt.subplots_adjust(wspace=0.2, hspace=0.25)
+    plt.savefig(f"{file_name}", format="tiff",
+                bbox_inches="tight",
+                dpi=350, pil_kwargs={"compression": "tiff_lzw"})
     plt.close()
 
 
 def main():
     range_data = Path("../benchmark/fas/")
     range_folders = [i for i in range_data.glob("range_*") if i.is_dir()]
-    [i.stem for i in Path("../benchmark/fas/range_600").rglob("*fa")]
-    pd.read_csv("benchmark_fas_all_chps.txt", header=None, sep="\t")
-
     range_folders.sort(key=lambda x: int(x.name.split("_")[1]))
-    plot_fas_len(range_folders, "fas_len_ranges.png")
+
+    # [i.stem for i in Path("../benchmark/fas/range_600").rglob("*fa")]
+    # pd.read_csv("benchmark_fas_all_chps.txt", header=None, sep="\t")
+    plot_fas_len(range_folders, "fas_len_ranges.tif")
 
 
 if __name__ == "__main__":
