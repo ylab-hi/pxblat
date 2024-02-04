@@ -3,10 +3,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import rc
 
-rc("font", weight="bold")
 
 
 def main(file_name: str = "performance.png"):
+    rc("font", weight="bold")
+
     """Plot the performance comparison between PxBLAT and BLAT."""
     data_df = pd.read_csv("./performance_table.tsv", sep="\t")
     data = data_df["Data"]
