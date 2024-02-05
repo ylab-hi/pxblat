@@ -48,5 +48,6 @@ bugs/
 docs/apidocs/*
 docs/api/*
 !PxBLAT.ipynb
+.ipynb_checkpoints
 .ltex
 .ipynb_checkpoints
