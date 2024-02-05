@@ -188,9 +188,8 @@ def query_server(
     except ValueError as e:
         if "No query results" in str(e):
             return None
+        raise e
     else:
-        if isinstance(res, str):
-            return _assign_info_to_query_result(read(res, "psl"))
         return _assign_info_to_query_result(res)
 
 
