@@ -130,11 +130,6 @@ def query_server_by_file(
     return ret_decode
 
 
-def _assign_info_to_query_result(query_result):
-    query_result.version = "v.37x1"
-    return query_result
-
-
 def query_server(
     option: ClientOption,
     host: str | None = None,
@@ -163,10 +158,14 @@ def query_server(
         msg = "inName and inSeq are both empty"
         raise ValueError(msg)
 
+    seqid = None
+
     if option.inSeq:
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as fafile:
             seqname = fafile.name if seqname is None else seqname
-            fafile.write(f">{seqname}\n")
+            seqid = f"{option.inSeq[:5]}_{len(option.inSeq)}"
+
+            fafile.write(f">{seqid}\n")
             fafile.write(option.inSeq)
         option.inName = fafile.name
 
@@ -188,9 +187,10 @@ def query_server(
     except ValueError as e:
         if "No query results" in str(e):
             return None
+
         raise e
     else:
-        return _assign_info_to_query_result(res)
+        return res
 
 
 class ClientThread(Thread):

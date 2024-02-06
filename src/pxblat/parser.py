@@ -133,7 +133,12 @@ def parse(content: str, format=None, **kwargs):
     yield from iterator(handle(content), **kwargs)
 
 
-def read(content: str, format=None, **kwargs):
+def _assign_info_to_query_result(query_result):
+    query_result.version = "v.37x1"
+    return query_result
+
+
+def read(content: str, format=None, seqid=None, **kwargs):
     """Reads and returns the first query result from the given content.
 
     This function takes a string content and a format string, parses the content using the `parse` function,
@@ -142,6 +147,7 @@ def read(content: str, format=None, **kwargs):
     Args:
         content (str): The string content to parse and read.
         format (str, optional): The format string indicating how to parse the content. If not provided, 'psl' format will be used. Defaults to None.
+        seqid (str, optional): The sequence identifier to verify the query results. If not provided, no filtering will be done. Defaults to None.
         **kwargs: Arbitrary keyword arguments to be passed to the `parse` function.
 
     Returns:
@@ -158,10 +164,21 @@ def read(content: str, format=None, **kwargs):
         msg = "No query results found in handle"
         raise ValueError(msg) from None
 
+    # NOTE: the code is releated to issue #244,
+    # the real result may be empty but server will return some "trash"
+    # lets ignore that as a temperary solution
+    # <Yangyang Li yangyang.li@northwestern.edu>
+    if seqid is not None and query_result.id != seqid:
+        return None
+
+    _assign_info_to_query_result(query_result)
+
     try:
         next(query_results)
         msg = "More than one query result found in handle"
-        raise ValueError(msg)
+        # NOTE: issue #244: It seems like the server will return some "trash",
+        # lets ignore that as a temperary solution  <02-06-24, Yangyang Li>
+        # not raise ValueError(msg)
     except StopIteration:
         pass
 

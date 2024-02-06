@@ -122,6 +122,7 @@ def test_client_for_mem_fa_excep(start_server, fa_seq2, seqname, parse):
 
     if not parse:
         ret = query_server(client_option, seqname=seqname, parse=parse)
+        print(ret)
         assert ret
     else:
         ret = query_server(client_option, seqname=seqname, parse=parse)

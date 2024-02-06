@@ -258,7 +258,16 @@ def start(
 @server_app.command()
 def stop(host: str, port: int):
     """To remove a server."""
-    stop_server(host, port)
+    from rich.console import Console
+
+    console = Console()
+
+    try:
+        stop_server(host, port)
+    except ConnectionRefusedError:
+        console.print(f"[yellow]Server {host}:{port} may be not running")
+    else:
+        console.print(f"[green]Server {host}:{port} stopped")
 
 
 @server_app.command()

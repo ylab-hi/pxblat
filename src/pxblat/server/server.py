@@ -397,7 +397,7 @@ class Server(ContextDecorator):
         """
         return self._is_open
 
-    def wait_ready(self, timeout: int = 60, *, restart: bool = False):
+    def wait_ready(self, *, restart: bool = False):
         """Wait server ready in block mode.
 
         Args:
@@ -410,12 +410,12 @@ class Server(ContextDecorator):
         """
         if not self._is_ready:
             try:
-                wait_server_ready(self.host, self.port, timeout, self.option)
+                wait_server_ready(self.host, self.port, self.timeout, self.option)
             except RuntimeError as e:
                 if restart and self.use_others:
                     self.use_others = False
                     self.start()
-                    self.wait_ready(timeout * 2, restart=restart)
+                    self.wait_ready(restart=restart)
                 else:
                     msg = f"Timeout for Waiting for {self.host} {self.port} server ready due to server is not opened by gfServer or need longer time to wait"
                     raise RuntimeError(

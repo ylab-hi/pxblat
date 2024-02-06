@@ -102,5 +102,5 @@ def start_server(port, two_bit):
     server = Server("localhost", port, two_bit, can_stop=True, step_size=5, use_others=True)
     server.start()
     print(f"{server}")
-    server.wait_ready(timeout=10, restart=False)
+    server.wait_ready(restart=False)
     return server
