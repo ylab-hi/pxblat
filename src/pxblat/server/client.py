@@ -164,7 +164,6 @@ def query_server(
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as fafile:
             seqname = fafile.name if seqname is None else seqname
             seqid = f"{option.inSeq[:5]}_{len(option.inSeq)}"
-
             fafile.write(f">{seqid}\n")
             fafile.write(option.inSeq)
         option.inName = fafile.name
@@ -183,7 +182,7 @@ def query_server(
         return ret_decode
 
     try:
-        res = read(ret_decode, "psl")
+        res = read(ret_decode, "psl", seqid=seqid)
     except ValueError as e:
         if "No query results" in str(e):
             return None

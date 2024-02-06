@@ -164,9 +164,10 @@ def read(content: str, format=None, seqid=None, **kwargs):
         msg = "No query results found in handle"
         raise ValueError(msg) from None
 
-    # NOTE: the code is releated to issue #244,
+    # WARN: the code is related to issue #244,
     # the real result may be empty but server will return some "trash"
-    # lets ignore that as a temperary solution
+    # lets ignore that as a temporary solution.
+    # Currently, we do not verify the query result from path
     # <Yangyang Li yangyang.li@northwestern.edu>
     if seqid is not None and query_result.id != seqid:
         return None
@@ -176,8 +177,8 @@ def read(content: str, format=None, seqid=None, **kwargs):
     try:
         next(query_results)
         msg = "More than one query result found in handle"
-        # NOTE: issue #244: It seems like the server will return some "trash",
-        # lets ignore that as a temperary solution  <02-06-24, Yangyang Li>
+        # WARN: issue #244: It seems like the server will return some "trash",
+        # lets ignore that as a temporary solution  <02-06-24, Yangyang Li>
         # not raise ValueError(msg)
     except StopIteration:
         pass
