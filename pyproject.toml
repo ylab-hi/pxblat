@@ -55,7 +55,7 @@ sphinx-immaterial = { extras = [
     "cpp",
     "json",
     "keys",
-], version = "^0.11.6" }
+], version = "^0.11.11" }
 linkify-it-py = "^2.0.2"
 sphinx-copybutton = "^0.5.2"
 sphinx-togglebutton = "^0.3.2"
