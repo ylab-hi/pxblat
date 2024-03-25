@@ -12,6 +12,17 @@ files = [
 ]
 
 [[package]]
+name = "altgraph"
+version = "0.17.4"
+description = "Python graph (network) package"
+optional = false
+python-versions = "*"
+files = [
+    {file = "altgraph-0.17.4-py2.py3-none-any.whl", hash = "sha256:642743b4750de17e655e6711601b077bc6598dbfa3ba5fa2b2a35ce12b508dff"},
+    {file = "altgraph-0.17.4.tar.gz", hash = "sha256:1b5afbb98f6c4dcadb2e2ae6ab9fa994bbb8c1d75f4fa96d340f9437ae454406"},
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.6.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -571,17 +582,18 @@ files = [
 
 [[package]]
 name = "delocate"
-version = "0.10.7"
+version = "0.11.0"
 description = "Move macOS dynamic libraries into package"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "delocate-0.10.7-py3-none-any.whl", hash = "sha256:8251df9a9c9b57ef077a50bf1300f199845a6f7123ada59343d0150c41fa9da6"},
-    {file = "delocate-0.10.7.tar.gz", hash = "sha256:fbf650d3cb45db7c02ec8c3c3ae546310415f845594871623f7561c96f140f0b"},
+    {file = "delocate-0.11.0-py3-none-any.whl", hash = "sha256:55558ddfb3e685ee6b5cacfef05f0e5a07d3ec92b04db30fc1aab608364f4fd5"},
+    {file = "delocate-0.11.0.tar.gz", hash = "sha256:63b0b66467c11fa096aa3179b84d9cef1ab6dc6b0bee78bd7d5dd15814776515"},
 ]
 
 [package.dependencies]
 bindepend = {version = "*", markers = "sys_platform == \"win32\""}
+macholib = "*"
 machomachomangler = {version = "*", markers = "sys_platform == \"win32\""}
 packaging = ">=20.9"
 typing-extensions = "*"
@@ -1114,6 +1126,20 @@ win32-setctime = {version = ">=1.0.0", markers = "sys_platform == \"win32\""}
 
 [package.extras]
 dev = ["Sphinx (==7.2.5)", "colorama (==0.4.5)", "colorama (==0.4.6)", "exceptiongroup (==1.1.3)", "freezegun (==1.1.0)", "freezegun (==1.2.2)", "mypy (==v0.910)", "mypy (==v0.971)", "mypy (==v1.4.1)", "mypy (==v1.5.1)", "pre-commit (==3.4.0)", "pytest (==6.1.2)", "pytest (==7.4.0)", "pytest-cov (==2.12.1)", "pytest-cov (==4.1.0)", "pytest-mypy-plugins (==1.9.3)", "pytest-mypy-plugins (==3.0.0)", "sphinx-autobuild (==2021.3.14)", "sphinx-rtd-theme (==1.3.0)", "tox (==3.27.1)", "tox (==4.11.0)"]
+
+[[package]]
+name = "macholib"
+version = "1.16.3"
+description = "Mach-O header analysis and editing"
+optional = false
+python-versions = "*"
+files = [
+    {file = "macholib-1.16.3-py2.py3-none-any.whl", hash = "sha256:0e315d7583d38b8c77e815b1ecbdbf504a8258d8b3e17b61165c6feb60d18f2c"},
+    {file = "macholib-1.16.3.tar.gz", hash = "sha256:07ae9e15e8e4cd9a788013d81f5908b3609aa76f9b1421bae9c4d7606ec86a30"},
+]
+
+[package.dependencies]
+altgraph = ">=0.17"
 
 [[package]]
 name = "machomachomangler"
@@ -3095,4 +3121,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9, <3.12"
-content-hash = "dbe0fd980c612e1afd73a1a01858f000c0cf774fbc8e0463f5687c4ed8fd3dc4"
+content-hash = "f84dd2222ff87f68bd3d748721a1748d19e5cee0f54400e9597831606519b314"
