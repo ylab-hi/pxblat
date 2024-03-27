@@ -33,7 +33,7 @@ biopython = "^1.81"
 deprecated = "^1.2.13"
 mashumaro = "^3.7"
 urllib3 = "2.2.1"
-typer = ">=0.9,<0.11"
+typer = ">=0.9,<0.12"
 
 
 [tool.poetry.group.dev.dependencies]
