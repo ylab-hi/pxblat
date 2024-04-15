@@ -90,6 +90,7 @@ jobs:
         run: |
           pwd
           ls -la
+          ls -la .github/workflows
 
       - name: Install Poetry
         run: |
