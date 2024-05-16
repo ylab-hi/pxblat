@@ -23,6 +23,7 @@ from .server import Status
 from .server import status_server
 from .server import stop_server
 from .server import wait_server_ready
+from .server import build_index
 from .toolkit import fa_to_two_bit
 from .toolkit import two_bit_to_fa
 from rich.traceback import install
@@ -59,4 +60,5 @@ __all__ = [
     "ClientOption",
     "ServerOption",
     "UsageStats",
+    "build_index",
 ]

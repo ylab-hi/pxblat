@@ -1,6 +1,7 @@
 """Server module."""
 
 from .basic import (
+    build_index,
     check_port_in_use,
     check_port_open,
     files,
@@ -43,4 +44,5 @@ __all__ = [
     "copy_client_option",
     "Status",
     "Client",
+    "build_index",
 ]

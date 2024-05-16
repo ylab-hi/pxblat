@@ -7,16 +7,9 @@ import warnings
 from collections import Counter
 from multiprocessing import Process
 
-from deprecated import deprecated  # type: ignore
+from deprecated import deprecated
 
-from pxblat.extc import (
-    ServerOption,
-    UsageStats,
-    pygetFileList,
-    pyqueryServer,
-    pystartServer,
-    startServer,
-)
+from pxblat.extc import ServerOption, UsageStats, buildIndex, pygetFileList, pyqueryServer, pystartServer, startServer
 
 from .status import Status
 
@@ -495,3 +488,21 @@ def find_free_port(host: str, start: int, end: int = MAX_PORT) -> int:
             raise e
     msg = f"Cannot find available port in range [{start}, {end}]"
     raise RuntimeError(msg)
+
+
+def build_index(
+    gfx_file: str,
+    seq_files: list[str],
+    options: ServerOption,
+):
+    """To generate a precomputed index.
+
+         gfServer index gfidx file(s)
+
+    where the files are .2bit or .nib format files.  Separate indexes are
+    be created for untranslated and translated queries.  These can be used
+    with a persistent server as with 'start -indexFile or a dynamic server.
+    They must follow the naming convention for for dynamic servers.
+    """
+    file_count = len(seq_files)
+    buildIndex(gfx_file, file_count, seq_files, options)
