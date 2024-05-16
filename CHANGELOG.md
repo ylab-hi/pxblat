@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2024-05-15
+
+### Bug Fixes
+
+- Update sphinx-immaterial version to ^0.11.11
+
+### Features
+
+- Add build_index function to generate precomputed index
+
+### Miscellaneous Tasks
+
+- Remove pysam for dev dependencies
+- Add workflow step for listing workflows folder
+
+### Styling
+
+- Update pipx install commands in tests workflow
+- Update Poetry and Nox installation commands
+- Add type ignore to deprecated import
+
+### Build
+
+- Bump setuptools from 69.0.3 to 69.1.0
+- Bump ruff from 0.2.1 to 0.2.2
+- Bump pytest from 8.0.0 to 8.0.1
+- Bump urllib3 from 2.2.0 to 2.2.1
+- Bump virtualenv in /.github/workflows
+- Bump poetry from 1.7.1 to 1.8.0 in /.github/workflows
+- Bump pytest from 8.0.1 to 8.0.2
+- Bump setuptools from 69.1.0 to 69.1.1
+- Bump rich from 13.7.0 to 13.7.1
+- Bump pypa/gh-action-pypi-publish from 1.8.11 to 1.8.12
+- Bump poetry from 1.8.0 to 1.8.1 in /.github/workflows
+- Bump ruff from 0.2.2 to 0.3.0
+- Bump poetry from 1.8.1 to 1.8.2 in /.github/workflows
+- Bump nox from 2023.4.22 to 2024.3.2 in /.github/workflows
+- Bump pytest from 8.0.2 to 8.1.0
+- Bump nox from 2023.4.22 to 2024.3.2
+- Bump pybind11-stubgen from 2.4.2 to 2.5
+- Bump ruff from 0.3.0 to 0.3.1
+- Bump pypa/cibuildwheel from 2.16.5 to 2.17.0
+- Bump pypa/gh-action-pypi-publish from 1.8.12 to 1.8.14
+- Bump setuptools from 69.1.1 to 69.2.0
+- Bump ruff from 0.3.2 to 0.3.3
+- Bump ruff from 0.3.3 to 0.3.4
+- Bump typer from 0.9.0 to 0.10.0
+- Bump delocate from 0.10.7 to 0.11.0 (#286)
+- Bump typer from 0.10.0 to 0.11.0
+- Bump typer from 0.11.0 to 0.11.1
+- Bump pybind11-stubgen from 2.5 to 2.5.1
+- Bump pybind11 from 2.11.1 to 2.12.0
+- Bump typer from 0.11.1 to 0.12.0
+- Bump typer from 0.12.0 to 0.12.3
+- Bump sphinx-autobuild from 2024.2.4 to 2024.4.13
+- Bump ruff from 0.3.4 to 0.3.7
+- Bump setuptools from 69.2.0 to 69.5.1
+- Bump nox from 2024.3.2 to 2024.4.15
+- Bump nox from 2024.3.2 to 2024.4.15 in /.github/workflows
+- Bump sphinx-autobuild from 2024.4.13 to 2024.4.16
+- Bump virtualenv in /.github/workflows
+- Bump sphinx from 7.2.6 to 7.3.6
+- Bump virtualenv in /.github/workflows
+- Bump sphinx from 7.3.6 to 7.3.7
+- Bump ruff from 0.3.7 to 0.4.0
+- Bump ruff from 0.4.0 to 0.4.1
+- Bump virtualenv in /.github/workflows
+- Bump myst-parser from 2.0.0 to 3.0.0 in /docs
+- Bump myst-parser from 2.0.0 to 3.0.0
+- Bump mypy from 1.9.0 to 1.10.0
+- Bump ruff from 0.4.1 to 0.4.2
+- Bump virtualenv in /.github/workflows
+- Bump myst-parser from 3.0.0 to 3.0.1 in /docs
+- Bump pytest from 8.1.1 to 8.2.0
+- Bump pytest-xdist from 3.5.0 to 3.6.1
+- Bump myst-parser from 3.0.0 to 3.0.1
+- Bump mashumaro from 3.12 to 3.13
+- Bump poetry from 1.8.2 to 1.8.3 in /.github/workflows
+- Bump virtualenv in /.github/workflows
+- Bump sphinx-click from 5.1.0 to 5.2.2
+- Update pre-commit hooks and dependencies
+
+### Ci
+
+- Add step to check current directory
+
 ## [1.1.9] - 2023-11-01
 
 ### Bug Fixes

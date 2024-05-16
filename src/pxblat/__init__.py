@@ -1,34 +1,34 @@
 from __future__ import annotations
-from .extc import ClientOption
-from .extc import ServerOption
-from .extc import TwoBitToFaOption
-from .extc import UsageStats
-from .parser import read
-from .server import check_port_in_use
-from .server import check_port_open
-from .server import Client
-from .server import ClientThread
-from .server import create_client_option
-from .server import create_server_option
-from .server import copy_client_option
-from .server import files
-from .server import find_free_port
-from .server import query_server
-from .server import Server
-from .server import server_query
-from .server import start_server
-from .server import start_server_mt
-from .server import start_server_mt_nb
-from .server import Status
-from .server import status_server
-from .server import stop_server
-from .server import wait_server_ready
-from .server import build_index
-from .toolkit import fa_to_two_bit
-from .toolkit import two_bit_to_fa
+
 from rich.traceback import install
 
-__version__ = "1.1.20"
+from .extc import ClientOption, ServerOption, TwoBitToFaOption, UsageStats
+from .parser import read
+from .server import (
+    Client,
+    ClientThread,
+    Server,
+    Status,
+    build_index,
+    check_port_in_use,
+    check_port_open,
+    copy_client_option,
+    create_client_option,
+    create_server_option,
+    files,
+    find_free_port,
+    query_server,
+    server_query,
+    start_server,
+    start_server_mt,
+    start_server_mt_nb,
+    status_server,
+    stop_server,
+    wait_server_ready,
+)
+from .toolkit import fa_to_two_bit, two_bit_to_fa
+
+__version__ = "1.2.0"
 
 install(show_locals=True)
 
