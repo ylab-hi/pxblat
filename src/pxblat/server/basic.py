@@ -7,7 +7,7 @@ import warnings
 from collections import Counter
 from multiprocessing import Process
 
-from deprecated import deprecated
+from deprecated import deprecated  # type: ignore
 
 from pxblat.extc import ServerOption, UsageStats, buildIndex, pygetFileList, pyqueryServer, pystartServer, startServer
 
