@@ -1,4 +1,5 @@
 """Toolkit functions for working with BLAT."""
+
 from __future__ import annotations
 
 from pathlib import Path

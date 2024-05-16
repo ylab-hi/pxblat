@@ -59,7 +59,8 @@ def get_handle(format: str, mapping):
         if not isinstance(format, str):
             raise TypeError("Need a string for the file format (lower case)") from None
         if format != format.lower():
-            raise ValueError("Format string %r should be lower case" % format) from None
+            msg = f"Format string {format!r} should be lower case"
+            raise ValueError(msg) from None
 
         msg = f"Unknown format {format!r}. Supported formats are {', '.join(mapping)}"
         raise ValueError(msg) from None
@@ -97,7 +98,8 @@ def get_processor(format, mapping):
             msg = "Need a string for the file format (lower case)"
             raise TypeError(msg) from None
         if format != format.lower():
-            raise ValueError("Format string %r should be lower case" % format) from None
+            msg = f"Format string {format!r} should be lower case"
+            raise ValueError(msg) from None
 
         msg = f"Unknown format {format!r}. Supported formats are {', '.join(mapping)}"
         raise ValueError(msg) from None

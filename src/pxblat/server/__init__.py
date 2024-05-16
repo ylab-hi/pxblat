@@ -1,4 +1,5 @@
 """Server module."""
+
 from .basic import (
     check_port_in_use,
     check_port_open,

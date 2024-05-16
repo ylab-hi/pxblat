@@ -1,4 +1,5 @@
 """Command line interface for pxblat."""
+
 import sys
 from datetime import datetime
 
