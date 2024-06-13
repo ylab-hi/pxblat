@@ -1079,6 +1079,26 @@ files = [
 
 [[package]]
 name = "libclang"
+version = "16.0.6"
+description = "Clang Python Bindings, mirrored from the official LLVM repo: https://github.com/llvm/llvm-project/tree/main/clang/bindings/python, to make the installation process easier."
+optional = false
+python-versions = "*"
+files = [
+    {file = "libclang-16.0.6-1-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:88bc7e7b393c32e41e03ba77ef02fdd647da1f764c2cd028e69e0837080b79f6"},
+    {file = "libclang-16.0.6-1-py2.py3-none-manylinux2014_armv7l.whl", hash = "sha256:d80ed5827736ed5ec2bcedf536720476fd9d4fa4c79ef0cb24aea4c59332f361"},
+    {file = "libclang-16.0.6-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:da9e47ebc3f0a6d90fb169ef25f9fbcd29b4a4ef97a8b0e3e3a17800af1423f4"},
+    {file = "libclang-16.0.6-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:e1a5ad1e895e5443e205568c85c04b4608e4e973dae42f4dfd9cb46c81d1486b"},
+    {file = "libclang-16.0.6-py2.py3-none-manylinux2010_x86_64.whl", hash = "sha256:9dcdc730939788b8b69ffd6d5d75fe5366e3ee007f1e36a99799ec0b0c001492"},
+    {file = "libclang-16.0.6-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:8130482120500476a027171f8f3c8dfc2536b591716eea71fc5da22cae13131b"},
+    {file = "libclang-16.0.6-py2.py3-none-manylinux2014_armv7l.whl", hash = "sha256:1e940048f51d0b0999099a9b78629ab8a64b62af5e9ff1b2b062439c21ee244d"},
+    {file = "libclang-16.0.6-py2.py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:f04e3060ae1f207f234d0608900c99c50edcb743e5e18276d78da2ddd727d39f"},
+    {file = "libclang-16.0.6-py2.py3-none-win_amd64.whl", hash = "sha256:daab4a11dae228f1efa9efa3fe638b493b14d8d52c71fb3c7019e2f1df4514c2"},
+    {file = "libclang-16.0.6-py2.py3-none-win_arm64.whl", hash = "sha256:4a9acbfd9c135a72f80d5dbff7588dfb0c81458244a89b9e83526e8595880e0a"},
+    {file = "libclang-16.0.6.tar.gz", hash = "sha256:4acdde39dfe410c877b4ccc0d4b57eb952100e4ee26bbdf6cfdb88e2033a7d31"},
+]
+
+[[package]]
+name = "libclang"
 version = "18.1.1"
 description = "Clang Python Bindings, mirrored from the official LLVM repo: https://github.com/llvm/llvm-project/tree/main/clang/bindings/python, to make the installation process easier."
 optional = false
@@ -2644,19 +2664,22 @@ rtd = ["ipython", "myst-nb", "sphinx", "sphinx-book-theme", "sphinx-examples"]
 
 [[package]]
 name = "sphinx-immaterial"
-version = "0.11.11"
+version = "0.11.12"
 description = "Adaptation of mkdocs-material theme for the Sphinx documentation system"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "sphinx_immaterial-0.11.11-py3-none-any.whl", hash = "sha256:174c7ce0f39c87413af0fbff17d0821e2f1fbae0d578b7074c9a6e17f1ef295c"},
-    {file = "sphinx_immaterial-0.11.11.tar.gz", hash = "sha256:f98f3019cbb1d77b259c7ab09dc977ca220dff931dd0f2fabee76e9f9c77b3b4"},
+    {file = "sphinx_immaterial-0.11.12-py3-none-any.whl", hash = "sha256:5c3a3d52e1617f491c8187bcd17d8af0c74cf988aff4d5b2dc5566f0db764350"},
+    {file = "sphinx_immaterial-0.11.12.tar.gz", hash = "sha256:168a47f7bc61f02d2e90663b07e32ee8c47e3938fbf2e826791423e9b3bd5b2d"},
 ]
 
 [package.dependencies]
 appdirs = "*"
 clang-format = {version = "*", optional = true, markers = "extra == \"clang-format\""}
-libclang = {version = "*", optional = true, markers = "extra == \"cpp\""}
+libclang = [
+    {version = "*", optional = true, markers = "sys_platform != \"darwin\" and extra == \"cpp\""},
+    {version = "<17", optional = true, markers = "sys_platform == \"darwin\" and extra == \"cpp\""},
+]
 markupsafe = "*"
 pydantic = ">=2.4"
 pydantic-extra-types = "*"
@@ -2668,7 +2691,7 @@ typing-extensions = "*"
 
 [package.extras]
 clang-format = ["clang-format"]
-cpp = ["libclang"]
+cpp = ["libclang", "libclang (<17)"]
 json = ["pyyaml"]
 jsonschema-validation = ["jsonschema"]
 keys = ["pymdown-extensions"]
