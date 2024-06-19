@@ -81,7 +81,7 @@ Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v
 
 ```bibtex
 @article{li2024pxblat,
-	author = {\textbf{Li, Yangyang} and Yang, Rendong},
+	author = {Li, Yangyang and Yang, Rendong},
 	title = {{PxBLAT: an efficient python binding library for BLAT}},
 	journal = {BMC Bioinf.},
 	volume = {25},
