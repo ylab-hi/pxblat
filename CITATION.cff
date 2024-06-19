@@ -7,9 +7,9 @@ authors:
   - family-names: "Yang"
     given-names: "Ren Dong"
     orcid: "https://orcid.org/0000-0001-8224-106x"
-title: "PxBLAT: An Ergonomic and Efficient Python Binding Library for BLAT"
-doi: 10.1101/2023.08.02.551686
-date-released: 2023-03-27
+title: "PxBLAT: an efficient python binding library for BLAT"
+doi: 10.1186/s12859-024-05844-0
+date-released: 2024-06-19
 url: "https://github.com/ylab-hi/pxblat"
 preferred-citation:
   type: article
@@ -20,12 +20,12 @@ preferred-citation:
     - family-names: "Yang"
       given-names: "Ren Dong"
       orcid: "https://orcid.org/0000-0001-8224-106x"
-  doi: "10.1101/2023.08.02.551686"
-  journal: "bioRxiv"
-  month: 8
+  doi: "10.1186/s12859-024-05844-0"
+  journal: "BMC Bioinf."
+  month: 6
   start: 1 # First page number
-  end: 7 # Last page number
-  title: "PxBLAT: An Ergonomic and Efficient Python Binding Library for BLAT"
+  end: 8 # Last page number
+  title: "PxBLAT: an efficient python binding library for BLAT"
   issue: 1
-  volume: 1
-  year: 2023
+  volume: 25
+  year: 2024
