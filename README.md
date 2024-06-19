@@ -80,15 +80,18 @@ PxBLAT is scientific software, with a published paper in the BioRxiv.
 Check the [published](https://www.biorxiv.org/content/10.1101/2023.08.02.551686v2) to read the paper.
 
 ```bibtex
-@article {Li2023pxblat,
-	author = {Yangyang Li and Rendong Yang},
-	title = {PxBLAT: An Ergonomic and Efficient Python Binding Library for BLAT},
-	elocation-id = {2023.08.02.551686},
-	year = {2023},
-	doi = {10.1101/2023.08.02.551686},
-	publisher = {Cold Spring Harbor Laboratory},
-	url = {https://www.biorxiv.org/content/10.1101/2023.08.02.551686v2},
-	journal = {bioRxiv}
+@article{li2024pxblat,
+	author = {\textbf{Li, Yangyang} and Yang, Rendong},
+	title = {{PxBLAT: an efficient python binding library for BLAT}},
+	journal = {BMC Bioinf.},
+	volume = {25},
+	number = {1},
+	pages = {1--8},
+	year = {2024},
+	month = {12},
+	issn = {1471-2105},
+	publisher = {BioMed Central},
+	doi = {10.1186/s12859-024-05844-0}
 }
 ```
 
