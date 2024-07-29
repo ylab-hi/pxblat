@@ -26,7 +26,7 @@ keywords = ["bioinformatics", "sequence aligner", "blat"]
 python = "^3.9, <3.12"
 loguru = "^0.7.0"
 pybind11 = "^2.10.4"
-setuptools = ">=68.2.2,<72.0.0"
+setuptools = ">=68.2.2,<73.0.0"
 rich = "^13.3.5"
 pysimdjson = ">=5.0.2,<7.0.0"
 biopython = "^1.81"
