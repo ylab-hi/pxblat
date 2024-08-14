@@ -1890,17 +1890,17 @@ files = [
 
 [[package]]
 name = "pybind11"
-version = "2.13.1"
+version = "2.13.3"
 description = "Seamless operability between C++11 and Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pybind11-2.13.1-py3-none-any.whl", hash = "sha256:97881536abe0cd4260a9ccc5bf6d1cf3113318f08af1feb82d4b9f95e93f0aa4"},
-    {file = "pybind11-2.13.1.tar.gz", hash = "sha256:65be498b1cac516161add1508e65375674916bebf2570d057dc9c3c7bcbbc7b0"},
+    {file = "pybind11-2.13.3-py3-none-any.whl", hash = "sha256:23f2e842ae2f37babec486d372f2545198a506df785a5fefccf6f0ad3f72a5fb"},
+    {file = "pybind11-2.13.3.tar.gz", hash = "sha256:84b1314ca72397f79854161cf852466629dd374bb0efce0c6501d745699d9a43"},
 ]
 
 [package.extras]
-global = ["pybind11-global (==2.13.1)"]
+global = ["pybind11-global (==2.13.3)"]
 
 [[package]]
 name = "pybind11-stubgen"
