@@ -330,13 +330,13 @@ files = [
 
 [[package]]
 name = "cibuildwheel"
-version = "2.20.0"
+version = "2.21.1"
 description = "Build Python wheels on CI with minimal configuration."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cibuildwheel-2.20.0-py3-none-any.whl", hash = "sha256:d90719cc386af540b52f3cd8c733972c1fe222bbb2a941e5f5cd87215a0c82a3"},
-    {file = "cibuildwheel-2.20.0.tar.gz", hash = "sha256:5c3fd67e4417fe37021b595bedcaf0c87e5800ecf9d6096229967858a20cc6c8"},
+    {file = "cibuildwheel-2.21.1-py3-none-any.whl", hash = "sha256:cd50ae4ef79cd095565558fda41d5056ae3edf1291a73245326d8a7a692f0c48"},
+    {file = "cibuildwheel-2.21.1.tar.gz", hash = "sha256:b186b2723b928b9ca4d5d08d555f4f0fe0c3c69d5b80bb7fddd838dddc0c7f65"},
 ]
 
 [package.dependencies]
@@ -352,7 +352,7 @@ typing-extensions = {version = ">=4.1.0", markers = "python_version < \"3.11\""}
 [package.extras]
 bin = ["click", "packaging (>=21.0)", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)"]
 dev = ["build", "click", "jinja2", "packaging (>=21.0)", "pip-tools", "pygithub", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "pyyaml", "requests", "rich (>=9.6)", "setuptools", "tomli-w", "validate-pyproject"]
-docs = ["jinja2 (>=3.1.2)", "mkdocs (==1.3.1)", "mkdocs-include-markdown-plugin (==2.8.0)", "mkdocs-macros-plugin", "pymdown-extensions"]
+docs = ["jinja2 (>=3.1.2)", "mkdocs (==1.6.1)", "mkdocs-include-markdown-plugin (==6.2.2)", "mkdocs-macros-plugin", "pymdown-extensions"]
 test = ["build", "jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "setuptools", "tomli-w", "validate-pyproject"]
 uv = ["uv"]
 
