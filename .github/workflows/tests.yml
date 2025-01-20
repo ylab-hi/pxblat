@@ -99,7 +99,7 @@ jobs:
 
       - name: Install Nox
         run: |
-          pipx install  nox
+          pipx install nox
           pipx inject  nox nox-poetry
           nox --version
 
