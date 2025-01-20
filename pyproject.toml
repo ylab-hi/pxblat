@@ -76,6 +76,8 @@ delocate = ">=0.10.4,<0.13.0"
 [tool.poetry.scripts]
 pxblat = "pxblat.cli.cli:app"
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [tool.ruff]
 target-version = "py38"
