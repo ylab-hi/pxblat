@@ -38,7 +38,7 @@ jobs:
         run: |
           poetry build --format=sdist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: dist/*.tar.gz
 
@@ -109,7 +109,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: "*musllinux*"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: wheelhouse/*.whl
 
@@ -151,7 +151,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_SKIP: "*-macosx_arm64"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: wheelhouse/*.whl
 
@@ -192,7 +192,7 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: wheelhouse/*.whl
 
