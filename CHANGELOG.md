@@ -48,6 +48,70 @@ All notable changes to this project will be documented in this file.
 - Create pyproject.toml.poetry.bak as backup of original configuration
 - Update .github/workflows/tests.yml to use uv
 - Update .github/workflows/release.yml to use uv for building and publishing
+## [1.2.6] - 2025-10-29
+
+### Summary
+
+Complete fix for GitHub Actions release workflow with all issues resolved.
+
+### Bug Fixes
+
+- Fix artifact naming to remove asterisk character from GitHub Actions artifact names
+- Set `MACOSX_DEPLOYMENT_TARGET=13.0` for macOS builds to match OpenSSL library requirements
+- Fix module shadowing issue in cibuildwheel by setting `CIBW_BUILD_FRONTEND: pip`
+- Fix artifact upload/download for GitHub Actions with actions/download-artifact@v6
+- Fix pypa/gh-action-pypi-publish parameter names (skip-existing, packages-dir)
+
+### Build
+
+- Use `replace()` function to sanitize artifact names (removes `-*` wildcard)
+- Add `MACOSX_DEPLOYMENT_TARGET: "13.0"` to all macOS cibuildwheel builds
+- Add `CIBW_BUILD_FRONTEND: pip` to all three cibuildwheel jobs
+- Update artifact names: `wheels-linux-cp310-x86_64`, `wheels-macos-cp310-x86_64`, `wheels-macos-arm64-cp310`
+- Ensure delocate-wheel works correctly with OpenSSL 3.x dependencies
+
+## [1.2.4] - 2025-10-29
+
+### Bug Fixes
+
+- Fix artifact naming to remove asterisk character from GitHub Actions artifact names
+- Set `MACOSX_DEPLOYMENT_TARGET=13.0` for macOS builds to match OpenSSL library requirements
+- Use `replace()` function to sanitize artifact names in upload-artifact action
+
+### Build
+
+- Update artifact names: `wheels-linux-cp310-x86_64` instead of `wheels-linux-cp310-*-x86_64`
+- Add `MACOSX_DEPLOYMENT_TARGET: "13.0"` to all macOS cibuildwheel builds
+- Ensure delocate-wheel works correctly with OpenSSL 3.x dependencies
+
+## [1.2.3] - 2025-10-29
+
+### Bug Fixes
+
+- Fix module shadowing issue in cibuildwheel by setting `CIBW_BUILD_FRONTEND: pip`
+- Prevent project's `build.py` from being executed instead of PyPA `build` package
+- Fix `ModuleNotFoundError: No module named 'setuptools'` in wheel builds
+
+### Build
+
+- Add `CIBW_BUILD_FRONTEND: pip` to all three cibuildwheel jobs (Linux, macOS x86_64, macOS ARM64)
+- Ensure Poetry build system works correctly with cibuildwheel
+
+## [1.2.2] - 2025-10-29
+
+### Bug Fixes
+
+- Fix artifact upload/download for GitHub Actions with actions/download-artifact@v6
+- Add unique names to all artifacts (sdist and wheels)
+- Update artifact download pattern matching and merging
+- Fix packages_dir path from artifact/ to dist/
+- Fix pypa/gh-action-pypi-publish parameter names (skip-existing, packages-dir)
+
+### Build
+
+- Named artifacts for better organization: dist, wheels-linux-_, wheels-macos-_, wheels-macos-arm64-\*
+- Implement two-step artifact download with pattern matching
+- Merge multiple wheel artifacts into single dist/ directory
 
 ## [1.2.0] - 2024-05-15
 

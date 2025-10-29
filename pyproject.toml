@@ -1,7 +1,7 @@
 # Project metadata using PEP 621
 [project]
 name = "pxblat"
-version = "1.2.1"
+version = "1.2.8"
 description = "A native python binding for blat suite"
 authors = [{ name = "Yangyang Li", email = "yangyang.li@northwestern.edu" }]
 readme = "README.md"
