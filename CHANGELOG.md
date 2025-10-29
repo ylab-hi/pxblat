@@ -48,6 +48,7 @@ All notable changes to this project will be documented in this file.
 - Create pyproject.toml.poetry.bak as backup of original configuration
 - Update .github/workflows/tests.yml to use uv
 - Update .github/workflows/release.yml to use uv for building and publishing
+
 ## [1.2.6] - 2025-10-29
 
 ### Summary
