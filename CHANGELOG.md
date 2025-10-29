@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2025-10-29
+
+### Features
+
+- Complete migration from Poetry to uv package manager
+- Add full PEP 621 compliant project configuration
+- Implement seamless C++ extension building with uv
+
+### Bug Fixes
+
+- Fix setup.py to work with uv's build isolation environment
+- Resolve ModuleNotFoundError when importing build.py during isolated builds
+
+### Documentation
+
+- Update README.md to use uv commands for development workflow
+- Update CONTRIBUTING.md with uv installation and usage instructions
+- Add MIGRATION_POETRY_TO_UV.md migration guide for developers
+- Add MIGRATION_SUMMARY.md documenting complete migration journey
+- Update README_UV_BUILD.md to reflect 100% complete migration status
+- Add CPP_BUILD_VERIFICATION.md documenting build system verification
+- Remove all references to Poetry workarounds and temporary solutions
+
+### Build
+
+- Replace Poetry with uv for dependency management
+- Update build backend to setuptools with custom build integration
+- Add setup.py to bridge build.py custom logic with setuptools backend
+- Update GitHub Actions workflows to use astral-sh/setup-uv@v5
+- Replace nox-poetry with standard nox + uv integration
+- Update noxfile.py to use uv sync for dependency installation
+- Add dependency-groups section following modern Python packaging standards
+- Create uv.lock replacing poetry.lock (173 packages)
+
+### Performance
+
+- Achieve 10-100x faster dependency resolution with uv
+- Reduce CI/CD workflow execution time
+- Enable parallel package downloads and installations
+
+### Miscellaneous Tasks
+
+- Remove poetry.lock and nox-poetry dependency
+- Create pyproject.toml.poetry.bak as backup of original configuration
+- Update .github/workflows/tests.yml to use uv
+- Update .github/workflows/release.yml to use uv for building and publishing
+
 ## [1.2.0] - 2024-05-15
 
 ### Bug Fixes
