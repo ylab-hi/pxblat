@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2025-10-29
+
+### Bug Fixes
+
+- Fix module shadowing issue in cibuildwheel by setting `CIBW_BUILD_FRONTEND: pip`
+- Prevent project's `build.py` from being executed instead of PyPA `build` package
+- Fix `ModuleNotFoundError: No module named 'setuptools'` in wheel builds
+
+### Build
+
+- Add `CIBW_BUILD_FRONTEND: pip` to all three cibuildwheel jobs (Linux, macOS x86_64, macOS ARM64)
+- Ensure Poetry build system works correctly with cibuildwheel
+
 ## [1.2.2] - 2025-10-29
 
 ### Bug Fixes
