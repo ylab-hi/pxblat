@@ -48,14 +48,6 @@ def blat(
             useLong=False,
         )
 
-    # Create client
-    client = Client(
-        host,
-        port,
-        seq_dir=ref.parent.as_posix(),
-        min_score=10,
-    )
-
     # Use server as context manager for proper cleanup
     server = Server(host, port, two_bit.as_posix())
 
@@ -63,12 +55,17 @@ def blat(
     with server:
         server.wait_ready()
 
+        # Create client after server is ready
+        client = Client(
+            host,
+            port,
+            seq_dir=ref.parent.as_posix(),
+            min_score=10,
+        )
+
         # Process sequences
         for i, seq in enumerate(seqs, 1):
-            # seq is a tuple of (name, sequence)
-            # For pxblat, we just need the sequence string
             seq_str = str(seq[1]) if isinstance(seq[1], Seq) else seq[1]
-
             result = client.query(seq_str)
             results.append(result)
 
@@ -113,20 +110,20 @@ def blat_batched(
             useLong=False,
         )
 
-    # Create client
-    client = Client(
-        host,
-        port,
-        seq_dir=ref.parent.as_posix(),
-        min_score=10,
-    )
-
     # Use server as context manager for proper cleanup
     server = Server(host, port, two_bit.as_posix())
 
     results = []
     with server:
         server.wait_ready()
+
+        # Create client after server is ready
+        client = Client(
+            host,
+            port,
+            seq_dir=ref.parent.as_posix(),
+            min_score=10,
+        )
 
         # Process in batches
         total = len(seqs)
@@ -137,7 +134,6 @@ def blat_batched(
             print(f"Processing batch {start_idx // batch_size + 1} ({start_idx + 1}-{end_idx}/{total})")
 
             for seq in batch:
-                # seq is a tuple of (name, sequence)
                 seq_str = str(seq[1]) if isinstance(seq[1], Seq) else seq[1]
                 result = client.query(seq_str)
                 results.append(result)

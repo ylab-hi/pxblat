@@ -159,6 +159,7 @@ def query_server(
 
     seqid = None
     temp_file_path = None
+    prev_in_name = option.inName  # Store original to restore later
 
     try:
         if option.inSeq:
@@ -185,15 +186,15 @@ def query_server(
         except ValueError as e:
             if "No query results" in str(e):
                 return None
-
-            raise e
+            raise
         else:
             return res
     finally:
-        # Always clean up the temporary file
         if temp_file_path is not None:
             with contextlib.suppress(FileNotFoundError):
                 Path(temp_file_path).unlink()
+        # Restore original inName to avoid side effects
+        option.inName = prev_in_name
 
 
 class ClientThread(Thread):

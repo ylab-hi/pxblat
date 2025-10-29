@@ -615,15 +615,16 @@ Here's a robust implementation for aligning multiple sequences with proper resou
 :language: python
 :linenos:
 :lines: 1-75
-:emphasize-lines: 26-27,51-52,59-72
+:emphasize-lines: 51-56,58-64,67-73
 ```
 
 **Key Features:**
 
-1. **Context Manager (`with server`)**: Ensures the server is properly cleaned up after use
-2. **Automatic 2bit Conversion**: Checks if the 2bit file exists and creates it if needed
-3. **Progress Tracking**: Reports progress every 100 sequences
-4. **Type Checking**: Uses TYPE_CHECKING for proper type annotations without runtime overhead
+1. **Server Context Manager**: Server is initialized and managed with a context manager for proper cleanup
+2. **Wait for Readiness**: Explicitly waits for the server to be ready before proceeding
+3. **Client Scoping**: Client is created **inside** the server context **after** `wait_ready()` to prevent race conditions
+4. **Automatic 2bit Conversion**: Checks if the 2bit file exists and creates it if needed
+5. **Progress Tracking**: Reports progress every 100 sequences
 
 ### Batch Processing
 
@@ -632,8 +633,8 @@ For very large datasets (10,000+ sequences), consider batch processing:
 ```{literalinclude} tutorial_data/improved_blat_example.py
 :language: python
 :linenos:
-:lines: 78-144
-:emphasize-lines: 128-129,131-143
+:lines: 78-141
+:emphasize-lines: 113-118,120-126,128-139
 ```
 
 **Batch Processing Benefits:**
@@ -641,6 +642,7 @@ For very large datasets (10,000+ sequences), consider batch processing:
 - **Memory efficiency**: Process chunks at a time instead of loading everything
 - **Progress monitoring**: Clear visibility into processing status
 - **Flexibility**: Adjust batch size based on your system resources
+- **Proper initialization order**: Client created after server is ready, same as the basic version
 
 ### Usage Example
 
@@ -667,8 +669,9 @@ print(f"Aligned {len(results)} sequences successfully!")
 
 1. **Use appropriate batch sizes**: 100-500 sequences per batch is typically optimal
 2. **Monitor system resources**: Use `ulimit -n` to check file descriptor limits
-3. **Consider server reuse**: Keep the server running for multiple batches
-4. **Enable logging**: Set up logging to track long-running jobs
+3. **Always create Client after server is ready**: Initialize the `Client` inside the server context after calling `server.wait_ready()` to avoid race conditions
+4. **Consider server reuse**: Keep the server running for multiple batches
+5. **Enable logging**: Set up logging to track long-running jobs
 
 ```{tip}
 The complete improved BLAT example with all features shown above is available in the repository at `docs/tutorial_data/improved_blat_example.py`. You can download it directly from:
