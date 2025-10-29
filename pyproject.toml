@@ -86,6 +86,7 @@ requires = [
     "setuptools>=68.2.2",
     "wheel",
     "pybind11>=2.10.4",
+    "tomli>=1.0.0; python_version < '3.11'",
 ]
 build-backend = "setuptools.build_meta"
 

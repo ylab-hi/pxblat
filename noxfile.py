@@ -27,14 +27,9 @@ def install_package_with_uv(session: nox.Session, *, dev: bool = True) -> None:
         session: The nox session
         dev: Whether to install development dependencies
     """
-    # Sync dependencies using uv
-    if dev:
-        session.run("uv", "sync", "--all-extras", external=True)
-    else:
-        session.run("uv", "sync", "--no-dev", external=True)
-
-    # Install the package in editable mode into the session
-    session.install("-e", ".", "--no-deps")
+    # Install the package in editable mode using uv within the same environment
+    # This ensures consistent, reproducible environments across sessions
+    session.run("uv", "pip", "install", "-e", ".", "--no-deps", external=True)
 
 
 def activate_virtualenv_in_precommit_hooks(session: nox.Session) -> None:

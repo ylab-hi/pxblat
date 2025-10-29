@@ -52,28 +52,34 @@ jobs:
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: |
-            bash -o pipefail -c "python -c 'import tomllib; print(tomllib.load(open(\"pyproject.toml\", \"rb\"))[\"project\"][\"version\"])'"
+            bash -o pipefail -c "python -c 'try: import tomllib; except: import tomli as tomllib; print(tomllib.load(open(\"pyproject.toml\", \"rb\"))[\"project\"][\"version\"])'"
 
       - name: Bump version for developmental release
         if: "! steps.check-version.outputs.tag"
         run: |
-          # Install tomli-w for writing TOML
-          pip install tomli-w
+          # Install tomli-w and tomli for writing/reading TOML using uv
+          uv pip install tomli-w tomli
           # Bump version for dev release using a Python script
-          python -c "
-          import tomllib, tomli_w
+          uv run python - <<'PY'
+          import re, tomli_w
           from datetime import datetime
+          try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
           with open('pyproject.toml', 'rb') as f:
               config = tomllib.load(f)
-          version = config['project']['version']
-          parts = version.split('.')
-          parts[-1] = str(int(parts[-1]) + 1)
-          dev_version = '.'.join(parts) + f'.dev{int(datetime.now().timestamp())}'
+          version = str(config['project']['version'])
+          # Extract numeric parts safely to handle versions like 1.2.1.dev123
+          m = re.match(r'^(\d+)\.(\d+)\.(\d+)', version)
+          major, minor, patch = (int(m.group(1)), int(m.group(2)), int(m.group(3))) if m else (0, 0, 0)
+          patch += 1
+          dev_version = f"{major}.{minor}.{patch}.dev{int(datetime.now().timestamp())}"
           config['project']['version'] = dev_version
           with open('pyproject.toml', 'wb') as f:
               tomli_w.dump(config, f)
           print(f'Version bumped to {dev_version}')
-          "
+          PY
 
     outputs:
       tag: ${{steps.check-version.outputs.tag}}
