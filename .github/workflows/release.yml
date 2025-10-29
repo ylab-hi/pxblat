@@ -43,6 +43,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
+          name: dist
           path: dist/*.tar.gz
 
       - name: Check if there is a parent commit
@@ -114,6 +115,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
+          name: wheels-linux-${{ matrix.cibw_build }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos:
@@ -156,6 +158,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
+          name: wheels-macos-${{ matrix.cibw_build }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos_arm64:
@@ -197,6 +200,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
+          name: wheels-macos-arm64-${{ matrix.cibw_build }}
           path: wheelhouse/*.whl
 
   upload_to_pypi:
@@ -210,6 +214,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v6
+        with:
+          pattern: dist
+          path: dist
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
 
       - name: Publish package on PyPI
         if: needs.release.outputs.tag
@@ -218,7 +230,7 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
           skip_existing: true
-          packages_dir: artifact/
+          packages_dir: dist/
 
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v6.1.0
@@ -234,6 +246,14 @@ jobs:
     if: "! needs.release.outputs.tag"
     steps:
       - uses: actions/download-artifact@v6
+        with:
+          pattern: dist
+          path: dist
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
 
       - name: Publish package on TestPyPI
         uses: pypa/gh-action-pypi-publish@v1.13.0
@@ -242,7 +262,7 @@ jobs:
           password: ${{ secrets.TEST_PYPI_TOKEN }}
           repository-url: https://test.pypi.org/legacy/
           skip_existing: true
-          packages_dir: artifact/
+          packages_dir: dist/
 
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v6.1.0
