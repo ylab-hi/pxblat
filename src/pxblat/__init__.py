@@ -28,7 +28,7 @@ from .server import (
 )
 from .toolkit import fa_to_two_bit, two_bit_to_fa
 
-__version__ = "1.2.5"
+__version__ = "1.2.6"
 
 install(show_locals=True)
 

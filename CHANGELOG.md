@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - 2025-10-29
+
+### Summary
+
+Complete fix for GitHub Actions release workflow with all issues resolved.
+
+### Bug Fixes
+
+- Fix artifact naming to remove asterisk character from GitHub Actions artifact names
+- Set `MACOSX_DEPLOYMENT_TARGET=13.0` for macOS builds to match OpenSSL library requirements
+- Fix module shadowing issue in cibuildwheel by setting `CIBW_BUILD_FRONTEND: pip`
+- Fix artifact upload/download for GitHub Actions with actions/download-artifact@v6
+- Fix pypa/gh-action-pypi-publish parameter names (skip-existing, packages-dir)
+
+### Build
+
+- Use `replace()` function to sanitize artifact names (removes `-*` wildcard)
+- Add `MACOSX_DEPLOYMENT_TARGET: "13.0"` to all macOS cibuildwheel builds
+- Add `CIBW_BUILD_FRONTEND: pip` to all three cibuildwheel jobs
+- Update artifact names: `wheels-linux-cp310-x86_64`, `wheels-macos-cp310-x86_64`, `wheels-macos-arm64-cp310`
+- Ensure delocate-wheel works correctly with OpenSSL 3.x dependencies
+
 ## [1.2.4] - 2025-10-29
 
 ### Bug Fixes
