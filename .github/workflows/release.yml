@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+  pull_request:
+    branches:
+      - main
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,19 +27,15 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Install Poetry
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt poetry
-          poetry --version
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build sdist
         run: |
-          poetry build --format=sdist
+          uv build --sdist
 
       - uses: actions/upload-artifact@v5
         with:
@@ -53,14 +52,28 @@ jobs:
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: |
-            bash -o pipefail -c "poetry version | awk '{ print \$2 }'"
+            bash -o pipefail -c "uv run python -c 'import tomllib; print(tomllib.load(open(\"pyproject.toml\", \"rb\"))[\"project\"][\"version\"])'"
 
       - name: Bump version for developmental release
         if: "! steps.check-version.outputs.tag"
         run: |
-          poetry version patch &&
-          version=$(poetry version | awk '{ print $2 }') &&
-          poetry version $version.dev.$(date +%s)
+          # Install tomli-w for writing TOML
+          pip install tomli-w
+          # Bump version for dev release using a Python script
+          python -c "
+          import tomllib, tomli_w
+          from datetime import datetime
+          with open('pyproject.toml', 'rb') as f:
+              config = tomllib.load(f)
+          version = config['project']['version']
+          parts = version.split('.')
+          parts[-1] = str(int(parts[-1]) + 1)
+          dev_version = '.'.join(parts) + f'.dev{int(datetime.now().timestamp())}'
+          config['project']['version'] = dev_version
+          with open('pyproject.toml', 'wb') as f:
+              tomli_w.dump(config, f)
+          print(f'Version bumped to {dev_version}')
+          "
 
     outputs:
       tag: ${{steps.check-version.outputs.tag}}
@@ -95,11 +108,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
@@ -138,11 +151,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
@@ -180,11 +193,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1

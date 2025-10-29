@@ -8,18 +8,6 @@ from textwrap import dedent
 import glob
 import nox
 
-try:
-    from nox_poetry import Session, session
-except ImportError:
-    message = f"""\
-    Nox failed to import the 'nox-poetry' package.
-
-    Please install it using the following command:
-
-    {sys.executable} -m pip install nox-poetry"""
-    raise SystemExit(dedent(message)) from None
-
-
 package = "pxblat"
 python_versions = ["3.11", "3.10", "3.9"]
 nox.needs_version = ">= 2021.6.6"
@@ -32,14 +20,24 @@ nox.options.sessions = (
 DEBUG = False
 
 
-def poetry_install():
-    if DEBUG:
-        return ["poetry", "install", "-vvv"]
+def install_package_with_uv(session: nox.Session, *, dev: bool = True) -> None:
+    """Install the package and dependencies using uv.
+
+    Args:
+        session: The nox session
+        dev: Whether to install development dependencies
+    """
+    # Sync dependencies using uv
+    if dev:
+        session.run("uv", "sync", "--all-extras", external=True)
     else:
-        return ["poetry", "install"]
+        session.run("uv", "sync", "--no-dev", external=True)
+
+    # Install the package in editable mode into the session
+    session.install("-e", ".", "--no-deps")
 
 
-def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
+def activate_virtualenv_in_precommit_hooks(session: nox.Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 
     This function patches git hooks installed by pre-commit to activate the
@@ -104,27 +102,36 @@ def find_wheel(dist_dir='dist'):
 
     return Path(wheel_file)
 
-@session(python=python_versions)
-def build_wheel(session: Session) -> None:
-    """Run the test suite."""
+@nox.session(python=python_versions)
+def build_wheel(session: nox.Session) -> None:
+    """Build and fix wheel for distribution."""
     session.run("make", "clean", external=True)
-    session.run("poetry","install","--no-dev", external=True)
-    session.run("rm", "-rf", "fixed_wheels", external=True)
-    session.run("poetry", "build", external=True)
-    session.install("delocate", "pybind11", "wheel")
+
+    # Install build dependencies
+    session.install("build", "delocate", "pybind11", "wheel", "setuptools")
+
+    # Build the wheel
+    session.run("rm", "-rf", "fixed_wheels", "dist", external=True)
+    session.run("python", "-m", "build", "--wheel")
+
     wheel_location = find_wheel()
     print(f'Wheel file located at: {wheel_location}')
+
+    # Fix wheel with delocate (macOS)
     session.run("delocate-listdeps", wheel_location.as_posix())
     session.run("delocate-wheel", "-w", "fixed_wheels", "-v", wheel_location.as_posix())
     new_wheel_location = find_wheel('fixed_wheels')
     session.run("mv", new_wheel_location.as_posix(), wheel_location.parent.as_posix(), external=True)
     session.run("rm", "-rf", "fixed_wheels", external=True)
     session.run("delocate-listdeps", wheel_location.as_posix())
-    session.run("poetry", "publish", "--skip-existing", external=True)
+
+    # Publish with uv (if requested)
+    if "--publish" in session.posargs:
+        session.run("uv", "publish", "--skip-existing", external=True)
 
 
-@session(name="pre-commit", python="3.10")
-def precommit(session: Session) -> None:
+@nox.session(name="pre-commit", python="3.10")
+def precommit(session: nox.Session) -> None:
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
     session.install(
@@ -134,28 +141,32 @@ def precommit(session: Session) -> None:
         "pre-commit",
         "pre-commit-hooks",
         "reorder-python-imports",
-        "poetry-plugin-export"
     )
     session.run("pre-commit", *args)
     if args and args[0] == "install":
         activate_virtualenv_in_precommit_hooks(session)
 
-@session(python=python_versions)
-def mypy(session: Session) -> None:
+@nox.session(python=python_versions)
+def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.run(*poetry_install(), external=True)
-    session.install("mypy", "pytest")
+
+    # Use uv to sync and install dependencies
+    session.run("uv", "sync", external=True)
+    session.install("mypy", "pytest", "-e", ".", "--no-deps")
+
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
 
 
-@session(python=python_versions)
-def tests(session: Session) -> None:
+@nox.session(python=python_versions)
+def tests(session: nox.Session) -> None:
     """Run the test suite."""
-    session.run(*poetry_install(), external=True)
-    session.install("coverage[toml]", "pytest", "pygments")
+    # Use uv to sync dependencies
+    session.run("uv", "sync", external=True)
+    session.install("coverage[toml]", "pytest", "pygments", "-e", ".", "--no-deps")
+
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -163,8 +174,8 @@ def tests(session: Session) -> None:
             session.notify("coverage", posargs=[])
 
 
-@session
-def coverage(session: Session) -> None:
+@nox.session
+def coverage(session: nox.Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
@@ -176,14 +187,15 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-@session(name="docs-build", python="3.10")
-def docs_build(session: Session) -> None:
+@nox.session(name="docs-build", python="3.10")
+def docs_build(session: nox.Session) -> None:
     """Build the documentation."""
     args = session.posargs or ["docs", "docs/_build"]
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    session.run(*poetry_install(), external=True)
+    # Use uv to sync dependencies
+    session.run("uv", "sync", external=True)
 
     session.install(
         "sphinx",
@@ -192,6 +204,9 @@ def docs_build(session: Session) -> None:
         "sphinx-click",
         "myst_parser",
         "pyyaml",
+        "-e",
+        ".",
+        "--no-deps"
     )
 
     build_dir = Path("docs", "_build")
@@ -202,7 +217,7 @@ def docs_build(session: Session) -> None:
 
 
 @nox.session
-def linkcheck(session: Session) -> None:
+def linkcheck(session: nox.Session) -> None:
     """Build the documentation."""
     args = session.posargs or [
         "-b",
@@ -222,11 +237,14 @@ def linkcheck(session: Session) -> None:
     session.run("sphinx-build", *args)
 
 
-@session(python="3.10")
-def docs(session: Session) -> None:
+@nox.session(python="3.10")
+def docs(session: nox.Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.run(*poetry_install(), external=True)
+
+    # Use uv to sync dependencies
+    session.run("uv", "sync", external=True)
+
     session.install(
         "sphinx",
         "sphinx-immaterial",
@@ -234,6 +252,9 @@ def docs(session: Session) -> None:
         "sphinx-click",
         "myst_parser",
         "pyyaml",
+        "-e",
+        ".",
+        "--no-deps"
     )
 
     build_dir = Path("docs", "_build")

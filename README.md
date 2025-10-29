@@ -55,13 +55,16 @@ It resolves the issues mentioned above while introducing handy features like `po
 ## 📚 **Table of Contents**
 
 - [ **PxBLAT** ](#-pxblat-)
+  - [Why PxBLAT?](#why-pxblat)
   - [📚 **Table of Contents**](#-table-of-contents)
   - [🔮 **Features**](#-features)
   - [📎 **Citation**](#-citation)
   - [🚀 **Getting Started**](#-getting-started)
+    - [Need Help or Found an Issue?](#need-help-or-found-an-issue)
+    - [Show Your Support](#show-your-support)
   - [🤝 **Contributing**](#-contributing)
   - [🪪 **License**](#-license)
-  - [🤗 **Contributors**](#contributors)
+  - [**Contributors**](#contributors)
   - [🙏 **Acknowledgments**](#-acknowledgments)
 
 ## 🔮 **Features**
@@ -129,7 +132,7 @@ git checkout -b new-feature-branch
 5. Install the latest package
 
 ```bash
-poetry install
+uv sync
 ```
 
 6. Test your changes
