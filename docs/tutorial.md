@@ -603,7 +603,79 @@ Quick stats: evalue ?; bitscore ?
 
 By integrating this functionality into a Python script, we have successfully demonstrated how one can leverage the `PxBLAT` library to recreate the core functionalities of `BLAT`, all while enjoying the benefits and conveniences that come with using Python.
 
-## 8. Beyond APIs: Command-Line Tools
+## 8. Best Practices: Resource Management for Large-Scale Alignments
+
+When processing many sequences (hundreds or thousands), proper resource management is essential to prevent issues like file descriptor exhaustion or memory leaks. This section demonstrates best practices for handling large-scale BLAT alignments.
+
+### Improved BLAT Function
+
+Here's a robust implementation for aligning multiple sequences with proper resource management:
+
+```{literalinclude} tutorial_data/improved_blat_example.py
+:language: python
+:linenos:
+:lines: 1-75
+:emphasize-lines: 26-27,51-52,59-72
+```
+
+**Key Features:**
+
+1. **Context Manager (`with server`)**: Ensures the server is properly cleaned up after use
+2. **Automatic 2bit Conversion**: Checks if the 2bit file exists and creates it if needed
+3. **Progress Tracking**: Reports progress every 100 sequences
+4. **Type Checking**: Uses TYPE_CHECKING for proper type annotations without runtime overhead
+
+### Batch Processing
+
+For very large datasets (10,000+ sequences), consider batch processing:
+
+```{literalinclude} tutorial_data/improved_blat_example.py
+:language: python
+:linenos:
+:lines: 78-144
+:emphasize-lines: 128-129,131-143
+```
+
+**Batch Processing Benefits:**
+
+- **Memory efficiency**: Process chunks at a time instead of loading everything
+- **Progress monitoring**: Clear visibility into processing status
+- **Flexibility**: Adjust batch size based on your system resources
+
+### Usage Example
+
+To use these functions in your own code:
+
+```python
+from pathlib import Path
+
+# Your sequences as (name, sequence) tuples
+sequences = [
+    ("gene1", "ATCGATCGATCG"),
+    ("gene2", "GCTAGCTAGCTA"),
+    # ... thousands more
+]
+
+ref_genome = Path("reference.fa")
+
+# Use the improved blat function (defined in the example above)
+results = blat(sequences, ref_genome)
+print(f"Aligned {len(results)} sequences successfully!")
+```
+
+### Performance Tips
+
+1. **Use appropriate batch sizes**: 100-500 sequences per batch is typically optimal
+2. **Monitor system resources**: Use `ulimit -n` to check file descriptor limits
+3. **Consider server reuse**: Keep the server running for multiple batches
+4. **Enable logging**: Set up logging to track long-running jobs
+
+```{tip}
+The complete improved BLAT example with all features shown above is available in the repository at `docs/tutorial_data/improved_blat_example.py`. You can download it directly from:
+https://github.com/ylab-hi/pxblat/blob/main/docs/tutorial_data/improved_blat_example.py
+```
+
+## 9. Beyond APIs: Command-Line Tools
 
 [![cli](images/cli.gif)](cli)
 
@@ -611,7 +683,7 @@ While `PxBLAT` is primarily designed as a library, it also offers command-line t
 This provides users with additional options and flexibility, catering to a variety of use cases.
 For more detailed information on these tools, refer to the [CLI documentation](cli).
 
-## 9. Sharing Your Feedback and Reporting Issues
+## 10. Sharing Your Feedback and Reporting Issues
 
 In our ongoing effort to enhance the clarity and accuracy of this tutorial, we invite you to share your insights and observations.
 If you come across any statements that are unclear, or if you identify any inaccuracies, please feel empowered to [make direct edits to the tutorial](https://github.com/ylab-hi/pxblat/edit/main/docs/tutorial.md) or [initiate an issue](https://github.com/ylab-hi/pxblat/issues/new/choose) to bring it to our attention.

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import typer
 from rich import print  # noqa: A004
+from rich.console import Console
 
 from pxblat.extc import UsageStats
 from pxblat.server import (
@@ -258,8 +259,6 @@ def start(
 @server_app.command()
 def stop(host: str, port: int):
     """To remove a server."""
-    from rich.console import Console  # noqa: PLC0415
-
     console = Console()
 
     try:

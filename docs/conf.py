@@ -107,6 +107,11 @@ intersphinx_mapping = {
     "biopython": ("https://biopython.org/docs/latest/api", None),
 }
 
+# Suppress warnings for references that cannot be resolved
+nitpick_ignore = [
+    ("py:obj", "pxblat.ServerOption.withTileSize"),
+]
+
 # https://jbms.github.io/sphinx-immaterial/customization.html
 # https://bylr.info/articles/2022/05/10/api-doc-with-sphinx-autoapi/
 # material theme options (see theme.conf for more information)

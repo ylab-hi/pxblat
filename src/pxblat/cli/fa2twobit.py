@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import List
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from pxblat import fa_to_two_bit
 
@@ -22,7 +21,7 @@ from .log import logger
 
 def faToTwoBit(
     infa: Annotated[
-        List[Path],
+        list[Path],
         typer.Argument(
             ...,
             exists=True,

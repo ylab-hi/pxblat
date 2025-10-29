@@ -79,94 +79,11 @@ pxblat = "pxblat.cli.cli:app"
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
-
+# Ruff configuration
 [tool.ruff]
-target-version = "py38"
+target-version = "py39"
 line-length = 120
 fix = true
-lint.fixable = ["ALL"]
-lint.select = [
-  "ANN",
-  "D",
-  "A",
-  "F",
-  "E",
-  "W",
-  "C90",
-  "I",
-  "UP",
-  "N",
-  "YTT",
-  "TID",
-  "S",
-  "BLE",
-  "FBT",
-  "PLR",
-  "B",
-  "B9",
-  "A",
-  "C4",
-  "T10",
-  "EM",
-  "ICN",
-  "T20",
-  "Q",
-  "RET",
-  "SIM",
-  "ARG",
-  "DTZ",
-  "ERA",
-  "PD",
-  "PGH",
-  "PLC",
-  "PLE",
-  "PLW",
-  "RUF",
-  "PL",
-  "TD",
-  "FIX",
-  "PTH",
-  "TCH",
-  "SLOT",
-  "PT",
-  "PYI",
-  "PIE",
-  "ISC",
-  "FA",
-  "EXE",
-  # "CPY",
-  "COM",
-]
-lint.ignore = [
-  "E501",
-  "D203",
-  "D100",
-  "D401",
-  "ANN001",
-  "ANN002",
-  "ANN003",
-  "ANN201",
-  "ANN202",
-  "ANN204",
-  "ANN205",
-  "ANN206",
-  "PGH003",
-  "N802",
-  "N803",
-  "N806",
-  "N815",
-  "EM101",
-  # formater conflict
-  'COM812',
-  'COM819',
-  'D206',
-  'ISC001',
-  'Q000',
-  'Q001',
-  'Q002',
-  'Q003',
-  'W191',
-]
 exclude = [
   "src/pxblat/extc/__init__.pyi",
   "src/pxblat/__init__.py",
@@ -177,7 +94,6 @@ exclude = [
   "noxfile.py",
   "docs/conf.py",
   "setup.py",
-
   ".bzr",
   ".direnv",
   ".eggs",
@@ -200,25 +116,105 @@ exclude = [
   "node_modules",
   "venv",
   "figures",
-
 ]
 
+[tool.ruff.lint]
+select = [
+  "A",     # flake8-builtins
+  "ANN",   # flake8-annotations
+  "ARG",   # flake8-unused-arguments
+  "B",     # flake8-bugbear
+  "B9",    # flake8-bugbear opinionated
+  "BLE",   # flake8-blind-except
+  "C4",    # flake8-comprehensions
+  "C90",   # mccabe
+  "COM",   # flake8-commas
+  "D",     # pydocstyle
+  "DTZ",   # flake8-datetimez
+  "E",     # pycodestyle errors
+  "EM",    # flake8-errmsg
+  "ERA",   # eradicate
+  "EXE",   # flake8-executable
+  "F",     # pyflakes
+  "FA",    # flake8-future-annotations
+  "FBT",   # flake8-boolean-trap
+  "FIX",   # flake8-fixme
+  "I",     # isort
+  "ICN",   # flake8-import-conventions
+  "ISC",   # flake8-implicit-str-concat
+  "N",     # pep8-naming
+  "PD",    # pandas-vet
+  "PGH",   # pygrep-hooks
+  "PIE",   # flake8-pie
+  "PL",    # pylint
+  "PLC",   # pylint convention
+  "PLE",   # pylint error
+  "PLR",   # pylint refactor
+  "PLW",   # pylint warning
+  "PT",    # flake8-pytest-style
+  "PTH",   # flake8-use-pathlib
+  "PYI",   # flake8-pyi
+  "Q",     # flake8-quotes
+  "RET",   # flake8-return
+  "RUF",   # ruff-specific rules
+  "S",     # flake8-bandit
+  "SIM",   # flake8-simplify
+  "SLOT",  # flake8-slots
+  "T10",   # flake8-debugger
+  "T20",   # flake8-print
+  "TCH",   # flake8-type-checking
+  "TD",    # flake8-todos
+  "TID",   # flake8-tidy-imports
+  "UP",    # pyupgrade
+  "W",     # pycodestyle warnings
+  "YTT",   # flake8-2020
+  # "CPY",  # flake8-copyright (commented out)
+]
+ignore = [
+  "ANN001",  # Missing type annotation for function argument
+  "ANN002",  # Missing type annotation for *args
+  "ANN003",  # Missing type annotation for **kwargs
+  "ANN201",  # Missing return type annotation for public function
+  "ANN202",  # Missing return type annotation for private function
+  "ANN204",  # Missing return type annotation for special method
+  "ANN205",  # Missing return type annotation for staticmethod
+  "ANN206",  # Missing return type annotation for classmethod
+  "COM812",  # Trailing comma missing (conflicts with formatter)
+  "COM819",  # Trailing comma prohibited (conflicts with formatter)
+  "D100",    # Missing docstring in public module
+  "D203",    # 1 blank line required before class docstring
+  "D206",    # Docstring should be indented with spaces (conflicts with formatter)
+  "D401",    # First line of docstring should be in imperative mood
+  "E501",    # Line too long
+  "EM101",   # Exception must not use a string literal
+  "ISC001",  # Implicitly concatenated string literals (conflicts with formatter)
+  "N802",    # Function name should be lowercase
+  "N803",    # Argument name should be lowercase
+  "N806",    # Variable in function should be lowercase
+  "N815",    # Variable in class scope should not be mixedCase
+  "PGH003",  # Use specific rule codes when ignoring type issues
+  "Q000",    # Single quotes found but double quotes preferred (conflicts with formatter)
+  "Q001",    # Single quote multiline found but double quotes preferred (conflicts with formatter)
+  "Q002",    # Single quote docstring found but double quotes preferred (conflicts with formatter)
+  "Q003",    # Avoidable escaped quote (conflicts with formatter)
+  "W191",    # Indentation contains tabs (conflicts with formatter)
+]
 
 [tool.ruff.format]
-# Like Black, use double quotes for strings.
 quote-style = "double"
-# Like Black, indent with spaces, rather than tabs.
 indent-style = "space"
-# Like Black, respect magic trailing commas.
-# magic-trailing-comma = "respect"
-# Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = true
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["chr", "typer.Argument", "typer.Option"]
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "src/pxblat/cli/twobit2fa.py" = ["B008", "PLR0913", "FBT001", "FBT003"]
@@ -232,14 +228,12 @@ allow-star-arg-any = true
 "src/pxblat/cli/cli.py" = ["DTZ005"]
 "src/pxblat/toolkit/__init__.py" = ["PLR0913"]
 "src/pxblat/parser.py" = ["A001", "A002", "ARG001"]
+"docs/tutorial_data/improved_blat_example.py" = ["T201", "D103"]
 "docs/tutorial_data/query_context.py" = ["T201", "D103"]
 "docs/tutorial_data/2bit.py" = ["T201", "D103"]
 "docs/tutorial_data/query_general.py" = ["T201", "D103"]
 "docs/tutorial_data/query_result.py" = ["T201", "D103"]
 "docs/tutorial_data/blat.py" = ["T201", "D103"]
-
-[tool.ruff.lint.pydocstyle]
-convention = 'google'
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
