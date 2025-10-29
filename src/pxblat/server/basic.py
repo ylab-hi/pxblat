@@ -39,7 +39,7 @@ def check_port_in_use(host: str, port: int, tries: int = 3) -> bool:
     ValueError will be raised.
 
     Example:
-        >>> check_port_in_use('localhost', 8080)
+        >>> check_port_in_use("localhost", 8080)
         True
     """
     res = [_check_port_in_use_by_connect(host, port) for _ in range(tries)]
@@ -178,7 +178,7 @@ def check_server_status(
         ConnectionRefusedError: If the server is not running or is not accepting connections.
 
     Example:
-        >>> check_server_status('localhost', 8080, ServerOption)
+        >>> check_server_status("localhost", 8080, ServerOption)
         True
     """
     try:
@@ -227,7 +227,7 @@ def status_server(
         Union[Status, Dict[str, str]]: A dictionary or Status object containing the status information for the server.
 
     Example:
-        >>> status_server('localhost', 8080, ServerOption, instance=True)
+        >>> status_server("localhost", 8080, ServerOption, instance=True)
         Status(uptime='0', queries='0', sequences='0', bytes='0', memory='0', threads='0', connections='0')
     """
     if not server_option.genome:
@@ -286,7 +286,7 @@ def stop_server(host: str, port: int):
     of the server as arguments. The function returns None.
 
     Example:
-        >>> stop_server('localhost', 8080)
+        >>> stop_server("localhost", 8080)
     """
     message = f"{_gfSignature()}quit".encode()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -308,7 +308,7 @@ def files(host: str, port: int) -> list[str]:
     the hostname and port number of the server as arguments. The function returns a list of file names available on the server.
 
     Example:
-        >>> files('localhost', 8080)
+        >>> files("localhost", 8080)
         ['file1', 'file2', 'file3']
     """
     ret_str = pygetFileList(host, str(port))
@@ -344,7 +344,7 @@ def server_query(
     arguments. The function returns the result of the query as a string.
 
     Example:
-        >>> server_query('dna', 'localhost', 8080, 'sequence1', False, False)
+        >>> server_query("dna", "localhost", 8080, "sequence1", False, False)
         'result1'
     """
     return pyqueryServer(intype, host, str(port), faName, isComplex, isProt)
@@ -373,7 +373,7 @@ def start_server(
     takes the hostname, port number, 2bit file path, server options, and usage statistics as arguments. The function returns None.
 
     Example:
-        >>> start_server('localhost', 8080, '/path/to/2bit/file', ServerOption, UsageStats())
+        >>> start_server("localhost", 8080, "/path/to/2bit/file", ServerOption, UsageStats())
     """
     return startServer(host, str(port), 1, [two_bit_file], server_option, stat)
 

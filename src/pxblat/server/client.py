@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import tempfile
 from pathlib import Path
 from threading import Thread
@@ -13,10 +14,8 @@ from .basic import wait_server_ready
 if TYPE_CHECKING:
     from .server import ServerOption
 
-from typing import List
-
 INSEQ = Union[str, Path]
-INSEQS = Union[List[INSEQ], List[str], List[Path]]
+INSEQS = Union[list[INSEQ], list[str], list[Path]]
 
 
 def copy_client_option(option: ClientOption) -> ClientOption:
@@ -159,37 +158,43 @@ def query_server(
         raise ValueError(msg)
 
     seqid = None
-
-    if option.inSeq:
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fafile:
-            seqname = fafile.name if seqname is None else seqname
-            seqid = f"{option.inSeq[:5]}_{len(option.inSeq)}"
-            fafile.write(f">{seqid}\n")
-            fafile.write(option.inSeq)
-        option.inName = fafile.name
-
-    ret = pygfClient(option)
+    temp_file_path = None
+    prev_in_name = option.inName  # Store original to restore later
 
     try:
-        ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
-    except UnicodeDecodeError:
-        ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
+        if option.inSeq:
+            with tempfile.NamedTemporaryFile(mode="w", delete=False) as fafile:
+                temp_file_path = fafile.name
+                seqname = fafile.name if seqname is None else seqname
+                seqid = f"{option.inSeq[:5]}_{len(option.inSeq)}"
+                fafile.write(f">{seqid}\n")
+                fafile.write(option.inSeq)
+            option.inName = temp_file_path
 
-    if fafile is not None:
-        Path(fafile.name).unlink()
+        ret = pygfClient(option)
 
-    if not parse:
-        return ret_decode
+        try:
+            ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
+        except UnicodeDecodeError:
+            ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
 
-    try:
-        res = read(ret_decode, "psl", seqid=seqid)
-    except ValueError as e:
-        if "No query results" in str(e):
-            return None
+        if not parse:
+            return ret_decode
 
-        raise e
-    else:
-        return res
+        try:
+            res = read(ret_decode, "psl", seqid=seqid)
+        except ValueError as e:
+            if "No query results" in str(e):
+                return None
+            raise
+        else:
+            return res
+    finally:
+        if temp_file_path is not None:
+            with contextlib.suppress(FileNotFoundError):
+                Path(temp_file_path).unlink()
+        # Restore original inName to avoid side effects
+        option.inName = prev_in_name
 
 
 class ClientThread(Thread):
@@ -569,7 +574,7 @@ class Client:
             ...     result4 = client.query(["ATCG", "ATCG"])
             ...     result5 = client.query(["test_case1.fa"])
             ...     result6 = client.query(["cgTA", "test_case1.fa"])
-            ...     print(result3[0]) # print result
+            ...     print(result3[0])  # print result
         """
         if isinstance(in_seqs, (str, Path)):
             in_seqs = [in_seqs]

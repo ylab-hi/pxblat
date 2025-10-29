@@ -4,12 +4,12 @@
 
 [![cli](images/cli.gif)](cli)
 
-| CLI                       |                               Usage                                |
-| :------------------------ | :----------------------------------------------------------------: |
-| [server](#server)         |      Make a server to quickly find where DNA occurs in genome      |
-| [client](#client)         | A client for the genomic finding program that produces a .psl file |
-| [fatotwobit](#fatotwobit) |                    Convert fasta to 2bit format                    |
-| [twobittofa](#twobittofa) |                    Convert 2bit to fasta format                    |
+| CLI                          |                               Usage                                |
+| :--------------------------- | :----------------------------------------------------------------: |
+| [server](#11-server)         |      Make a server to quickly find where DNA occurs in genome      |
+| [client](#12-client)         | A client for the genomic finding program that produces a .psl file |
+| [fatotwobit](#13-fatotwobit) |                    Convert fasta to 2bit format                    |
+| [twobittofa](#14-twobittofa) |                    Convert 2bit to fasta format                    |
 
 We can get completion for current shell via `pxblat --install-completion`.
 The help message is got from

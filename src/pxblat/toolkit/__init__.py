@@ -65,7 +65,7 @@ def fa_to_two_bit(
     the output sequence or strip the version number from the sequence IDs. The function returns None.
 
     Example:
-        >>> fa_to_two_bit(['input.fasta'], 'output.2bit')
+        >>> fa_to_two_bit(["input.fasta"], "output.2bit")
     """
     return faToTwoBit(inFiles, outFile, noMask, stripVersion, ignoreDups, useLong)
 

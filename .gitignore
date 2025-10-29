@@ -52,3 +52,5 @@ docs/api/*
 .ltex
 .ipynb_checkpoints
 issues
+fixes_doc
+.pdm-build/
