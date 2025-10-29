@@ -151,9 +151,9 @@ def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
 
-    # Use uv to sync and install dependencies
-    session.run("uv", "sync", external=True)
-    session.install("mypy", "pytest", "-e", ".", "--no-deps")
+    # Use uv to sync and install dependencies into the session virtualenv
+    session.run("uv", "pip", "install", "-e", ".", external=True)
+    session.install("mypy", "pytest")
 
     session.run("mypy", *args)
     if not session.posargs:
@@ -163,9 +163,9 @@ def mypy(session: nox.Session) -> None:
 @nox.session(python=python_versions)
 def tests(session: nox.Session) -> None:
     """Run the test suite."""
-    # Use uv to sync dependencies
-    session.run("uv", "sync", external=True)
-    session.install("coverage[toml]", "pytest", "pygments", "-e", ".", "--no-deps")
+    # Use uv to install the package into the session virtualenv
+    session.run("uv", "pip", "install", "-e", ".", external=True)
+    session.install("coverage[toml]", "pytest", "pygments")
 
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
@@ -194,8 +194,8 @@ def docs_build(session: nox.Session) -> None:
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    # Use uv to sync dependencies
-    session.run("uv", "sync", external=True)
+    # Use uv to install the package into the session virtualenv
+    session.run("uv", "pip", "install", "-e", ".", external=True)
 
     session.install(
         "sphinx",
@@ -204,9 +204,6 @@ def docs_build(session: nox.Session) -> None:
         "sphinx-click",
         "myst_parser",
         "pyyaml",
-        "-e",
-        ".",
-        "--no-deps"
     )
 
     build_dir = Path("docs", "_build")
@@ -242,8 +239,8 @@ def docs(session: nox.Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
 
-    # Use uv to sync dependencies
-    session.run("uv", "sync", external=True)
+    # Use uv to install the package into the session virtualenv
+    session.run("uv", "pip", "install", "-e", ".", external=True)
 
     session.install(
         "sphinx",
@@ -252,9 +249,6 @@ def docs(session: nox.Session) -> None:
         "sphinx-click",
         "myst_parser",
         "pyyaml",
-        "-e",
-        ".",
-        "--no-deps"
     )
 
     build_dir = Path("docs", "_build")
