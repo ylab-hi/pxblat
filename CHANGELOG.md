@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2025-10-29
+
+### Bug Fixes
+
+- Fix artifact upload/download for GitHub Actions with actions/download-artifact@v6
+- Add unique names to all artifacts (sdist and wheels)
+- Update artifact download pattern matching and merging
+- Fix packages_dir path from artifact/ to dist/
+- Fix pypa/gh-action-pypi-publish parameter names (skip-existing, packages-dir)
+
+### Build
+
+- Named artifacts for better organization: dist, wheels-linux-_, wheels-macos-_, wheels-macos-arm64-\*
+- Implement two-step artifact download with pattern matching
+- Merge multiple wheel artifacts into single dist/ directory
+
 ## [1.2.0] - 2024-05-15
 
 ### Bug Fixes
