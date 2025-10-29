@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2025-10-29
+
+### Bug Fixes
+
+- Fix artifact naming to remove asterisk character from GitHub Actions artifact names
+- Set `MACOSX_DEPLOYMENT_TARGET=13.0` for macOS builds to match OpenSSL library requirements
+- Use `replace()` function to sanitize artifact names in upload-artifact action
+
+### Build
+
+- Update artifact names: `wheels-linux-cp310-x86_64` instead of `wheels-linux-cp310-*-x86_64`
+- Add `MACOSX_DEPLOYMENT_TARGET: "13.0"` to all macOS cibuildwheel builds
+- Ensure delocate-wheel works correctly with OpenSSL 3.x dependencies
+
 ## [1.2.3] - 2025-10-29
 
 ### Bug Fixes

@@ -116,7 +116,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-linux-${{ matrix.cibw_build }}-${{ matrix.cibw_archs }}
+          name: wheels-linux-${{ replace(matrix.cibw_build, '-*', '') }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos:
@@ -157,10 +157,11 @@ jobs:
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_TEST_SKIP: "*-macosx_arm64"
+          MACOSX_DEPLOYMENT_TARGET: "13.0"
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-macos-${{ matrix.cibw_build }}-${{ matrix.cibw_archs }}
+          name: wheels-macos-${{ replace(matrix.cibw_build, '-*', '') }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos_arm64:
@@ -200,10 +201,11 @@ jobs:
           CIBW_BUILD_FRONTEND: pip
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          MACOSX_DEPLOYMENT_TARGET: "13.0"
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-macos-arm64-${{ matrix.cibw_build }}
+          name: wheels-macos-arm64-${{ replace(matrix.cibw_build, '-*', '') }}
           path: wheelhouse/*.whl
 
   upload_to_pypi:
