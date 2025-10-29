@@ -78,9 +78,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-        cibw_archs: ["x86_64"]
+        include:
+          - os: ubuntu-latest
+            cibw_build: "cp39-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp39"
+          - os: ubuntu-latest
+            cibw_build: "cp310-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp310"
+          - os: ubuntu-latest
+            cibw_build: "cp311-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp311"
 
     steps:
       - name: Check out repository
@@ -116,7 +126,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-linux-${{ replace(matrix.cibw_build, '-*', '') }}-${{ matrix.cibw_archs }}
+          name: wheels-linux-${{ matrix.artifact_name }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos:
@@ -128,9 +138,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-        cibw_archs: ["x86_64"]
+        include:
+          - os: macos-13
+            cibw_build: "cp39-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp39"
+          - os: macos-13
+            cibw_build: "cp310-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp310"
+          - os: macos-13
+            cibw_build: "cp311-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp311"
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
     steps:
@@ -161,7 +181,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-macos-${{ replace(matrix.cibw_build, '-*', '') }}-${{ matrix.cibw_archs }}
+          name: wheels-macos-${{ matrix.artifact_name }}-${{ matrix.cibw_archs }}
           path: wheelhouse/*.whl
 
   build_wheels_macos_arm64:
@@ -173,9 +193,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14]
-        cibw_build: ["cp39-*", "cp310-*", "cp311-*"]
-        cibw_archs: ["arm64"]
+        include:
+          - os: macos-14
+            cibw_build: "cp39-*"
+            cibw_archs: "arm64"
+            artifact_name: "cp39"
+          - os: macos-14
+            cibw_build: "cp310-*"
+            cibw_archs: "arm64"
+            artifact_name: "cp310"
+          - os: macos-14
+            cibw_build: "cp311-*"
+            cibw_archs: "arm64"
+            artifact_name: "cp311"
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
     steps:
@@ -205,7 +235,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: wheels-macos-arm64-${{ replace(matrix.cibw_build, '-*', '') }}
+          name: wheels-macos-arm64-${{ matrix.artifact_name }}
           path: wheelhouse/*.whl
 
   upload_to_pypi:
