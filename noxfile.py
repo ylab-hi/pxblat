@@ -192,14 +192,8 @@ def docs_build(session: nox.Session) -> None:
     # Use uv to install the package into the session virtualenv
     session.run("uv", "pip", "install", "-e", ".", external=True)
 
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
+    # Install all documentation dependencies
+    session.install("-r", "docs/requirements.txt")
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():
@@ -224,6 +218,10 @@ def linkcheck(session: nox.Session) -> None:
     if builddir.exists():
         shutil.rmtree(builddir)
 
+    # Use uv to install the package into the session virtualenv
+    session.run("uv", "pip", "install", "-e", ".", external=True)
+
+    # Install all documentation dependencies
     session.install("-r", "docs/requirements.txt")
 
     session.run("sphinx-build", *args)
@@ -237,14 +235,9 @@ def docs(session: nox.Session) -> None:
     # Use uv to install the package into the session virtualenv
     session.run("uv", "pip", "install", "-e", ".", external=True)
 
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
+    # Install all documentation dependencies
+    session.install("-r", "docs/requirements.txt")
+    session.install("sphinx-autobuild")
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():
