@@ -51,6 +51,21 @@ jobs:
         run: |
           uv pip install --system tomli
 
+      - name: Debug pyproject.toml structure
+        run: |
+          python -c "try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('pyproject.toml', 'rb') as f:
+              config = tomllib.load(f)
+              print('Keys in pyproject.toml:', list(config.keys()))
+              if 'project' in config:
+                  print('Keys in project:', list(config['project'].keys()))
+                  print('Version:', config['project'].get('version', 'NOT FOUND'))
+              if 'tool' in config and 'poetry' in config['tool']:
+                  print('Poetry version:', config['tool']['poetry'].get('version', 'NOT FOUND'))"
+
       - name: Detect and tag new version
         id: check-version
         if: steps.check-parent-commit.outputs.sha

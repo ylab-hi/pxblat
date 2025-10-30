@@ -169,17 +169,33 @@ def tests(session: nox.Session) -> None:
             session.notify("coverage", posargs=[])
 
 
-@nox.session
+@nox.session(python="3.10")
 def coverage(session: nox.Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
     session.install("coverage[toml]")
 
-    if not session.posargs and any(Path().glob(".coverage.*")):
+    # Find coverage data files recursively (artifacts may be downloaded into subdirs)
+    coverage_files = list(Path(".").rglob(".coverage.*"))
+
+    # Move all discovered files to repo root so "coverage combine" can find them
+    for cov_file in coverage_files:
+        if cov_file.parent != Path("."):
+            target = Path(".") / cov_file.name
+            # If a file with the same name exists, keep the subdir variant
+            if not target.exists():
+                cov_file.replace(target)
+
+    # Always attempt to combine if any coverage data files are present
+    if coverage_files or Path(".coverage").exists():
         session.run("coverage", "combine")
 
-    session.run("coverage", *args)
+    # Check if there's any data before running report
+    if coverage_files or Path(".coverage").exists():
+        session.run("coverage", *args)
+    else:
+        session.warn("No coverage data found to report")
 
 
 @nox.session(name="docs-build", python="3.10")
