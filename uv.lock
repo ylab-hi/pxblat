@@ -1873,7 +1873,7 @@ wheels = [
 
 [[package]]
 name = "pxblat"
-version = "1.2.1"
+version = "1.2.8"
 source = { editable = "." }
 dependencies = [
     { name = "biopython", version = "1.85", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },

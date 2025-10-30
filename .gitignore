@@ -55,3 +55,4 @@ fixes_doc
 .pdm-build/
 CLAUDE.md
 .claude/
+node_modules
