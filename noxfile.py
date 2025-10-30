@@ -181,8 +181,9 @@ def coverage(session: Session) -> None:
             if not target.exists():
                 cov_file.replace(target)
 
-    # Always attempt to combine if any coverage data files are present
-    if coverage_files or Path(".coverage").exists():
+    # Only run combine if there are parallel coverage files to combine
+    # (not if only .coverage already exists from a previous combine)
+    if coverage_files:
         session.run("coverage", "combine")
 
     session.run("coverage", *args)
