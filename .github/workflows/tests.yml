@@ -120,7 +120,7 @@ jobs:
         uses: "actions/upload-artifact@v5"
         with:
           name: coverage-data-${{ matrix.os }}-${{ matrix.python }}
-          path: ".coverage.*"
+          path: ".coverage*"
           if-no-files-found: ignore
 
       - name: Upload documentation
