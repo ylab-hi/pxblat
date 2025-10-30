@@ -97,9 +97,9 @@ clangd: ## Generate clangd index
 test: ## Run tests
 	pytest -vls tests
 
-install: binder ## install the lib
-	poetry install -vvvv
-	echo "Installing pxblat"
+install: ## Install the package with uv
+	uv sync --all-extras
+	echo "Installing pxblat with uv"
 
 clean-stubs:
 	rm -rf stubs
@@ -127,6 +127,6 @@ binder: ## Generate pybind11 bindings
 		--std=c++17 \
 		-DNDEBUG
 
-update:
+update: ## Update dependencies and pre-commit hooks
 	pre-commit autoupdate
-	poetry update
+	uv sync --upgrade

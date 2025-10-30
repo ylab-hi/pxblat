@@ -8,18 +8,6 @@ from textwrap import dedent
 import glob
 import nox
 
-try:
-    from nox_poetry import Session, session
-except ImportError:
-    message = f"""\
-    Nox failed to import the 'nox-poetry' package.
-
-    Please install it using the following command:
-
-    {sys.executable} -m pip install nox-poetry"""
-    raise SystemExit(dedent(message)) from None
-
-
 package = "pxblat"
 python_versions = ["3.11", "3.10", "3.9"]
 nox.needs_version = ">= 2021.6.6"
@@ -32,14 +20,24 @@ nox.options.sessions = (
 DEBUG = False
 
 
-def poetry_install():
-    if DEBUG:
-        return ["poetry", "install", "-vvv"]
-    else:
-        return ["poetry", "install"]
+def install_with_uv(session: nox.Session, *packages: str, editable_install: bool = False) -> None:
+    """Install packages using uv pip for faster installation.
+
+    Args:
+        session: The nox session
+        packages: Package specifications to install
+        editable_install: Whether to install the current package in editable mode
+    """
+    if editable_install:
+        # Install package in editable mode with all dependencies
+        session.run("uv", "pip", "install", "-e", ".", external=True)
+
+    if packages:
+        # Use uv pip for faster package installation
+        session.run("uv", "pip", "install", *packages, external=True)
 
 
-def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
+def activate_virtualenv_in_precommit_hooks(session: nox.Session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 
     This function patches git hooks installed by pre-commit to activate the
@@ -104,58 +102,70 @@ def find_wheel(dist_dir='dist'):
 
     return Path(wheel_file)
 
-@session(python=python_versions)
-def build_wheel(session: Session) -> None:
-    """Run the test suite."""
+@nox.session(python=python_versions)
+def build_wheel(session: nox.Session) -> None:
+    """Build and fix wheel for distribution."""
     session.run("make", "clean", external=True)
-    session.run("poetry","install","--no-dev", external=True)
-    session.run("rm", "-rf", "fixed_wheels", external=True)
-    session.run("poetry", "build", external=True)
-    session.install("delocate", "pybind11", "wheel")
+
+    # Install build dependencies
+    session.install("build", "delocate", "pybind11", "wheel", "setuptools")
+
+    # Build the wheel
+    session.run("rm", "-rf", "fixed_wheels", "dist", external=True)
+    session.run("python", "-m", "build", "--wheel")
+
     wheel_location = find_wheel()
     print(f'Wheel file located at: {wheel_location}')
+
+    # Fix wheel with delocate (macOS)
     session.run("delocate-listdeps", wheel_location.as_posix())
     session.run("delocate-wheel", "-w", "fixed_wheels", "-v", wheel_location.as_posix())
     new_wheel_location = find_wheel('fixed_wheels')
     session.run("mv", new_wheel_location.as_posix(), wheel_location.parent.as_posix(), external=True)
     session.run("rm", "-rf", "fixed_wheels", external=True)
     session.run("delocate-listdeps", wheel_location.as_posix())
-    session.run("poetry", "publish", "--skip-existing", external=True)
+
+    # Publish with uv (if requested)
+    if "--publish" in session.posargs:
+        session.run("uv", "publish", "--skip-existing", external=True)
 
 
-@session(name="pre-commit", python="3.10")
-def precommit(session: Session) -> None:
+@nox.session(name="pre-commit", python="3.10")
+def precommit(session: nox.Session) -> None:
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
-    session.install(
+    install_with_uv(
+        session,
         "black",
         "darglint",
         "pep8-naming",
         "pre-commit",
         "pre-commit-hooks",
         "reorder-python-imports",
-        "poetry-plugin-export"
     )
     session.run("pre-commit", *args)
     if args and args[0] == "install":
         activate_virtualenv_in_precommit_hooks(session)
 
-@session(python=python_versions)
-def mypy(session: Session) -> None:
+@nox.session(python=python_versions)
+def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.run(*poetry_install(), external=True)
-    session.install("mypy", "pytest")
+
+    # Install package and mypy with uv for faster installation
+    install_with_uv(session, "mypy", "pytest", editable_install=True)
+
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
 
 
-@session(python=python_versions)
-def tests(session: Session) -> None:
+@nox.session(python=python_versions)
+def tests(session: nox.Session) -> None:
     """Run the test suite."""
-    session.run(*poetry_install(), external=True)
-    session.install("coverage[toml]", "pytest", "pygments")
+    # Install package and test dependencies with uv
+    install_with_uv(session, "coverage[toml]", "pytest", "pygments", editable_install=True)
+
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
     finally:
@@ -163,12 +173,12 @@ def tests(session: Session) -> None:
             session.notify("coverage", posargs=[])
 
 
-@session(python="3.10")
-def coverage(session: Session) -> None:
+@nox.session(python="3.10")
+def coverage(session: nox.Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
-    session.install("coverage[toml]")
+    install_with_uv(session, "coverage[toml]")
 
     # Find coverage data files recursively (artifacts may be downloaded into subdirs)
     coverage_files = list(Path(".").rglob(".coverage.*"))
@@ -186,26 +196,25 @@ def coverage(session: Session) -> None:
     if coverage_files:
         session.run("coverage", "combine")
 
-    session.run("coverage", *args)
+    # Check if there's any data before running report
+    if coverage_files or Path(".coverage").exists():
+        session.run("coverage", *args)
+    else:
+        session.warn("No coverage data found to report")
 
 
-@session(name="docs-build", python="3.10")
-def docs_build(session: Session) -> None:
+@nox.session(name="docs-build", python="3.10")
+def docs_build(session: nox.Session) -> None:
     """Build the documentation."""
     args = session.posargs or ["docs", "docs/_build"]
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    session.run(*poetry_install(), external=True)
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
 
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
+    # Install doc dependencies with uv pip for faster installation
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():
@@ -215,8 +224,8 @@ def docs_build(session: Session) -> None:
 
 
 @nox.session
-def linkcheck(session: Session) -> None:
-    """Build the documentation."""
+def linkcheck(session: nox.Session) -> None:
+    """Check documentation links."""
     args = session.posargs or [
         "-b",
         "linkcheck",
@@ -230,24 +239,26 @@ def linkcheck(session: Session) -> None:
     if builddir.exists():
         shutil.rmtree(builddir)
 
-    session.install("-r", "docs/requirements.txt")
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
+
+    # Install doc dependencies with uv
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
 
     session.run("sphinx-build", *args)
 
 
-@session(python="3.10")
-def docs(session: Session) -> None:
+@nox.session(python="3.10")
+def docs(session: nox.Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.run(*poetry_install(), external=True)
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
+
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
+
+    # Install doc dependencies with uv
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
+    install_with_uv(session, "sphinx-autobuild")
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():

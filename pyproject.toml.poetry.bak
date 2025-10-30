@@ -1,13 +1,13 @@
-# Project metadata using PEP 621
-[project]
+[tool.poetry]
 name = "pxblat"
-version = "1.2.8"
+version = "1.2.1"
 description = "A native python binding for blat suite"
-authors = [{ name = "Yangyang Li", email = "yangyang.li@northwestern.edu" }]
+authors = ["Yangyang Li <yangyang.li@northwestern.edu>"]
+homepage = "https://github.com/ylab-hi/pxblat"
+documentation = "https://pxblat.readthedocs.io/en/latest/"
+repository = "https://github.com/ylab-hi/pxblat"
 readme = "README.md"
-license = { file = "LICENSE" }
-requires-python = ">=3.9,<3.12"
-keywords = ["bioinformatics", "sequence aligner", "blat"]
+license = "LICENSE"
 classifiers = [
   "Development Status :: 6 - Mature",
   "Operating System :: POSIX :: Linux",
@@ -20,76 +20,65 @@ classifiers = [
   "Programming Language :: C",
   "Programming Language :: C++",
 ]
+keywords = ["bioinformatics", "sequence aligner", "blat"]
 
-# Core dependencies
-dependencies = [
-  "loguru>=0.7.0",
-  "pybind11>=2.10.4",
-  "setuptools>=68.2.2,<76.0.0",
-  "rich>=13.3.5",
-  "pysimdjson>=5.0.2,<7.0.0",
-  "biopython>=1.81",
-  "deprecated>=1.2.13",
-  "mashumaro>=3.8.1,<3.9.0",
-  "typing-extensions>=4.0.0",
-  "urllib3==2.3.0",
-  "typer>=0.9,<0.16",
-]
+[tool.poetry.dependencies]
+python = "^3.9, <3.12"
+loguru = "^0.7.0"
+pybind11 = "^2.10.4"
+setuptools = ">=68.2.2,<76.0.0"
+rich = "^13.3.5"
+pysimdjson = ">=5.0.2,<7.0.0"
+biopython = "^1.81"
+deprecated = "^1.2.13"
+mashumaro = "~3.8.1"
+typing-extensions = "^4.0.0"
+urllib3 = "2.3.0"
+typer = ">=0.9,<0.16"
 
 
-# Dependency groups (modern uv format)
-[dependency-groups]
-dev = [
-  "pytest>=7.3.1,<9.0.0",
-  "pytest-sugar>=0.9.7,<1.1.0",
-  "pybind11-stubgen>=0.13,<2.6",
-  "invoke>=2.1.2",
-  "ipdb>=0.13.13",
-  "pytest-ordering>=0.6",
-  "pytest-xdist>=3.3.1",
-  "scienceplots>=2.0.1",
-  "tikzplotlib>=0.10.1",
-  "nox>=2023.4.22,<2025.0.0",
-  "codecov>=2.1.13",
-  "myst-parser>=1,<4",
-  "sphinx-immaterial[clang-format,cpp,json,keys]>=0.11.11",
-  "linkify-it-py>=2.0.2",
-  "sphinx-copybutton>=0.5.2",
-  "sphinx-togglebutton>=0.3.2",
-  "sphinxcontrib-bibtex>=2.5.0",
-  "sphinx-autoapi>=2.1,<4.0",
-  "sphinx-autodoc2>=0.4.2,<0.6.0",
-  "psutil>=5.9.5,<7.0.0",
-  "seaborn>=0.12.2,<0.14.0",
-  "mypy>=1.4.1",
-  "sphinx-click>=4.4,<7.0",
-  "py-spy>=0.3.14,<0.5.0",
-  "sphinx-autobuild>=2021.3.14,<2025.0.0",
-  "cibuildwheel>=2.16.2",
-  "ruff>=0.5.0,<0.9.0",
-  "delocate>=0.10.4,<0.13.0",
-]
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.3.1,<9.0.0"
+pytest-sugar = ">=0.9.7,<1.1.0"
+pybind11-stubgen = ">=0.13,<2.6"
+invoke = "^2.1.2"
+ipdb = "^0.13.13"
+pytest-ordering = "^0.6"
+pytest-xdist = "^3.3.1"
+scienceplots = "^2.0.1"
+tikzplotlib = "^0.10.1"
+nox = ">=2023.4.22,<2025.0.0"
+nox-poetry = "^1.0.2"
+codecov = "^2.1.13"
+myst-parser = ">=1,<4"
+sphinx-immaterial = { extras = [
+  "clang-format",
+  "cpp",
+  "json",
+  "keys",
+], version = "^0.11.11" }
+linkify-it-py = "^2.0.2"
+sphinx-copybutton = "^0.5.2"
+sphinx-togglebutton = "^0.3.2"
+sphinxcontrib-bibtex = "^2.5.0"
+sphinx-autoapi = ">=2.1,<4.0"
+sphinx-autodoc2 = ">=0.4.2,<0.6.0"
+psutil = ">=5.9.5,<7.0.0"
+seaborn = ">=0.12.2,<0.14.0"
+mypy = "^1.4.1"
+sphinx-click = ">=4.4,<7.0"
+py-spy = ">=0.3.14,<0.5.0"
+sphinx-autobuild = ">=2021.3.14,<2025.0.0"
+cibuildwheel = "^2.16.2"
+ruff = ">=0.5.0,<0.9.0"
+delocate = ">=0.10.4,<0.13.0"
 
-# Entry points / CLI scripts
-[project.scripts]
+
+[tool.poetry.scripts]
 pxblat = "pxblat.cli.cli:app"
 
-# URLs
-[project.urls]
-Homepage = "https://github.com/ylab-hi/pxblat"
-Documentation = "https://pxblat.readthedocs.io/en/latest/"
-Repository = "https://github.com/ylab-hi/pxblat"
-
-# Build system using setuptools with custom build
-[build-system]
-requires = [
-    "setuptools>=68.2.2",
-    "wheel",
-    "pybind11>=2.10.4",
-    "tomli>=1.0.0; python_version < '3.11'",
-]
-build-backend = "setuptools.build_meta"
-
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 # Ruff configuration
 [tool.ruff]
 target-version = "py39"
@@ -254,8 +243,6 @@ tests = ["tests", "*/tests"]
 branch = true
 source = ["pxblat"]
 omit = ["tests/*"]
-data_file = ".coverage"
-parallel = true
 
 [tool.coverage.report]
 show_missing = true
@@ -279,18 +266,15 @@ markers = [
 ]
 
 [tool.codespell]
-skip = 'uv.lock,'
+skip = 'poetry.lock,'
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
 version_type = "pep440"
-version_provider = "pep621"
+version_provider = "poetry"
 update_changelog_on_bump = true
 major_version_zero = true
-
-[tool.cibuildwheel]
-build-frontend = "build"
 
 [tool.cibuildwheel.linux]
 before-all = "yum install -y openssl-devel"
@@ -300,3 +284,12 @@ test-command = "pytest {project}/tests -vls -m imports"
 [tool.cibuildwheel.macos]
 test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
+
+
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = true
+
+[build-system]
+requires = ["pybind11>2.9.1", "poetry-core>=1.2.0", "setuptools>=40.8.0"]
+build-backend = "poetry.core.masonry.api"
