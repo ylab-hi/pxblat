@@ -77,7 +77,14 @@ jobs:
             except ImportError:
                 import tomli as tomllib
             with open('pyproject.toml', 'rb') as f:
-                print(tomllib.load(f)['project']['version'])"
+                config = tomllib.load(f)
+                # Support both PEP 621 (project.version) and Poetry (tool.poetry.version)
+                if 'project' in config:
+                    print(config['project']['version'])
+                elif 'tool' in config and 'poetry' in config['tool']:
+                    print(config['tool']['poetry']['version'])
+                else:
+                    raise KeyError('No version found in pyproject.toml')"
 
       - name: Bump version for developmental release
         if: "! steps.check-version.outputs.tag"
