@@ -54,3 +54,4 @@ docs/api/*
 issues
 fixes_doc
 .pdm-build/
+CLAUDE.md
