@@ -107,6 +107,14 @@ jobs:
         run: |
           nox --force-color --python=${{ matrix.python }}
 
+      - name: List coverage files for debugging
+        if: always() && matrix.session == 'tests'
+        run: |
+          echo "Listing all .coverage files in repo root:"
+          ls -la .coverage* || echo "No .coverage files found in root"
+          echo "Searching for .coverage files recursively:"
+          find . -name ".coverage*" -type f || echo "No .coverage files found anywhere"
+
       - name: Upload coverage data
         if: always() && matrix.session == 'tests'
         uses: "actions/upload-artifact@v4"

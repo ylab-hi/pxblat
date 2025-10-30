@@ -243,6 +243,8 @@ tests = ["tests", "*/tests"]
 branch = true
 source = ["pxblat"]
 omit = ["tests/*"]
+data_file = ".coverage"
+parallel = true
 
 [tool.coverage.report]
 show_missing = true
