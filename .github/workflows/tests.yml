@@ -27,6 +27,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-lockfile:
+    name: Verify uv.lock is up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Verify lock file is up-to-date
+        run: |
+          uv lock --check
+          echo "✓ uv.lock is up-to-date"
+
   tests:
     name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -71,10 +91,11 @@ jobs:
       - name: Verify uv installation
         run: uv --version
 
-      - name: Install Nox
-        run: |
-          uv tool install nox
-          nox --version
+      - name: Install Nox with uv tool
+        run: uv tool install nox
+
+      - name: Verify nox installation
+        run: nox --version
 
       - name: Run Nox
         run: |
@@ -113,10 +134,11 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Install Nox
-        run: |
-          uv tool install nox
-          nox --version
+      - name: Install Nox with uv tool
+        run: uv tool install nox
+
+      - name: Verify nox installation
+        run: nox --version
 
       - name: Download coverage data
         uses: actions/download-artifact@v4

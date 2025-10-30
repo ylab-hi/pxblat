@@ -20,16 +20,21 @@ nox.options.sessions = (
 DEBUG = False
 
 
-def install_package_with_uv(session: nox.Session, *, dev: bool = True) -> None:
-    """Install the package and dependencies using uv.
+def install_with_uv(session: nox.Session, *packages: str, editable_install: bool = False) -> None:
+    """Install packages using uv pip for faster installation.
 
     Args:
         session: The nox session
-        dev: Whether to install development dependencies
+        packages: Package specifications to install
+        editable_install: Whether to install the current package in editable mode
     """
-    # Install the package in editable mode using uv within the same environment
-    # This ensures consistent, reproducible environments across sessions
-    session.run("uv", "pip", "install", "-e", ".", "--no-deps", external=True)
+    if editable_install:
+        # Install package in editable mode with all dependencies
+        session.run("uv", "pip", "install", "-e", ".", external=True)
+
+    if packages:
+        # Use uv pip for faster package installation
+        session.run("uv", "pip", "install", *packages, external=True)
 
 
 def activate_virtualenv_in_precommit_hooks(session: nox.Session) -> None:
@@ -129,7 +134,8 @@ def build_wheel(session: nox.Session) -> None:
 def precommit(session: nox.Session) -> None:
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
-    session.install(
+    install_with_uv(
+        session,
         "black",
         "darglint",
         "pep8-naming",
@@ -146,9 +152,8 @@ def mypy(session: nox.Session) -> None:
     """Type-check using mypy."""
     args = session.posargs or ["src", "tests", "docs/conf.py"]
 
-    # Use uv to sync and install dependencies into the session virtualenv
-    session.run("uv", "pip", "install", "-e", ".", external=True)
-    session.install("mypy", "pytest")
+    # Install package and mypy with uv for faster installation
+    install_with_uv(session, "mypy", "pytest", editable_install=True)
 
     session.run("mypy", *args)
     if not session.posargs:
@@ -158,9 +163,8 @@ def mypy(session: nox.Session) -> None:
 @nox.session(python=python_versions)
 def tests(session: nox.Session) -> None:
     """Run the test suite."""
-    # Use uv to install the package into the session virtualenv
-    session.run("uv", "pip", "install", "-e", ".", external=True)
-    session.install("coverage[toml]", "pytest", "pygments")
+    # Install package and test dependencies with uv
+    install_with_uv(session, "coverage[toml]", "pytest", "pygments", editable_install=True)
 
     try:
         session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
@@ -174,7 +178,7 @@ def coverage(session: nox.Session) -> None:
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
-    session.install("coverage[toml]")
+    install_with_uv(session, "coverage[toml]")
 
     # Find coverage data files recursively (artifacts may be downloaded into subdirs)
     coverage_files = list(Path(".").rglob(".coverage.*"))
@@ -205,11 +209,11 @@ def docs_build(session: nox.Session) -> None:
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
 
-    # Use uv to install the package into the session virtualenv
-    session.run("uv", "pip", "install", "-e", ".", external=True)
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
 
-    # Install all documentation dependencies
-    session.install("-r", "docs/requirements.txt")
+    # Install doc dependencies with uv pip for faster installation
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():
@@ -220,7 +224,7 @@ def docs_build(session: nox.Session) -> None:
 
 @nox.session
 def linkcheck(session: nox.Session) -> None:
-    """Build the documentation."""
+    """Check documentation links."""
     args = session.posargs or [
         "-b",
         "linkcheck",
@@ -234,11 +238,11 @@ def linkcheck(session: nox.Session) -> None:
     if builddir.exists():
         shutil.rmtree(builddir)
 
-    # Use uv to install the package into the session virtualenv
-    session.run("uv", "pip", "install", "-e", ".", external=True)
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
 
-    # Install all documentation dependencies
-    session.install("-r", "docs/requirements.txt")
+    # Install doc dependencies with uv
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
 
     session.run("sphinx-build", *args)
 
@@ -248,12 +252,12 @@ def docs(session: nox.Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
 
-    # Use uv to install the package into the session virtualenv
-    session.run("uv", "pip", "install", "-e", ".", external=True)
+    # Install package with uv
+    install_with_uv(session, editable_install=True)
 
-    # Install all documentation dependencies
-    session.install("-r", "docs/requirements.txt")
-    session.install("sphinx-autobuild")
+    # Install doc dependencies with uv
+    session.run("uv", "pip", "install", "-r", "docs/requirements.txt", external=True)
+    install_with_uv(session, "sphinx-autobuild")
 
     build_dir = Path("docs", "_build")
     if build_dir.exists():
