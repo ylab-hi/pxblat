@@ -116,7 +116,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
@@ -171,7 +171,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -226,7 +226,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_BUILD: ${{ matrix.cibw_build }}
