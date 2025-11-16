@@ -27,19 +27,15 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Install Poetry
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt poetry
-          poetry --version
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build sdist
         run: |
-          poetry build --format=sdist
+          uv build --sdist
 
       - uses: actions/upload-artifact@v5
         with:
@@ -51,20 +47,64 @@ jobs:
         run: |
           echo "sha=$(git rev-parse --verify --quiet HEAD^)" >> $GITHUB_OUTPUT
 
+      - name: Install tomli for version detection
+        run: |
+          uv pip install --system tomli
+
+      - name: Debug pyproject.toml structure
+        run: |
+          python -c "try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('pyproject.toml', 'rb') as f:
+              config = tomllib.load(f)
+              print('Keys in pyproject.toml:', list(config.keys()))
+              if 'project' in config:
+                  print('Keys in project:', list(config['project'].keys()))
+                  print('Version:', config['project'].get('version', 'NOT FOUND'))
+              if 'tool' in config and 'poetry' in config['tool']:
+                  print('Poetry version:', config['tool']['poetry'].get('version', 'NOT FOUND'))"
+
       - name: Detect and tag new version
         id: check-version
         if: steps.check-parent-commit.outputs.sha
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: |
-            bash -o pipefail -c "poetry version | awk '{ print \$2 }'"
+            python -c "try:
+                import tomllib
+            except ImportError:
+                import tomli as tomllib
+            with open('pyproject.toml', 'rb') as f:
+                print(tomllib.load(f)['project']['version'])"
 
       - name: Bump version for developmental release
         if: "! steps.check-version.outputs.tag"
         run: |
-          poetry version patch &&
-          version=$(poetry version | awk '{ print $2 }') &&
-          poetry version $version.dev.$(date +%s)
+          # Install tomli-w and tomli for writing/reading TOML using uv
+          uv pip install tomli-w tomli
+          # Bump version for dev release using a Python script
+          uv run python - <<'PY'
+          import re, tomli_w
+          from datetime import datetime
+          try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('pyproject.toml', 'rb') as f:
+              config = tomllib.load(f)
+          version = str(config['project']['version'])
+          # Extract numeric parts safely to handle versions like 1.2.1.dev123
+          m = re.match(r'^(\d+)\.(\d+)\.(\d+)', version)
+          major, minor, patch = (int(m.group(1)), int(m.group(2)), int(m.group(3))) if m else (0, 0, 0)
+          patch += 1
+          dev_version = f"{major}.{minor}.{patch}.dev{int(datetime.now().timestamp())}"
+          config['project']['version'] = dev_version
+          with open('pyproject.toml', 'wb') as f:
+              tomli_w.dump(config, f)
+          print(f'Version bumped to {dev_version}')
+          PY
 
     outputs:
       tag: ${{steps.check-version.outputs.tag}}
@@ -109,11 +149,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.3.0
@@ -164,11 +204,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.3.0
@@ -219,11 +259,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install poetry
-        uses: snok/install-poetry@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          virtualenvs-create: false
-          virtualenvs-in-project: false
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.3.0

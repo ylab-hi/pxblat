@@ -2,7 +2,6 @@
 /.coverage
 /.coverage.*
 /.nox/
-/.python-version
 /.pytype/
 /dist/
 /data/
@@ -56,3 +55,4 @@ fixes_doc
 .pdm-build/
 CLAUDE.md
 .claude/
+node_modules
