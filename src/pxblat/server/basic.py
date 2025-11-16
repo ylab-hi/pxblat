@@ -106,17 +106,14 @@ def _check_port_in_use_by_bind(host: str, port: int):
         ``_check_port_in_use_by_status``
 
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.bind((host, port))
-    except OSError as e:
-        if e.errno == errno.EADDRINUSE:
-            return True
-
-        raise e
-
-    s.close()
-    return False
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind((host, port))
+            return False
+        except OSError as e:
+            if e.errno == errno.EADDRINUSE:
+                return True
+            raise
 
 
 def wait_server_ready(
