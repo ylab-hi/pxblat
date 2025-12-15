@@ -248,11 +248,11 @@ jobs:
       ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           pattern: dist
           path: dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           pattern: wheels-*
           path: dist
@@ -280,11 +280,11 @@ jobs:
     runs-on: ubuntu-latest
     if: "! needs.release.outputs.tag"
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           pattern: dist
           path: dist
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           pattern: wheels-*
           path: dist
