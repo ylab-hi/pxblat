@@ -116,7 +116,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
@@ -171,7 +171,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -226,7 +226,7 @@ jobs:
           virtualenvs-in-project: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.0
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD_FRONTEND: pip
           CIBW_BUILD: ${{ matrix.cibw_build }}
@@ -260,7 +260,7 @@ jobs:
 
       - name: Publish package on PyPI
         if: needs.release.outputs.tag
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
@@ -268,7 +268,7 @@ jobs:
           packages-dir: dist/
 
       - name: Publish the release notes
-        uses: release-drafter/release-drafter@v7.1.1
+        uses: release-drafter/release-drafter@v7.2.1
         with:
           publish: ${{ needs.release.outputs.tag != '' }}
           tag: ${{ needs.release.outputs.tag }}
@@ -291,7 +291,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish package on TestPyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_TOKEN }}
@@ -300,7 +300,7 @@ jobs:
           packages-dir: dist/
 
       - name: Publish the release notes
-        uses: release-drafter/release-drafter@v7.1.1
+        uses: release-drafter/release-drafter@v7.2.1
         with:
           publish: ${{ needs.release.outputs.tag != '' }}
           tag: ${{ needs.release.outputs.tag }}
