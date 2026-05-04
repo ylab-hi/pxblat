@@ -3836,18 +3836,22 @@ files = [
 
 [[package]]
 name = "scienceplots"
-version = "2.1.1"
+version = "2.2.1"
 description = "Format Matplotlib for scientific plotting"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "SciencePlots-2.1.1-py3-none-any.whl", hash = "sha256:2e64d2e93b4f98702f30145dbb70d238f5dc315e227fec331489631232dfc9e0"},
-    {file = "SciencePlots-2.1.1.tar.gz", hash = "sha256:d8d197e3410f87ebdad0b9c265eaab596094fb082d97123e835f6bc32800ab54"},
+    {file = "scienceplots-2.2.1-py3-none-any.whl", hash = "sha256:a1a9f670cbf5b59d92cdd3250be85b079ee4cf08bcaf2ace5ef57995be0b6c42"},
+    {file = "scienceplots-2.2.1.tar.gz", hash = "sha256:51ad98c420e499d3284d07b6447a4b3aedd8ec122aca39ba91c58205226c408a"},
 ]
 
 [package.dependencies]
 matplotlib = "*"
+
+[package.extras]
+all = ["SciencePlots[test]"]
+test = ["numpy", "pytest"]
 
 [[package]]
 name = "seaborn"
