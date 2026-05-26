@@ -1,4 +1,5 @@
 import asyncio
+import shlex
 import subprocess
 import threading
 import time
@@ -596,8 +597,7 @@ def cpsl(c, file1: str, file2: str):
 
 def cmd(cmd):
     print(f"worker {worker()}")
-    # return subprocess.run(cmd, shell=True)
-    return subprocess.check_output(cmd, shell=True)
+    return subprocess.check_output(shlex.split(cmd), shell=False)
 
 
 @task
