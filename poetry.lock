@@ -2043,18 +2043,18 @@ files = [
 
 [[package]]
 name = "mashumaro"
-version = "3.8.1"
-description = "Fast serialization library on top of dataclasses"
+version = "3.20"
+description = "Fast and well tested serialization library"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "mashumaro-3.8.1-py3-none-any.whl", hash = "sha256:e060469a4bec1c86f8145ea27ecd99027ea3e343075a4efcb5e8a969a45b9fb9"},
-    {file = "mashumaro-3.8.1.tar.gz", hash = "sha256:8bae8b25e2287b75094655b8ba8635f34016c09ca16498188f2f3b198d88b7ef"},
+    {file = "mashumaro-3.20-py3-none-any.whl", hash = "sha256:648bc326f64c55447988eab67d6bfe3b7958c0961c83590709b1f950f88f4a3c"},
+    {file = "mashumaro-3.20.tar.gz", hash = "sha256:af4573f14ae61be3fbc3a473158ddfc1420f345410385809fd782e0d79e9215c"},
 ]
 
 [package.dependencies]
-typing-extensions = ">=4.1.0"
+typing_extensions = ">=4.14.0"
 
 [package.extras]
 msgpack = ["msgpack (>=0.5.6)"]
@@ -5037,4 +5037,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9, <3.12"
-content-hash = "5c53c0be8a650439f607a8840a770a42bab7cce3572f7ae0a15c555c572f1d08"
+content-hash = "f5a04be4a0a0ce0339eff01f80bf07ceeb7ec4b8f845ec4242555d94c262e3f8"
