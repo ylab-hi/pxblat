@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -138,7 +138,7 @@ jobs:
     needs: tests
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -177,4 +177,4 @@ jobs:
           nox --force-color --session=coverage -- xml
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
