@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-09-19
+
+### Highlights
+
+- Python 3.12 and 3.13 are supported; wheels are published for CPython 3.9 through 3.13 on Linux x86_64, macOS x86_64 and macOS arm64.
+- Query errors from `gfClient` (unsupported query/database type pairs, dynamic-server timeouts) now raise `RuntimeError` instead of terminating the Python interpreter.
+- The `pxblat` CLI uses camelCase option names matching the upstream BLAT tools (`--tileSize`, `--minMatch`, `--noMask`); the previous kebab-case spellings remain accepted as aliases.
+
+### Bug Fixes
+
+- `ClientThread`: host and port set through the `host`/`port` properties after construction are now used by the query (previously the original address was used).
+- `Server.start()` raises `FileNotFoundError` for a missing `.2bit` file before spawning any process; `Server.stop()` waits for the server process to exit so the port is released on return.
+- `ClientOption` can be pickled and deep-copied (a Python `__setstate__` override crashed the interpreter; native pickle casts for `minIdentity` and `dots` fixed).
+- Server: a `quit` request honors `canStop` and shuts the listener down instead of calling `exit(0)`; the per-server index is freed on shutdown; a failing query no longer takes down the worker pool.
+- Readiness probing treats a connection reset as "not ready yet" instead of raising.
+- CLI: `client` validates that the input FASTA and sequence directory exist; invalid inputs exit with code 2, native failures with code 1; `minnScore` typo in the option variable and the contact email fixed.
+- Responses that are not valid UTF-8 are decoded as latin-1 with a warning instead of silently.
+
+### Build and Packaging
+
+- The C sources compile under GCC 15 (C23 default): free-callback prototypes are now explicit.
+- `setuptools` and `urllib3` are no longer runtime dependencies.
+- Poetry dependency groups: `dev` (test/lint tooling), `docs` (Sphinx site, `poetry install --with docs`), `plot` (optional). `docs/requirements.txt` is generated from the `docs` group.
+- `build.py` no longer passes a literal `-DMACHTYPE_$(MACHTYPE)` or a bogus `-Iinclude`; only existing library/include directories are added.
+- Docker image for binder builds on Ubuntu 22.04 with the native clang 15 packages.
+
+### Documentation
+
+- The API reference is generated again (sphinx-immaterial apigen) and covers the public `pxblat` API.
+- Repository links point to `ylab-hi/pxblat`; CONTRIBUTING reflects the Python range and the docs build; Read the Docs builds on Ubuntu 24.04 / Python 3.11.
+
+### Continuous Integration
+
+- Test matrix covers Python 3.9-3.13 on Ubuntu and macOS; pipx-installed tools are pinned via `constraints.txt`; clang-format pre-commit hook for the project-authored bindings; Intel macOS wheels build on `macos-15-intel`.
+
 ## [1.2.8] - 2025-10-29
 
 ### Miscellaneous Tasks

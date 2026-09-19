@@ -147,23 +147,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
             cibw_build: "cp39-*"
             cibw_archs: "x86_64"
             artifact_name: "cp39"
-          - os: macos-13
+          - os: macos-15-intel
             cibw_build: "cp310-*"
             cibw_archs: "x86_64"
             artifact_name: "cp310"
-          - os: macos-13
+          - os: macos-15-intel
             cibw_build: "cp311-*"
             cibw_archs: "x86_64"
             artifact_name: "cp311"
-          - os: macos-13
+          - os: macos-15-intel
             cibw_build: "cp312-*"
             cibw_archs: "x86_64"
             artifact_name: "cp312"
-          - os: macos-13
+          - os: macos-15-intel
             cibw_build: "cp313-*"
             cibw_archs: "x86_64"
             artifact_name: "cp313"
