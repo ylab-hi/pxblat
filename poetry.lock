@@ -566,7 +566,7 @@ description = "Python library for calculating contours of 2D quadrilateral grids
 optional = false
 python-versions = ">=3.11"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "contourpy-1.3.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:709a48ef9a690e1343202916450bc48b9e51c049b089c7f79a267b46cffcdaa1"},
     {file = "contourpy-1.3.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:23416f38bfd74d5d28ab8429cc4d63fa67d5068bd711a85edb1c3fb0c3e2f381"},
@@ -777,7 +777,7 @@ description = "Code coverage measurement for Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "coverage-7.11.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0c986537abca9b064510f3fd104ba33e98d3036608c7f2f5537f869bc10e1ee5"},
     {file = "coverage-7.11.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:28c5251b3ab1d23e66f1130ca0c419747edfbcb4690de19467cd616861507af7"},
@@ -1051,7 +1051,7 @@ description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "filelock-3.20.0-py3-none-any.whl", hash = "sha256:339b4732ffda5cd79b13f4e2711a31b0365ce445d95d243bb996273d072546a2"},
     {file = "filelock-3.20.0.tar.gz", hash = "sha256:711e943b4ec6be42e1d4e6690b48dc175c822967466bb31c0c293f34334c13f4"},
@@ -1246,7 +1246,7 @@ description = "brain-dead simple config-ini parsing"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"},
     {file = "iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730"},
@@ -1327,7 +1327,7 @@ description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.11"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "ipython-9.7.0-py3-none-any.whl", hash = "sha256:bce8ac85eb9521adc94e1845b4c03d88365fd6ac2f4908ec4ed1eb1b0a065f9f"},
     {file = "ipython-9.7.0.tar.gz", hash = "sha256:5f6de88c905a566c6a9d6c400a8fed54a638e1f7543d17aae2551133216b1e4e"},
@@ -1361,7 +1361,7 @@ description = "Defines a variety of Pygments lexers for highlighting IPython cod
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "ipython_pygments_lexers-1.1.1-py3-none-any.whl", hash = "sha256:a9462224a505ade19a605f71f8fa63c2048833ce50abc86768a0d81d876dc81c"},
     {file = "ipython_pygments_lexers-1.1.1.tar.gz", hash = "sha256:09c0138009e56b6854f9535736f4171d855c8c08a563a0dcd8022f78355c7e81"},
@@ -1540,7 +1540,7 @@ description = "A fast implementation of the Cassowary constraint solver"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "kiwisolver-1.4.9-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:b4b4d74bda2b8ebf4da5bd42af11d02d04428b2c32846e4c2c93219df8a7987b"},
     {file = "kiwisolver-1.4.9-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:fb3b8132019ea572f4611d770991000d7f58127560c4889729248eb5852a102f"},
@@ -1860,7 +1860,7 @@ description = "Python implementation of John Gruber's Markdown."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "markdown-3.10-py3-none-any.whl", hash = "sha256:b5b99d6951e2e4948d939255596523444c0e677c669700b1d17aa4a8a464cb7c"},
     {file = "markdown-3.10.tar.gz", hash = "sha256:37062d4f2aa4b2b6b32aefb80faa300f82cc790cb949a35b8caede34f2b68c0e"},
@@ -2089,7 +2089,7 @@ description = "Python plotting package"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "matplotlib-3.10.7-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:7ac81eee3b7c266dd92cee1cd658407b16c57eed08c7421fa354ed68234de380"},
     {file = "matplotlib-3.10.7-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:667ecd5d8d37813a845053d8f5bf110b534c3c9f30e69ebd25d4701385935a6d"},
@@ -2208,7 +2208,7 @@ description = "Collection of plugins for markdown-it-py"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "mdit_py_plugins-0.5.0-py3-none-any.whl", hash = "sha256:07a08422fc1936a5d26d146759e9155ea466e842f5ab2f7d2266dd084c8dab1f"},
     {file = "mdit_py_plugins-0.5.0.tar.gz", hash = "sha256:f4918cb50119f50446560513a8e311d574ff6aaed72606ddae6d35716fe809c6"},
@@ -2304,7 +2304,7 @@ description = "Optional static typing for Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "mypy-1.20.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:cf5a4db6dca263010e2c7bff081c89383c72d187ba2cf4c44759aac970e2f0c4"},
     {file = "mypy-1.20.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:7b0e817b518bff7facd7f85ea05b643ad8bdcce684cf29784987b0a7c8e1f997"},
@@ -2509,7 +2509,7 @@ description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.11"
 groups = ["main", "dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "numpy-2.3.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:e78aecd2800b32e8347ce49316d3eaf04aed849cd5b38e0af39f829a4e59f5eb"},
     {file = "numpy-2.3.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:7fd09cc5d65bda1e79432859c40978010622112e9194e581e3415a3eccc7f43f"},
@@ -2668,6 +2668,7 @@ files = [
 numpy = [
     {version = ">=1.22.4", markers = "python_version < \"3.11\""},
     {version = ">=1.23.2", markers = "python_version == \"3.11\""},
+    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -2738,7 +2739,7 @@ description = "Pexpect allows easy control of interactive console applications."
 optional = false
 python-versions = "*"
 groups = ["dev"]
-markers = "sys_platform != \"win32\" and (python_version < \"3.11\" or sys_platform != \"win32\" and sys_platform != \"emscripten\")"
+markers = "sys_platform != \"win32\" and (sys_platform != \"win32\" and sys_platform != \"emscripten\" or python_version < \"3.11\")"
 files = [
     {file = "pexpect-4.9.0-py2.py3-none-any.whl", hash = "sha256:7236d1e080e4936be2dc3e326cec0af72acf9212a7e1d060210e70a47e253523"},
     {file = "pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f"},
@@ -2880,7 +2881,7 @@ description = "Python Imaging Library (fork)"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "pillow-12.0.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:3adfb466bbc544b926d50fe8f4a4e6abd8c6bffd28a26177594e6e9b2b76572b"},
     {file = "pillow-12.0.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:1ac11e8ea4f611c3c0147424eae514028b5e9077dd99ab91e1bd7bc33ff145e1"},
@@ -3008,7 +3009,7 @@ description = "A small Python package for determining appropriate platform-speci
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "platformdirs-4.5.0-py3-none-any.whl", hash = "sha256:e578a81bb873cbb89a41fcc904c7ef523cc18284b7e3b3ccf06aca1403b7ebd3"},
     {file = "platformdirs-4.5.0.tar.gz", hash = "sha256:70ddccdd7c99fc5942e9fc25636a8b34d04c24b335100223152c2803e4063312"},
@@ -3088,7 +3089,7 @@ description = "Run a subprocess in a pseudo terminal"
 optional = false
 python-versions = "*"
 groups = ["dev"]
-markers = "sys_platform != \"win32\" and (python_version < \"3.11\" or sys_platform != \"win32\" and sys_platform != \"emscripten\")"
+markers = "sys_platform != \"win32\" and (sys_platform != \"win32\" and sys_platform != \"emscripten\" or python_version < \"3.11\")"
 files = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
     {file = "ptyprocess-0.7.0.tar.gz", hash = "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"},
@@ -3920,6 +3921,7 @@ description = "Sphinx API documentation generator"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
+markers = "python_version <= \"3.11\""
 files = [
     {file = "sphinx_autoapi-3.6.1-py3-none-any.whl", hash = "sha256:6b7af0d5650f6eac1f4b85c1eb9f9a4911160ec7138bdc4451c77a5e94d5832c"},
     {file = "sphinx_autoapi-3.6.1.tar.gz", hash = "sha256:1ff2992b7d5e39ccf92413098a376e0f91e7b4ca532c4f3e71298dbc8a4a9900"},
@@ -3931,6 +3933,25 @@ Jinja2 = "*"
 PyYAML = "*"
 sphinx = ">=7.4.0"
 stdlib_list = {version = "*", markers = "python_version < \"3.10\""}
+
+[[package]]
+name = "sphinx-autoapi"
+version = "3.8.1"
+description = "Sphinx API documentation generator"
+optional = false
+python-versions = ">=3.10"
+groups = ["dev"]
+markers = "python_version >= \"3.12\""
+files = [
+    {file = "sphinx_autoapi-3.8.1-py3-none-any.whl", hash = "sha256:9a3bd3ee1ba82d537f1620a3922292d43ee8b9ff9c69bc198965ac4bcd5a6775"},
+    {file = "sphinx_autoapi-3.8.1.tar.gz", hash = "sha256:04643fc50485039294ace8b660d0d1b821a1686824a975725a5106e8cf1fb30b"},
+]
+
+[package.dependencies]
+astroid = ">=3.0"
+Jinja2 = "*"
+PyYAML = "*"
+sphinx = ">=7.4.0"
 
 [[package]]
 name = "sphinx-autobuild"
@@ -4003,7 +4024,7 @@ description = "Sphinx extension that automatically documents click applications"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "sphinx_click-6.1.0-py3-none-any.whl", hash = "sha256:7dbed856c3d0be75a394da444850d5fc7ecc5694534400aa5ed4f4849a8643f9"},
     {file = "sphinx_click-6.1.0.tar.gz", hash = "sha256:c702e0751c1a0b6ad649e4f7faebd0dc09a3cc7ca3b50f959698383772f50eef"},
@@ -4259,7 +4280,7 @@ description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "starlette-0.50.0-py3-none-any.whl", hash = "sha256:9e5391843ec9b6e472eed1365a78c8098cfceb7a74bfd4d6b1c0c0095efb3bca"},
     {file = "starlette-0.50.0.tar.gz", hash = "sha256:a2a17b22203254bcbc2e1f926d2d55f3f9497f769416b3190768befe598fa3ca"},
@@ -4315,7 +4336,7 @@ description = "ANSI color formatting for output in terminal"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "termcolor-3.2.0-py3-none-any.whl", hash = "sha256:a10343879eba4da819353c55cb8049b0933890c2ebf9ad5d3ecd2bb32ea96ea6"},
     {file = "termcolor-3.2.0.tar.gz", hash = "sha256:610e6456feec42c4bcd28934a8c87a06c3fa28b01561d46aa09a9881b8622c58"},
@@ -4709,7 +4730,7 @@ description = "A library for working with the color formats defined by HTML and 
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version == \"3.11\""
+markers = "python_version >= \"3.11\""
 files = [
     {file = "webcolors-25.10.0-py3-none-any.whl", hash = "sha256:032c727334856fc0b968f63daa252a1ac93d33db2f5267756623c210e57a4f1d"},
     {file = "webcolors-25.10.0.tar.gz", hash = "sha256:62abae86504f66d0f6364c2a8520de4a0c47b80c03fc3a5f1815fedbef7c19bf"},
@@ -4968,5 +4989,5 @@ type = ["pytest-mypy"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = "^3.9, <3.12"
-content-hash = "d759c337be1947199d7894353218d381fc2741b3bcbb2aea2a143c7562b849ad"
+python-versions = ">=3.9,<3.14"
+content-hash = "5bcd8aa5e0abac048e4505db6e8ee1f41dfc0be393a762e3a51216c8c4d5c36d"
