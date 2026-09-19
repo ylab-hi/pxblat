@@ -290,7 +290,7 @@ update_changelog_on_bump = true
 major_version_zero = true
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y openssl-devel"
+before-all = "dnf install -y openssl-devel"
 test-requires = "pytest"
 test-command = "pytest {project}/tests -vls -m imports"
 

@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ### Continuous Integration
 
-- Test matrix covers Python 3.9-3.13 on Ubuntu and macOS; pipx-installed tools are pinned via `constraints.txt`; clang-format pre-commit hook for the project-authored bindings; Intel macOS wheels build on `macos-15-intel`.
+- Test matrix covers Python 3.9-3.13 on Ubuntu and macOS; pipx-installed tools are pinned via `constraints.txt`; clang-format pre-commit hook for the project-authored bindings; Intel macOS wheels build on `macos-15-intel` (minimum macOS 15) and Linux wheels are `manylinux_2_28`.
 
 ## [1.2.8] - 2025-10-29
 
