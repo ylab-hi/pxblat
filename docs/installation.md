@@ -46,6 +46,7 @@ Below is a compatibility matrix that shows the support status of **PxBLAT** acro
 |      3.10      |      ✅      |     ✅      |
 |      3.11      |      ✅      |     ✅      |
 |      3.12      |      ⚫      |     ⚫      |
+|      3.13      |      ⚫      |     ⚫      |
 
 ### [PyPI Support][pypi]
 
@@ -54,7 +55,8 @@ Below is a compatibility matrix that shows the support status of **PxBLAT** acro
 |      3.9       |      ✅      |     ✅      |         ✅          |
 |      3.10      |      ✅      |     ✅      |         ✅          |
 |      3.11      |      ✅      |     ✅      |         ✅          |
-|      3.12      |      ⚫      |     ⚫      |         ⚫          |
+|      3.12      |      ✅      |     ✅      |         ✅          |
+|      3.13      |      ✅      |     ✅      |         ✅          |
 
 ## Frequently Asked Questions (FAQ)
 

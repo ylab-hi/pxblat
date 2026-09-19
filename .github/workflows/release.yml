@@ -91,6 +91,14 @@ jobs:
             cibw_build: "cp311-*"
             cibw_archs: "x86_64"
             artifact_name: "cp311"
+          - os: ubuntu-latest
+            cibw_build: "cp312-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp312"
+          - os: ubuntu-latest
+            cibw_build: "cp313-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp313"
 
     steps:
       - name: Check out repository
@@ -151,6 +159,14 @@ jobs:
             cibw_build: "cp311-*"
             cibw_archs: "x86_64"
             artifact_name: "cp311"
+          - os: macos-13
+            cibw_build: "cp312-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp312"
+          - os: macos-13
+            cibw_build: "cp313-*"
+            cibw_archs: "x86_64"
+            artifact_name: "cp313"
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
     steps:
@@ -206,6 +222,14 @@ jobs:
             cibw_build: "cp311-*"
             cibw_archs: "arm64"
             artifact_name: "cp311"
+          - os: macos-14
+            cibw_build: "cp312-*"
+            cibw_archs: "arm64"
+            artifact_name: "cp312"
+          - os: macos-14
+            cibw_build: "cp313-*"
+            cibw_archs: "arm64"
+            artifact_name: "cp313"
     env:
       SYSTEM_VERSION_COMPAT: 0 # https://github.com/actions/setup-python/issues/469#issuecomment-1192522949
     steps:
