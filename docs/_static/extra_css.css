@@ -3,6 +3,14 @@
   --md-code-font: "Cascadia Mono";
 }
 
+/* The README heading embeds the logo with height=100; the theme's img rules
+   (height: auto; max-width: 100%) override that attribute, so pin it here. */
+.md-typeset h1 img[alt="logo"] {
+  height: 100px;
+  width: auto;
+  vertical-align: middle;
+}
+
 /* **************************** custom-task-list style rules *************************** */
 
 /* style for the unchecked checkboxes */
