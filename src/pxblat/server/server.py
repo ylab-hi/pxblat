@@ -197,7 +197,7 @@ class Server(ContextDecorator):
         self._block = block
         self._is_ready = False
         self._is_open = True
-        self._process = None
+        self._process: Process | None = None
 
     @property
     def host(self):
