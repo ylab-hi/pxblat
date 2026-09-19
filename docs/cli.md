@@ -31,7 +31,7 @@ Usage: pxblat [OPTIONS] COMMAND [ARGS]...
 │ twobittofa                             Convert all or part of .2bit file to fasta                                                                                                                                                                                            │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 
- YangyangLi 2023 yangyang.li@northwstern.edu
+ YangyangLi 2023 yangyang.li@northwestern.edu
 ```
 
 ### **1.1 Server**
@@ -75,9 +75,9 @@ $ pxblat server start -h
 │ *    two_bit      FILE     Two bit file [default: None] [required]                                                                                            │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --tile-size              INTEGER  Size of n-mers to index.  Default is 11 for nucleotides, 4 for proteins (or translated nucleotides). [default: 11]          │
+│ --tileSize               INTEGER  Size of n-mers to index.  Default is 11 for nucleotides, 4 for proteins (or translated nucleotides). [default: 11]          │
 │ --stepSize               INTEGER  Spacing between tiles. Default is tileSize. [default: 11]                                                                   │
-│ --min-match              INTEGER  Number of n-mer matches that trigger detailed alignment. Default is 2 for nucleotides, 3 for proteins. [default: 2]         │
+│ --minMatch               INTEGER  Number of n-mer matches that trigger detailed alignment. Default is 2 for nucleotides, 3 for proteins. [default: 2]         │
 │ --trans                           Translate database to protein in 6 frames.                                                                                  │
 │ --log                    TEXT     Keep a log file that records server requests. [default: None]                                                               │
 │ --mask                            Use masking from .2bit file.                                                                                                │
@@ -86,9 +86,9 @@ $ pxblat server start -h
 │ --maxDnaHits             INTEGER  Maximum number of hits for a DNA query that are sent from the server. [default: 100]                                        │
 │ --maxTransHits           INTEGER  Maximum number of hits for a translated query that are sent from the server. [default: 200]                                 │
 │ --maxNtSize              INTEGER  Maximum size of untranslated DNA query sequence. [default: 40000]                                                           │
-│ --perSeqMax              FILE     File contains one seq filename (possibly with ':seq' suffix) per line. [default: None]                                      │
+│ --perSeqMax              FILE     File contains one seq filename (possibly with `:seq` suffix) per line. [default: None]                                      │
 │ --canStop                         If set, a quit message will actually take down the server.                                                                  │
-│ --indexFile              FILE     Index file create by gfServer index. [default: None]                                                                      │
+│ --indexFile              FILE     Index file created by gfServer index. [default: None]                                                                     │
 │ --timeout                INTEGER  Timeout in seconds. [default: 90]                                                                                           │
 │ --help           -h               Show this message and exit.                                                                                                 │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
@@ -221,7 +221,7 @@ $ pxblat fatotwobit -h
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --long                    Use 64-bit offsets for index. Allow for twoBit to contain more than 4Gb of sequence.                            │
-│ --nomask                  Ignore lower-case masking in fa file.                                                                           │
+│ --noMask                  Ignore lower-case masking in fa file.                                                                           │
 │ --stripVersion            Strip off version number after '.' for GenBank accessions.                                                      │
 │ --ignoreDups              Convert first sequence only if there are duplicate sequence names. Use 'twoBitDup' to find duplicate sequences. │
 │ --help          -h        Show this message and exit.                                                                                     │

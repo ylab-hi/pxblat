@@ -56,10 +56,10 @@ def start_server2(port, two_bit):
     server.start()
 
     server.wait_ready()
-    return server
+    yield server
+    server.stop()
 
 
-@pytest.mark.skip()
 def test_query_server_cli(start_server2, port, fa_file1, tmp_path):
     out = tmp_path / "t.psl"
     result = runner.invoke(

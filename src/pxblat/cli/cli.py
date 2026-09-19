@@ -13,7 +13,7 @@ from .server import server_app
 from .twobit2fa import twoBitToFa
 
 app = typer.Typer(
-    epilog=f"YangyangLi {datetime.now().year} yangyang.li@northwstern.edu",
+    epilog=f"YangyangLi {datetime.now().year} yangyang.li@northwestern.edu",
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 

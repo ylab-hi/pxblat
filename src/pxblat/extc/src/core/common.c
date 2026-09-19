@@ -341,7 +341,7 @@ while (next != NULL)
 *ppt = NULL;
 }
 
-void slFreeListWithFunc(void *listPt, void (*freeFunc)())
+void slFreeListWithFunc(void *listPt, void (*freeFunc)(void *))
 /* Free a list by calling freeFunc on each element.
  * listPt must be a pointer to a pointer to some slList-compatible struct (&list).
  * freeFunc must take one arg: a pointer to a pointer to the item it is going to free. */
@@ -384,7 +384,7 @@ if (count > 1)
     }
 }
 
-void slUniqify(void *pList, int (*compare )(const void *elem1,  const void *elem2), void (*free)())
+void slUniqify(void *pList, int (*compare )(const void *elem1,  const void *elem2), void (*free)(void *))
 /* Return sorted list with duplicates removed.
  * Compare should be same type of function as slSort's compare (taking
  * pointers to pointers to elements.  Free should take a simple
@@ -414,7 +414,7 @@ slCat(*pList, b);
 slSort(pList,compare);
 }
 
-void slSortMergeUniq(void *pA, void *b, CmpFunction *compare, void (*free)())
+void slSortMergeUniq(void *pA, void *b, CmpFunction *compare, void (*free)(void *))
 // Merges and sorts a pair of singly linked lists leaving only unique
 // items via slUniqufy.  duplicate itens are defined by the compare routine
 // returning 0. If free is provided, items dropped from list can disposed of.
@@ -1079,7 +1079,7 @@ for (el = *pList; el != NULL; el = next)
 *pList = NULL;
 }
 
-void slPairFreeValsExt(struct slPair *list, void (*freeFunc)())
+void slPairFreeValsExt(struct slPair *list, void (*freeFunc)(void *))
 /* Free up all values on list using freeFunc.
  * freeFunc should take a simple pointer to free an item, and can be NULL. */
 {
@@ -1099,7 +1099,7 @@ void slPairFreeVals(struct slPair *list)
 slPairFreeValsExt(list, NULL);
 }
 
-void slPairFreeValsAndListExt(struct slPair **pList, void (*freeFunc)())
+void slPairFreeValsAndListExt(struct slPair **pList, void (*freeFunc)(void *))
 /* Free up all values on list using freeFunc and list itself.
  * freeFunc should take a simple pointer to free an item, and can be NULL. */
 {

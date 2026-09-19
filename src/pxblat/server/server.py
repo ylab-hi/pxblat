@@ -197,7 +197,7 @@ class Server(ContextDecorator):
         self._block = block
         self._is_ready = False
         self._is_open = True
-        self._process = None
+        self._process: Process | None = None
 
     @property
     def host(self):
@@ -222,26 +222,16 @@ class Server(ContextDecorator):
     def _start_b(self):
         """Start server in blocking mode."""
         two_bit_file = self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
-        try:
-            if check_port_in_use(self.host, self.port):
-                if self.use_others:
-                    self._is_open = False
-                    # WARN: Use server that is already open. However, the server may be not opened by gfServer <05-16-23>
-                    # Hence, the `wait_server_ready` may be timeout.
+        if check_port_in_use(self.host, self.port):
+            if self.use_others:
+                self._is_open = False
+                # WARN: Use server that is already open. However, the server may be not opened by gfServer <05-16-23>
+                # Hence, the `wait_server_ready` may be timeout.
 
-                else:
-                    self._is_open = True
-                    new_port = find_free_port(self.host, start=self.port + 1)
-                    self.port = new_port
-                    pystartServer(
-                        self.host,
-                        str(self.port),
-                        1,
-                        [two_bit_file],
-                        self.option,
-                        self.stat,
-                    )
             else:
+                self._is_open = True
+                new_port = find_free_port(self.host, start=self.port + 1)
+                self.port = new_port
                 pystartServer(
                     self.host,
                     str(self.port),
@@ -250,57 +240,60 @@ class Server(ContextDecorator):
                     self.option,
                     self.stat,
                 )
-        except Exception as e:
-            raise e
+        else:
+            pystartServer(
+                self.host,
+                str(self.port),
+                1,
+                [two_bit_file],
+                self.option,
+                self.stat,
+            )
 
     def _start_nb(self):
         two_bit_file = self.two_bit if isinstance(self.two_bit, str) else self.two_bit.as_posix()
-        try:
-            if check_port_in_use(self.host, self.port):
-                if self.use_others:
-                    self._is_open = False
-                else:
-                    self._is_open = True
-                    new_port = find_free_port(self._host, start=self.port + 1)
-                    self.port = new_port
-                    host = self.host
-                    port = self.port
-
-                    self._process = Process(
-                        target=_pystartServer,
-                        args=(
-                            host,
-                            str(port),
-                            [two_bit_file],
-                            self.option,
-                            self.stat,
-                        ),
-                        daemon=self.daemon,
-                    )
-
+        if check_port_in_use(self.host, self.port):
+            if self.use_others:
+                self._is_open = False
             else:
                 self._is_open = True
+                new_port = find_free_port(self._host, start=self.port + 1)
+                self.port = new_port
+                host = self.host
+                port = self.port
+
                 self._process = Process(
                     target=_pystartServer,
                     args=(
-                        self.host,
-                        str(self.port),
+                        host,
+                        str(port),
                         [two_bit_file],
                         self.option,
                         self.stat,
                     ),
                     daemon=self.daemon,
                 )
-        except Exception as e:
-            raise e
 
         else:
-            if self._process is not None:
-                self._process.start()
+            self._is_open = True
+            self._process = Process(
+                target=_pystartServer,
+                args=(
+                    self.host,
+                    str(self.port),
+                    [two_bit_file],
+                    self.option,
+                    self.stat,
+                ),
+                daemon=self.daemon,
+            )
+
+        if self._process is not None:
+            self._process.start()
 
     def _check(self):
         if not Path(self.two_bit).exists():
-            msg = f"Invalid two_bit file: {self.two_bit}"
+            msg = f"two_bit file not found: {self.two_bit}"
             raise FileNotFoundError(msg)
 
     def start(self):
@@ -311,17 +304,23 @@ class Server(ContextDecorator):
 
         Raises:
             ValueError: If the given two_bit file or URL is invalid.
+            FileNotFoundError: If the two_bit file does not exist on disk.
         """
+        self._check()
         self.option.build()
         if not self._block:
             self._start_nb()
         else:
             self._start_b()
 
-    def stop(self):
+    def stop(self, *, timeout: float = 10.0):
         """Stops the gfServer instance if it is running.
 
-        This method sends a stop signal to the server process, causing it to terminate gracefully.
+        Sends a quit request, then terminates the server process and waits for it to
+        exit so the port is released before this method returns.
+
+        Args:
+            timeout: Seconds to wait for the process to exit after SIGTERM before killing it.
 
         See Also:
             :func:`stop_server` is a free function to stop a server.
@@ -331,6 +330,10 @@ class Server(ContextDecorator):
 
         if self._process is not None:
             self._process.terminate()
+            self._process.join(timeout)
+            if self._process.is_alive():
+                self._process.kill()
+                self._process.join()
 
         self._is_open = False
         self._is_ready = False

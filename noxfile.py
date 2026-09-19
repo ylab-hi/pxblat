@@ -127,15 +127,7 @@ def build_wheel(session: Session) -> None:
 def precommit(session: Session) -> None:
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
-    session.install(
-        "black",
-        "darglint",
-        "pep8-naming",
-        "pre-commit",
-        "pre-commit-hooks",
-        "reorder-python-imports",
-        "poetry-plugin-export"
-    )
+    session.install("pre-commit")
     session.run("pre-commit", *args)
     if args and args[0] == "install":
         activate_virtualenv_in_precommit_hooks(session)
@@ -189,68 +181,35 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-@session(name="docs-build", python="3.10")
+def _prepare_docs(session: Session) -> None:
+    """Install the project with the docs group and clear the previous build."""
+    session.run(*poetry_install(), "--with", "docs", external=True)
+    build_dir = Path("docs", "_build")
+    if build_dir.exists():
+        shutil.rmtree(build_dir)
+
+
+@session(name="docs-build", python="3.11")
 def docs_build(session: Session) -> None:
     """Build the documentation."""
     args = session.posargs or ["docs", "docs/_build"]
     if not session.posargs and "FORCE_COLOR" in os.environ:
         args.insert(0, "--color")
-
-    session.run(*poetry_install(), external=True)
-
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
+    _prepare_docs(session)
     session.run("sphinx-build", *args)
 
 
-@nox.session
+@session(python="3.11")
 def linkcheck(session: Session) -> None:
-    """Build the documentation."""
-    args = session.posargs or [
-        "-b",
-        "linkcheck",
-        "-W",
-        "--keep-going",
-        "docs",
-        "docs/_build",
-    ]
-
-    builddir = Path("docs", "_build")
-    if builddir.exists():
-        shutil.rmtree(builddir)
-
-    session.install("-r", "docs/requirements.txt")
-
+    """Check external links in the documentation."""
+    args = session.posargs or ["-b", "linkcheck", "-W", "--keep-going", "docs", "docs/_build"]
+    _prepare_docs(session)
     session.run("sphinx-build", *args)
 
 
-@session(python="3.10")
+@session(python="3.11")
 def docs(session: Session) -> None:
     """Build and serve the documentation with live reloading on file changes."""
     args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.run(*poetry_install(), external=True)
-    session.install(
-        "sphinx",
-        "sphinx-immaterial",
-        "sphinx-autobuild",
-        "sphinx-click",
-        "myst_parser",
-        "pyyaml",
-    )
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
+    _prepare_docs(session)
     session.run("sphinx-autobuild", *args)

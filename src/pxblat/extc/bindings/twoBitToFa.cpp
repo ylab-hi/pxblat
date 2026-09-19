@@ -145,7 +145,10 @@ void twoBitToFa(std::string cppinName, std::string cppoutName, TwoBitToFaOption 
   else
     tbs = twoBitSpecNew(inName);
 
-  if (tbs == NULL) errAbort("%s is not a twoBit file", inName);
+  if (tbs == NULL) {
+    carefulClose(&outFile);
+    throw std::runtime_error(std::string(inName) + " is not a twoBit file");
+  }
 
   if (tbs->seqs != NULL && clBpt != NULL)
     tbf = twoBitOpenExternalBptIndex(tbs->fileName, clBpt);
@@ -210,21 +213,9 @@ TwoBitToFaOption &TwoBitToFaOption::withUdcDir(std::string const &udcDir_) {
 }
 
 TwoBitToFaOption &TwoBitToFaOption::build() {
-  //   if (argc != 3) usage();
-
-  //   if (clBedPos && !clBed) errAbort("the -bedPos option requires the -bed option");
-  //   if (clBed != NULL) {
-  //     if (clSeqList != NULL) errAbort("Can only have seqList or bed options, not both.");
-  //     if (clSeq != NULL) errAbort("Can only have seq or bed options, not both.");
-  //   }
-  //   if ((clStart > clEnd) && (clSeq == NULL)) errAbort("must specify -seq with -start and -end");
-  //   if ((clSeq != NULL) && (clSeqList != NULL)) errAbort("can't specify both -seq and -seqList");
-
   udcSetDefaultDir(udcDir.data());
 
-  if (bedPos && bed.empty())
-    // errAbort("the -bedPos option requires the -bed option");
-    throw std::runtime_error("the -bedPos option requires the -bed option");
+  if (bedPos && bed.empty()) throw std::runtime_error("the -bedPos option requires the -bed option");
 
   if (!bed.empty()) {
     if (!seqList.empty()) throw std::runtime_error("Can only have seqList or bed options, not both");

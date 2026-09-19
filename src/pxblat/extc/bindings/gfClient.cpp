@@ -51,14 +51,6 @@ std::string pygfClient_no_gil(ClientOption option) {
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
-  if (genome != NULL) {
-    printf("genome %s\n", genome);
-  }
-
-  if (genomeDataDir != NULL) {
-    printf("genomeDataDir %s\n", genomeDataDir);
-  }
-
   FILE *out{NULL};
   if (option.outName.empty()) {
     int buffsize = 65536;
@@ -72,7 +64,6 @@ std::string pygfClient_no_gil(ClientOption option) {
   // FILE *out = mustOpen("stdout", "w");
 
   if (out == NULL) {
-    // errAbort("Can't open in memory file %s", outName);
     throw std::runtime_error("cient Can't open in memory file");
   }
 
@@ -88,6 +79,32 @@ std::string pygfClient_no_gil(ClientOption option) {
   int dotMod = 0;
   char databaseName[256];
   struct hash *tFileCache = gfFileCacheNew();
+  struct gfConnection *conn{nullptr};
+  struct errCatch *errCatch = errCatchNew();
+  bool errCatchStarted = false;
+
+  /* Some call sites below used to call kent's abort routine with no abort
+   * handler installed at this point (errCatchEnd() already popped the one
+   * errCatchStart() had pushed, or the call site is inside it but a C++
+   * throw bypasses its longjmp recovery), so the default handler would
+   * terminate the whole interpreter process instead of just failing this
+   * request. They now throw C++ exceptions instead. A thrown exception
+   * skips the cleanup that normally follows these call sites, so every
+   * throw is routed through this helper to release the socket, rebalance
+   * errCatch's handler stack, and free the file cache and output file
+   * exactly once before propagating to pybind11 (which turns it into a
+   * RuntimeError). */
+  auto cleanupAndThrow = [&](const std::string &msg) {
+    if (errCatchStarted) {
+      errCatchEnd(errCatch);
+      errCatchStarted = false;
+    }
+    if (conn != nullptr) gfDisconnect(&conn);
+    if (errCatch != nullptr) errCatchFree(&errCatch);
+    if (tFileCache != nullptr) gfFileCacheFree(&tFileCache);
+    if (out != nullptr) carefulClose(&out);
+    throw std::runtime_error(msg);
+  };
 
   boolean gotConnection = FALSE;
 
@@ -97,9 +114,9 @@ std::string pygfClient_no_gil(ClientOption option) {
                     23, 3.0e9, minIdentity, out);
   gfOutputHead(gvo, out);
 
-  struct errCatch *errCatch = errCatchNew();
   if (errCatchStart(errCatch)) {
-    struct gfConnection *conn = gfConnect(hostName, portName, genome, genomeDataDir);
+    errCatchStarted = true;
+    conn = gfConnect(hostName, portName, genome, genomeDataDir);
     gotConnection = TRUE;
     while (faSomeSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name, qType != gftProt)) {
       if (dots != 0) {
@@ -123,33 +140,38 @@ std::string pygfClient_no_gil(ClientOption option) {
         reverseComplement(seq.dna, seq.size);
         gfAlignStrand(conn, SeqDir, &seq, TRUE, minScore, tFileCache, gvo);
       } else {
-        errAbort("Comparisons between %s queries and %s databases not yet supported", qTypeName, tTypeName);
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Comparisons between %s queries and %s databases not yet supported", qTypeName,
+                 tTypeName);
+        cleanupAndThrow(msg);
       }
       gfOutputQuery(gvo, out);
     }
     gfDisconnect(&conn);
   } /*	if (errCatchStart(errCatch))	*/
   errCatchEnd(errCatch);
+  errCatchStarted = false;
   if (errCatch->gotError) {
     if (isNotEmpty(errCatch->message->string)) warn("# error: %s", errCatch->message->string);
     if (gotConnection && isDynamic) {
       long et = clock1000() - enterMainTime;
+      char msg[256];
       if (et > NET_TIMEOUT_MS)
-        errAbort(
-            "the dynamic server at %s:%s is taking too long to respond,\nperhaps overloaded at this time, try again "
-            "later",
-            hostName, portName);
+        snprintf(msg, sizeof(msg),
+                 "the dynamic server at %s:%s is taking too long to respond,\nperhaps overloaded at this time, try "
+                 "again later",
+                 hostName, portName);
       else if (et < NET_QUICKEXIT_MS)
-        errAbort(
-            "the dynamic server at %s:%s is returning an error immediately,\nperhaps overloaded at this time, try "
-            "again later",
-            hostName, portName);
+        snprintf(msg, sizeof(msg),
+                 "the dynamic server at %s:%s is returning an error immediately,\nperhaps overloaded at this time, "
+                 "try again later",
+                 hostName, portName);
       else
-        errAbort("the dynamic server at %s:%s is returning an error at this time,\ntry again later", hostName,
-                 portName);
+        snprintf(msg, sizeof(msg), "the dynamic server at %s:%s is returning an error at this time,\ntry again later",
+                 hostName, portName);
+      cleanupAndThrow(msg);
     } else
-      // throw std::runtime_error("gfClient error exit");
-      errAbort("gfClient error exit");
+      cleanupAndThrow("gfClient error exit");
   }
   errCatchFree(&errCatch);
 
@@ -159,7 +181,6 @@ std::string pygfClient_no_gil(ClientOption option) {
   if (option.outName.empty()) {
     return read_inmem_file(out);
   }
-  pybind11::gil_scoped_acquire acquire;
   return "";
 }
 
@@ -188,14 +209,6 @@ std::string pygfClient(ClientOption &option) {
   auto genome = option.genome.empty() ? NULL : option.genome.data();
   auto genomeDataDir = option.genomeDataDir.empty() ? NULL : option.genomeDataDir.data();
 
-  if (genome != NULL) {
-    printf("genome %s\n", genome);
-  }
-
-  if (genomeDataDir != NULL) {
-    printf("genomeDataDir %s\n", genomeDataDir);
-  }
-
   FILE *out{NULL};
   if (option.outName.empty()) {
     int buffsize = 65536;
@@ -209,7 +222,6 @@ std::string pygfClient(ClientOption &option) {
   // FILE *out = mustOpen("stdout", "w");
 
   if (out == NULL) {
-    // errAbort("Can't open in memory file %s", outName);
     throw std::runtime_error("cient Can't open in memory file");
   }
 
@@ -225,6 +237,23 @@ std::string pygfClient(ClientOption &option) {
   int dotMod = 0;
   char databaseName[256];
   struct hash *tFileCache = gfFileCacheNew();
+  struct gfConnection *conn{nullptr};
+  struct errCatch *errCatch = errCatchNew();
+  bool errCatchStarted = false;
+
+  /* See pygfClient_no_gil() above for why these call sites now throw
+   * instead of aborting, and why cleanup is routed through this helper. */
+  auto cleanupAndThrow = [&](const std::string &msg) {
+    if (errCatchStarted) {
+      errCatchEnd(errCatch);
+      errCatchStarted = false;
+    }
+    if (conn != nullptr) gfDisconnect(&conn);
+    if (errCatch != nullptr) errCatchFree(&errCatch);
+    if (tFileCache != nullptr) gfFileCacheFree(&tFileCache);
+    if (out != nullptr) carefulClose(&out);
+    throw std::runtime_error(msg);
+  };
 
   boolean gotConnection = FALSE;
 
@@ -234,9 +263,9 @@ std::string pygfClient(ClientOption &option) {
                     23, 3.0e9, minIdentity, out);
   gfOutputHead(gvo, out);
 
-  struct errCatch *errCatch = errCatchNew();
   if (errCatchStart(errCatch)) {
-    struct gfConnection *conn = gfConnect(hostName, portName, genome, genomeDataDir);
+    errCatchStarted = true;
+    conn = gfConnect(hostName, portName, genome, genomeDataDir);
     gotConnection = TRUE;
     while (faSomeSpeedReadNext(lf, &seq.dna, &seq.size, &seq.name, qType != gftProt)) {
       if (dots != 0) {
@@ -260,33 +289,38 @@ std::string pygfClient(ClientOption &option) {
         reverseComplement(seq.dna, seq.size);
         gfAlignStrand(conn, SeqDir, &seq, TRUE, minScore, tFileCache, gvo);
       } else {
-        errAbort("Comparisons between %s queries and %s databases not yet supported", qTypeName, tTypeName);
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Comparisons between %s queries and %s databases not yet supported", qTypeName,
+                 tTypeName);
+        cleanupAndThrow(msg);
       }
       gfOutputQuery(gvo, out);
     }
     gfDisconnect(&conn);
   } /*	if (errCatchStart(errCatch))	*/
   errCatchEnd(errCatch);
+  errCatchStarted = false;
   if (errCatch->gotError) {
     if (isNotEmpty(errCatch->message->string)) warn("# error: %s", errCatch->message->string);
     if (gotConnection && isDynamic) {
       long et = clock1000() - enterMainTime;
+      char msg[256];
       if (et > NET_TIMEOUT_MS)
-        errAbort(
-            "the dynamic server at %s:%s is taking too long to respond,\nperhaps overloaded at this time, try again "
-            "later",
-            hostName, portName);
+        snprintf(msg, sizeof(msg),
+                 "the dynamic server at %s:%s is taking too long to respond,\nperhaps overloaded at this time, try "
+                 "again later",
+                 hostName, portName);
       else if (et < NET_QUICKEXIT_MS)
-        errAbort(
-            "the dynamic server at %s:%s is returning an error immediately,\nperhaps overloaded at this time, try "
-            "again later",
-            hostName, portName);
+        snprintf(msg, sizeof(msg),
+                 "the dynamic server at %s:%s is returning an error immediately,\nperhaps overloaded at this time, "
+                 "try again later",
+                 hostName, portName);
       else
-        errAbort("the dynamic server at %s:%s is returning an error at this time,\ntry again later", hostName,
-                 portName);
+        snprintf(msg, sizeof(msg), "the dynamic server at %s:%s is returning an error at this time,\ntry again later",
+                 hostName, portName);
+      cleanupAndThrow(msg);
     } else
-      // throw std::runtime_error("gfClient error exit");
-      errAbort("gfClient error exit");
+      cleanupAndThrow("gfClient error exit");
   }
   errCatchFree(&errCatch);
 
@@ -303,9 +337,7 @@ ClientOption &ClientOption::build() {
   // char *hostName, char *portName, char *tSeqDir, char *inName, char *outName, char *tTypeName, char *qTypeName
   if (tType == "prot" || tType == "dnax" || tType == "rnax") minIdentity = 25;
 
-  if (!genomeDataDir.empty() && genome.empty())
-    // errAbort("-genomeDataDir requires the -genome option");
-    throw std::runtime_error("-genomeDataDir requires the -genome option");
+  if (!genomeDataDir.empty() && genome.empty()) throw std::runtime_error("-genomeDataDir requires the -genome option");
 
   if (!genome.empty() && genomeDataDir.empty()) genomeDataDir = ".";
   if (!genomeDataDir.empty()) isDynamic = true;

@@ -23,7 +23,7 @@ on:
       - pyproject.toml
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
       matrix:
         include:
           - { python: "3.10", os: "ubuntu-latest", session: "pre-commit" }
-          - { python: "3.10", os: "ubuntu-latest", session: "docs-build" }
+          - { python: "3.11", os: "ubuntu-latest", session: "docs-build" }
           - { python: "3.10", os: "ubuntu-latest", session: "mypy" }
 
           - { python: "3.13", os: "ubuntu-latest", session: "tests" }
@@ -65,7 +65,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.github/workflows/constraints.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.python }}-
             ${{ runner.os }}-pip-
@@ -97,14 +97,14 @@ jobs:
 
       - name: Install Poetry
         run: |
-          pipx install  poetry
+          pipx install --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" poetry
           poetry self add poetry-plugin-export
           poetry --version
 
       - name: Install Nox
         run: |
-          pipx install nox
-          pipx inject  nox nox-poetry
+          pipx install --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" nox
+          pipx inject --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" nox nox-poetry
           nox --version
 
       - name: Run Nox
@@ -156,14 +156,14 @@ jobs:
 
       - name: Install Poetry
         run: |
-          pipx install  poetry
+          pipx install --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" poetry
           poetry self add poetry-plugin-export
           poetry --version
 
       - name: Install Nox
         run: |
-          pipx install  nox
-          pipx inject  nox nox-poetry
+          pipx install --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" nox
+          pipx inject --pip-args="--constraint=${{ github.workspace }}/.github/workflows/constraints.txt" nox nox-poetry
           nox --version
 
       - name: Download coverage data

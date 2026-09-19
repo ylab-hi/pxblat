@@ -22,7 +22,6 @@ void unknownToN(char *s, int size)
   }
 }
 
-//-1 errAbort("Duplicate sequence name %s", seq.name);
 int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noMask, bool stripVersion, bool ignoreDups,
                bool useLong)
 
@@ -55,10 +54,7 @@ int faToTwoBit(std::vector<std::string> &inFiles, std::string &outFile, bool noM
 
       if (hashLookup(uniqHash, seq.name)) {
         if (!ignoreDups)
-          // errAbort("Duplicate sequence name %s", seq.name);
           throw std::runtime_error("Duplicate sequence name " + std::string(seq.name));
-        // return -1;
-
         else
           continue;
       }

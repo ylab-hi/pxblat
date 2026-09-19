@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.8] - 2025-10-29
+
+### Miscellaneous Tasks
+
+- Update macOS deployment target to 14.0 in release workflow
+- Bump version to 1.2.8 in pyproject.toml and **init**.py
+
+## [1.2.7] - 2025-10-29
+
+### Miscellaneous Tasks
+
+- Bump version to 1.2.7 in pyproject.toml and **init**.py
+
 ## [1.2.6] - 2025-10-29
 
 ### Summary

@@ -634,7 +634,7 @@ For very large datasets (10,000+ sequences), consider batch processing:
 :language: python
 :linenos:
 :lines: 78-141
-:emphasize-lines: 113-118,120-126,128-139
+:emphasize-lines: 36-41,43-49,51-62
 ```
 
 **Batch Processing Benefits:**

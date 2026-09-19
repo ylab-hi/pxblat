@@ -50,6 +50,7 @@ def faToTwoBit(
     ),
     noMask: bool = typer.Option(
         False,
+        "--noMask",
         "--nomask",
         help="Ignore lower-case masking in fa file.",
     ),
@@ -67,20 +68,24 @@ def faToTwoBit(
     """Convert DNA from fasta to 2bit format."""
     for file in infa:
         if not file.exists():
-            logger.error(f"{file} not exists")
-            raise typer.Abort()
+            msg = f"{file} does not exist"
+            raise typer.BadParameter(msg)
         if not file.is_file():
-            logger.error(f"{file} is not a file")
-            raise typer.Abort()
+            msg = f"{file} is not a file"
+            raise typer.BadParameter(msg)
 
     if out2bit.exists():
         logger.warning(f"{out2bit} exist will be override")
 
-    fa_to_two_bit(
-        [f.as_posix() for f in infa],
-        out2bit.as_posix(),
-        noMask=noMask,
-        stripVersion=stripVersion,
-        ignoreDups=ignoreDups,
-        useLong=long,
-    )
+    try:
+        fa_to_two_bit(
+            [f.as_posix() for f in infa],
+            out2bit.as_posix(),
+            noMask=noMask,
+            stripVersion=stripVersion,
+            ignoreDups=ignoreDups,
+            useLong=long,
+        )
+    except RuntimeError as e:
+        logger.error(f"faToTwoBit failed: {e}")
+        raise typer.Exit(1) from e

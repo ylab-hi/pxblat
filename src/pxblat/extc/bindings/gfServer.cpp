@@ -11,6 +11,22 @@ namespace cppbinding {
 bool boolean2bool(boolean b) { return b == TRUE; }
 boolean bool2boolean(bool b) { return b ? TRUE : FALSE; }
 
+static std::string formatAbortMessage(const char *format, ...)
+/* printf-style formatting into a std::string. Used everywhere below that
+ * used to call kent's abort routine: pybind11 installs no abort handler, so
+ * reaching the default handler terminates the process and kills the whole
+ * Python interpreter instead of just failing the one call. Throwing a C++
+ * exception with the identical formatted message instead lets pybind11
+ * turn it into a Python RuntimeError. */
+{
+  char buf[1024];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(buf, sizeof(buf), format, args);
+  va_end(args);
+  return std::string(buf);
+}
+
 /*
   Note about file(s) specified in the start command:
       The path(s) specified here are sent back exactly as-is
@@ -90,7 +106,7 @@ void logGenoFindIndex(struct genoFindIndex *gfIdx)
 int getPortIx(char *portName)
 /* Convert from ascii to integer. */
 {
-  if (!isdigit(portName[0])) errAbort("Expecting a port number got %s", portName);
+  if (!isdigit(portName[0])) throw std::runtime_error(formatAbortMessage("Expecting a port number got %s", portName));
   return atoi(portName);
 }
 
@@ -119,8 +135,8 @@ void dnaQuery(struct genoFind *gf, struct dnaSeq *seq, int connectionHandle, str
   if (clumpList == NULL) ++stats.missCount;
   for (clump = clumpList; clump != NULL; clump = clump->next) {
     struct gfSeqSource *ss = clump->target;
-    sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName, clump->tStart - ss->start,
-            clump->tEnd - ss->start, clump->hitCount);
+    snprintf(buf, sizeof(buf), "%d\t%d\t%s\t%d\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName,
+             clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount);
     errSendString(connectionHandle, buf, sendOk);
     ++clumpCount;
     int perSeqCount = -1;
@@ -154,7 +170,7 @@ void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle
   int clumpCount = 0, hitCount = 0, oneHit;
   struct lm *lm = lmInit(0);
 
-  sprintf(buf, "tileSize %d", tileSize);
+  snprintf(buf, sizeof(buf), "tileSize %d", tileSize);
   errSendString(connectionHandle, buf, sendOk);
   for (frame = 0; frame < 3; ++frame) clumps[frame] = NULL;
   for (isRc = 0; isRc <= 1; ++isRc) {
@@ -165,8 +181,8 @@ void transQuery(struct genoFind *transGf[2][3], aaSeq *seq, int connectionHandle
       int limit = maxTransHits;
       for (clump = clumps[frame]; clump != NULL; clump = clump->next) {
         struct gfSeqSource *ss = clump->target;
-        sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d\t%c\t%d", clump->qStart, clump->qEnd, ss->fileName,
-                clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, frame);
+        snprintf(buf, sizeof(buf), "%d\t%d\t%s\t%d\t%d\t%d\t%c\t%d", clump->qStart, clump->qEnd, ss->fileName,
+                 clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, frame);
         errSendString(connectionHandle, buf, sendOk);
         dyStringClear(dy);
         for (hit = clump->hitList; hit != NULL; hit = hit->next)
@@ -200,7 +216,7 @@ void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int con
   struct gfHit *hit;
   int clumpCount = 0, hitCount = 0, oneCount;
 
-  sprintf(buf, "tileSize %d", tileSize);
+  snprintf(buf, sizeof(buf), "tileSize %d", tileSize);
   errSendString(connectionHandle, buf, sendOk);
   for (qFrame = 0; qFrame < 3; ++qFrame)
     for (tFrame = 0; tFrame < 3; ++tFrame) clumps[qFrame][tFrame] = NULL;
@@ -214,8 +230,8 @@ void transTransQuery(struct genoFind *transGf[2][3], struct dnaSeq *seq, int con
         int limit = maxTransHits;
         for (clump = clumps[qFrame][tFrame]; clump != NULL; clump = clump->next) {
           struct gfSeqSource *ss = clump->target;
-          sprintf(buf, "%d\t%d\t%s\t%d\t%d\t%d\t%c\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName,
-                  clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, qFrame, tFrame);
+          snprintf(buf, sizeof(buf), "%d\t%d\t%s\t%d\t%d\t%d\t%c\t%d\t%d", clump->qStart, clump->qEnd, ss->fileName,
+                   clump->tStart - ss->start, clump->tEnd - ss->start, clump->hitCount, strand, qFrame, tFrame);
           errSendString(connectionHandle, buf, sendOk);
           dyStringClear(dy);
           for (hit = clump->hitList; hit != NULL; hit = hit->next) {
@@ -415,19 +431,22 @@ void checkIndexFileName(char *gfxFile, char *seqFile, ServerOption const &option
   char seqBaseName[FILENAME_LEN], seqExt[FILEEXT_LEN];
   splitPath(seqFile, NULL, seqBaseName, seqExt);
   if ((strlen(seqBaseName) == 0) || !sameString(seqExt, ".2bit"))
-    errAbort(
-        "gfServer index requires a two-bit genome file with a base name "
-        "of `myGenome.2bit`, got %s%s",
-        seqBaseName, seqExt);
+    throw std::runtime_error(
+        formatAbortMessage("gfServer index requires a two-bit genome file with a base name "
+                           "of `myGenome.2bit`, got %s%s",
+                           seqBaseName, seqExt));
 
   char gfxBaseName[FILENAME_LEN], gfxExt[FILEEXT_LEN];
   splitPath(gfxFile, NULL, gfxBaseName, gfxExt);
-  if (!sameString(gfxExt, ".gfidx")) errAbort("gfServer index must have an file extension of '.gfidx', got %s", gfxExt);
+  if (!sameString(gfxExt, ".gfidx"))
+    throw std::runtime_error(
+        formatAbortMessage("gfServer index must have an file extension of '.gfidx', got %s", gfxExt));
   char expectBaseName[FILENAME_LEN];
   safef(expectBaseName, sizeof(expectBaseName), "%s.%s", seqBaseName, (doTrans ? "trans" : "untrans"));
   if (!sameString(gfxBaseName, expectBaseName))
-    errAbort("%s index file base name must be '%s.gfidx', got %s%s", (doTrans ? "translated" : "untranslated"),
-             expectBaseName, gfxBaseName, gfxExt);
+    throw std::runtime_error(formatAbortMessage("%s index file base name must be '%s.gfidx', got %s%s",
+                                                (doTrans ? "translated" : "untranslated"), expectBaseName, gfxBaseName,
+                                                gfxExt));
 }
 
 void dynWarnErrorVa(char *msg, va_list args)
@@ -489,12 +508,12 @@ void dynSessionInit(struct dynSession *dynSession, char *rootDir, char *genome, 
 /* Initialize or reinitialize a dynSession object */
 {
   if ((!isSafeRelativePath(genome)) || (strchr(genome, '/') != NULL))
-    errAbort("genome argument can't contain '/' or '..': %s", genome);
+    throw std::runtime_error(formatAbortMessage("genome argument can't contain '/' or '..': %s", genome));
   if (!isSafeRelativePath(genomeDataDir))
-    errAbort(
-        "genomeDataDir argument must be a relative path without '..' "
-        "elements: %s",
-        genomeDataDir);
+    throw std::runtime_error(
+        formatAbortMessage("genomeDataDir argument must be a relative path without '..' "
+                           "elements: %s",
+                           genomeDataDir));
 
   // will free current content if initialized
   genoFindIndexFree(&dynSession->gfIdx);
@@ -510,11 +529,13 @@ void dynSessionInit(struct dynSession *dynSession, char *rootDir, char *genome, 
 
   char seqFile[PATH_LEN];
   safef(seqFile, PATH_LEN, "%s/%s.2bit", seqFileDir, genome);
-  if (!fileExists(seqFile)) errAbort("sequence file for %s does not exist: %s", genome, seqFile);
+  if (!fileExists(seqFile))
+    throw std::runtime_error(formatAbortMessage("sequence file for %s does not exist: %s", genome, seqFile));
 
   char gfIdxFile[PATH_LEN];
   safef(gfIdxFile, PATH_LEN, "%s/%s.%s.gfidx", seqFileDir, genome, isTrans ? "trans" : "untrans");
-  if (!fileExists(gfIdxFile)) errAbort("gf index file for %s does not exist: %s", genome, gfIdxFile);
+  if (!fileExists(gfIdxFile))
+    throw std::runtime_error(formatAbortMessage("gf index file for %s does not exist: %s", genome, gfIdxFile));
   dynSession->gfIdx = loadGfIndex(gfIdxFile, isTrans, options);
 
   char perSeqMaxFile[PATH_LEN];
@@ -533,10 +554,11 @@ char *dynReadCommand(char *rootDir)
 {
   char buf[PATH_LEN];
   int readSize = read(STDIN_FILENO, buf, sizeof(buf) - 1);
-  if (readSize < 0) errAbort("EOF from client");
+  if (readSize < 0) throw std::runtime_error(formatAbortMessage("EOF from client"));
   if (readSize == 0) return NULL;
   buf[readSize] = '\0';
-  if (!startsWith(gfSignature(), buf)) errAbort("query does not start with signature, got '%s'", buf);
+  if (!startsWith(gfSignature(), buf))
+    throw std::runtime_error(formatAbortMessage("query does not start with signature, got '%s'", buf));
   char *cmd = cloneString(buf + strlen(gfSignature()));
   logInfo("dynserver: %s", cmd);
   return cmd;
@@ -558,10 +580,11 @@ int dynNextCommand(char *rootDir, struct dynSession *dynSession, char **args, Se
   if (cmdStr == NULL) return 0;
 
   int numArgs = chopByWhite(cmdStr, args, DYN_CMD_MAX_ARGS);
-  if (numArgs == 0) errAbort("empty command");
+  if (numArgs == 0) throw std::runtime_error(formatAbortMessage("empty command"));
   if (sameWord(args[0], "status")) return numArgs;  // special case; does not use an index.
 
-  if (numArgs < 3) errAbort("expected at least 3 arguments for a dynamic server command");
+  if (numArgs < 3)
+    throw std::runtime_error(formatAbortMessage("expected at least 3 arguments for a dynamic server command"));
   boolean isTrans =
       sameString("protQuery", args[0]) || sameString("transQuery", args[0]) || sameString("transInfo", args[0]);
 
@@ -582,7 +605,8 @@ struct dnaSeq *dynReadQuerySeq(int qSize, boolean isTrans, boolean queryIsProt, 
   seq = (dnaSeq *)needMem(sizeof(*seq));
   seq->size = qSize;
   seq->dna = (char *)needLargeMem(qSize + 1);
-  if (gfReadMulti(STDIN_FILENO, seq->dna, qSize) != qSize) errAbort("read of %d bytes of query sequence failed", qSize);
+  if (gfReadMulti(STDIN_FILENO, seq->dna, qSize) != qSize)
+    throw std::runtime_error(formatAbortMessage("read of %d bytes of query sequence failed", qSize));
   seq->dna[qSize] = '\0';
 
   if (queryIsProt) {
@@ -609,7 +633,8 @@ void dynamicServerQuery(struct dynSession *dynSession, int numArgs, char **args,
  */
 {
   struct genoFindIndex *gfIdx = dynSession->gfIdx;
-  if (numArgs != 4) errAbort("expected 4 words in %s command, got %d", args[0], numArgs);
+  if (numArgs != 4)
+    throw std::runtime_error(formatAbortMessage("expected 4 words in %s command, got %d", args[0], numArgs));
   int qSize = atoi(args[3]);
 
   boolean queryIsProt = sameString(args[0], "protQuery");
@@ -634,20 +659,21 @@ void dynamicServerInfo(struct dynSession *dynSession, int numArgs, char **args)
  */
 {
   struct genoFindIndex *gfIdx = dynSession->gfIdx;
-  if (numArgs != 3) errAbort("expected 3 words in %s command, got %d", args[0], numArgs);
+  if (numArgs != 3)
+    throw std::runtime_error(formatAbortMessage("expected 3 words in %s command, got %d", args[0], numArgs));
 
   char buf[256];
   struct genoFind *gf = gfIdx->isTrans ? gfIdx->transGf[0][0] : gfIdx->untransGf;
-  sprintf(buf, "version %s", gfVersion);
+  snprintf(buf, sizeof(buf), "version %s", gfVersion);
   netSendString(STDOUT_FILENO, buf);
   netSendString(STDOUT_FILENO, "serverType dynamic");
-  sprintf(buf, "type %s", (gfIdx->isTrans ? "translated" : "nucleotide"));
+  snprintf(buf, sizeof(buf), "type %s", (gfIdx->isTrans ? "translated" : "nucleotide"));
   netSendString(STDOUT_FILENO, buf);
-  sprintf(buf, "tileSize %d", gf->tileSize);
+  snprintf(buf, sizeof(buf), "tileSize %d", gf->tileSize);
   netSendString(STDOUT_FILENO, buf);
-  sprintf(buf, "stepSize %d", gf->stepSize);
+  snprintf(buf, sizeof(buf), "stepSize %d", gf->stepSize);
   netSendString(STDOUT_FILENO, buf);
-  sprintf(buf, "minMatch %d", gf->minMatch);
+  snprintf(buf, sizeof(buf), "minMatch %d", gf->minMatch);
   netSendString(STDOUT_FILENO, buf);
   netSendString(STDOUT_FILENO, "end");
 }
@@ -659,9 +685,10 @@ void dynamicServerStatus(int numArgs, char **args)
  *  signature+status
  */
 {
-  if (numArgs != 1) errAbort("expected 1 word in %s command, got %d", args[0], numArgs);
+  if (numArgs != 1)
+    throw std::runtime_error(formatAbortMessage("expected 1 word in %s command, got %d", args[0], numArgs));
   char buf[256];
-  sprintf(buf, "version %s", gfVersion);
+  snprintf(buf, sizeof(buf), "version %s", gfVersion);
   netSendString(STDOUT_FILENO, buf);
   netSendString(STDOUT_FILENO, "serverType dynamic");
   netSendString(STDOUT_FILENO, "end");
@@ -674,11 +701,13 @@ void dynamicServerPcr(struct dynSession *dynSession, int numArgs, char **args, b
  */
 {
   struct genoFindIndex *gfIdx = dynSession->gfIdx;
-  if (numArgs != 6) errAbort("expected 6 words in %s command, got %d", args[0], numArgs);
+  if (numArgs != 6)
+    throw std::runtime_error(formatAbortMessage("expected 6 words in %s command, got %d", args[0], numArgs));
   char *fPrimer = args[3];
   char *rPrimer = args[4];
   int maxDistance = atoi(args[5]);
-  if (badPcrPrimerSeq(fPrimer) || badPcrPrimerSeq(rPrimer)) errAbort("Can only handle ACGT in primer sequences.");
+  if (badPcrPrimerSeq(fPrimer) || badPcrPrimerSeq(rPrimer))
+    throw std::runtime_error(formatAbortMessage("Can only handle ACGT in primer sequences."));
   pcrQuery(gfIdx->untransGf, fPrimer, rPrimer, maxDistance, STDOUT_FILENO, sendOk);
 }
 
@@ -701,7 +730,7 @@ bool dynamicServerCommand(char *rootDir, struct dynSession *dynSession, ServerOp
   } else if (sameString("pcr", args[0])) {
     dynamicServerPcr(dynSession, numArgs, args, sendOk);
   } else
-    errAbort("invalid command '%s'", args[0]);
+    throw std::runtime_error(formatAbortMessage("invalid command '%s'", args[0]));
 
   logInfo("dynserver: %s completed in %4.3f seconds", args[0], 0.001 * (clock1000() - startTime));
   freeMem(args[0]);
@@ -744,7 +773,8 @@ void gfServer(ServerOption &options)
   auto genome = options.genome.empty() ? NULL : options.genome.data();
   auto genomeDataDir = options.genomeDataDir.empty() ? NULL : options.genomeDataDir.data();
 
-  if ((genomeDataDir != NULL) && (genome == NULL)) errAbort("-genomeDataDir requires the -genome option");
+  if ((genomeDataDir != NULL) && (genome == NULL))
+    throw std::runtime_error(formatAbortMessage("-genomeDataDir requires the -genome option"));
   if ((genome != NULL) && (genomeDataDir == NULL)) genomeDataDir = ".";
 
   // auto timeout = options.timeout;
@@ -787,7 +817,7 @@ void gfServer(ServerOption &options)
   } else if (sameWord(command, "status")) {
     // if (argc != 4) usage();
     // if (statusServer(argv[2], argv[3])) {
-    // exit(-1);
+    // take down the server
     // }
     printf("status\n");
   } else if (sameWord(command, "files")) {
@@ -835,7 +865,7 @@ void genoFindDirect(std::string &probeName, int fileCount, std::vector<std::stri
   int hitCount = 0, clumpCount = 0, oneHit;
   ZeroVar(&seq);
 
-  if (doTrans) errAbort("Don't support translated direct stuff currently, sorry");
+  if (doTrans) throw std::runtime_error(formatAbortMessage("Don't support translated direct stuff currently, sorry"));
 
   gf = gfIndexNibsAndTwoBits(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch, FALSE, allowOneMismatch,
                              stepSize, noSimpRepMask);
@@ -1036,7 +1066,8 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
 
   /* Set up socket.  Get ready to listen to it. */
   socketHandle = netAcceptingSocket(port, 100);
-  if (socketHandle < 0) errAbort("Fatal Error: Unable to open listening socket on port %d.", port);
+  if (socketHandle < 0)
+    throw std::runtime_error(formatAbortMessage("Fatal Error: Unable to open listening socket on port %d.", port));
 
   logInfo("Server ready for queries!");
   printf("Server ready for queries!\n");
@@ -1052,9 +1083,8 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
       ++stats.warnCount;
       ++connectFailCount;
       if (connectFailCount >= 100)
-        errAbort(
-            "100 continuous connection failures, no point in filling up "
-            "the log in an infinite loop.");
+        throw std::runtime_error(formatAbortMessage(
+            "100 continuous connection failures, no point in filling up the log in an infinite loop."));
       continue;
     } else {
       connectFailCount = 0;
@@ -1105,39 +1135,39 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
       dbg(connectionHandle, hostName, portName, fileCount, seqFiles, perSeqMaxHash, gfIdx, options);
       // sleep 10 s
       sleep(10);
-      sprintf(buf, "version %s", gfVersion);
+      snprintf(buf, sizeof(buf), "version %s", gfVersion);
       errSendString(connectionHandle, buf, sendOk);
       errSendString(connectionHandle, "serverType static", sendOk);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "type %s", (doTrans ? "translated" : "nucleotide"));
+      snprintf(buf, sizeof(buf), "type %s", (doTrans ? "translated" : "nucleotide"));
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "host %s", hostName.data());
+      snprintf(buf, sizeof(buf), "host %s", hostName.data());
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "port %s", portName.data());
+      snprintf(buf, sizeof(buf), "port %s", portName.data());
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "tileSize %d", tileSize);
+      snprintf(buf, sizeof(buf), "tileSize %d", tileSize);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "stepSize %d", stepSize);
+      snprintf(buf, sizeof(buf), "stepSize %d", stepSize);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "minMatch %d", minMatch);
+      snprintf(buf, sizeof(buf), "minMatch %d", minMatch);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "pcr requests %ld", stats.pcrCount);
+      snprintf(buf, sizeof(buf), "pcr requests %ld", stats.pcrCount);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "blat requests %ld", stats.blatCount);
+      snprintf(buf, sizeof(buf), "blat requests %ld", stats.blatCount);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "bases %ld", stats.baseCount);
+      snprintf(buf, sizeof(buf), "bases %ld", stats.baseCount);
       errSendString(connectionHandle, buf, sendOk);
       if (doTrans) {
-        sprintf(buf, "aa %ld", stats.aaCount);
+        snprintf(buf, sizeof(buf), "aa %ld", stats.aaCount);
         errSendString(connectionHandle, buf, sendOk);
       }
-      sprintf(buf, "misses %d", stats.missCount);
+      snprintf(buf, sizeof(buf), "misses %d", stats.missCount);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "noSig %d", stats.noSigCount);
+      snprintf(buf, sizeof(buf), "noSig %d", stats.noSigCount);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "trimmed %d", stats.trimCount);
+      snprintf(buf, sizeof(buf), "trimmed %d", stats.trimCount);
       errSendString(connectionHandle, buf, sendOk);
-      sprintf(buf, "warnings %d", stats.warnCount);
+      snprintf(buf, sizeof(buf), "warnings %d", stats.warnCount);
       errSendString(connectionHandle, buf, sendOk);
       errSendString(connectionHandle, "end", sendOk);
     } else if (sameString("query", command) || sameString("protQuery", command) || sameString("transQuery", command)) {
@@ -1221,10 +1251,10 @@ void startServer(std::string &hostName, std::string &portName, int fileCount, st
       }
     } else if (sameString("files", command)) {
       int i;
-      sprintf(buf, "%d", fileCount);
+      snprintf(buf, sizeof(buf), "%d", fileCount);
       errSendString(connectionHandle, buf, sendOk);
       for (i = 0; i < fileCount; ++i) {
-        sprintf(buf, "%s", seqFiles[i].data());
+        snprintf(buf, sizeof(buf), "%s", seqFiles[i].data());
         errSendString(connectionHandle, buf, sendOk);
       }
     } else {
@@ -1244,7 +1274,7 @@ void stopServer(std::string &hostName, std::string &portName)
   int sd = 0;
 
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%squit", gfSignature());
+  snprintf(buf, sizeof(buf), "%squit", gfSignature());
   mustWriteFd(sd, buf, strlen(buf));
   close(sd);
   printf("sent stop message to server\n");
@@ -1263,12 +1293,18 @@ std::string pyqueryServer(std::string &type, std::string &hostName, std::string 
 
   /* Put together query command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%s%s %d", gfSignature(), type.data(), seq->size);
+  snprintf(buf, sizeof(buf), "%s%s %d", gfSignature(), type.data(), seq->size);
   mustWriteFd(sd, buf, strlen(buf));
 
-  if (read(sd, buf, 1) < 0) errAbort("queryServer: read failed: %s", strerror(errno));
+  if (read(sd, buf, 1) < 0) {
+    close(sd);
+    throw std::runtime_error(formatAbortMessage("queryServer: read failed: %s", strerror(errno)));
+  }
   // if (read(sd, buf, 1) < 0) return std::nullopt;
-  if (buf[0] != 'Y') errAbort("Expecting 'Y' from server, got %c", buf[0]);
+  if (buf[0] != 'Y') {
+    close(sd);
+    throw std::runtime_error(formatAbortMessage("Expecting 'Y' from server, got %c", buf[0]));
+  }
   // if (buf[0] != 'Y') return std::nullopt;
   mustWriteFd(sd, seq->dna, seq->size);
 
@@ -1285,7 +1321,8 @@ std::string pyqueryServer(std::string &type, std::string &hostName, std::string 
               << "\n";
       break;
     } else if (startsWith("Error:", buf)) {
-      errAbort("%s", buf);
+      close(sd);
+      throw std::runtime_error(formatAbortMessage("%s", buf));
       break;
     } else {
       // printf("%s\n", buf);
@@ -1316,11 +1353,17 @@ void queryServer(std::string &type, std::string &hostName, std::string &portName
 
   /* Put together query command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%s%s %d", gfSignature(), type.data(), seq->size);
+  snprintf(buf, sizeof(buf), "%s%s %d", gfSignature(), type.data(), seq->size);
   mustWriteFd(sd, buf, strlen(buf));
 
-  if (read(sd, buf, 1) < 0) errAbort("queryServer: read failed: %s", strerror(errno));
-  if (buf[0] != 'Y') errAbort("Expecting 'Y' from server, got %c", buf[0]);
+  if (read(sd, buf, 1) < 0) {
+    close(sd);
+    throw std::runtime_error(formatAbortMessage("queryServer: read failed: %s", strerror(errno)));
+  }
+  if (buf[0] != 'Y') {
+    close(sd);
+    throw std::runtime_error(formatAbortMessage("Expecting 'Y' from server, got %c", buf[0]));
+  }
   mustWriteFd(sd, seq->dna, seq->size);
 
   if (complex) {
@@ -1334,7 +1377,8 @@ void queryServer(std::string &type, std::string &hostName, std::string &portName
       printf("%d matches\n", matchCount);
       break;
     } else if (startsWith("Error:", buf)) {
-      errAbort("%s", buf);
+      close(sd);
+      throw std::runtime_error(formatAbortMessage("%s", buf));
       break;
     } else {
       printf("%s\n", buf);
@@ -1358,7 +1402,7 @@ void pcrServer(std::string &hostName, std::string &portName, std::string &fPrime
 
   /* Put together query command and send. */
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%spcr %s %s %d", gfSignature(), fPrimer.data(), rPrimer.data(), maxSize);
+  snprintf(buf, sizeof(buf), "%spcr %s %s %d", gfSignature(), fPrimer.data(), rPrimer.data(), maxSize);
   mustWriteFd(sd, buf, strlen(buf));
 
   /* Fetch and display results. */
@@ -1367,7 +1411,8 @@ void pcrServer(std::string &hostName, std::string &portName, std::string &fPrime
     if (sameString(buf, "end"))
       break;
     else if (startsWith("Error:", buf)) {
-      errAbort("%s", buf);
+      close(sd);
+      throw std::runtime_error(formatAbortMessage("%s", buf));
       break;
     } else {
       printf("%s\n", buf);
@@ -1391,9 +1436,10 @@ std::string pystatusServer(std::string &hostName, std::string &portName, ServerO
   /* Put together command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
   if (genome == NULL)
-    sprintf(buf, "%sstatus", gfSignature());
+    snprintf(buf, sizeof(buf), "%sstatus", gfSignature());
   else
-    sprintf(buf, "%s%s %s %s", gfSignature(), (doTrans ? "transInfo" : "untransInfo"), genome, genomeDataDir);
+    snprintf(buf, sizeof(buf), "%s%s %s %s", gfSignature(), (doTrans ? "transInfo" : "untransInfo"), genome,
+             genomeDataDir);
 
   mustWriteFd(sd, buf, strlen(buf));
 
@@ -1426,9 +1472,10 @@ int statusServer(std::string &hostName, std::string &portName, ServerOption &opt
   /* Put together command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
   if (genome == NULL)
-    sprintf(buf, "%sstatus", gfSignature());
+    snprintf(buf, sizeof(buf), "%sstatus", gfSignature());
   else
-    sprintf(buf, "%s%s %s %s", gfSignature(), (doTrans ? "transInfo" : "untransInfo"), genome, genomeDataDir);
+    snprintf(buf, sizeof(buf), "%s%s %s %s", gfSignature(), (doTrans ? "transInfo" : "untransInfo"), genome,
+             genomeDataDir);
 
   printf("%s\n", buf);
   mustWriteFd(sd, buf, strlen(buf));
@@ -1459,7 +1506,7 @@ std::string pygetFileList(std::string &hostName, std::string &portName)
 
   /* Put together command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%sfiles", gfSignature());
+  snprintf(buf, sizeof(buf), "%sfiles", gfSignature());
   mustWriteFd(sd, buf, strlen(buf));
 
   /* Get count of files, and then each file name. */
@@ -1484,7 +1531,7 @@ void getFileList(std::string &hostName, std::string &portName)
 
   /* Put together command. */
   sd = netMustConnectTo(hostName.data(), portName.data());
-  sprintf(buf, "%sfiles", gfSignature());
+  snprintf(buf, sizeof(buf), "%sfiles", gfSignature());
   mustWriteFd(sd, buf, strlen(buf));
 
   /* Get count of files, and then each file name. */
@@ -1517,7 +1564,8 @@ void buildIndex(std::string &gfxFile, int fileCount, std::vector<std::string> se
     cseqFiles.push_back(string.data());
   }
 
-  if (fileCount > 1) errAbort("gfServer index only works with a single genome file");
+  if (fileCount > 1)
+    throw std::runtime_error(formatAbortMessage("gfServer index only works with a single genome file"));
   checkIndexFileName(gfxFile.data(), cseqFiles.front(), options);
 
   struct genoFindIndex *gfIdx = genoFindIndexBuild(fileCount, cseqFiles.data(), minMatch, maxGap, tileSize, repMatch,

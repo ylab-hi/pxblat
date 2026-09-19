@@ -4,6 +4,8 @@ import typer
 
 from pxblat import TwoBitToFaOption, two_bit_to_fa
 
+from .log import logger
+
 # twoBitToFa - Convert all or part of .2bit file to fasta
 # usage:
 #    twoBitToFa input.2bit output.fa
@@ -100,9 +102,13 @@ def twoBitToFa(
         msg = f"{udcDir} does not exist"
         raise typer.BadParameter(msg)
 
-    option = TwoBitToFaOption()
-    option.withSeq(seq).withStart(start).withEnd(end).withSeqList(seqList).withNoMask(
-        noMask,
-    ).withBpt(bpt).withBed(bed).withBedPos(bedPos).withUdcDir(udcDir).build()
+    try:
+        option = TwoBitToFaOption()
+        option.withSeq(seq).withStart(start).withEnd(end).withSeqList(seqList).withNoMask(
+            noMask,
+        ).withBpt(bpt).withBed(bed).withBedPos(bedPos).withUdcDir(udcDir).build()
 
-    two_bit_to_fa(input2bit, outputfa, option=option)
+        two_bit_to_fa(input2bit, outputfa, option=option)
+    except RuntimeError as e:
+        logger.error(f"twoBitToFa failed: {e}")
+        raise typer.Exit(1) from e

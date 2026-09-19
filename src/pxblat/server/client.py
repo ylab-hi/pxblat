@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import contextlib
+import copy
 import tempfile
+import warnings
 from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING, Union
@@ -19,26 +21,8 @@ INSEQS = Union[list[INSEQ], list[str], list[Path]]
 
 
 def copy_client_option(option: ClientOption) -> ClientOption:
-    """Copies the ClientOption object."""
-    new_option = ClientOption()
-    new_option.hostName = option.hostName
-    new_option.portName = option.portName
-    new_option.tType = option.tType
-    new_option.qType = option.qType
-    new_option.dots = option.dots
-    new_option.nohead = option.nohead
-    new_option.minScore = option.minScore
-    new_option.minIdentity = option.minIdentity
-    new_option.outputFormat = option.outputFormat
-    new_option.maxIntron = option.maxIntron
-    new_option.genome = option.genome
-    new_option.genomeDataDir = option.genomeDataDir
-    new_option.isDynamic = option.isDynamic
-    new_option.SeqDir = option.SeqDir
-    new_option.inName = option.inName
-    new_option.outName = option.outName
-    new_option.inSeq = option.inSeq
-    return new_option
+    """Copies the ClientOption object via its pybind11 pickle protocol."""
+    return copy.deepcopy(option)
 
 
 def create_client_option():
@@ -88,6 +72,25 @@ def _resolve_host_port(
         raise ValueError(msg)
 
 
+def _decode_response(data: bytes) -> str:
+    """Decodes a raw server response, tolerating non-UTF-8 bytes.
+
+    Args:
+        data: Raw bytes returned by the server.
+
+    Returns:
+        str: The decoded response with the trailing status footer removed.
+    """
+    try:
+        return data.decode().rsplit(",\n", 1)[0]
+    except UnicodeDecodeError:
+        warnings.warn(
+            "Server response is not valid UTF-8; decoded as latin-1, which may corrupt non-ASCII data",
+            stacklevel=2,
+        )
+        return data.decode("latin-1").rsplit(",\n", 1)[0]
+
+
 def query_server_by_file(
     option: ClientOption,
     host: str | None = None,
@@ -112,10 +115,7 @@ def query_server_by_file(
 
     ret = pygfClient(option)
 
-    try:
-        ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
-    except UnicodeDecodeError:
-        ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
+    ret_decode = _decode_response(ret)
 
     if parse and ret_decode:
         try:
@@ -143,8 +143,19 @@ def query_server(
         option: ClientOption
         host: Optional[str]
         port: Optional[int]
-        seqname: Optional[str]
-        parse: bool
+        seqname: Optional label for the query, used only when `option.inSeq` (a raw
+            sequence string) is set. In that case a temporary FASTA file is written for
+            the query; if `seqname` is None it is set to that temporary file's path, but
+            this reassigned value is not read again afterward. The FASTA record header
+            and the `seqid` used to associate the parsed result with the query are
+            always derived from `option.inSeq` itself, as
+            `f"{option.inSeq[:5]}_{len(option.inSeq)}"` (the sequence's first 5
+            characters plus its length), regardless of what `seqname` is. When
+            `option.inName` (a file) is used instead of `option.inSeq`, `seqname` has no
+            effect at all.
+        parse: If True (default), parse the decoded response into a `Bio.SearchIO`
+            result via `pxblat.parser.read`, returning None when the server reports no
+            query results. If False, return the decoded response string unparsed.
 
     Returns:
         str or bytes: The result of the query.
@@ -173,10 +184,7 @@ def query_server(
 
         ret = pygfClient(option)
 
-        try:
-            ret_decode = ret.decode().rsplit(",\n", 1)[0]  # type: ignore
-        except UnicodeDecodeError:
-            ret_decode = ret.decode("latin-1").rsplit(",\n", 1)[0]  # type: ignore
+        ret_decode = _decode_response(ret)
 
         if not parse:
             return ret_decode
@@ -265,6 +273,8 @@ class ClientThread(Thread):
 
     def run(self):
         """Runs the query in a separate thread."""
+        _resolve_host_port(self.option, self.host, self.port)
+
         if self._wait_ready:
             wait_server_ready(
                 self.host,

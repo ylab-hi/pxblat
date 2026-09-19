@@ -18,6 +18,14 @@ repos:
 
       - id: ruff-format
 
+  # Project-authored C++ bindings only; the vendored kent sources and the
+  # binder-generated files keep their upstream formatting.
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v21.1.5
+    hooks:
+      - id: clang-format
+        files: ^src/pxblat/extc/bindings/[^/]+\.(cpp|hpp|h)$
+
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8
     hooks:
