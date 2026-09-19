@@ -12,9 +12,9 @@ Here is a list of important resources for contributors:
 - [Code of Conduct]
 
 [mit license]: https://opensource.org/licenses/MIT
-[source code]: https://github.com/cauliyang/pxblat
+[source code]: https://github.com/ylab-hi/pxblat
 [documentation]: https://pxblat.readthedocs.io/
-[issue tracker]: https://github.com/cauliyang/pxblat/issues
+[issue tracker]: https://github.com/ylab-hi/pxblat/issues
 
 ## How to report a bug
 
@@ -37,7 +37,7 @@ Request features on the [Issue Tracker].
 
 ## How to set up your development environment
 
-You need Python 3.7+ and the following tools:
+You need Python 3.9 to 3.13 and the following tools:
 
 - [Poetry]
 - [Nox]
@@ -87,6 +87,21 @@ and are written using the [pytest] testing framework.
 
 [pytest]: https://pytest.readthedocs.io/
 
+## How to build the documentation
+
+The Sphinx site lives in `docs/`. Install the `docs` dependency group and build it directly with Poetry:
+
+```console
+$ poetry install --with docs
+$ poetry run sphinx-build docs docs/_build
+```
+
+You can also build it through the `docs-build` Nox session, which manages its own environment:
+
+```console
+$ nox --session=docs-build
+```
+
 ## How to submit changes
 
 Open a [pull request] to submit changes to this project.
@@ -94,7 +109,7 @@ Open a [pull request] to submit changes to this project.
 Your pull request needs to meet the following guidelines for acceptance:
 
 - The Nox test suite must pass without errors and warnings.
-- Include unit tests. This project maintains 100% code coverage.
+- Include unit tests. This project enforces a minimum code coverage threshold in CI (see `fail_under` in `pyproject.toml`).
 - If your changes add functionality, update the documentation accordingly.
 
 Feel free to submit early, though—we can always iterate on this.
@@ -108,7 +123,7 @@ $ nox --session=pre-commit -- install
 It is recommended to open an issue before starting work on anything.
 This will allow a chance to talk it over with the owners and validate your approach.
 
-[pull request]: https://github.com/cauliyang/pxblat/pulls
+[pull request]: https://github.com/ylab-hi/pxblat/pulls
 
 <!-- github-only -->
 

@@ -45,6 +45,14 @@ python_apigen_default_groups = [
 ]
 
 
+# Required for the apigen extension (sphinx_immaterial.apidoc.python.apigen) to see
+# any module members: Sphinx's default "dynamic" autodoc implementation (the
+# non-legacy code path that recent Sphinx versions use by default) never populates
+# the legacy Documenter registry that apigen's member discovery relies on, so
+# python-apigen-group renders empty groups unless this is enabled.
+autodoc_use_legacy_class_based = True
+
+
 rst_prolog = """
 .. role python(code)
    :language: python
@@ -120,8 +128,8 @@ html_theme_options = {
         "repo": "fontawesome/brands/github",
         "edit": "material/file-edit-outline",
     },
-    "site_url": "https://github.com/cauliyang/pxblat",
-    "repo_url": "https://github.com/cauliyang/pxblat",
+    "site_url": "https://github.com/ylab-hi/pxblat",
+    "repo_url": "https://github.com/ylab-hi/pxblat",
     "repo_name": "PxBLAT",
     "edit_uri": "blob/main/docs",
     "globaltoc_collapse": True,
@@ -183,7 +191,7 @@ html_theme_options = {
     "social": [
         {
             "icon": "fontawesome/brands/github",
-            "link": "https://github.com/cauliyang/pxblat",
+            "link": "https://github.com/ylab-hi/pxblat",
             "name": "Source on github.com",
         },
         {

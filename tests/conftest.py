@@ -103,4 +103,5 @@ def start_server(port, two_bit):
     server.start()
     print(f"{server}")
     server.wait_ready(restart=False)
-    return server
+    yield server
+    server.stop()

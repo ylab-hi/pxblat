@@ -1,12 +1,9 @@
 from __future__ import annotations
 import os
-import shlex
 import sys
 import typing
 import subprocess
-from contextlib import contextmanager
 from ctypes.util import find_library
-from functools import wraps
 from pathlib import Path
 
 import setuptools
@@ -56,44 +53,6 @@ def _get_pxblat_libname():
     return without_so
 
 
-def remove_env(key: str):
-    """Remove environment variable."""
-    env_cflags = os.environ.get("CFLAGS", "")
-    env_cppflags = os.environ.get("CPPFLAGS", "")
-    flags = shlex.split(env_cflags) + shlex.split(env_cppflags)
-
-    for flag in flags:
-        if flag.startswith(key):
-            raise RuntimeError(f"Please remove {key} from CFLAGS and CPPFLAGS.")
-
-
-@contextmanager
-def change_dir(path: str):
-    """Change directory."""
-    save_dir = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(save_dir)
-
-
-def change_env(key: str, value: str):
-    """Change environment variable."""
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            old_env = os.environ.get(key, None)
-            os.environ[key] = old_env + " " + value if old_env else value
-            func(*args, **kwargs)
-            os.environ[key] = old_env if old_env else " "
-
-        return wrapper
-
-    return decorator
-
-
 def get_files_by_suffix(
     path: typing.Union[Path, str], suffix: typing.List[str]
 ) -> typing.Iterator[str]:
@@ -129,75 +88,70 @@ def get_thread_count():
     return 1
 
 
-def find_lib_in_conda(lib_name: str):
-    conda_prefix = os.environ.get("CONDA_PREFIX", None)
-    if conda_prefix is not None:
-        conda_lib_dir = Path(conda_prefix) / "lib"
-
-        if (conda_lib_dir / f"lib{lib_name}.a").exists():
-            return conda_lib_dir
-
-        if (conda_lib_dir / f"lib{lib_name}.so").exists():
-            return conda_lib_dir
-
-        if (conda_lib_dir / f"lib{lib_name}.dylib").exists():
-            return conda_lib_dir
-
+def _prefix_dirs(prefix: Path) -> tuple[Path, Path] | None:
+    """Return (lib_dir, include_dir) under an install prefix if both exist."""
+    lib_dir, include_dir = prefix / "lib", prefix / "include"
+    if lib_dir.is_dir() and include_dir.is_dir():
+        return lib_dir, include_dir
     return None
 
 
-def find_available_library(lib_name: str, *, ignores=[]):
+def find_library_dirs(lib_name: str) -> tuple[Path, Path] | None:
+    """Locate non-default -L/-I directories for ``lib_name``.
+
+    Returns None when the library lives in the toolchain's default search
+    path (the common case on Linux, where ``ctypes.util.find_library`` yields
+    a bare soname such as ``libssl.so.3`` with no directory), so nothing needs
+    to be added. Raises when the library cannot be found at all.
+    """
+    conda_prefix = os.environ.get("CONDA_PREFIX")
+    if conda_prefix:
+        found = _prefix_dirs(Path(conda_prefix))
+        if found and any((found[0] / f"lib{lib_name}{ext}").exists() for ext in (".so", ".dylib", ".a")):
+            print(f"{lib_name}: using CONDA_PREFIX {conda_prefix}")
+            return found
+
     lib_path = find_library(lib_name)
-
-    if lib_path is None:
-        lib_path = find_lib_in_conda(lib_name)
-
     print(f"{lib_name} lib_path: {lib_path}")
+    if lib_path is None:
+        raise RuntimeError(
+            f"Cannot find the {lib_name} library. Install the OpenSSL development package "
+            "(libssl-dev / openssl-devel / brew install openssl) and retry."
+        )
 
-    if not lib_path:
-        if lib_name not in ignores:
-            raise RuntimeError(f"Cannot find {lib_name} library.")
-        return Path.cwd(), Path.cwd()
-
-    header_path = Path(lib_path).parent.parent / "include"
-
-    return Path(lib_path).parent, header_path
+    path = Path(lib_path)
+    if not path.is_absolute():
+        return None
+    return _prefix_dirs(path.parent.parent)
 
 
-def find_openssl_libs_header():
+def find_openssl_libs_header() -> tuple[list[str], list[str]]:
+    """Return extra (-L, -I) dirs for Homebrew's OpenSSL on macOS, if installed."""
     from shutil import which
-    import platform
 
-    current_platform = platform.system().lower()
+    if sys.platform != "darwin" or not which("brew"):
+        return [], []
 
-    lib_paths = []
-    head_paths = []
+    proc = subprocess.run(["brew", "--prefix", "openssl"], capture_output=True, text=True)
+    if proc.returncode != 0:
+        print("brew --prefix openssl failed; relying on default search paths")
+        return [], []
 
-    if current_platform == "darwin" and which("brew"):
-        openssl_dir = subprocess.getoutput('brew --prefix openssl')
+    found = _prefix_dirs(Path(proc.stdout.strip()))
+    if found is None:
+        print("Homebrew openssl prefix has no lib/ and include/; relying on default search paths")
+        return [], []
 
-        lib_paths.append(f"{openssl_dir}/lib")
-        head_paths.append(f"{openssl_dir}/include")
-
-        if not Path(lib_paths[0]).exists():
-            print(f"Cannot find openssl lib in {lib_paths[0]}")
-        else:
-            print(f"Find openssl lib_paths: {lib_paths}")
-
-        if not Path(head_paths[0]).exists():
-            print(f"Cannot find openssl include in {head_paths[0]}")
-        else:
-            print(f"Find openssl include: {head_paths}")
-
-    return lib_paths, head_paths
+    print(f"Using Homebrew openssl at {found[0].parent}")
+    return [found[0].as_posix()], [found[1].as_posix()]
 
 
 def _extra_compile_args_for_libpxblat():
+    # kent's MACHTYPE_* macros only special-case ppc/alpha, which we do not target.
     return [
         "-D_FILE_OFFSET_BITS=64",
         "-D_LARGEFILE_SOURCE",
         "-D_GNU_SOURCE",
-        "-DMACHTYPE_$(MACHTYPE)",
         "-DPXBLATLIB",
     ]
 
@@ -240,10 +194,14 @@ external_libraries = [
     "m",
 ]
 
-for lib in external_libraries:
-    lib_library_dir, lib_include_dir = find_available_library(lib, ignores=["m"])
-    library_dirs.append(lib_library_dir.as_posix())
-    include_dirs.append(lib_include_dir.as_posix())
+for lib in ("ssl", "crypto"):
+    found = find_library_dirs(lib)
+    if found is not None:
+        lib_dir, include_dir = (p.as_posix() for p in found)
+        if lib_dir not in library_dirs:
+            library_dirs.append(lib_dir)
+        if include_dir not in include_dirs:
+            include_dirs.append(include_dir)
 
 if sys.platform == "win32":
     raise RuntimeError("Windows is not supported.")

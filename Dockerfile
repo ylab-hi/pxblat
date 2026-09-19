@@ -1,27 +1,22 @@
-FROM ubuntu:20.04 as base
-
-# Config
+# Config (global ARGs; each stage re-declares the ones it uses)
 ARG BRANCH="master"
+# Ubuntu 22.04 ships clang 15 natively, so no external LLVM apt repository is needed.
 ARG CLANG_VERSION=15
 
-# General dependencies
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
- && apt-get install -yq wget gnupg \
- && rm -rf /var/lib/apt/lists/*
-
-# Add llvm repo
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-${CLANG_VERSION} main" >> /etc/apt/sources.list
+FROM ubuntu:22.04 AS base
+ARG CLANG_VERSION
 
 # Run dependencies
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -yq "clang-${CLANG_VERSION}" \
  && rm -rf /var/lib/apt/lists/*
 
 
 # Build binder
-FROM base as build
+FROM base AS build
+ARG CLANG_VERSION
+ARG BRANCH
 
 # Build dependencies
 RUN apt-get update
@@ -49,5 +44,5 @@ RUN make install
 
 
 # Install image
-FROM base as install
+FROM base AS install
 COPY --from=build /usr/local/bin/binder /usr/local/bin/binder

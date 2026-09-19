@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from pxblat import two_bit_to_fa
 from pxblat import TwoBitToFaOption
 
@@ -29,10 +27,9 @@ def compare_two_fas(file1, file2):
 def test_bit2fa(
     reference,
     two_bit,
+    tmp_path,
 ):
-    output_file = Path("tests/data/test_bit2fa_tmp.fa")
-    if output_file.exists():
-        output_file.unlink()
+    output_file = tmp_path / "test_bit2fa_tmp.fa"
 
     option = TwoBitToFaOption().build()
 

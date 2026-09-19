@@ -8,6 +8,7 @@ from pathlib import Path
 import pxblat
 import pytest
 from pxblat import Client
+from pxblat.server import wait_server_ready
 from rich import print
 
 from Bio import SearchIO
@@ -69,7 +70,7 @@ def run_cblat(result_dir: Path, port: int, fa_data: Path):
         args=(f"{gfserver} start localhost {cport} {two_bit} -canStop -stepSize=5",),
     )
     p.start()
-    time.sleep(5)
+    wait_server_ready("localhost", cport)
 
     fa_files = [fa_data] if fa_data.suffix == ".fa" else fa_data.glob("*.fa")
 

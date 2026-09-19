@@ -171,16 +171,15 @@ def check_server_status(
     Returns:
         bool: True if the server is running and accepting connections, False otherwise.
 
-    Raises:
-        ConnectionRefusedError: If the server is not running or is not accepting connections.
-
     Example:
         >>> check_server_status("localhost", 8080, ServerOption)
         True
     """
     try:
         status_server(host, port, server_option)
-    except ConnectionRefusedError:
+    except (ConnectionRefusedError, ConnectionResetError):
+        # Refused: nothing is listening yet. Reset: a previous server on the
+        # same port is still tearing down. Both mean "not ready, retry".
         return False
     else:
         return True
@@ -403,20 +402,17 @@ def start_server_mt(
         ValueError: If the port is in use and neither 'use_others' nor 'try_new_port' is True.
         Exception: If there is any other error in starting the server.
     """
-    try:
-        if check_port_in_use(host, port):
-            if use_others:
-                pass
-            elif try_new_port:
-                port = find_free_port(host, start=port + 1)
-                pystartServer(host, str(port), 1, [two_bit_file], server_option, stat)
-            else:
-                msg = f"The port {port} is used"
-                raise ValueError(msg)
-        else:
+    if check_port_in_use(host, port):
+        if use_others:
+            pass
+        elif try_new_port:
+            port = find_free_port(host, start=port + 1)
             pystartServer(host, str(port), 1, [two_bit_file], server_option, stat)
-    except Exception as e:
-        raise e
+        else:
+            msg = f"The port {port} is used"
+            raise ValueError(msg)
+    else:
+        pystartServer(host, str(port), 1, [two_bit_file], server_option, stat)
 
 
 def start_server_mt_nb(

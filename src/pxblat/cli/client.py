@@ -5,6 +5,8 @@ import typer
 from pxblat.extc import pygfClient
 from pxblat.server import create_client_option
 
+from .log import logger
+
 # gfClient v. 37x1 - A client for the genomic finding program that produces a .psl file
 # usage:
 #    gfClient host port seqDir in.fa out.psl
@@ -98,7 +100,7 @@ def client(
         "--nohead",
         help="Suppresses 5-line psl header.",
     ),
-    minnScore: int = typer.Option(
+    minScore: int = typer.Option(
         default_option.minScore,
         "--minScore",
         help="Sets minimum score.  This is twice the matches minus the mismatches minus some sort of gap penalty.  Default is 30.",
@@ -126,28 +128,45 @@ def client(
     ),
 ):
     """A client for the genomic finding program that produces a .psl file."""
+    if not infasta.exists():
+        msg = f"{infasta} does not exist"
+        raise typer.BadParameter(msg)
+    if not infasta.is_file():
+        msg = f"{infasta} is not a file"
+        raise typer.BadParameter(msg)
+    if not seqdir.exists():
+        msg = f"{seqdir} does not exist"
+        raise typer.BadParameter(msg)
+    if not seqdir.is_dir():
+        msg = f"{seqdir} is not a directory"
+        raise typer.BadParameter(msg)
+
     if prot:
         tType = "prot"
         qType = "prot"
 
-    client_option = (
-        create_client_option()
-        .withHost(host)
-        .withPort(str(port))
-        .withSeqDir(seqdir.as_posix())
-        .withInName(infasta.as_posix())
-        .withOutName(outpsl.as_posix())
-        .withTType(tType)
-        .withQType(qType)
-        .withDots(dots)
-        .withNohead(nohead)
-        .withMinScore(minnScore)
-        .withMinIdentity(minIdentity)
-        .withOutputFormat(out)
-        .withMaxIntron(maxIntron)
-        .withGenome(genome)
-        .withGenomeDataDir(genomeDataDir)
-        .build()
-    )
+    try:
+        client_option = (
+            create_client_option()
+            .withHost(host)
+            .withPort(str(port))
+            .withSeqDir(seqdir.as_posix())
+            .withInName(infasta.as_posix())
+            .withOutName(outpsl.as_posix())
+            .withTType(tType)
+            .withQType(qType)
+            .withDots(dots)
+            .withNohead(nohead)
+            .withMinScore(minScore)
+            .withMinIdentity(minIdentity)
+            .withOutputFormat(out)
+            .withMaxIntron(maxIntron)
+            .withGenome(genome)
+            .withGenomeDataDir(genomeDataDir)
+            .build()
+        )
 
-    pygfClient(client_option)
+        pygfClient(client_option)
+    except RuntimeError as e:
+        logger.error(f"gfClient failed: {e}")
+        raise typer.Exit(1) from e

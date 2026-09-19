@@ -86,6 +86,7 @@ server_app = typer.Typer(
 
 tileSize: int = typer.Option(
     default_option.tileSize,
+    "--tileSize",
     "--tile-size",
     help="Size of n-mers to index.  Default is 11 for nucleotides, 4 for proteins (or translated nucleotides).",
 )
@@ -98,6 +99,7 @@ stepSize: int = typer.Option(
 
 minMatch: int = typer.Option(
     default_option.minMatch,
+    "--minMatch",
     "--min-match",
     help="Number of n-mer matches that trigger detailed alignment. Default is 2 for nucleotides, 3 for proteins.",
 )
@@ -171,7 +173,7 @@ indexFile: Path = typer.Option(
     "--indexFile",
     exists=True,
     dir_okay=False,
-    help="Index file create by `gfServer index'.",
+    help="Index file created by ``gfServer index``.",
 )
 timeout: int = typer.Option(
     default_option.timeout,

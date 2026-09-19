@@ -83,10 +83,10 @@ void bind_gfClient(std::function< pybind11::module &(std::string const &namespac
                                 p.portName = t[1].cast<std::string>();
                                 p.tType = t[2].cast<std::string>();
                                 p.qType = t[3].cast<std::string>();
-                                p.dots = t[4].cast<bool>();
+                                p.dots = t[4].cast<int>();
                                 p.nohead = t[5].cast<bool>();
                                 p.minScore = t[6].cast<long>();
-                                p.minIdentity = t[7].cast<long>();
+                                p.minIdentity = t[7].cast<double>();
                                 p.outputFormat = t[8].cast<std::string>();
                                 p.maxIntron = t[9].cast<long>();
                                 p.genome = t[10].cast<std::string>();
