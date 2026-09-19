@@ -9,7 +9,6 @@ from ctypes.util import find_library
 from functools import wraps
 from pathlib import Path
 
-import distutils
 import setuptools
 from pybind11.setup_helpers import auto_cpp_level
 from pybind11.setup_helpers import ParallelCompile
@@ -30,6 +29,17 @@ class PxblatExtensionBuilder(_build_ext):
         """
         Build extensions, injecting C++ std for Pybind11Extension if needed.
         """
+
+        if sys.platform == "darwin":
+            # LDSHARED on macOS carries "-bundle", which clashes with the
+            # "-dynamiclib" libpxblat needs. Strip it from the customized
+            # compiler; each extension re-adds the flag it wants via
+            # extra_link_args. Mutating sysconfig's LDSHARED instead is not
+            # reliable across setuptools versions (broke with 82.x).
+            for attr in ("linker_so", "linker_so_cxx"):
+                linker = getattr(self.compiler, attr, None)
+                if linker:
+                    setattr(self.compiler, attr, [a for a in linker if a != "-bundle"])
 
         for ext in self.extensions:
             if hasattr(ext, "_cxx_level") and ext._cxx_level == 0:
@@ -117,12 +127,6 @@ def get_thread_count():
     except (ImportError, NotImplementedError):
         pass
     return 1
-
-
-def _get_cxx_compiler():
-    cc = distutils.ccompiler.new_compiler()  # type: ignore
-    distutils.sysconfig.customize_compiler(cc)  # type: ignore
-    return cc.compiler_cxx[0]  # type: ignore
 
 
 def find_lib_in_conda(lib_name: str):
@@ -248,8 +252,6 @@ elif sys.platform == "darwin":
     extra_compile_args.append("-D_LIBCPP_DISABLE_AVAILABILITY")
     extra_compile_args.append("-undefined dynamic_lookup")
     hidden_visibility_args.append("-fvisibility=hidden")
-    config_vars = distutils.sysconfig.get_config_vars()  # type: ignore
-    config_vars["LDSHARED"] = config_vars["LDSHARED"].replace("-bundle", "")  # type: ignore
     python_module_link_args.append("-bundle")
     builder = setuptools.command.build_ext.build_ext(Distribution())  # type: ignore
     full_name = builder.get_ext_filename("libpxblat")

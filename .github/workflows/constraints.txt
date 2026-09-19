@@ -1,5 +1,6 @@
 nox==2026.4.10
-pip==26.1.1
+pip==26.1.1; python_version >= "3.10"
+pip==25.3; python_version < "3.10"
 nox-poetry==1.2.0
 poetry==2.4.1
 virtualenv==21.3.3
