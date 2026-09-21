@@ -298,7 +298,7 @@ jobs:
           packages-dir: dist/
 
       - name: Publish the release notes
-        uses: release-drafter/release-drafter@v7.4.0
+        uses: release-drafter/release-drafter@v7.7.0
         with:
           publish: ${{ needs.release.outputs.tag != '' }}
           tag: ${{ needs.release.outputs.tag }}
@@ -330,7 +330,7 @@ jobs:
           packages-dir: dist/
 
       - name: Publish the release notes
-        uses: release-drafter/release-drafter@v7.4.0
+        uses: release-drafter/release-drafter@v7.7.0
         with:
           publish: ${{ needs.release.outputs.tag != '' }}
           tag: ${{ needs.release.outputs.tag }}
