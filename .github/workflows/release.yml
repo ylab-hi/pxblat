@@ -290,7 +290,7 @@ jobs:
 
       - name: Publish package on PyPI
         if: needs.release.outputs.tag
-        uses: pypa/gh-action-pypi-publish@v1.14.0
+        uses: pypa/gh-action-pypi-publish@v1.14.2
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
@@ -321,7 +321,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish package on TestPyPI
-        uses: pypa/gh-action-pypi-publish@v1.14.0
+        uses: pypa/gh-action-pypi-publish@v1.14.2
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_TOKEN }}
