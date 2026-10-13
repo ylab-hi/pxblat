@@ -27,7 +27,7 @@ keywords = ["bioinformatics", "sequence aligner", "blat"]
 [tool.poetry.dependencies]
 python = ">=3.9,<3.14"
 loguru = "^0.7.0"
-pybind11 = "^2.10.4"
+pybind11 = ">=2.10.4,<4.0.0"
 rich = ">=13.3.5,<16.0.0"
 pysimdjson = ">=5.0.2,<8.0.0"
 biopython = "^1.81"
