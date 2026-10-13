@@ -3812,14 +3812,14 @@ files = [
 
 [[package]]
 name = "scienceplots"
-version = "2.2.1"
+version = "2.2.2"
 description = "Format Matplotlib for scientific plotting"
 optional = false
 python-versions = ">=3.8"
 groups = ["plot"]
 files = [
-    {file = "scienceplots-2.2.1-py3-none-any.whl", hash = "sha256:a1a9f670cbf5b59d92cdd3250be85b079ee4cf08bcaf2ace5ef57995be0b6c42"},
-    {file = "scienceplots-2.2.1.tar.gz", hash = "sha256:51ad98c420e499d3284d07b6447a4b3aedd8ec122aca39ba91c58205226c408a"},
+    {file = "scienceplots-2.2.2-py3-none-any.whl", hash = "sha256:f63d04e6ec11fe2036ec120feb6c2f1d84b7c38e96cc7edcde7208064653af98"},
+    {file = "scienceplots-2.2.2.tar.gz", hash = "sha256:d46ce7170b4160265c777a48f73a0db1fdff8460f59a0ded0e364acb139ab115"},
 ]
 
 [package.dependencies]
