@@ -57,7 +57,7 @@ sphinxcontrib-qthelp==2.0.0 ; python_version >= "3.9" and python_version < "3.14
 sphinxcontrib-serializinghtml==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
 starlette==1.7.0 ; python_version >= "3.9" and python_version < "3.11"
 starlette==0.50.0 ; python_version >= "3.11" and python_version < "3.14"
-tomli==2.4.1 ; python_version >= "3.9" and python_version < "3.11"
+tomli==2.5.0 ; python_version >= "3.9" and python_version < "3.11"
 typing-extensions==4.16.0 ; python_version >= "3.9" and python_version < "3.14"
 typing-inspection==0.4.2 ; python_version >= "3.11" and python_version < "3.14"
 uc-micro-py==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
