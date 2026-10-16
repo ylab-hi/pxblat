@@ -68,7 +68,7 @@ sphinx-immaterial = { extras = [
   "keys",
 ], version = ">=0.13,<0.14", python = ">=3.11" }
 sphinx-click = ">=4.4,<7.0"
-sphinx-togglebutton = "^0.3.2"
+sphinx-togglebutton = ">=0.3.2,<0.5.0"
 sphinxcontrib-bibtex = "^2.5.0"
 linkify-it-py = "^2.0.2"
 sphinx-autobuild = ">=2021.3.14,<2025.0.0"
