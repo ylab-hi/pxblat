@@ -4120,14 +4120,14 @@ keys = ["pymdown-extensions"]
 
 [[package]]
 name = "sphinx-togglebutton"
-version = "0.3.2"
+version = "0.4.5"
 description = "Toggle page content and collapse admonitions in Sphinx."
 optional = false
 python-versions = "*"
 groups = ["docs"]
 files = [
-    {file = "sphinx-togglebutton-0.3.2.tar.gz", hash = "sha256:ab0c8b366427b01e4c89802d5d078472c427fa6e9d12d521c34fa0442559dc7a"},
-    {file = "sphinx_togglebutton-0.3.2-py3-none-any.whl", hash = "sha256:9647ba7874b7d1e2d43413d8497153a85edc6ac95a3fea9a75ef9c1e08aaae2b"},
+    {file = "sphinx_togglebutton-0.4.5-py3-none-any.whl", hash = "sha256:74eac6d2426110c3e1e6f989a98e07d7823141a335df1ad8a9d637bdf6a7af62"},
+    {file = "sphinx_togglebutton-0.4.5.tar.gz", hash = "sha256:c870dfbd3bc6e119b50ff9a37a64f8991902269e856728931c7d89877e8d4b3d"},
 ]
 
 [package.dependencies]
@@ -4137,7 +4137,7 @@ sphinx = "*"
 wheel = "*"
 
 [package.extras]
-sphinx = ["matplotlib", "myst-nb", "numpy", "sphinx-book-theme", "sphinx-design", "sphinx-examples"]
+sphinx = ["matplotlib", "myst_nb", "numpy", "sphinx_book_theme", "sphinx_design", "sphinx_examples"]
 
 [[package]]
 name = "sphinxcontrib-applehelp"
@@ -5002,4 +5002,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.14"
-content-hash = "2a99b391dcf997eb4829f955fe1d11cf470ec4290c6956a56f30249053cbb949"
+content-hash = "fa873395a2e11239609d066296788d1ce537b69f3fb0550d6fad18ac3971f4dc"
