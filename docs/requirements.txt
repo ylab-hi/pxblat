@@ -52,7 +52,7 @@ sphinxcontrib-applehelp==2.0.0 ; python_version >= "3.9" and python_version < "3
 sphinxcontrib-bibtex==2.6.5 ; python_version >= "3.9" and python_version < "3.14"
 sphinxcontrib-devhelp==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
 sphinxcontrib-htmlhelp==2.1.0 ; python_version >= "3.9" and python_version < "3.14"
-sphinxcontrib-jsmath==1.0.1 ; python_version >= "3.9" and python_version < "3.14"
+sphinxcontrib-jsmath==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
 sphinxcontrib-qthelp==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
 sphinxcontrib-serializinghtml==2.0.0 ; python_version >= "3.9" and python_version < "3.14"
 starlette==1.7.0 ; python_version >= "3.9" and python_version < "3.11"
