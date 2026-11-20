@@ -4088,14 +4088,14 @@ test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "sphinx-immaterial"
-version = "0.13.11"
+version = "0.13.12"
 description = "Adaptation of mkdocs-material theme for the Sphinx documentation system"
 optional = false
 python-versions = ">=3.10"
 groups = ["docs"]
 markers = "python_version >= \"3.11\""
 files = [
-    {file = "sphinx_immaterial-0.13.11-py3-none-any.whl", hash = "sha256:b9ec122533f62d55230600e5598ba020c4074993435fb6a5ff6fca7422945b11"},
+    {file = "sphinx_immaterial-0.13.12-py3-none-any.whl", hash = "sha256:9f72067941222b06b67ccef8ac3eadc8b54d5339d7329f790de40d572c11cbcd"},
 ]
 
 [package.dependencies]
